@@ -7,4 +7,8 @@
 
 ### Google Docs
 [Use Cases](https://docs.google.com/document/d/1T1TVz6VtiN-bMIG_8LKMrpaaiQY-0MyiSKHePuskPA8/edit?usp=sharing)
+
 [Glossery](https://docs.google.com/document/d/1__utt5ajyazlRi9VV4Jzm0RX4UDfT29h3zcjjCTuNx8/edit?usp=sharing)
+
+### Diagrams
+[Component](https://drive.google.com/file/d/1hxTjsm72_FlfrS67zTpZpilyEc-4XEbB/view?usp=sharing)
