@@ -1,4 +1,8 @@
 package Domain;
 
-public class UserState {
+ interface UserState {
+
+     
+
+
 }
