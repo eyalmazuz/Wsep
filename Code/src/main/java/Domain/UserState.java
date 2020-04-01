@@ -1,8 +1,0 @@
-package Domain;
-
- interface UserState {
-
-     
-
-
-}
