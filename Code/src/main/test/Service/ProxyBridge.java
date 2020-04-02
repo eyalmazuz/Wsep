@@ -12,4 +12,8 @@ public class ProxyBridge implements Bridge {
             return false;
         }
     }
+
+    public void setRealBridge(RealBridge realBridge) {
+        rb = realBridge;
+    }
 }
