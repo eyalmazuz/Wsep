@@ -9,8 +9,8 @@ import junit.framework.TestSuite;
 public class AllTests {
 
     public static Test suite(){
-        TestSuite suite = new TestSuite("purchase integration");
-        suite.addTest(new TestSuite(ServiceTest.class));
+        TestSuite suite = new TestSuite("acceptance integration");
+        suite.addTest(GuestTests.suite());
         return suite;
     }
 }

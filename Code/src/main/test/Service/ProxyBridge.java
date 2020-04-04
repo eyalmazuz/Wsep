@@ -9,7 +9,16 @@ public class ProxyBridge implements Bridge {
             return rb.login(username, password);
         }
         else {
-            return false;
+            return username.equals("bob") && password.equals("1234");
+        }
+    }
+
+    public boolean register(String username, String password) {
+        if (rb != null) {
+            return rb.register(username, password);
+        }
+        else {
+            return !username.equals("bob");
         }
     }
 

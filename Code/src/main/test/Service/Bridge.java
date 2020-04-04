@@ -2,5 +2,7 @@ package Service;
 
 public interface Bridge {
 
-    public boolean login (String username , String password);
+    boolean login (String username , String password);
+
+    boolean register(String username, String password);
 }
