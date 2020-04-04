@@ -1,5 +1,13 @@
 package Service;
 
+import AcceptanceTest.Data.History;
+import AcceptanceTest.Data.Product;
+import AcceptanceTest.Data.ShoppingCart;
+import AcceptanceTest.Data.Store;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class RealBridge implements Bridge {
 
     public boolean login(String username, String password) {
@@ -10,11 +18,11 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public String getAllInfo() {
+    public ArrayList<Store> getAllInfo() {
         return null;
     }
 
-    public String searchProducts(String name, String category, String keyword, String filterOptions) {
+    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions) {
         return null;
     }
 
@@ -38,7 +46,7 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public String viewCart(){
+    public ShoppingCart viewCart(){
         return null;
     }
 
@@ -46,11 +54,11 @@ public class RealBridge implements Bridge {
 
     public boolean openStore() { return false;}
 
-    public String viewPurchaseHistory(){ return null; }
+    public List<History> viewPurchaseHistory(){ return null; }
 
-    public String searchUserHistory(String username){ return null;}
+    public List<History> searchUserHistory(String username){ return null;}
 
-    public String searchStoreHistory(String storeName){ return null;}
+    public List<History> searchStoreHistory(String storeName){ return null;}
 
     public boolean addProduct(int id, int amount) { return false ;}
 
@@ -68,5 +76,5 @@ public class RealBridge implements Bridge {
 
     public boolean updateItemDiscount(int itemID, int discount){ return false;}
 
-    public String viewShopHistory(){ return null; }
+    public List<History> viewShopHistory(){ return null; }
 }

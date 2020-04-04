@@ -1,5 +1,10 @@
 package Service;
 
+import AcceptanceTest.Data.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
@@ -9,7 +14,7 @@ public class ProxyBridge implements Bridge {
             return rb.login(username, password);
         }
         else {
-            return (username.equals("bob") && password.equals("1234")) || (username.equals("danny") && password.equals("password"));
+            return false;
         }
     }
 
@@ -18,33 +23,26 @@ public class ProxyBridge implements Bridge {
             return rb.register(username, password);
         }
         else {
-            return !username.equals("bob");
+            return false;
         }
     }
 
-    public String getAllInfo(){
+    public ArrayList<Store> getAllInfo(){
         if (rb != null) {
             return rb.getAllInfo();
         }
         else {
-            return "Store: Ebay, Products: Iphone 15 XS SUPER MAX ULTRA DELUX";
+            return null;
         }
 
     }
 
-    public String searchProducts(String name, String category, String keyword, String filterOptions) {
+    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions) {
         if (rb != null) {
-            return rb.getAllInfo();
+            return rb.searchProducts(name, category, keyword, filterOptions);
         }
         else {
-            if (name.equals("Iphone")){
-                return filterOptions == null ?
-                        "Name: Iphone 11, Price: 3000, Category: Phones\n Name: Iphone 10, Price: 2500, Category: Phones" :
-                        "Name: Iphone 11, Price: 3000, Category: Phones";
-            }
-            else{
-                return "Error Bad Search Word";
-            }
+           return null;
 
         }
     }
@@ -54,12 +52,7 @@ public class ProxyBridge implements Bridge {
             return rb.addToCart(productName, amount);
         }
         else {
-            if (amount == null || amount <= 0 ||  productName.equals("Iphone")){
-                return false;
-            }
-            else{
-                return true;
-            }
+            return false;
 
         }
     }
@@ -69,7 +62,7 @@ public class ProxyBridge implements Bridge {
             return rb.updateAmount(amount);
         }
         else {
-            return amount > 0;
+            return false;
         }
     }
 
@@ -96,16 +89,16 @@ public class ProxyBridge implements Bridge {
             return rb.buyCart(user, cart);
         }
         else {
-            return user.equals("bob") && cart.equals("Name: Iphone 11, amount: 30");
+            return false;
         }
     }
 
-    public String viewCart(){
+    public ShoppingCart viewCart(){
         if (rb != null) {
-            return rb.getAllInfo();
+            return rb.viewCart();
         }
         else {
-            return "Item: Iphone 15 XS SUPER MAX ULTRA DELUX, Amount: 50";
+            return null;
         }
 
     }
@@ -128,30 +121,30 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String viewPurchaseHistory(){
+    public List<History> viewPurchaseHistory(){
         if(rb != null){
             return rb.viewPurchaseHistory();
         }
         else{
-            return "Date: 2020.3.25 Bought 30 Iphone 11";
+            return null;
         }
     }
 
-    public String searchUserHistory(String username){
+    public List<History> searchUserHistory(String username){
         if(rb != null){
             return rb.searchUserHistory(username);
         }
         else{
-            return username.equals("bob") ? "Bob, Register Date: 3.3.3, Purchases: 30000" : "Invalid user";
+            return null;
         }
     }
 
-    public String searchStoreHistory(String storeName){
+    public List<History> searchStoreHistory(String storeName){
         if(rb != null){
             return rb.searchUserHistory(storeName);
         }
         else{
-            return storeName.equals("Amazon") ? "Amazon, Register Date: 3.3.3, items: 30000" : "Invalid Store";
+            return null;
         }
     }
 
@@ -160,7 +153,7 @@ public class ProxyBridge implements Bridge {
             return rb.addProduct(id, amount);
         }
         else{
-            return amount > 0 && (id == 123 || id == 124);
+            return false;
         }
     }
 
@@ -169,7 +162,7 @@ public class ProxyBridge implements Bridge {
             return rb.editProduct(id, amount);
         }
         else{
-            return amount > 0 && (id == 123 || id == 124);
+            return false;
         }
     }
 
@@ -178,7 +171,7 @@ public class ProxyBridge implements Bridge {
                 return rb.deleteProduct(id);
             }
             else{
-                return id == 123 || id == 124;
+                return false;
             }
         }
 
@@ -187,7 +180,7 @@ public class ProxyBridge implements Bridge {
             return rb.appointManager(username);
         }
         else{
-            return username.equals("bob");
+            return false;
         }
     }
 
@@ -196,7 +189,7 @@ public class ProxyBridge implements Bridge {
             return rb.appointOwner(username);
         }
         else{
-            return username.equals("bob");
+            return false;
         }
     }
 
@@ -205,7 +198,7 @@ public class ProxyBridge implements Bridge {
             return rb.removeManager(id);
         }
         else{
-            return id == 1;
+            return false;
         }
     }
 
@@ -214,7 +207,7 @@ public class ProxyBridge implements Bridge {
             return rb.editManagerOptions(id, option);
         }
         else{
-            return id == 1 && option < 10;
+            return false;
         }
     }
 
@@ -223,18 +216,18 @@ public class ProxyBridge implements Bridge {
             return rb.updateItemDiscount(itemID, discount);
         }
         else{
-            return itemID <= 10  && discount > 10 && discount < 100;
+            return false;
         }
     }
 
 
 
-    public String viewShopHistory(){
+    public List<History> viewShopHistory(){
         if(rb != null){
             return rb.viewShopHistory();
         }
         else{
-            return "THIS IS A SHOP";
+            return null;
         }
     }
 

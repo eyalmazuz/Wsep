@@ -1,5 +1,6 @@
 package AcceptanceTest.GuestTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,6 @@ public class ViewInfoTests extends ServiceTest {
 
     @Test
     public void testgetAllInfoSuccessful(){
-        assertEquals(getAllInfo(), "Store: Ebay, Products: Iphone 15 XS SUPER MAX ULTRA DELUX");
+        assertEquals(getAllInfo(), Database.Stores);
     }
 }

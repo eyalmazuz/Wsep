@@ -28,9 +28,10 @@ public class UserActionsTests extends ServiceTest {
     }
 
     //USE CASES 3.7
+    //TODO FIX THIS TEST CASE
     @Test
     public void testViewPurchaseHistory(){
-        viewPurchaseHistory();
+        assertNotNull(viewPurchaseHistory());
     }
 
 }

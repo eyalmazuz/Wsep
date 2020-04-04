@@ -1,16 +1,24 @@
 package Service;
 
+import AcceptanceTest.Data.History;
+import AcceptanceTest.Data.Product;
+import AcceptanceTest.Data.ShoppingCart;
+import AcceptanceTest.Data.Store;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public interface Bridge {
 
     boolean login (String username , String password);
 
     boolean register(String username, String password);
 
-    String getAllInfo();
+    ArrayList<Store> getAllInfo();
 
-    String viewCart();
+    ShoppingCart viewCart();
 
-    String searchProducts(String name, String category, String keyword, String filterOptions);
+    List<Product> searchProducts(String name, String category, String keyword, String filterOptions);
 
     boolean addToCart(String productName, Integer amount);
 
@@ -26,11 +34,11 @@ public interface Bridge {
 
     boolean openStore();
 
-    String viewPurchaseHistory();
+    List<History> viewPurchaseHistory();
 
-    String searchUserHistory(String username);
+    List<History> searchUserHistory(String username);
 
-    String searchStoreHistory(String StoreName);
+    List<History> searchStoreHistory(String StoreName);
 
     boolean addProduct(int id, int amount);
 
@@ -46,7 +54,7 @@ public interface Bridge {
 
     boolean editManagerOptions(int id, int option);
 
-    String viewShopHistory();
+    List<History> viewShopHistory();
 
     boolean updateItemDiscount(int itemID, int discount);
 }

@@ -1,6 +1,10 @@
 package AcceptanceTest;
+import AcceptanceTest.Data.*;
 import Service.Bridge;
 import junit.framework.TestCase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ServiceTest extends TestCase {
 
@@ -9,12 +13,27 @@ public abstract class ServiceTest extends TestCase {
     public void setUp(){
         this.bridge = Driver.getBridge();
         this.setUpUsers();
+        this.setUpStores();
+    }
 
+    private void setUpStores() {
+        Database.Stores.add(new Store());
+        Database.Stores.add(new Store());
+        Database.Stores.add(new Store());
+        Database.Stores.add(new Store());
     }
 
     private void setUpUsers() {
-        this.bridge.register("bob", "1234");
-        this.bridge.register("danny", "password");
+        Database.Users.add(new User("Danny", "123456"));
+        Database.Users.add(new User("Chika", "chika"));
+        Database.Users.add(new User("Ruby", "password"));
+        Database.Users.add(new User("Kanan", "654321"));
+    }
+
+    private void clearDatabase(){
+        Database.Users.clear();
+        Database.Stores.clear();
+
     }
 
     public boolean login (String username , String password){
@@ -25,20 +44,8 @@ public abstract class ServiceTest extends TestCase {
         return this.bridge.register(username, password);
     }
 
-    public String searchProducts(String name, String category, String keyword, String filterOptions){
-        return this.bridge.searchProducts(name, category, keyword, filterOptions);
-    }
-
     public boolean addToCart(String productName, Integer amount){
         return this.bridge.addToCart(productName, amount);
-    }
-
-    public String viewCart(){
-        return this.bridge.viewCart();
-    }
-
-    public String getAllInfo(){
-        return this.bridge.getAllInfo();
     }
 
     public boolean updateAmount(int amount){
@@ -61,14 +68,6 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean openStore(){ return bridge.openStore(); }
 
-    public String viewPurchaseHistory(){
-        return bridge.viewPurchaseHistory();
-    }
-
-    public String searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
-
-    public String searchStoreHistory(String storeName) { return this.bridge.searchStoreHistory(storeName);}
-
     public boolean addProdcut(int id, int amount) { return bridge.addProduct(id, amount); }
 
     public boolean editProduct(int id, int amount) { return bridge.editProduct(id, amount); }
@@ -83,8 +82,29 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean editManagerOptions(int id, int option){ return bridge.editManagerOptions(id, option); }
 
-    public String viewShopHistory(){ return bridge.viewShopHistory(); }
-
     public boolean updateItemDiscount(int itemID, int discount){ return bridge.updateItemDiscount(itemID, discount); }
+
+    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions){
+        return this.bridge.searchProducts(name, category, keyword, filterOptions); }
+
+
+    public ShoppingCart viewCart(){
+        return this.bridge.viewCart();
+    }
+
+    public ArrayList<Store> getAllInfo(){
+        return this.bridge.getAllInfo();
+    }
+
+    public List<History> viewPurchaseHistory(){
+        return bridge.viewPurchaseHistory();
+    }
+
+    public List<History> searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
+
+    public List<History> searchStoreHistory(String storeName) { return this.bridge.searchStoreHistory(storeName);}
+
+    public List<History> viewShopHistory(){ return bridge.viewShopHistory(); }
+
 
 }

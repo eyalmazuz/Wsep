@@ -16,17 +16,17 @@ public class LoginTests extends ServiceTest {
 
     @Test
     public void testLoginSuccessful(){
-        assertTrue(login("bob", "1234"));
-        assertTrue(login("danny", "password"));
+        assertTrue(login("moshe", "12345"));
+        assertTrue(login("danny", "123456"));
 
     }
 
     @Test
     public void testLoginFailureWrongPassword(){
-        assertFalse(login("bob", "123"));
-        assertFalse(login("bob", "bobIsKing1223"));
-        assertFalse(login("bob", "password"));
-        assertFalse(login("bob", "hardPassword"));
+        assertFalse(login("danny", "12345657"));
+        assertFalse(login("moshe", "bobIsKing1223"));
+        assertFalse(login("danny", "password"));
+        assertFalse(login("danny", "hardPassword"));
     }
 
     @Test
