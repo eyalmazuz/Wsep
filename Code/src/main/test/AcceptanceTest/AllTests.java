@@ -1,5 +1,6 @@
-package AcceptenceTest;
+package AcceptanceTest;
 
+import AcceptanceTest.GuestTests.GuestTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

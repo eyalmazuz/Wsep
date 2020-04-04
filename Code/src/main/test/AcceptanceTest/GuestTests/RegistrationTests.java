@@ -1,5 +1,6 @@
-package AcceptenceTest;
+package AcceptanceTest.GuestTests;
 
+import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 

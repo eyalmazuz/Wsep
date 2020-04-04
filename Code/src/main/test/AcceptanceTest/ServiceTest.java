@@ -1,4 +1,4 @@
-package AcceptenceTest;
+package AcceptanceTest;
 import Service.Bridge;
 import junit.framework.TestCase;
 
@@ -14,6 +14,7 @@ public abstract class ServiceTest extends TestCase {
 
     private void setUpUsers() {
         this.bridge.register("bob", "1234");
+        this.bridge.register("danny", "password");
     }
 
     public boolean login (String username , String password){
@@ -22,6 +23,19 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean register(String username, String password){
         return this.bridge.register(username, password);
+    }
+
+    public String searchProducts(String name, String category, String keyword, String filterOptions){
+        return this.bridge.searchProducts(name, category, keyword, filterOptions);
+    }
+
+    public boolean addToCart(String productName, Integer amount){
+        return this.bridge.addToCart(productName, amount);
+    }
+
+
+    public String getAllInfo(){
+        return this.bridge.getAllInfo();
     }
 
 }
