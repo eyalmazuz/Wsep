@@ -33,9 +33,28 @@ public abstract class ServiceTest extends TestCase {
         return this.bridge.addToCart(productName, amount);
     }
 
+    public String viewCart(){
+        return this.bridge.viewCart();
+    }
 
     public String getAllInfo(){
         return this.bridge.getAllInfo();
+    }
+
+    public boolean updateAmount(int amount){
+        return bridge.updateAmount(amount);
+    }
+
+    public boolean deleteItemInCart(String productName){
+        return bridge.deleteItemInCart(productName);
+    }
+
+    public boolean clearCart(){
+        return bridge.clearCart();
+    }
+
+    public boolean buyCart(String user, String cart){
+        return bridge.buyCart(user, cart);
     }
 
 }

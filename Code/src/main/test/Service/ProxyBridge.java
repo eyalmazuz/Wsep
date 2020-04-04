@@ -64,6 +64,53 @@ public class ProxyBridge implements Bridge {
         }
     }
 
+    public boolean updateAmount(int amount) {
+        if (rb != null) {
+            return rb.updateAmount(amount);
+        }
+        else {
+            return amount > 0;
+        }
+    }
+
+    public boolean deleteItemInCart(String productName) {
+        if (rb != null) {
+            return rb.deleteItemInCart(productName);
+        }
+        else {
+            return true;
+        }
+    }
+
+    public boolean clearCart() {
+        if (rb != null) {
+            return rb.clearCart();
+        }
+        else {
+            return true;
+        }
+    }
+
+    public boolean buyCart(String user, String cart) {
+        // TODO implement this
+        if (rb != null) {
+            return rb.buyCart(user, cart);
+        }
+        else {
+            return user.equals("bob") && cart.equals("Name: Iphone 11, amount: 30");
+        }
+    }
+
+    public String viewCart(){
+        if (rb != null) {
+            return rb.getAllInfo();
+        }
+        else {
+            return "Item: Iphone 15 XS SUPER MAX ULTRA DELUX, Amount: 50";
+        }
+
+    }
+
     public void setRealBridge(RealBridge realBridge) {
         rb = realBridge;
     }

@@ -13,6 +13,8 @@ public class GuestTests extends ServiceTest {
         suite.addTest(new TestSuite(ViewInfoTests.class));
         suite.addTest(new TestSuite(SearchProductTests.class));
         suite.addTest(new TestSuite(AddToCartTests.class));
+        suite.addTest(new TestSuite(CartTests.class));
+        suite.addTest(new TestSuite(PurchaseCartTests.class));
         return suite;
     }
 }

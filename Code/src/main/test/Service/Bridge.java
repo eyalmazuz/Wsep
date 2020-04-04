@@ -8,7 +8,17 @@ public interface Bridge {
 
     String getAllInfo();
 
+    String viewCart();
+
     String searchProducts(String name, String category, String keyword, String filterOptions);
 
     boolean addToCart(String productName, Integer amount);
+
+    boolean updateAmount(int amount);
+
+    boolean deleteItemInCart(String productName);
+
+    boolean clearCart();
+
+    boolean buyCart(String user, String cart);
 }
