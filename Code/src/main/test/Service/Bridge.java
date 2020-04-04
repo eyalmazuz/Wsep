@@ -21,4 +21,32 @@ public interface Bridge {
     boolean clearCart();
 
     boolean buyCart(String user, String cart);
+
+    boolean logout();
+
+    boolean openStore();
+
+    String viewPurchaseHistory();
+
+    String searchUserHistory(String username);
+
+    String searchStoreHistory(String StoreName);
+
+    boolean addProduct(int id, int amount);
+
+    boolean editProduct(int id, int amount);
+
+    boolean deleteProduct(int id);
+
+    boolean appointManager(String username);
+
+    boolean appointOwner(String username);
+
+    boolean removeManager(int id);
+
+    boolean editManagerOptions(int id, int option);
+
+    String viewShopHistory();
+
+    boolean updateItemDiscount(int itemID, int discount);
 }

@@ -5,7 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SearchProductTests extends ServiceTest {
-
+    /*
+     * USE CASES 2.5
+     *
+     * */
     @Before
     public void setUp(){
         super.setUp();

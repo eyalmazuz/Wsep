@@ -41,4 +41,32 @@ public class RealBridge implements Bridge {
     public String viewCart(){
         return null;
     }
+
+    public boolean logout(){ return false; }
+
+    public boolean openStore() { return false;}
+
+    public String viewPurchaseHistory(){ return null; }
+
+    public String searchUserHistory(String username){ return null;}
+
+    public String searchStoreHistory(String storeName){ return null;}
+
+    public boolean addProduct(int id, int amount) { return false ;}
+
+    public boolean editProduct(int id, int amount) { return false ;}
+
+    public boolean deleteProduct(int id) { return false ;}
+
+    public boolean appointManager(String username) { return false ;}
+
+    public boolean appointOwner(String username) { return false ;}
+
+    public boolean removeManager(int id) { return false ;}
+
+    public boolean editManagerOptions(int id, int option){ return false;}
+
+    public boolean updateItemDiscount(int itemID, int discount){ return false;}
+
+    public String viewShopHistory(){ return null; }
 }

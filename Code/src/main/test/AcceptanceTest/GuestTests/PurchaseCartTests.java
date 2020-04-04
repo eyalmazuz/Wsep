@@ -5,7 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PurchaseCartTests extends ServiceTest {
-
+    /*
+     * USE CASES 2.8.1-2.8.4
+     *
+     * */
     @Before
     public void setUp(){
         super.setUp();

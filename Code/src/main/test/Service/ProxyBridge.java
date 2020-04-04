@@ -92,7 +92,6 @@ public class ProxyBridge implements Bridge {
     }
 
     public boolean buyCart(String user, String cart) {
-        // TODO implement this
         if (rb != null) {
             return rb.buyCart(user, cart);
         }
@@ -110,6 +109,135 @@ public class ProxyBridge implements Bridge {
         }
 
     }
+
+    public boolean logout(){
+        if (rb != null){
+            return rb.logout();
+        }
+        else{
+            return true;
+        }
+    }
+
+    public boolean openStore(){
+        if (rb != null){
+            return rb.logout();
+        }
+        else{
+            return true;
+        }
+    }
+
+    public String viewPurchaseHistory(){
+        if(rb != null){
+            return rb.viewPurchaseHistory();
+        }
+        else{
+            return "Date: 2020.3.25 Bought 30 Iphone 11";
+        }
+    }
+
+    public String searchUserHistory(String username){
+        if(rb != null){
+            return rb.searchUserHistory(username);
+        }
+        else{
+            return username.equals("bob") ? "Bob, Register Date: 3.3.3, Purchases: 30000" : "Invalid user";
+        }
+    }
+
+    public String searchStoreHistory(String storeName){
+        if(rb != null){
+            return rb.searchUserHistory(storeName);
+        }
+        else{
+            return storeName.equals("Amazon") ? "Amazon, Register Date: 3.3.3, items: 30000" : "Invalid Store";
+        }
+    }
+
+    public boolean addProduct(int id, int amount){
+        if(rb != null){
+            return rb.addProduct(id, amount);
+        }
+        else{
+            return amount > 0 && (id == 123 || id == 124);
+        }
+    }
+
+    public boolean editProduct(int id, int amount){
+        if(rb != null){
+            return rb.editProduct(id, amount);
+        }
+        else{
+            return amount > 0 && (id == 123 || id == 124);
+        }
+    }
+
+    public boolean deleteProduct(int id){
+            if(rb != null){
+                return rb.deleteProduct(id);
+            }
+            else{
+                return id == 123 || id == 124;
+            }
+        }
+
+    public boolean appointManager(String username){
+        if(rb != null){
+            return rb.appointManager(username);
+        }
+        else{
+            return username.equals("bob");
+        }
+    }
+
+    public boolean appointOwner(String username){
+        if(rb != null){
+            return rb.appointOwner(username);
+        }
+        else{
+            return username.equals("bob");
+        }
+    }
+
+    public boolean removeManager(int id){
+        if(rb != null){
+            return rb.removeManager(id);
+        }
+        else{
+            return id == 1;
+        }
+    }
+
+    public boolean editManagerOptions(int id, int option){
+        if(rb != null){
+            return rb.editManagerOptions(id, option);
+        }
+        else{
+            return id == 1 && option < 10;
+        }
+    }
+
+    public boolean updateItemDiscount(int itemID, int discount){
+        if(rb != null){
+            return rb.updateItemDiscount(itemID, discount);
+        }
+        else{
+            return itemID <= 10  && discount > 10 && discount < 100;
+        }
+    }
+
+
+
+    public String viewShopHistory(){
+        if(rb != null){
+            return rb.viewShopHistory();
+        }
+        else{
+            return "THIS IS A SHOP";
+        }
+    }
+
 
     public void setRealBridge(RealBridge realBridge) {
         rb = realBridge;

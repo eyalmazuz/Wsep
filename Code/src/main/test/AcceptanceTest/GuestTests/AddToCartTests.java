@@ -6,7 +6,10 @@ import org.junit.Test;
 
 public class AddToCartTests extends ServiceTest {
 
-
+    /*
+     * USE CASES 2.6
+     *
+     * */
     @Before
     public void setUp(){
         super.setUp();
