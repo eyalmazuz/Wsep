@@ -4,5 +4,9 @@ import Domain.TradingSystem.UserState;
 
 public class Subscriber implements UserState {
 
-    //5.4.2020 Test
+    public boolean addProductToStore(Store store, int productId, int ammount) {
+        store.addProduct(productId,ammount);
+        return true;
+    }
+
 }
