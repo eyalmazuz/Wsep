@@ -4,6 +4,7 @@ public class ProductInStore {
 
     private ProductInfo productInfo;
     private int amount;
+    private String info;
 
     public ProductInStore(int productId, int amount) {
 
@@ -17,5 +18,12 @@ public class ProductInStore {
 
     public void addAmount(int amount) {
         this.amount += amount;
+    }
+
+    public String getInfo (){
+        return this.info;
+    }
+    public void editInfo(String newInfo){
+        this.info=info;
     }
 }

@@ -13,6 +13,16 @@ public class Subscriber implements UserState {
         return true;
     }
 
+    public boolean deleteProductFromStore(Store store, int productId) {
+        return store.deleteProduct(productId);
+    }
+
+
+    public boolean editProductInStore(Store store, int productId, String info) {
+        store.editProduct(productId,info);
+        return true;
+    }
+
     public void setUserName(String userName) {
         this.username = userName;
     }

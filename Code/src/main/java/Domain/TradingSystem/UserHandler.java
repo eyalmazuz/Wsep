@@ -34,4 +34,13 @@ public class UserHandler {
         }
         return found;
     }
+
+    public List <Subscriber> getAvailableOwnerSubs(List <Subscriber> owners) {
+        List <Subscriber> availableSubs = new LinkedList<Subscriber>();
+        for (Subscriber user: users){
+            if (!owners.contains(user))
+                availableSubs.add(user);
+        }
+        return availableSubs;
+    }
 }
