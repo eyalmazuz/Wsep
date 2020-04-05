@@ -6,20 +6,23 @@ import org.junit.Test;
 
 public class EditStoreInventoryTests extends ServiceTest {
     /*
-     * USE CASES 4.1-4.3
+     * USE CASES 4.1-4.1.3
      *
      * */
     @Before
     public void setUp(){
         super.setUp();
+        login("chika", "12345");
+        openStore();
+
     }
 
 
     //USE CASES 4.1.1
     @Test
     public void testAddProductSuccessful(){
-        assertTrue(addProdcut(123, 4));
-        assertTrue(addProdcut(124, 6));
+        assertTrue(addProdcut(1, 4));
+        assertTrue(addProdcut(2, 6));
 
     }
 
@@ -40,8 +43,8 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.2
     @Test
     public void testEditProductSuccessful(){
-        assertTrue(editProduct(123, 4));
-        assertTrue(editProduct(124, 6));
+        assertTrue(editProduct(1, 4));
+        assertTrue(editProduct(2, 6));
 
     }
 
@@ -62,8 +65,8 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.3
     @Test
     public void testDeleteProductSuccessful(){
-        assertTrue(deleteProduct(123));
-        assertTrue(deleteProduct(124));
+        assertTrue(deleteProduct(1));
+        assertTrue(deleteProduct(2));
 
     }
 

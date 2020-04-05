@@ -17,22 +17,16 @@ public abstract class ServiceTest extends TestCase {
     }
 
     private void setUpStores() {
-        Database.Stores.add(new Store());
-        Database.Stores.add(new Store());
-        Database.Stores.add(new Store());
-        Database.Stores.add(new Store());
+
     }
 
     private void setUpUsers() {
-        Database.Users.add(new User("Danny", "123456"));
-        Database.Users.add(new User("Chika", "chika"));
-        Database.Users.add(new User("Ruby", "password"));
-        Database.Users.add(new User("Kanan", "654321"));
+        for(String[] userData : Database.Users){
+            register(userData[0], userData[1]);
+        }
     }
 
     private void clearDatabase(){
-        Database.Users.clear();
-        Database.Stores.clear();
 
     }
 
@@ -60,7 +54,7 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart();
     }
 
-    public boolean buyCart(String user, String cart){
+    public boolean buyCart(String user, ShoppingCart cart){
         return bridge.buyCart(user, cart);
     }
 
@@ -84,8 +78,8 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean updateItemDiscount(int itemID, int discount){ return bridge.updateItemDiscount(itemID, discount); }
 
-    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions){
-        return this.bridge.searchProducts(name, category, keyword, filterOptions); }
+    public List<Product> searchProducts(String name, String category, String keyword, FilterOption option){
+        return this.bridge.searchProducts(name, category, keyword, option); }
 
 
     public ShoppingCart viewCart(){

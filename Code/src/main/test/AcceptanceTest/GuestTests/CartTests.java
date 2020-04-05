@@ -26,8 +26,8 @@ public class CartTests extends ServiceTest {
     //USE CASE 2.7.2
     @Test
     public void testEditAmountInCartSuccessful(){
-        assertTrue(updateAmount( 3));
-        assertTrue(updateAmount( 3));
+        assertTrue(updateAmount(3));
+        assertTrue(updateAmount(3));
         assertTrue(updateAmount(200));
     }
 

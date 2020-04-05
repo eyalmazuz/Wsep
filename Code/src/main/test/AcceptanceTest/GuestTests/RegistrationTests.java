@@ -15,7 +15,7 @@ public class RegistrationTests extends ServiceTest {
     }
 
     @Test
-    public void testLoginSuccessful() {
+    public void testRegisterSuccessful() {
         assertTrue(register("bobTheKing", "1234"));
         assertTrue(register("bobby", "12131231"));
         assertTrue(register("bobob", "1232f3f23f"));
@@ -23,11 +23,11 @@ public class RegistrationTests extends ServiceTest {
     }
 
     @Test
-    public void testLoginFailureExistingUsername() {
-        assertFalse(login("danny", "123456"));
-        assertFalse(login("moshe", "12345"));
-        assertFalse(login("ggwpxdlolrofl", "11123"));
-        assertFalse(login("ariel", "121113"));
+    public void testRegisterFailureExistingUsername() {
+        assertFalse(login("hanamaru", "123456"));
+        assertFalse(login("chika", "12345"));
+        assertFalse(login("kanan", "654321"));
+        assertFalse(login("ruby", "54321"));
     }
 }
 

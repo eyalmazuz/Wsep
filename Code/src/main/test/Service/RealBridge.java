@@ -1,9 +1,6 @@
 package Service;
 
-import AcceptanceTest.Data.History;
-import AcceptanceTest.Data.Product;
-import AcceptanceTest.Data.ShoppingCart;
-import AcceptanceTest.Data.Store;
+import AcceptanceTest.Data.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +19,7 @@ public class RealBridge implements Bridge {
         return null;
     }
 
-    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions) {
+    public List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions) {
         return null;
     }
 
@@ -42,7 +39,7 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public boolean buyCart(String user, String cart) {
+    public boolean buyCart(String user, ShoppingCart cart) {
         return false;
     }
 

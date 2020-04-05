@@ -13,6 +13,8 @@ public class AddToCartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("hanamaru", "123456");
+        addToCart("Iphone", 5);
     }
 
 
@@ -29,6 +31,7 @@ public class AddToCartTests extends ServiceTest {
     public void testAddToCartFailure(){
         assertFalse(addToCart("Iphone", 5));
         assertFalse(addToCart("Reasons to live", 0));
+        assertFalse(addToCart("Reasons to live", -5));
         assertFalse(addToCart("Life", null));
     }
 }

@@ -13,10 +13,22 @@ public class ViewInfoTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("hanamaru", "123456");
+        openStore();
+        addProdcut(5, 10);
+        addProdcut(1, 1);
+        logout();
+        login("chika", "12345");
+        openStore();
+        addProdcut(5, 5);
+        addProdcut(10, 10);
+        logout();
+        login("kanan", "654321");
+
     }
 
     @Test
-    public void testgetAllInfoSuccessful(){
+    public void testGetAllInfoSuccessful(){
         assertEquals(getAllInfo(), Database.Stores);
     }
 }

@@ -1,9 +1,6 @@
 package Service;
 
-import AcceptanceTest.Data.History;
-import AcceptanceTest.Data.Product;
-import AcceptanceTest.Data.ShoppingCart;
-import AcceptanceTest.Data.Store;
+import AcceptanceTest.Data.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +15,7 @@ public interface Bridge {
 
     ShoppingCart viewCart();
 
-    List<Product> searchProducts(String name, String category, String keyword, String filterOptions);
+    List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions);
 
     boolean addToCart(String productName, Integer amount);
 
@@ -28,7 +25,7 @@ public interface Bridge {
 
     boolean clearCart();
 
-    boolean buyCart(String user, String cart);
+    boolean buyCart(String user, ShoppingCart cart);
 
     boolean logout();
 

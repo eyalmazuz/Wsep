@@ -37,7 +37,7 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public List<Product> searchProducts(String name, String category, String keyword, String filterOptions) {
+    public List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions) {
         if (rb != null) {
             return rb.searchProducts(name, category, keyword, filterOptions);
         }
@@ -84,7 +84,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(String user, String cart) {
+    public boolean buyCart(String user, ShoppingCart cart) {
         if (rb != null) {
             return rb.buyCart(user, cart);
         }
