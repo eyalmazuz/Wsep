@@ -10,35 +10,21 @@ public class Permission {
 
     User user;
     User grantor;
-    Map<Store,String> manages; //<store,Owner\Manager>
+    String type; //Owner\Manager
+    Store store;
 
-    public Permission(User user, User grantor){
+    public Permission(User user, User grantor, String type, Store store){
         this.grantor = grantor;
         this.user = user;
-        manages = new HashMap<Store, String>();
+
     }
 
-    protected Store hasPermission(int storeId, String type){
-        for(Store store:manages.keySet()){
-            if (store.getId() == storeId){
-                if(manages.get(store).equals(type)){
-                    return store;
-                }
-            }
-        }
-        return null;
+
+    public Store getStore() {
+        return store;
     }
 
-    public boolean hasOwnerPermission() {
-        for (Map.Entry<Store, String> manage: manages.entrySet()){
-            if (manage.getValue().equals("Owner"))
-                return true;
-
-        }
-        return false;
-    }
-
-    public void addPermission (String type, Store store){
-        manages.put(store, type);
+    public String getType() {
+        return type;
     }
 }

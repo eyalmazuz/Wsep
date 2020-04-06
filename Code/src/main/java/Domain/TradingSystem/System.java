@@ -72,23 +72,27 @@ public class System {
     }
 
     // UseCase 4.3
-    public List <Subscriber> getAvailableOwnerSubs(int storeId) throws Exception {
+    public List <User> getAvailableUsersToOwn(int storeId) throws Exception {
         //TODO:Add logger call
-        List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
-        if (currentUser.hasOwnerPermission()){
+        List <User> owners = new LinkedList<User>(); //update store owners list
+        if (currentUser.getState().hasOwnerPermission()){
             for (Store store: stores) {
                 if (store.getId()==storeId)
                     owners = store.getOwners();
             }
             if (owners == null)
                 return null;
-            return userHandler.getAvailableOwnerSubs(owners); // return only available subs
+            List <Subscriber> ownersSubs = new LinkedList<Subscriber>();
+            for (User owner: owners){
+                ownersSubs.add((Subscriber) owner.getState());
+            }
+            userHandler.getAvailableUsersToOwn(ownersSubs); // return only available subs
         }
         else
             throw new Exception("No permission");
     }
 
-    public boolean addStoreOwner (int storeId, Subscriber newOwner) {
+    public boolean addStoreOwner (int storeId, User newOwner) {
         //TODO:Add logger call
         for (Store store : stores) {
             if (store.getId() == storeId) {

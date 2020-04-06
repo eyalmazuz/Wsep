@@ -51,19 +51,19 @@ public class Store {
         return false;
     }
 
-    public List<Subscriber> getOwners() {
-        List <Subscriber> owners = new LinkedList<Subscriber>();
+    public List<User> getOwners() {
+        List <User> owners = new LinkedList<User>();
         for (User manager: managers){
             if (manager.hasOwnerPermission())
-                owners.add((Subscriber) manager.getState());
+                owners.add(manager);
         }
         return owners;
     }
 
-    public void addOwner(Subscriber newOwner, User grantor) {
+    public void addOwner(User newOwner, User grantor) {
         for (User manager: managers){
-            if (manager.getState().equals(newOwner))
-                manager.addPermission("Owner", this);
+            if (manager.equals(newOwner.getState()))
+                manager.addPermission(this,newOwner,grantor,"Owner");
         }
 
 
