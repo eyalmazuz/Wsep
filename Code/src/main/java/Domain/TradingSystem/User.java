@@ -34,6 +34,7 @@ public class User {
 
     public void setState(UserState nState){
         this.state = nState;
+        state.setUser(this);
     }
 
     public boolean hasOwnerPermission() {

@@ -56,6 +56,10 @@ public class Subscriber implements UserState {
         return allCartsHistory.toString();
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     /**
      *
      * Functions For Usecases 4.*

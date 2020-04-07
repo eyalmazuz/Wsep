@@ -43,4 +43,8 @@ public class Guest implements UserState {
     public String getHistory() {
         return "No History";
     }
+
+    public void setUser(User user) {
+
+    }
 }
