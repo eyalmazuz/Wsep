@@ -1,10 +1,14 @@
 package Domain.TradingSystem;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Subscriber implements UserState {
 
     //FIELDS:
+    private static int idCounter = 0;
+
+    private int id;
     private List <Permission> permissions;
     private User user;
     private String username;
@@ -13,7 +17,15 @@ public class Subscriber implements UserState {
     private ShoppingCart cartHistory;
 
     //METHODS:
-        public String getUsername() {
+    public Subscriber(){
+        this.id = idCounter;
+        idCounter++;
+
+        permissions = new LinkedList<Permission>();
+
+    }
+
+    public String getUsername() {
             return username;
         }
     /**
@@ -44,13 +56,22 @@ public class Subscriber implements UserState {
      * Function For Usecases 3.*
      *
      */
-        public boolean logout(ShoppingCart cart) {
+    public boolean logout(ShoppingCart cart) {
             cartHistory.copyCart(cart);
             cart.cleanCart();
             user.setState(new Guest());
             return true;
 
         }
+
+    public Store openStore() {
+        Store newStore = new Store();
+        addPermission(newStore,null,"Owner");
+        newStore.addOwner(this);
+        return newStore;
+    }
+
+
     /**
      *
      * Functions For Usecases 4.*
@@ -85,19 +106,18 @@ public class Subscriber implements UserState {
         return false;
     }
 
+    public boolean addOwner(Store store, Subscriber newOwner) {
+        if(hasPermission(store.getId(),"Owner")!= null){
+            store.addOwner(newOwner);
+            newOwner.addPermission(store,this,"Owner");
+        }
+        return false;
+    }
 
 
-
-
-
-
-
-
-
-
-    public boolean hasOwnerPermission() {
+    public boolean hasOwnerPermission(int storeId) {
         for (Permission permission: permissions){
-            if (permission.getType().equals("Owner"))
+            if (permission.isOwner(storeId))
                 return true;
         }
         return false;
@@ -115,8 +135,12 @@ public class Subscriber implements UserState {
         return null;
       }
 
-    public void addPermission(Store store,User user, User grantor, String type ){
-        Permission permission = new Permission(user,grantor, type, store);
+    public void addPermission(Store store, Subscriber grantor, String type ){
+        Permission permission = new Permission(this,grantor, type, store);
         permissions.add(permission);
+    }
+
+    public int getId() {
+        return id;
     }
 }

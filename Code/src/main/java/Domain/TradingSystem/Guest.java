@@ -17,15 +17,23 @@ public class Guest implements UserState {
         return false;
     }
 
-    public boolean hasOwnerPermission() {
+    public boolean hasOwnerPermission(int storeId) {
         return false;
     }
 
-    public void addPermission(Store store, User user, User grantor, String type) {
+    public void addPermission(Store store, Subscriber grantor, String type) {
 
     }
 
     public boolean logout(ShoppingCart cart) {
+        return false;
+    }
+
+    public Store openStore() {
+        return null;
+    }
+
+    public boolean addOwner(Store store, Subscriber newOwner) {
         return false;
     }
 }

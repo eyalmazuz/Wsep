@@ -8,10 +8,14 @@ package Domain.TradingSystem;
 
      boolean deleteProductFromStore(int currStore, int productId);
 
-     boolean hasOwnerPermission();
+     boolean hasOwnerPermission(int storeId);
 
-     void addPermission(Store store,User user, User grantor, String type );
+     void addPermission(Store store, Subscriber grantor, String type );
 
 
      boolean logout(ShoppingCart cart);
+
+     Store openStore();
+
+     boolean addOwner(Store store, Subscriber newOwner);
  }

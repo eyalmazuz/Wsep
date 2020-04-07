@@ -36,16 +36,25 @@ public class User {
         this.state = nState;
     }
 
-    public boolean hasOwnerPermission() {
-        return state.hasOwnerPermission();
+    public boolean hasOwnerPermission(int storeId) {
+        return state.hasOwnerPermission(storeId);
     }
 
-    public void addPermission(Store store, User newOwner, User grantor, String owner) {
-        state.addPermission(store, newOwner, grantor, owner);
+    public void addPermission(Store store, Subscriber grantor, String owner) {
+        state.addPermission(store,  grantor, owner);
     }
 
     public boolean logout() {
         return state.logout(cart);
+
+    }
+
+    public Store openStore() {
+        return state.openStore();
+    }
+
+    public boolean addOwner(Store store, Subscriber newOwner) {
+        return state.addOwner(store,newOwner);
 
     }
 }

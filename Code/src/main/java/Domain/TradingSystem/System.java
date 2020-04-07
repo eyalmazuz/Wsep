@@ -49,6 +49,16 @@ public class System {
         return currentUser.logout();
     }
 
+    //Usecase 3.2
+
+    public boolean openStroe(){
+        Store newStore  = currentUser.openStore();
+        if (newStore != null){
+            stores.add(newStore);
+        }
+        return true;
+    }
+
 
     // UseCase 4.1.1
     public boolean addProductToStore(int storeId, int productId,int ammount){
@@ -77,10 +87,13 @@ public class System {
         return false;
     }
 
+    //UseCase 4.3
+/**
     // UseCase 4.3
-    public List <User> getAvailableUsersToOwn(int storeId) throws Exception {
+
+    public List <Subscriber> getAvailableUsersToOwn(int storeId) throws Exception {
         //TODO:Add logger call
-        List <User> owners = new LinkedList<User>(); //update store owners list
+        List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
         if (currentUser.getState().hasOwnerPermission()){
             for (Store store: stores) {
                 if (store.getId()==storeId)
@@ -92,19 +105,20 @@ public class System {
             for (User owner: owners){
                 ownersSubs.add((Subscriber) owner.getState());
             }
-            userHandler.getAvailableUsersToOwn(ownersSubs); // return only available subs
+            return userHandler.getAvailableUsersToOwn(ownersSubs); // return only available subs
         }
         else
             throw new Exception("No permission");
         return null;
     }
-
-    public boolean addStoreOwner (int storeId, User newOwner) {
+**/
+    public boolean addStoreOwner (int storeId, int userId) {
         //TODO:Add logger call
+        Subscriber newOwner = userHandler.getUser(userId);
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                store.addOwner(newOwner, currentUser);
-                return true;
+                return currentUser.addOwner(store,newOwner);
+
             }
         }
         return false;

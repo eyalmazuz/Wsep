@@ -43,4 +43,13 @@ public class UserHandler {
         }
         return availableSubs;
     }
+
+    public Subscriber getUser(int userId) {
+        for(Subscriber s : users){
+            if (s.getId() == userId){
+                return s;
+            }
+        }
+        return null;
+    }
 }
