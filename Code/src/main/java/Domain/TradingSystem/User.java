@@ -48,4 +48,8 @@ public class User {
         return state.logout(cart);
 
     }
+
+    public String getHistory() {
+        return state.getHistory();
+    }
 }

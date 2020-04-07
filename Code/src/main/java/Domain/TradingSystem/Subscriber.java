@@ -10,7 +10,7 @@ public class Subscriber implements UserState {
     private String username;
     private String password;
     private boolean isAdmin;
-    private ShoppingCart cartHistory;
+    private PurchaseHistory allCartsHistory;
 
     //METHODS:
         public String getUsername() {
@@ -45,12 +45,17 @@ public class Subscriber implements UserState {
      *
      */
         public boolean logout(ShoppingCart cart) {
-            cartHistory.copyCart(cart);
+            allCartsHistory.setLatestCart(cart);
             cart.cleanCart();
             user.setState(new Guest());
             return true;
 
         }
+
+    public String getHistory() {
+        return allCartsHistory.toString();
+    }
+
     /**
      *
      * Functions For Usecases 4.*

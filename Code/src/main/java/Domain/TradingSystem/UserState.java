@@ -14,4 +14,6 @@ package Domain.TradingSystem;
 
 
      boolean logout(ShoppingCart cart);
+
+     String getHistory();
  }

@@ -50,6 +50,12 @@ public class System {
     }
 
 
+    //Usecase 3.7
+    public String getHistory(){
+        return currentUser.getHistory();
+    }
+
+
     // UseCase 4.1.1
     public boolean addProductToStore(int storeId, int productId,int ammount){
         //TODO:Add logger call
