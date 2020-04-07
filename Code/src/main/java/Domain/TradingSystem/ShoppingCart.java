@@ -19,4 +19,8 @@ public class ShoppingCart {
     public void cleanCart() {
         //TODO:Implemet this
     }
+
+    public List<ShoppingBasket> getBaskets(){
+        return baskets;
+    }
 }
