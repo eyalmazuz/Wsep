@@ -3,6 +3,11 @@ package Domain.TradingSystem;
 public class User {
 
     private UserState state;
+    private ShoppingCart cart;
+
+    public User(){
+        this.state = new Guest();
+    }
 
     public boolean addProductToStore(int storeId, int productId, int amount) {
         return state.addProductToStore(storeId,productId,amount);
@@ -27,11 +32,20 @@ public class User {
         return state;
     }
 
+    public void setState(UserState nState){
+        this.state = nState;
+    }
+
     public boolean hasOwnerPermission() {
         return state.hasOwnerPermission();
     }
 
     public void addPermission(Store store, User newOwner, User grantor, String owner) {
         state.addPermission(store, newOwner, grantor, owner);
+    }
+
+    public boolean logout() {
+        return state.logout(cart);
+
     }
 }

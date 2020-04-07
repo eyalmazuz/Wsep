@@ -36,11 +36,17 @@ public class System {
         setSupply(supplyConfig);
         setPayment(paymentConfig);
         //TODO:Add Error handling.
+        currentUser = new User();
     }
 
     public void addStore (){
         Store store = new Store();
         stores.add(store);
+    }
+
+    //Usecase 3.1
+    public boolean logout(){
+        return currentUser.logout();
     }
 
 
@@ -90,6 +96,7 @@ public class System {
         }
         else
             throw new Exception("No permission");
+        return null;
     }
 
     public boolean addStoreOwner (int storeId, User newOwner) {

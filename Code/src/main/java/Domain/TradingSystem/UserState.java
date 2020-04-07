@@ -13,4 +13,5 @@ package Domain.TradingSystem;
      void addPermission(Store store,User user, User grantor, String type );
 
 
+     boolean logout(ShoppingCart cart);
  }

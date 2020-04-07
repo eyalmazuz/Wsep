@@ -5,9 +5,12 @@ import java.util.List;
 public class Subscriber implements UserState {
 
     private List <Permission> permissions;
+    private User user;
     private String username;
     private String password;
     private boolean isAdmin;
+    private ShoppingCart cartHistory;
+
 
     public boolean addProductToStore(int store, int productId, int ammount) {
 
@@ -50,6 +53,14 @@ public class Subscriber implements UserState {
     public void addPermission(Store store,User user, User grantor, String type ){
         Permission permission = new Permission(user,grantor, type, store);
         permissions.add(permission);
+    }
+
+    public boolean logout(ShoppingCart cart) {
+        cartHistory.copyCart(cart);
+        cart.cleanCart();
+        user.setState(new Guest());
+        return true;
+
     }
 
     public String getUsername() {
