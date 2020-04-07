@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Subscriber implements UserState {
 
+    //FIELDS:
     private List <Permission> permissions;
     private User user;
     private String username;
@@ -11,7 +12,50 @@ public class Subscriber implements UserState {
     private boolean isAdmin;
     private ShoppingCart cartHistory;
 
+    //METHODS:
+        public String getUsername() {
+            return username;
+        }
+    /**
+     *
+     * Functions For Usecases 1.*
+     *
+     */
+        public boolean isAdmin() {
+            return isAdmin;
+        }
 
+        public void setAdmin() {
+            isAdmin = true;
+        }
+
+        public void setUserName(String userName) {
+            this.username = userName;
+        }
+
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+
+    /**
+     *
+     * Function For Usecases 3.*
+     *
+     */
+        public boolean logout(ShoppingCart cart) {
+            cartHistory.copyCart(cart);
+            cart.cleanCart();
+            user.setState(new Guest());
+            return true;
+
+        }
+    /**
+     *
+     * Functions For Usecases 4.*
+     *
+     */
     public boolean addProductToStore(int store, int productId, int ammount) {
 
         Store currStore = hasPermission(store,"Owner");
@@ -41,39 +85,15 @@ public class Subscriber implements UserState {
         return false;
     }
 
-    public void setUserName(String userName) {
-        this.username = userName;
-    }
 
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
-    public void addPermission(Store store,User user, User grantor, String type ){
-        Permission permission = new Permission(user,grantor, type, store);
-        permissions.add(permission);
-    }
 
-    public boolean logout(ShoppingCart cart) {
-        cartHistory.copyCart(cart);
-        cart.cleanCart();
-        user.setState(new Guest());
-        return true;
 
-    }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public boolean isAdmin() {
-        return isAdmin;
-    }
 
-    public void setAdmin() {
-        isAdmin = true;
-    }
+
 
     public boolean hasOwnerPermission() {
         for (Permission permission: permissions){
@@ -95,5 +115,8 @@ public class Subscriber implements UserState {
         return null;
       }
 
-
+    public void addPermission(Store store,User user, User grantor, String type ){
+        Permission permission = new Permission(user,grantor, type, store);
+        permissions.add(permission);
+    }
 }
