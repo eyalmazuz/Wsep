@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShoppingBasket {
-    private int storeId;
+    private Store store;
 
     private Map<Integer, Integer> products = new HashMap<>();
 
-    public ShoppingBasket(int storeId) {
-        this.storeId = storeId;
+    public ShoppingBasket(Store store) {
+        this.store = store;
     }
 
     public void addProduct(int productId, int amount) {
@@ -17,7 +17,7 @@ public class ShoppingBasket {
     }
 
     public int getStoreId() {
-        return storeId;
+        return store.getId();
     }
 
     public void editProduct(int productId, int newAmount) {
@@ -26,5 +26,33 @@ public class ShoppingBasket {
 
     public void removeProduct(int productId) {
         products.remove(productId);
+    }
+
+    public boolean checkBuyingPolicy(User user) {
+        boolean allowed = true;
+        for (Integer productId : products.keySet()) {
+            allowed = allowed && store.checkPurchaseValidity(user, productId);
+        }
+        return allowed;
+    }
+
+    public double getTotalPrice(User user) {
+        double totalPrice = 0;
+        for (Integer productId : products.keySet()) {
+            totalPrice += store.getProductPrice(user, productId, products.get(productId));
+        }
+        return totalPrice;
+    }
+
+    public PurchaseDetails savePurchase(User user) {
+        return store.savePurchase(user, products);
+    }
+
+    public void cancelPurchase(PurchaseDetails purchaseDetails) {
+        store.cancelPurchase(purchaseDetails);
+    }
+
+    public Map<Integer, Integer> getProducts() {
+        return products;
     }
 }

@@ -1,18 +1,20 @@
 package Domain.TradingSystem;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShoppingCart {
 
+    private User user;
     private ArrayList<ShoppingBasket> shoppingBaskets = new ArrayList<ShoppingBasket>();
 
-    public void addProduct(int storeId, int productId, int amount) {
-        getOrCreateBasket(storeId).addProduct(productId, amount);
+    public void addProduct(Store store, int productId, int amount) {
+        getOrCreateBasket(store).addProduct(productId, amount);
     }
 
-    public void editProduct(int storeId, int productId, int newAmount) {
-        ShoppingBasket basket = getBasket(storeId);
+    public void editProduct(Store store, int productId, int newAmount) {
+        ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             //TODO: error, no such basket
         } else {
@@ -20,8 +22,8 @@ public class ShoppingCart {
         }
     }
 
-    public void removeProductFromCart(int storeId, int productId) {
-        ShoppingBasket basket = getBasket(storeId);
+    public void removeProductFromCart(Store store, int productId) {
+        ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             //TODO: error, no such basket
         } else {
@@ -33,24 +35,67 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    private ShoppingBasket getBasket(int storeId) {
+    public void attemptPurchase(User user) {
+        double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
-            if (basket.getStoreId() == storeId) {
+            if (!basket.checkBuyingPolicy(user)) {
+                // TODO: message the user with an error
+                return;
+            }
+            double basketPrice = basket.getTotalPrice(user);
+            totalPrice += basketPrice;
+        }
+        if (user.confirmPrice(totalPrice)) {
+            user.requestConfirmedPurchase();
+        }
+    }
+
+    public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {
+        Map<Integer, Map<Integer, Integer>> storeProductsIds = new HashMap<>();
+        for (ShoppingBasket basket : shoppingBaskets) {
+            storeProductsIds.put(basket.getStoreId(), basket.getProducts());
+        }
+        return storeProductsIds;
+    }
+
+    public Map<Integer, PurchaseDetails> savePurchase(User user) {
+        Map<Integer, PurchaseDetails> storePurchaseDetails = new HashMap<>();
+        for (ShoppingBasket basket : shoppingBaskets) {
+            PurchaseDetails details = basket.savePurchase(user);
+            storePurchaseDetails.put(basket.getStoreId(), details);
+        }
+        return storePurchaseDetails;
+    }
+
+    public void cancelPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+        for (Integer storeId : storePurchaseDetails.keySet()) {
+            for (ShoppingBasket basket : shoppingBaskets) {
+                if (basket.getStoreId() == storeId) {
+                    basket.cancelPurchase(storePurchaseDetails.get(storeId));
+                    break;
+                }
+            }
+        }
+    }
+
+    private ShoppingBasket getBasket(Store store) {
+        for (ShoppingBasket basket : shoppingBaskets) {
+            if (basket.getStoreId() == store.getId()) {
                 return basket;
             }
         }
         return null;
     }
 
-    private ShoppingBasket getOrCreateBasket(int storeId) {
-        boolean basketExists = false;
+    private ShoppingBasket getOrCreateBasket(Store store) {
         for (ShoppingBasket basket : shoppingBaskets) {
-            if (storeId == basket.getStoreId()) {
+            if (store.getId() == basket.getStoreId()) {
                 return basket;
             }
         }
-        ShoppingBasket newBasket = new ShoppingBasket(storeId);
+        ShoppingBasket newBasket = new ShoppingBasket(store);
         shoppingBaskets.add(newBasket);
         return newBasket;
     }
+
 }

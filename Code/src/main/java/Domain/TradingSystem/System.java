@@ -1,5 +1,9 @@
 package Domain.TradingSystem;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class System {
 
     private static System instance = null;
@@ -8,6 +12,8 @@ public class System {
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
+
+    private List<Store> stores = new ArrayList<>();
 
     private System(){
         userHandler = new UserHandler();
@@ -41,5 +47,34 @@ public class System {
             return currentUser.addProductToStore(storeId, productId, ammount);
         }
         return false;
+    }
+
+    public boolean makePayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.makePayment(user, storeProductsIds);
+    }
+
+    public void cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        paymentHandler.cancelPayment(user, storeProductsIds);
+    }
+
+    public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        // check whether the stores have enough of the given products
+        for (Integer storeId : storeProductsIds.keySet()) {
+            for (Store store : stores) {
+                if (store.getId() == storeId) {
+                    Map<Integer, Integer> productAmounts = storeProductsIds.get(storeId);
+                    for (Integer productId : productAmounts.keySet()) {
+                        if (store.getProductAmount(productId) < productAmounts.get(productId)) {
+                            return false;
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        supplyHandler.requestSupply(user, storeProductsIds);
+        return true;
     }
 }

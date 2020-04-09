@@ -6,13 +6,16 @@ public class ProductInStore {
     private int amount;
 
     public ProductInStore(int productId, int amount) {
-
-     this.productInfo = new ProductInfo(productId);
-     this.amount = amount;
+        this.productInfo = new ProductInfo(productId);
+        this.amount = amount;
     }
 
     public int getId() {
         return productInfo.getId();
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     public void addAmount(int amount) {
