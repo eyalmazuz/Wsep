@@ -64,4 +64,8 @@ public class Guest implements UserState {
     public boolean editPermission(Subscriber manager, Store store, String details) {
         return false;
     }
+
+    public String getStoreHistory(int storeId) {
+        return null;
+    }
 }
