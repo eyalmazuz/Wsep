@@ -93,8 +93,6 @@ public class System {
         return false;
     }
 
-    //UseCase 4.3
-
     // UseCase 4.3
 
     /**

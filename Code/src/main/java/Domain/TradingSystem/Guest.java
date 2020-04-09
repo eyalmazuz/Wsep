@@ -44,4 +44,12 @@ public class Guest implements UserState {
     public void setUser(User user) {
 
     }
+
+    public Store openStore() {
+        return null;
+    }
+
+    public boolean addOwner(Store store, Subscriber newOwner) {
+        return false;
+    }
 }
