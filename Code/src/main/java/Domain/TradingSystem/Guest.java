@@ -21,8 +21,8 @@ public class Guest implements UserState {
         return false;
     }
 
-    public void addPermission(Store store, Subscriber grantor, String type) {
-
+    public boolean addPermission(Store store, Subscriber grantor, String type) {
+        return false;
     }
 
     public boolean logout(ShoppingCart cart) {
