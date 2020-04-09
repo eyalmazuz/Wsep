@@ -57,4 +57,23 @@ public class UserHandler {
         }
         return null;
     }
+
+    public List<Integer> getManagersOfCurUser(int storeId, int grantorId) {
+        List <Integer> ans = new LinkedList<Integer>();
+        for (Subscriber user: users){
+            if (user.isGrantedBy(storeId,grantorId)){
+                ans.add(user.getId());
+            }
+        }
+        return ans;
+    }
+
+    public String getManagerDetails(int managerId, int storeId) {
+        for (Subscriber user: users){
+            if (user.getId() == managerId)
+                return user.getManagerDetails(storeId);
+        }
+        return null;
+    }
+
 }

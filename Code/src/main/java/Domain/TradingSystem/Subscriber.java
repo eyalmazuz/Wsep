@@ -95,7 +95,6 @@ public class Subscriber implements UserState {
         }
         return false;
 
-
     }
 
     public boolean deleteProductFromStore(int store, int productId) {
@@ -133,6 +132,35 @@ public class Subscriber implements UserState {
             }
         }
         return false;
+    }
+
+    public boolean deleteManager(Store store, Subscriber managerToDelete) {
+        if(hasPermission(store.getId(),"Owner")!= null){
+            if (this.equals(managerToDelete.getGrantor("Manager",store))){
+                managerToDelete.removePermission(store,"Manager");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removePermission(Store store, String type) {
+        for (Permission permission : permissions) {
+            if (permission.getStore().equals(store) && permission.getType().equals(type)) {
+                permissions.remove(permission);
+                break;
+            }
+        }
+    }
+
+
+    private Subscriber getGrantor(String type, Store store) {
+        for (Permission permission: permissions){
+            if (permission.getStore().equals(store) && permission.getType().equals(type)){
+                return permission.getGrantor();
+            }
+        }
+        return null;
     }
 
 
@@ -175,4 +203,44 @@ public class Subscriber implements UserState {
         }
         return false;
     }
+
+    public boolean isGrantedBy(int storeId, int grantorId) {
+        for (Permission permission : permissions){
+            if (permission.getType().equals("Manager") &&
+                    permission.getStore().getId() == storeId
+                        && permission.getGrantor().getId()==grantorId){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getManagerDetails(int storeId) {
+        for (Permission permission : permissions){
+            if (permission.getStore().getId()==storeId)
+                return permission.getDetails();
+        }
+        return null;
+    }
+
+
+    boolean editPermission(Subscriber manager, Store store, String details) {
+        if (hasPermission(store.getId(), "Owner") != null) {
+            if (this.equals(manager.getGrantor("Manager",store))){
+                manager.overridePermission("Manager",store,details);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void overridePermission(String type, Store store, String details) {
+        for (Permission permission: permissions){
+            if (permission.getStore().equals(store) &&
+                   permission.getType().equals(type))
+                permission.setDetails(details);
+        }
+
+    }
+
 }

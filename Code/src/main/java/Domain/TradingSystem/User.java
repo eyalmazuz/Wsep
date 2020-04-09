@@ -57,4 +57,10 @@ public class User {
     public boolean addManager(Store store, Subscriber newManager) {
         return state.addManager(store,newManager);
     }
+
+    public boolean deleteManager(Store store, Subscriber managerToDelete) {
+        return state.deleteManager(store,managerToDelete);
+    }
+
+
 }

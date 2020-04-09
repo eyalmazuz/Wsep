@@ -52,4 +52,16 @@ public class Guest implements UserState {
     public boolean addOwner(Store store, Subscriber newOwner) {
         return false;
     }
+
+    public boolean addManager(Store store, Subscriber newManager) {
+        return false;
+    }
+
+    public boolean deleteManager(Store store, Subscriber managerToDelete) {
+        return false;
+    }
+
+    public boolean editPermission(Subscriber manager, Store store, String details) {
+        return false;
+    }
 }

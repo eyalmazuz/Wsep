@@ -166,6 +166,69 @@ public class System {
         return false;
     }
 
+    public boolean deleteManager (int storeId, int userId) {
+        //TODO:Add logger call
+        Subscriber managerToDelete = userHandler.getUser(userId);
+        if (managerToDelete == null)
+            return false;
+        for (Store store : stores) {
+            if (store.getId() == storeId) {
+                return currentUser.deleteManager(store,managerToDelete);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Use Case 4.6.1
+     * get all managers that were granted by the current user.
+     * @param storeId
+     * @return list of users ID's. If there is no permission, returns null.
+     * If there are'nt users - return empty list.
+     */
+    public List <Integer> getManagersOfCurUser(int storeId){
+        //TODO:Add logger call
+        if (currentUser.getState().hasOwnerPermission(storeId)){
+            return userHandler.getManagersOfCurUser(storeId,
+                    ((Subscriber)currentUser.getState()).getId());
+        }
+        else
+            return null;
+
+}
+
+    /**
+     *
+     * @param managerId
+     * @param storeId
+     * @return
+     */
+    public String getManagerDetails(int managerId, int storeId){
+        if (currentUser.getState().hasOwnerPermission(storeId)) {
+            return userHandler.getManagerDetails(managerId, storeId);
+        }
+        return null;
+    }
+
+    /**
+     * set manager details :)
+     * @param managerId
+     * @param storeId
+     * @param details
+     * @return
+     */
+    public boolean setManagerDetalis(int managerId, int storeId, String details){
+        Subscriber manager = userHandler.getUser(managerId);
+        if (manager == null)
+            return false;
+        for (Store store : stores) {
+            if (store.getId() == storeId) {
+                return currentUser.getState().editPermission(manager, store, details);
+            }
+        }
+        return false;
+    }
+
 
 
 
