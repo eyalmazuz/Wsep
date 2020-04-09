@@ -2,20 +2,21 @@ package Domain.TradingSystem;
 
 public class System {
 
-    private static System instance = new System();
+    private static System instance = null;
+
+    private User currentUser;
+    private SupplyHandler supplyHandler;
+    private PaymentHandler paymentHandler;
+    private UserHandler userHandler;
 
     private System(){
         userHandler = new UserHandler();
     }
 
     public static System getInstance(){
+        if (instance == null) instance = new System();
         return instance;
     }
-
-    private User currentUser;
-    private SupplyHandler supplyHandler;
-    private PaymentHandler paymentHandler;
-    private UserHandler userHandler;
 
     //Usecase 1.1
     private void setSupply(String config){
@@ -25,7 +26,6 @@ public class System {
     private void setPayment(String config){
        paymentHandler = new PaymentHandler(config);
     }
-
 
 
     public void setup(String supplyConfig,String paymentConfig){
