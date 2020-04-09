@@ -234,6 +234,17 @@ public class Subscriber implements UserState {
         return false;
     }
 
+    public String getStoreHistory(int storeId) {
+        Store store = hasPermission(storeId, "Owner");
+        if (store == null){
+            store = hasPermission(storeId, "Manager");
+            if (store == null)
+                return null;
+            return store.getHistory();
+        }
+        return null;
+    }
+
     private void overridePermission(String type, Store store, String details) {
         for (Permission permission: permissions){
             if (permission.getStore().equals(store) &&

@@ -29,4 +29,6 @@ package Domain.TradingSystem;
 
 
      boolean editPermission(Subscriber manager, Store store, String details);
+
+     String getStoreHistory(int storeId);
  }

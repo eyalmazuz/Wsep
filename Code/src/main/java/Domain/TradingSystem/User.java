@@ -63,4 +63,7 @@ public class User {
     }
 
 
+    public String getStoreHistory(int storeId) {
+        return state.getStoreHistory(storeId);
+    }
 }

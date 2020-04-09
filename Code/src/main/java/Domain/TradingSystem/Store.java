@@ -13,6 +13,8 @@ public class Store {
     private int id;
     private List<ProductInStore> products;
     private List <Subscriber> managers;
+    private History history;
+
 
 
     public Store(){
@@ -82,5 +84,8 @@ public class Store {
                 managers_.add(manager);
         }
         return managers_;
+    }
+    public String getHistory(){
+        return history.toString();
     }
 }

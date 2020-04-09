@@ -166,6 +166,12 @@ public class System {
         return false;
     }
 
+    /**
+     * Delete manager that was granted by the current user.
+     * @param storeId
+     * @param userId
+     * @return
+     */
     public boolean deleteManager (int storeId, int userId) {
         //TODO:Add logger call
         Subscriber managerToDelete = userHandler.getUser(userId);
@@ -228,6 +234,13 @@ public class System {
         }
         return false;
     }
+
+    public String getStoreHistory(int storeId){
+        return currentUser.getStoreHistory(storeId);
+    }
+
+
+
 
 
 
