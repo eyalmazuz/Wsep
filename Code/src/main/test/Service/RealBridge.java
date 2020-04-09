@@ -63,15 +63,15 @@ public class RealBridge implements Bridge {
 
     public boolean deleteProduct(int id) { return false ;}
 
-    public boolean appointManager(String username) { return false ;}
+    public boolean appointManager(int storeId, String username) { return false ;}
 
-    public boolean appointOwner(String username) { return false ;}
+    public boolean appointOwner(int storeId, String username) { return false ;}
 
-    public boolean removeManager(int id) { return false ;}
+    public boolean removeManager(int storeId, String username) { return false ;}
 
     public boolean editManagerOptions(int id, int option){ return false;}
 
-    public boolean updateItemDiscount(int itemID, int discount){ return false;}
+    public boolean updateItemDiscount(int storeId, int itemID, int discount){ return false;}
 
     public List<History> viewShopHistory(){ return null; }
 }

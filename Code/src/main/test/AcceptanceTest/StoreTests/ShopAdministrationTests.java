@@ -14,53 +14,60 @@ public class ShopAdministrationTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("hanamru", "123456");
+        login("chika", "12345");
+        openStore();
+        appointOwner(1,"hanamaru");
+        appointManager(1, "dia");
+
     }
 
 
     // USE CASES 4.3
     @Test
     public void testAppointAnotherManagerSuccessful(){
-        assertTrue(appointManager("bob"));
+        assertTrue(appointManager(1,"ruby"));
     }
 
     @Test
     public void testAppointAnotherManagerFailureNonExistingUser(){
-        assertFalse(appointManager("danny"));
+        assertFalse(appointManager(1, "danny"));
     }
 
     @Test
     public void testAppointAnotherManagerFailureAlreadyManager(){
-        assertFalse(appointManager("chika"));
+        assertFalse(appointManager(1,"hanamaru"));
     }
 
     // USE CASES 4.5
     @Test
     public void testAppointAnotherOwnerSuccessful(){
-        assertTrue(appointOwner("bob"));
+        assertTrue(appointOwner(1,"kanan"));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureNonExistingUser(){
-        assertFalse(appointOwner("danny"));
+        assertFalse(appointOwner(1,"danny"));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureAlreadyManager(){
-        assertFalse(appointOwner("chika"));
+        assertFalse(appointOwner(1,"dia"));
     }
 
     // USE CASES 4.7
     @Test
     public void testRemoveManagerSuccessful(){
-        assertTrue(removeManager(1));
+        assertTrue(removeManager(1, "hanamaru"));
     }
 
     @Test
     public void testRemoveManagerFailureNonExistingUser(){
-        assertFalse(removeManager(2));
+        assertFalse(removeManager(1, "danny"));
     }
 
     //USE CASE 4.10
+    //TODO FIX THIS
     @Test
     public void testViewShopHistory(){
         assertEquals(viewShopHistory(), "THIS IS A SHOP");
@@ -70,21 +77,21 @@ public class ShopAdministrationTests extends ServiceTest {
     //USE CASE 5.1
     @Test
     public void testUpdateDiscountItemSuccessful(){
-        assertTrue(updateItemDiscount(5, 20));
+        assertTrue(updateItemDiscount(1, 5, 20));
     }
 
     @Test
     public void testUpdateDiscountItemFailureInvalidID(){
-        assertFalse(updateItemDiscount(15, 20));
-        assertFalse(updateItemDiscount(25, 20));
-        assertFalse(updateItemDiscount(35, 20));
+        assertFalse(updateItemDiscount(1,15, 20));
+        assertFalse(updateItemDiscount(1,25, 20));
+        assertFalse(updateItemDiscount(1,35, 20));
     }
 
     @Test
     public void testUpdateDiscountItemFailureInvalidDiscount(){
-        assertFalse(updateItemDiscount(5, -20));
-        assertFalse(updateItemDiscount(5, 500));
-        assertFalse(updateItemDiscount(5, 0));
+        assertFalse(updateItemDiscount(1,5, -20));
+        assertFalse(updateItemDiscount(1,5, 500));
+        assertFalse(updateItemDiscount(1,5, 0));
     }
 
 

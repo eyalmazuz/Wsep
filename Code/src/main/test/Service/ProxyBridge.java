@@ -175,27 +175,27 @@ public class ProxyBridge implements Bridge {
             }
         }
 
-    public boolean appointManager(String username){
+    public boolean appointManager(int storeId, String username){
         if(rb != null){
-            return rb.appointManager(username);
+            return rb.appointManager(storeId, username);
         }
         else{
             return false;
         }
     }
 
-    public boolean appointOwner(String username){
+    public boolean appointOwner(int storeId, String username){
         if(rb != null){
-            return rb.appointOwner(username);
+            return rb.appointOwner(storeId, username);
         }
         else{
             return false;
         }
     }
 
-    public boolean removeManager(int id){
+    public boolean removeManager(int storeId, String username){
         if(rb != null){
-            return rb.removeManager(id);
+            return rb.removeManager(storeId, username);
         }
         else{
             return false;
@@ -211,9 +211,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean updateItemDiscount(int itemID, int discount){
+    public boolean updateItemDiscount(int storeId, int itemID, int discount){
         if(rb != null){
-            return rb.updateItemDiscount(itemID, discount);
+            return rb.updateItemDiscount(storeId, itemID, discount);
         }
         else{
             return false;

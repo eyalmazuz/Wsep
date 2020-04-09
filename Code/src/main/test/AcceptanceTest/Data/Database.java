@@ -9,6 +9,7 @@ public class Database {
             {"chika", "12345"},
             {"kanan", "654321"},
             {"ruby", "54321"},
+            {"dia", "54321"},
     };
 
 

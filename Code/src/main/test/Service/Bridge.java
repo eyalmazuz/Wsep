@@ -43,15 +43,15 @@ public interface Bridge {
 
     boolean deleteProduct(int id);
 
-    boolean appointManager(String username);
+    boolean appointManager(int storeId, String username);
 
-    boolean appointOwner(String username);
+    boolean appointOwner(int storeId, String username);
 
-    boolean removeManager(int id);
+    boolean removeManager(int storeId, String username);
 
     boolean editManagerOptions(int id, int option);
 
     List<History> viewShopHistory();
 
-    boolean updateItemDiscount(int itemID, int discount);
+    boolean updateItemDiscount(int storeId, int itemID, int discount);
 }

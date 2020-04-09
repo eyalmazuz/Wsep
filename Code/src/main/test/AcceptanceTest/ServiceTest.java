@@ -68,15 +68,15 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean deleteProduct(int id) { return bridge.deleteProduct(id); }
 
-    public boolean appointManager(String username) { return bridge.appointManager(username); }
+    public boolean appointManager(int storeId, String username) { return bridge.appointManager(storeId, username); }
 
-    public boolean appointOwner(String username) { return bridge.appointOwner(username); }
+    public boolean appointOwner(int storeId, String username) { return bridge.appointOwner(storeId, username); }
 
-    public boolean removeManager(int id) { return bridge.removeManager(id); }
+    public boolean removeManager(int storeId, String username) { return bridge.removeManager(storeId, username); }
 
     public boolean editManagerOptions(int id, int option){ return bridge.editManagerOptions(id, option); }
 
-    public boolean updateItemDiscount(int itemID, int discount){ return bridge.updateItemDiscount(itemID, discount); }
+    public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 
     public List<Product> searchProducts(String name, String category, String keyword, FilterOption option){
         return this.bridge.searchProducts(name, category, keyword, option); }
