@@ -8,9 +8,6 @@ public class Guest implements UserState {
 
 
 
-
-
-
     /**
      *
      *Unused Methods Of subscriber state
@@ -28,12 +25,12 @@ public class Guest implements UserState {
         return false;
     }
 
-    public boolean hasOwnerPermission() {
+    public boolean hasOwnerPermission(int storeId) {
         return false;
     }
 
-    public void addPermission(Store store, User user, User grantor, String type) {
-
+    public boolean addPermission(Store store, Subscriber grantor, String type) {
+        return false;
     }
 
     public boolean logout(ShoppingCart cart) {

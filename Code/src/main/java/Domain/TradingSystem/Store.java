@@ -4,11 +4,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+
 public class Store {
+
+    private static int globalId = 0;
+
     private int id;
     private List<ProductInStore> products;
-    private List <User> managers;
+    private List <Subscriber> managers;
 
+
+    public Store(){
+        this.id = globalId;
+        globalId ++;
+    }
 
     public int getId() {
         return id;
@@ -51,21 +61,17 @@ public class Store {
         return false;
     }
 
-    public List<User> getOwners() {
-        List <User> owners = new LinkedList<User>();
-        for (User manager: managers){
-            if (manager.hasOwnerPermission())
+    public List<Subscriber> getOwners() {
+        List <Subscriber> owners = new LinkedList<Subscriber>();
+        for (Subscriber manager: managers){
+            if (manager.hasOwnerPermission(this.getId()))
                 owners.add(manager);
         }
         return owners;
     }
 
-    public void addOwner(User newOwner, User grantor) {
-        for (User manager: managers){
-            if (manager.equals(newOwner.getState()))
-                manager.addPermission(this,newOwner,grantor,"Owner");
-        }
+    public void addOwner(Subscriber newOwner) {
 
-
+        managers.add(newOwner);
     }
 }

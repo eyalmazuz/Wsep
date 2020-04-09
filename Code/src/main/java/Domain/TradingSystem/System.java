@@ -49,6 +49,16 @@ public class System {
         return currentUser.logout();
     }
 
+    //Usecase 3.2
+
+    public boolean openStroe(){
+        Store newStore  = currentUser.openStore();
+        if (newStore != null){
+            stores.add(newStore);
+        }
+        return true;
+    }
+
 
     //Usecase 3.7
     public String getHistory(){
@@ -83,34 +93,38 @@ public class System {
         return false;
     }
 
+    //UseCase 4.3
+
     // UseCase 4.3
-    public List <User> getAvailableUsersToOwn(int storeId) throws Exception {
+
+    /**
+     *
+     * @param storeId
+     * @return - list of available user id's
+     *           if there is no premission returns null.
+     */
+    public List <Integer> getAvailableUsersToOwn(int storeId) {
         //TODO:Add logger call
-        List <User> owners = new LinkedList<User>(); //update store owners list
-        if (currentUser.getState().hasOwnerPermission()){
+        List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
+        if (currentUser.getState().hasOwnerPermission(storeId)){
             for (Store store: stores) {
                 if (store.getId()==storeId)
                     owners = store.getOwners();
             }
-            if (owners == null)
-                return null;
-            List <Subscriber> ownersSubs = new LinkedList<Subscriber>();
-            for (User owner: owners){
-                ownersSubs.add((Subscriber) owner.getState());
-            }
-            userHandler.getAvailableUsersToOwn(ownersSubs); // return only available subs
+
+            return userHandler.getAvailableUsersToOwn(owners); // return only available subs
         }
         else
-            throw new Exception("No permission");
-        return null;
+            return null;
     }
 
-    public boolean addStoreOwner (int storeId, User newOwner) {
+    public boolean addStoreOwner (int storeId, int userId) {
         //TODO:Add logger call
+        Subscriber newOwner = userHandler.getUser(userId);
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                store.addOwner(newOwner, currentUser);
-                return true;
+                return currentUser.addOwner(store,newOwner);
+
             }
         }
         return false;

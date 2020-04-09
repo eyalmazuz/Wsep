@@ -35,12 +35,26 @@ public class UserHandler {
         return found;
     }
 
-    public List <Subscriber> getAvailableUsersToOwn(List <Subscriber> owners) {
-        List <Subscriber> availableSubs = new LinkedList<Subscriber>();
+    /**
+     * get users that are not in owners list
+     * @param owners - the users to exclude
+     * @return a list of the remaining user id's
+     */
+    public List <Integer> getAvailableUsersToOwn(List <Subscriber> owners) {
+        List <Integer> availableSubs = new LinkedList<Integer>();
         for (Subscriber user: users){
             if (!owners.contains(user))
-                availableSubs.add(user);
+                availableSubs.add(user.getId());
         }
         return availableSubs;
+    }
+
+    public Subscriber getUser(int userId) {
+        for(Subscriber s : users){
+            if (s.getId() == userId){
+                return s;
+            }
+        }
+        return null;
     }
 }

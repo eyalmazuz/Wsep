@@ -8,14 +8,16 @@ import java.util.Map;
 
 public class Permission {
 
-    User user;
-    User grantor;
+    Subscriber user;
+    Subscriber grantor;
     String type; //Owner\Manager
     Store store;
 
-    public Permission(User user, User grantor, String type, Store store){
+    public Permission(Subscriber user, Subscriber grantor, String type, Store store){
         this.grantor = grantor;
         this.user = user;
+        this.type = type;
+        this.store = store;
 
     }
 
@@ -26,5 +28,9 @@ public class Permission {
 
     public String getType() {
         return type;
+    }
+
+    public boolean isOwner(int storeId) {
+        return((storeId == store.getId()) && type.equals("Owner"));
     }
 }
