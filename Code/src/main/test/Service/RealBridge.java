@@ -23,15 +23,15 @@ public class RealBridge implements Bridge {
         return null;
     }
 
-    public boolean addToCart(String productName, Integer amount) {
+    public boolean addToCart(int productId, Integer amount) {
         return false;
     }
 
-    public boolean updateAmount(int amount) {
+    public boolean updateAmount(int productId, int amount) {
         return false;
     }
 
-    public boolean deleteItemInCart(String productName) {
+    public boolean deleteItemInCart(int productId) {
         return false;
     }
 
@@ -69,7 +69,7 @@ public class RealBridge implements Bridge {
 
     public boolean removeManager(int storeId, String username) { return false ;}
 
-    public boolean editManagerOptions(int id, int option){ return false;}
+    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){ return false;}
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return false;}
 

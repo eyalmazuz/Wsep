@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class ShoppingCart {
 
-    private Map<String, Integer> items;
+    public Map<Integer, Integer> items;
 
     public ShoppingCart(){
-        items = new HashMap<String, Integer>();
+        items = new HashMap<Integer, Integer>();
     }
 
 }

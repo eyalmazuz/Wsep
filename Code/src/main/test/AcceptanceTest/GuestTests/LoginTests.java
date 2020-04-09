@@ -33,8 +33,8 @@ public class LoginTests extends ServiceTest {
 
     @Test
     public void testLoginFailureNonExistingUser(){
-        assertFalse(login("bob1234", "1234"));
-        assertFalse(login("dasfaf", "4515"));
-        assertFalse(login("sadasd", "123121231"));
+        assertFalse(login("yohariko", "1234"));
+        assertFalse(login("yoahne", "4515"));
+        assertFalse(login("yoshiko", "123121231"));
     }
 }

@@ -4,10 +4,10 @@ import java.util.List;
 
 public class Store {
 
-    private String name;
-    private User owner;
-    private List<Product> items;
-    private List<History> purchaseHistory;
+    public String name;
+    public User owner;
+    public List<Product> items;
+    public List<History> purchaseHistory;
 
     public Store(){
 

@@ -14,6 +14,10 @@ public class SearchProductTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("chika", "12345");
+        openStore();
+        addProdcut(1 , 500);
+
     }
 
     @Test
@@ -23,7 +27,7 @@ public class SearchProductTests extends ServiceTest {
 
     @Test
     public void testSearchProductsFilterSuccessful(){
-        assertEquals(searchProducts("Iphone", null, null, new FilterOption("price", "2500", "")), Database.Products);
+        assertEquals(searchProducts("Iphone", "Phone", null, new FilterOption("price", "2500", "")), Database.ProductsFiltered);
 
     }
 

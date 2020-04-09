@@ -17,24 +17,24 @@ public class PurchaseCartTests extends ServiceTest {
 
     @Test
     public void testPurchaseSuccessful(){
-        assertTrue(buyCart("bob", "Name: Iphone 11, amount: 30"));
+        assertTrue(buyCart("bob", null));
     }
 
     @Test
     public void testPurchaseFailureBadPolicy(){
-        assertFalse(buyCart("danny", "Name: Iphone 11, amount: 30"));
+        assertFalse(buyCart("danny", null));
 
     }
 
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
-        assertFalse(buyCart("bob", "Name: Iphone 11, amount: 30000"));
+        assertFalse(buyCart("bob", null));
 
     }
 
     @Test
     public void testPurchaseFailureInvalidDetails(){
-        assertFalse(buyCart("bob", "Name: Iphonasaasd 11, amount: 30"));
+        assertFalse(buyCart("bob", null));
 
     }
 }

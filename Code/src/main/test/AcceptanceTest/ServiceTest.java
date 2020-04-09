@@ -17,7 +17,17 @@ public abstract class ServiceTest extends TestCase {
     }
 
     private void setUpStores() {
-
+        Store store = new Store();
+        store.owner = new User("hanamaru", "123456");
+        store.items.add(new Product(1, 200, "Phone", 5 ));
+        store.items.add(new Product(2, 100, "Phone",5));
+        Database.Stores.add(store);
+        store = new Store();
+        store.owner = new User("chika", "12345");
+        store.items.add(new Product(1, 200, "Phone", 5 ));
+        store.items.add(new Product(3, 50, "Food",10));
+        Database.Stores.add(store);
+        Database.hcart.items.put(1, 5);
     }
 
     private void setUpUsers() {
@@ -38,16 +48,16 @@ public abstract class ServiceTest extends TestCase {
         return this.bridge.register(username, password);
     }
 
-    public boolean addToCart(String productName, Integer amount){
-        return this.bridge.addToCart(productName, amount);
+    public boolean addToCart(int productId, Integer amount){
+        return this.bridge.addToCart(productId, amount);
     }
 
-    public boolean updateAmount(int amount){
-        return bridge.updateAmount(amount);
+    public boolean updateAmount(int productId, int amount){
+        return bridge.updateAmount(productId, amount);
     }
 
-    public boolean deleteItemInCart(String productName){
-        return bridge.deleteItemInCart(productName);
+    public boolean deleteItemInCart(int productId){
+        return bridge.deleteItemInCart(productId);
     }
 
     public boolean clearCart(){
@@ -74,7 +84,7 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean removeManager(int storeId, String username) { return bridge.removeManager(storeId, username); }
 
-    public boolean editManagerOptions(int id, int option){ return bridge.editManagerOptions(id, option); }
+    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){ return bridge.editManagerOptions(storeId, userId, adminId, option); }
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 

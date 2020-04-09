@@ -17,4 +17,8 @@ public class Database {
 
     public static ArrayList<Product> Products = new ArrayList<Product>();
 
+    public static ArrayList<Product> ProductsFiltered = new ArrayList<Product>();
+
+    public static ShoppingCart hcart = new ShoppingCart();
+
 }

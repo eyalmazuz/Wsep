@@ -28,14 +28,18 @@ public class UserActionsTests extends ServiceTest {
     public void testOpenStoreSuccessful(){
         login("chika", "12345");
         assertTrue(openStore());
+        assertTrue(openStore());
+        logout();
+        login("hanamaru", "123456");
+        assertTrue(openStore());
     }
 
     //USE CASES 3.7
     @Test
     public void testViewPurchaseHistory(){
         login("chika", "12345");
-        addToCart("Aqours KB", 5);
-        addToCart("UO", 200);
+        addToCart(1, 5);
+        addToCart(2, 5);
         buyCart("chika", viewCart());
         assertNotNull(viewPurchaseHistory());
     }

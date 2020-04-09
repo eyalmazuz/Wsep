@@ -16,10 +16,10 @@ public class RegistrationTests extends ServiceTest {
 
     @Test
     public void testRegisterSuccessful() {
-        assertTrue(register("bobTheKing", "1234"));
-        assertTrue(register("bobby", "12131231"));
-        assertTrue(register("bobob", "1232f3f23f"));
-        assertTrue(register("bob123", "ggg12ggg34"));
+        assertTrue(register("yohane", "1234"));
+        assertTrue(register("yoshiko", "12345"));
+        assertTrue(register("riko", "12345"));
+        assertTrue(register("yohariko", "12345"));
     }
 
     @Test

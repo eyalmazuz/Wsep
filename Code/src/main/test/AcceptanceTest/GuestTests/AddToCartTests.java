@@ -13,25 +13,32 @@ public class AddToCartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("chika", "12345");
+        openStore();
+        addProdcut(1, 100);
+        addProdcut(2, 100);
+        addProdcut(3, 100);
+        addProdcut(4, 100);
+        addProdcut(5, 100);
+        logout();
         login("hanamaru", "123456");
-        addToCart("Iphone", 5);
+        addToCart(1, 5);
     }
 
 
     @Test
     public void testAddToCartSuccessful(){
-        assertTrue(addToCart("Food", 5));
-        assertTrue(addToCart("Tablet", 5));
-        assertTrue(addToCart("KB", 5));
-        assertTrue(addToCart("UO", 5));
-        assertTrue(addToCart("Aqours dome tour single ", 100));
+        assertTrue(addToCart(2, 5));
+        assertTrue(addToCart(3, 5));
+        assertTrue(addToCart(4, 5));
+        assertTrue(addToCart(5, 100));
     }
 
     @Test
     public void testAddToCartFailure(){
-        assertFalse(addToCart("Iphone", 5));
-        assertFalse(addToCart("Reasons to live", 0));
-        assertFalse(addToCart("Reasons to live", -5));
-        assertFalse(addToCart("Life", null));
+        assertFalse(addToCart(1, 5));
+        assertFalse(addToCart(2, 0));
+        assertFalse(addToCart(2, -5));
+        assertFalse(addToCart(3, null));
     }
 }

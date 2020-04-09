@@ -12,12 +12,13 @@ public class AdminSearchTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+
     }
 
     //USE CASES 6.4.1
     @Test
     public void testSearchUserHistorySuccessful(){
-        assertEquals(searchUserHistory("bob"), "Bob, Register Date: 3.3.3, Purchases: 30000");
+        assertEquals(searchUserHistory("hanamaru"), "Bob, Register Date: 3.3.3, Purchases: 30000");
     }
 
     @Test

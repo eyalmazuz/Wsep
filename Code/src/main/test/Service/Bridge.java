@@ -17,11 +17,11 @@ public interface Bridge {
 
     List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions);
 
-    boolean addToCart(String productName, Integer amount);
+    boolean addToCart(int productId, Integer amount);
 
-    boolean updateAmount(int amount);
+    boolean updateAmount(int productId, int amount);
 
-    boolean deleteItemInCart(String productName);
+    boolean deleteItemInCart(int productId);
 
     boolean clearCart();
 
@@ -49,7 +49,7 @@ public interface Bridge {
 
     boolean removeManager(int storeId, String username);
 
-    boolean editManagerOptions(int id, int option);
+    boolean editManagerOptions(int storeId, int userId,int adminId, String option);
 
     List<History> viewShopHistory();
 

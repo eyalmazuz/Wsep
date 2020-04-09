@@ -47,9 +47,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean addToCart(String productName, Integer amount) {
+    public boolean addToCart(int productId, Integer amount) {
         if (rb != null) {
-            return rb.addToCart(productName, amount);
+            return rb.addToCart(productId, amount);
         }
         else {
             return false;
@@ -57,18 +57,18 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean updateAmount(int amount) {
+    public boolean updateAmount(int productId, int amount) {
         if (rb != null) {
-            return rb.updateAmount(amount);
+            return rb.updateAmount(productId, amount);
         }
         else {
             return false;
         }
     }
 
-    public boolean deleteItemInCart(String productName) {
+    public boolean deleteItemInCart(int productId) {
         if (rb != null) {
-            return rb.deleteItemInCart(productName);
+            return rb.deleteItemInCart(productId);
         }
         else {
             return true;
@@ -202,9 +202,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean editManagerOptions(int id, int option){
+    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){
         if(rb != null){
-            return rb.editManagerOptions(id, option);
+            return rb.editManagerOptions(storeId, userId, adminId, option);
         }
         else{
             return false;
