@@ -119,6 +119,8 @@ public class System {
     public boolean addStoreOwner (int storeId, int userId) {
         //TODO:Add logger call
         Subscriber newOwner = userHandler.getUser(userId);
+        if (newOwner == null)
+            return false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
                 return currentUser.addOwner(store,newOwner);
@@ -127,4 +129,50 @@ public class System {
         }
         return false;
     }
+
+
+    /**
+     *  Use Case 4.5
+     * @param storeId
+     * @return - list of available user id's
+     *           if there is no premission returns null.
+     */
+    public List <Integer> getAvailableUsersToManage(int storeId) {
+        //TODO:Add logger call
+        List <Subscriber> managers = new LinkedList<Subscriber>(); //update store owners list
+        if (currentUser.getState().hasOwnerPermission(storeId)){
+            for (Store store: stores) {
+                if (store.getId()==storeId)
+                    managers = store.getManagers();
+            }
+
+            return userHandler.getAvailableUsersToOwn(managers); // return only available subs
+        }
+        else
+            return null;
+    }
+
+    public boolean addStoreManager (int storeId, int userId) {
+        //TODO:Add logger call
+        Subscriber newManager = userHandler.getUser(userId);
+        if (newManager == null)
+            return false;
+        for (Store store : stores) {
+            if (store.getId() == storeId) {
+                return currentUser.addManager(store,newManager);
+
+            }
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
 }

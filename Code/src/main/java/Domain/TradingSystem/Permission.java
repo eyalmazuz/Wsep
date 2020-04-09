@@ -31,6 +31,11 @@ public class Permission {
     }
 
     public boolean isOwner(int storeId) {
+
         return((storeId == store.getId()) && type.equals("Owner"));
+    }
+
+    public boolean isManager(int storeId) {
+        return ((storeId == store.getId()) && type.equals("Manager"));
     }
 }

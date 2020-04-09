@@ -22,4 +22,6 @@ package Domain.TradingSystem;
      Store openStore();
 
      boolean addOwner(Store store, Subscriber newOwner);
+
+     boolean addManager(Store store, Subscriber newManager);
  }

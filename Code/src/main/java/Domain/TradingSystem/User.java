@@ -53,4 +53,8 @@ public class User {
     public String getHistory() {
         return state.getHistory();
     }
+
+    public boolean addManager(Store store, Subscriber newManager) {
+        return state.addManager(store,newManager);
+    }
 }

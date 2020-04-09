@@ -74,4 +74,13 @@ public class Store {
 
         managers.add(newOwner);
     }
+
+    public List<Subscriber> getManagers() {
+        List <Subscriber> managers_ = new LinkedList<Subscriber>();
+        for (Subscriber manager: managers){
+            if (manager.hasManagerPermission(this.getId()))
+                managers_.add(manager);
+        }
+        return managers_;
+    }
 }

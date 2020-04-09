@@ -125,6 +125,16 @@ public class Subscriber implements UserState {
         return false;
     }
 
+    public boolean addManager(Store store, Subscriber newManager) {
+        if(hasPermission(store.getId(),"Owner")!= null){
+            if (!(newManager.hasManagerPermission(store.getId()))) {
+                store.addOwner(newManager);
+                return newManager.addPermission(store, this, "Manager");
+            }
+        }
+        return false;
+    }
+
 
     public boolean hasOwnerPermission(int storeId) {
         for (Permission permission: permissions){
@@ -132,7 +142,6 @@ public class Subscriber implements UserState {
                 return true;
         }
         return false;
-
       }
 
 
@@ -157,5 +166,13 @@ public class Subscriber implements UserState {
 
     public int getId() {
         return id;
+    }
+
+    public boolean hasManagerPermission(int storeId) {
+        for (Permission permission: permissions){
+            if (permission.isManager(storeId))
+                return true;
+        }
+        return false;
     }
 }
