@@ -16,6 +16,8 @@ public class Permission {
     public Permission(Subscriber user, Subscriber grantor, String type, Store store){
         this.grantor = grantor;
         this.user = user;
+        this.type = type;
+        this.store = store;
 
     }
 

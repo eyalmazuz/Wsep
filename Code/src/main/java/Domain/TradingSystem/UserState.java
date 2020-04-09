@@ -10,7 +10,7 @@ package Domain.TradingSystem;
 
      boolean hasOwnerPermission(int storeId);
 
-     void addPermission(Store store, Subscriber grantor, String type );
+     boolean addPermission(Store store, Subscriber grantor, String type );
 
 
      boolean logout(ShoppingCart cart);

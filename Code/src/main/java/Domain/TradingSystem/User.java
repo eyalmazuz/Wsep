@@ -26,8 +26,6 @@ public class User {
     }
 
 
-
-
     public UserState getState() {
         return state;
     }
@@ -36,13 +34,6 @@ public class User {
         this.state = nState;
     }
 
-    public boolean hasOwnerPermission(int storeId) {
-        return state.hasOwnerPermission(storeId);
-    }
-
-    public void addPermission(Store store, Subscriber grantor, String owner) {
-        state.addPermission(store,  grantor, owner);
-    }
 
     public boolean logout() {
         return state.logout(cart);

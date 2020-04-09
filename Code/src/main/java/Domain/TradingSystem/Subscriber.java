@@ -108,8 +108,10 @@ public class Subscriber implements UserState {
 
     public boolean addOwner(Store store, Subscriber newOwner) {
         if(hasPermission(store.getId(),"Owner")!= null){
-            store.addOwner(newOwner);
-            newOwner.addPermission(store,this,"Owner");
+            if (!(newOwner.hasOwnerPermission(store.getId()))) {
+                store.addOwner(newOwner);
+               return newOwner.addPermission(store, this, "Owner");
+            }
         }
         return false;
     }
@@ -135,9 +137,13 @@ public class Subscriber implements UserState {
         return null;
       }
 
-    public void addPermission(Store store, Subscriber grantor, String type ){
-        Permission permission = new Permission(this,grantor, type, store);
-        permissions.add(permission);
+    public boolean addPermission(Store store, Subscriber grantor, String type ){
+        if(!this.equals(grantor)) {
+            Permission permission = new Permission(this, grantor, type, store);
+            permissions.add(permission);
+            return true;
+        }
+        return false;
     }
 
     public int getId() {

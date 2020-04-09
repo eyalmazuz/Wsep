@@ -88,30 +88,30 @@ public class System {
     }
 
     //UseCase 4.3
-/**
+
     // UseCase 4.3
 
-    public List <Subscriber> getAvailableUsersToOwn(int storeId) throws Exception {
+    /**
+     *
+     * @param storeId
+     * @return - list of available user id's
+     *           if there is no premission returns null.
+     */
+    public List <Integer> getAvailableUsersToOwn(int storeId) {
         //TODO:Add logger call
         List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
-        if (currentUser.getState().hasOwnerPermission()){
+        if (currentUser.getState().hasOwnerPermission(storeId)){
             for (Store store: stores) {
                 if (store.getId()==storeId)
                     owners = store.getOwners();
             }
-            if (owners == null)
-                return null;
-            List <Subscriber> ownersSubs = new LinkedList<Subscriber>();
-            for (User owner: owners){
-                ownersSubs.add((Subscriber) owner.getState());
-            }
-            return userHandler.getAvailableUsersToOwn(ownersSubs); // return only available subs
+
+            return userHandler.getAvailableUsersToOwn(owners); // return only available subs
         }
         else
-            throw new Exception("No permission");
-        return null;
+            return null;
     }
-**/
+
     public boolean addStoreOwner (int storeId, int userId) {
         //TODO:Add logger call
         Subscriber newOwner = userHandler.getUser(userId);
