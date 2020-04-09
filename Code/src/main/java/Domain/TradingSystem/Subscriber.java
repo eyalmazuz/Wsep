@@ -224,7 +224,7 @@ public class Subscriber implements UserState {
     }
 
 
-    boolean editPermission(Subscriber manager, Store store, String details) {
+    public boolean editPermission(Subscriber manager, Store store, String details) {
         if (hasPermission(store.getId(), "Owner") != null) {
             if (this.equals(manager.getGrantor("Manager",store))){
                 manager.overridePermission("Manager",store,details);
