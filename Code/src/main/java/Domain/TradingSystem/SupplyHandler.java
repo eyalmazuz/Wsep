@@ -9,7 +9,8 @@ public class SupplyHandler {
         this.config = config;
     }
 
-    public void requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // communicate with supply system
+        return true;
     }
 }

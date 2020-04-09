@@ -74,7 +74,6 @@ public class System {
             }
         }
 
-        supplyHandler.requestSupply(user, storeProductsIds);
-        return true;
+        return supplyHandler.requestSupply(user, storeProductsIds);
     }
 }
