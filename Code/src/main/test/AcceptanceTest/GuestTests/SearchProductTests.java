@@ -16,23 +16,27 @@ public class SearchProductTests extends ServiceTest {
         super.setUp();
         login("chika", "12345");
         openStore();
-        addProdcut(1 , 500);
+        addProdcut(1,1 , 500);
+        editProduct(1, 3000, "KB");
+        addProdcut(2,1 , 500);
+        logout();
+        login("hanamaru", "123456");
 
     }
 
     @Test
     public void testSearchProductSuccessful(){
-        assertEquals(searchProducts("Iphone", "Phones", null, null), Database.Products);
+        assertNotNull(searchProducts(1, "KB", null, null));
     }
 
     @Test
     public void testSearchProductsFilterSuccessful(){
-        assertEquals(searchProducts("Iphone", "Phone", null, new FilterOption("price", "2500", "")), Database.ProductsFiltered);
+        assertNotNull(searchProducts(1, "KB", null, new FilterOption("price", "2500", "")));
 
     }
 
     public void testSearchProductsFailure(){
-        assertEquals(searchProducts(null, null, null,  new FilterOption("price", "2500", "")), null);
+        assertNull(searchProducts(0, null, null,  new FilterOption("price", "2500", "")));
 
     }
 

@@ -19,7 +19,7 @@ public class RealBridge implements Bridge {
         return null;
     }
 
-    public List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions) {
+    public List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions) {
         return null;
     }
 
@@ -55,13 +55,13 @@ public class RealBridge implements Bridge {
 
     public List<History> searchUserHistory(String username){ return null;}
 
-    public List<History> searchStoreHistory(String storeName){ return null;}
+    public List<History> searchStoreHistory(int storeId){ return null;}
 
-    public boolean addProduct(int id, int amount) { return false ;}
+    public boolean addProduct(int productId, int storeId, int amount) { return false ;}
 
-    public boolean editProduct(int id, int amount) { return false ;}
+    public boolean editProduct(int productId, int price, String category) { return false ;}
 
-    public boolean deleteProduct(int id) { return false ;}
+    public boolean deleteProduct(int storeId, int productId) { return false ;}
 
     public boolean appointManager(int storeId, String username) { return false ;}
 

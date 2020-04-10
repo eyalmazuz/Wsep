@@ -12,30 +12,41 @@ public class AdminSearchTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("chika", "12345");
+        openStore();
+        addProdcut(1,1, 5);
+        addProdcut(2,1, 5);
+        logout();
+        login("hanamaru", "123456");
+        addToCart(1, 3);
+        buyCart("hanamaru", viewCart());
+        logout();
+        login("admin", "admin");
+
 
     }
 
     //USE CASES 6.4.1
     @Test
     public void testSearchUserHistorySuccessful(){
-        assertEquals(searchUserHistory("hanamaru"), "Bob, Register Date: 3.3.3, Purchases: 30000");
+        assertNotNull(searchUserHistory("hanamaru"));
     }
 
     @Test
     public void testSearchUserHistoryFailure(){
-        assertEquals(searchUserHistory("danny"), "Invalid user");
+        assertNull(searchUserHistory("danny"));
     }
 
 
     //USE CASES 6.4.2
     @Test
     public void testSearchStoreHistorySuccessful(){
-        assertEquals(searchStoreHistory("Amazon"), "Amazon, Register Date: 3.3.3, items: 30000");
+        assertNotNull(searchStoreHistory(1));
     }
 
     @Test
     public void testSearchStoreHistoryFailure(){
-        assertEquals(searchStoreHistory("ie taigaaa"), "Invalid Store");
+        assertNull(searchStoreHistory(2));
     }
 
 

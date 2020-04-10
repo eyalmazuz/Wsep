@@ -37,9 +37,9 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions) {
+    public List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions) {
         if (rb != null) {
-            return rb.searchProducts(name, category, keyword, filterOptions);
+            return rb.searchProducts(id, category, keyword, filterOptions);
         }
         else {
            return null;
@@ -139,36 +139,36 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<History> searchStoreHistory(String storeName){
+    public List<History> searchStoreHistory(int storeId){
         if(rb != null){
-            return rb.searchUserHistory(storeName);
+            return rb.searchStoreHistory(storeId);
         }
         else{
             return null;
         }
     }
 
-    public boolean addProduct(int id, int amount){
+    public boolean addProduct(int productId, int storeId, int amount){
         if(rb != null){
-            return rb.addProduct(id, amount);
+            return rb.addProduct(productId, storeId, amount);
         }
         else{
             return false;
         }
     }
 
-    public boolean editProduct(int id, int amount){
+    public boolean editProduct(int productId, int price, String category){
         if(rb != null){
-            return rb.editProduct(id, amount);
+            return rb.editProduct(productId, price, category);
         }
         else{
             return false;
         }
     }
 
-    public boolean deleteProduct(int id){
+    public boolean deleteProduct(int storeId, int productId){
             if(rb != null){
-                return rb.deleteProduct(id);
+                return rb.deleteProduct(storeId, productId);
             }
             else{
                 return false;

@@ -15,11 +15,11 @@ public class AddToCartTests extends ServiceTest {
         super.setUp();
         login("chika", "12345");
         openStore();
-        addProdcut(1, 100);
-        addProdcut(2, 100);
-        addProdcut(3, 100);
-        addProdcut(4, 100);
-        addProdcut(5, 100);
+        addProdcut(1, 1,5);
+        addProdcut(2, 1,5);
+        addProdcut(3, 1,5);
+        addProdcut(4, 1,5);
+        addProdcut(5, 1,5);
         logout();
         login("hanamaru", "123456");
         addToCart(1, 5);

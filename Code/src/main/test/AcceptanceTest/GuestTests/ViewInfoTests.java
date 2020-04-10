@@ -15,13 +15,13 @@ public class ViewInfoTests extends ServiceTest {
         super.setUp();
         login("hanamaru", "123456");
         openStore();
-        addProdcut(1, 5);
-        addProdcut(2, 5);
+        addProdcut(1,1, 5);
+        addProdcut(2,1,  5);
         logout();
         login("chika", "12345");
         openStore();
-        addProdcut(1, 5);
-        addProdcut(3, 10);
+        addProdcut(1,1, 5);
+        addProdcut(3,1, 10);
         logout();
         login("kanan", "654321");
 

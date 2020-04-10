@@ -72,11 +72,11 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean openStore(){ return bridge.openStore(); }
 
-    public boolean addProdcut(int id, int amount) { return bridge.addProduct(id, amount); }
+    public boolean addProdcut(int productId, int storeId, int amount) { return bridge.addProduct(productId, storeId, amount); }
 
-    public boolean editProduct(int id, int amount) { return bridge.editProduct(id, amount); }
+    public boolean editProduct(int productId, int price, String category) { return bridge.editProduct(productId, price, category); }
 
-    public boolean deleteProduct(int id) { return bridge.deleteProduct(id); }
+    public boolean deleteProduct(int storeId, int productId) { return bridge.deleteProduct(storeId, productId); }
 
     public boolean appointManager(int storeId, String username) { return bridge.appointManager(storeId, username); }
 
@@ -88,8 +88,8 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 
-    public List<Product> searchProducts(String name, String category, String keyword, FilterOption option){
-        return this.bridge.searchProducts(name, category, keyword, option); }
+    public List<Product> searchProducts(int id, String category, String keyword, FilterOption option){
+        return this.bridge.searchProducts(id, category, keyword, option); }
 
 
     public ShoppingCart viewCart(){
@@ -106,7 +106,7 @@ public abstract class ServiceTest extends TestCase {
 
     public List<History> searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
 
-    public List<History> searchStoreHistory(String storeName) { return this.bridge.searchStoreHistory(storeName);}
+    public List<History> searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
 
     public List<History> viewShopHistory(){ return bridge.viewShopHistory(); }
 

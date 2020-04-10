@@ -12,13 +12,24 @@ public class UserActionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("hanamaru", "123456");
+        openStore();
+        addProdcut(1, 1, 5);
+        addProdcut(2, 1, 5);
+        editProduct(1, 40, "Food");
+        editProduct(2, 50, "Food");
+        logout();
+
+        login("chika", "12345");
+        addToCart(1, 5);
+        addToCart(2, 5);
+        buyCart("chika", viewCart());
 
     }
 
     //USE CASES 3.1
     @Test
     public void testLogout(){
-        login("chika", "12345");
         assertTrue(logout());
     }
 
@@ -26,21 +37,14 @@ public class UserActionsTests extends ServiceTest {
     //USE CASES 3.2
     @Test
     public void testOpenStoreSuccessful(){
-        login("chika", "12345");
         assertTrue(openStore());
-        assertTrue(openStore());
-        logout();
-        login("hanamaru", "123456");
         assertTrue(openStore());
     }
 
     //USE CASES 3.7
     @Test
     public void testViewPurchaseHistory(){
-        login("chika", "12345");
-        addToCart(1, 5);
-        addToCart(2, 5);
-        buyCart("chika", viewCart());
+
         assertNotNull(viewPurchaseHistory());
     }
 

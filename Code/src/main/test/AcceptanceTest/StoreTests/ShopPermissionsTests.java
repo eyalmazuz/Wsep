@@ -23,18 +23,18 @@ public class ShopPermissionsTests extends ServiceTest {
     //USECASES 4.6.1
     @Test
     public void testEditManagerOptionSuccessful(){
-        assertTrue(editManagerOptions(1,1,1, "4"));
-        assertTrue(editManagerOptions(1,1,1, "2"));
-        assertTrue(editManagerOptions(1,1,1, "3"));
+        assertTrue(editManagerOptions(1,1,1, "can edit prices"));
+        assertTrue(editManagerOptions(1,1,1, "can change amount"));
+        assertTrue(editManagerOptions(1,1,1, "can go fuck himself"));
     }
 
     @Test
     public void testEditManagerOptionFailureInvalidOption(){
-        assertFalse(editManagerOptions(1,1,1, "16"));
-        assertFalse(editManagerOptions(1,1,1, "32"));
-        assertFalse(editManagerOptions(1,1,1, "10"));
-        assertFalse(editManagerOptions(1,1,1,"15"));
-        assertFalse(editManagerOptions(1,1,1, "14"));
+        assertFalse(editManagerOptions(1,1,1, "delete store"));
+        assertFalse(editManagerOptions(1,1,1, "trololol"));
+        assertFalse(editManagerOptions(1,1,1, "hahahah"));
+        assertFalse(editManagerOptions(1,1,1,"can break system"));
+        assertFalse(editManagerOptions(1,1,1, "can give free money"));
     }
 
 

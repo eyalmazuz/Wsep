@@ -15,7 +15,7 @@ public interface Bridge {
 
     ShoppingCart viewCart();
 
-    List<Product> searchProducts(String name, String category, String keyword, FilterOption filterOptions);
+    List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions);
 
     boolean addToCart(int productId, Integer amount);
 
@@ -35,13 +35,13 @@ public interface Bridge {
 
     List<History> searchUserHistory(String username);
 
-    List<History> searchStoreHistory(String StoreName);
+    List<History> searchStoreHistory(int storeId);
 
-    boolean addProduct(int id, int amount);
+    boolean addProduct(int productId, int storeId, int amount);
 
-    boolean editProduct(int id, int amount);
+    boolean editProduct(int productId, int price, String category);
 
-    boolean deleteProduct(int id);
+    boolean deleteProduct(int storeId, int productId);
 
     boolean appointManager(int storeId, String username);
 

@@ -17,7 +17,7 @@ public class CartTests extends ServiceTest {
         super.setUp();
         login("chika", "12345");
         openStore();
-        addProdcut(1 , 500);
+        addProdcut(1,1,  500);
         logout();
         login("hanamaru", "123456");
         addToCart(1, 5);

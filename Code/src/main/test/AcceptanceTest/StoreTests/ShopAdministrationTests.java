@@ -17,6 +17,25 @@ public class ShopAdministrationTests extends ServiceTest {
         login("hanamru", "123456");
         login("chika", "12345");
         openStore();
+
+        addProdcut(1, 1, 5);
+        editProduct(1, 50, "Food");
+
+        addProdcut(2, 1, 100);
+        editProduct(2, 50, "Food");
+
+        addProdcut(3, 1, 10);
+        editProduct(3, 100, "Food");
+
+        logout();
+
+        login("ruby", "54321");
+        addToCart(1, 5);
+        buyCart("ruby", viewCart());
+        logout();
+
+        login("chika", "12345");
+
         appointOwner(1,"hanamaru");
         appointManager(1, "dia");
 
@@ -67,10 +86,9 @@ public class ShopAdministrationTests extends ServiceTest {
     }
 
     //USE CASE 4.10
-    //TODO FIX THIS
     @Test
     public void testViewShopHistory(){
-        assertEquals(viewShopHistory(), "THIS IS A SHOP");
+        assertNotNull(viewShopHistory());
     }
 
 
