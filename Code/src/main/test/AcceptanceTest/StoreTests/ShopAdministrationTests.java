@@ -38,6 +38,9 @@ public class ShopAdministrationTests extends ServiceTest {
 
         appointOwner(1,"hanamaru");
         appointManager(1, "dia");
+        logout();
+        login("dia", "54321");
+        appointManager(1, "yoshiko");
 
     }
 
@@ -77,7 +80,7 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.7
     @Test
     public void testRemoveManagerSuccessful(){
-        assertTrue(removeManager(1, "hanamaru"));
+        assertTrue(removeManager(1, "dia"));
     }
 
     @Test

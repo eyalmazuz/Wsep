@@ -10,6 +10,7 @@ public class Database {
             {"kanan", "654321"},
             {"ruby", "54321"},
             {"dia", "54321"},
+            {"yoshiko", "54321"},
     };
 
 
