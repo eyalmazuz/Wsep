@@ -64,8 +64,8 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart();
     }
 
-    public boolean buyCart(String user, ShoppingCart cart){
-        return bridge.buyCart(user, cart);
+    public boolean buyCart(ShoppingCart cart){
+        return bridge.buyCart(cart);
     }
 
     public boolean logout(){ return bridge.logout(); }

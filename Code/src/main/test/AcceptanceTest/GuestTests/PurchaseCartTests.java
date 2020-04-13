@@ -12,29 +12,46 @@ public class PurchaseCartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("hanamaru", "123456");
+        openStore();
+        addProdcut(1, 1, 5);
+        addProdcut(2, 1, 5);
+        editProduct(1, 40, "Food");
+        editProduct(2, 50, "Food");
+        logout();
+
+
     }
 
 
     @Test
     public void testPurchaseSuccessful(){
-        assertTrue(buyCart("bob", null));
+        addToCart(1, 5);
+        addToCart(2, 5);
+        assertTrue(buyCart(viewCart()));
     }
 
     @Test
     public void testPurchaseFailureBadPolicy(){
-        assertFalse(buyCart("danny", null));
+        addToCart(1, 5);
+        addToCart(2, 5);
+        assertFalse(buyCart(viewCart()));
 
     }
 
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
-        assertFalse(buyCart("bob", null));
+        addToCart(1, 500);
+        addToCart(2, 500);
+        assertFalse(buyCart(viewCart()));
 
     }
 
     @Test
     public void testPurchaseFailureInvalidDetails(){
-        assertFalse(buyCart("bob", null));
+        addToCart(1, 5);
+        addToCart(3, 5);
+        assertFalse(buyCart(viewCart()));
 
     }
 }

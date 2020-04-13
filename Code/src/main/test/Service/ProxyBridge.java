@@ -84,9 +84,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(String user, ShoppingCart cart) {
+    public boolean buyCart(ShoppingCart cart) {
         if (rb != null) {
-            return rb.buyCart(user, cart);
+            return rb.buyCart(cart);
         }
         else {
             return false;

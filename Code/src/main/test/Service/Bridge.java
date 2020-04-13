@@ -25,7 +25,7 @@ public interface Bridge {
 
     boolean clearCart();
 
-    boolean buyCart(String user, ShoppingCart cart);
+    boolean buyCart(ShoppingCart cart);
 
     boolean logout();
 

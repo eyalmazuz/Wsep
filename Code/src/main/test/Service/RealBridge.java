@@ -39,7 +39,7 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public boolean buyCart(String user, ShoppingCart cart) {
+    public boolean buyCart(ShoppingCart cart) {
         return false;
     }
 
