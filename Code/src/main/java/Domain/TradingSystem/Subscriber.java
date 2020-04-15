@@ -8,6 +8,16 @@ public class Subscriber implements UserState {
     private String password;
     private boolean isAdmin;
 
+    public Subscriber() {
+
+    }
+
+    public Subscriber(String username, String password, boolean isAdmin) {
+        this.username = username;
+        this.password = password;
+        this.isAdmin = isAdmin;
+    }
+
     public boolean addProductToStore(Store store, int productId, int ammount) {
         store.addProduct(productId,ammount);
         return true;

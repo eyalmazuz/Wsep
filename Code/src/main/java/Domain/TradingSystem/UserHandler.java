@@ -34,4 +34,14 @@ public class UserHandler {
         }
         return found;
     }
+
+    public boolean register(String username, String password) {
+        for (Subscriber sub: users)
+            if (sub.getUsername().equals(username))
+                return false;
+
+        users.add(new Subscriber(username, password, false));
+        return true;
+    }
+
 }

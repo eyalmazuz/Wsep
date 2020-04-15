@@ -67,4 +67,8 @@ public class User {
             // TODO: message user with fail and refund
         }
     }
+
+    public boolean isGuest() {
+        return state instanceof Guest;
+    }
 }
