@@ -1,29 +1,55 @@
 package Domain.TradingSystem;
 
+import javafx.util.Pair;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Permission {
 
-    User user;
-    User grantor;
-    Map<Store,String> manages;
+    Subscriber user;
+    Subscriber grantor;
+    String type; //Owner\Manager
+    Store store;
+    String details ;
 
-    public Permission(User user, User grantor){
+    public Permission(Subscriber user, Subscriber grantor, String type, Store store){
         this.grantor = grantor;
         this.user = user;
-        manages = new HashMap<Store, String>();
+        this.type = type;
+        this.store = store;
+        this.details = "Simple";
+
     }
 
-    protected Store hasPermission(int storeId, String type){
-        for(Store store:manages.keySet()){
-            if (store.getId() == storeId){
-                if(manages.get(store).equals(type)){
-                    return store;
-                }
-            }
-        }
-        return null;
+
+    public Store getStore() {
+        return store;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isOwner(int storeId) {
+
+        return((storeId == store.getId()) && type.equals("Owner"));
+    }
+
+    public boolean isManager(int storeId) {
+        return ((storeId == store.getId()) && type.equals("Manager"));
+    }
+
+    public Subscriber getGrantor() {
+        return grantor;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
     }
 }

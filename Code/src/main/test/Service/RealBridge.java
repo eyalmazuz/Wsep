@@ -3,6 +3,8 @@ package Service;
 
 public class RealBridge implements Bridge {
 
+    DomainController dc = new DomainController();
+
     public boolean login(String username, String password) {
         return false;
     }
@@ -43,31 +45,55 @@ public class RealBridge implements Bridge {
         return null;
     }
 
-    public boolean logout(){ return false; }
+    public boolean logout(){
+        return dc.logout();
+    }
 
-    public boolean openStore() { return false;}
+    public boolean openStore() {
+        return dc.openStore();
+    }
 
-    public String[][] viewPurchaseHistory(){ return null; }
+    //
+    public String[][] viewPurchaseHistory(){
+        String systemHistory = dc.getPurchaseHistory();
+        //TODO: adapt the System history to the AT structure of history.
+        return null;
+    }
 
     public String[][] searchUserHistory(String username){ return null;}
 
     public String[][] searchStoreHistory(int storeId){ return null;}
 
-    public boolean addProduct(int productId, int storeId, int amount) { return false ;}
+    public boolean addProduct(int productId, int storeId, int amount) {
+        return dc.addProduct(productId,storeId,amount) ;
+    }
 
-    public boolean editProduct(int productId, int price, String category) { return false ;}
+    public boolean editProduct(int productId, int price, String category) {
+        //TODO:Not match The usecases Doc.
+        return false ;
+    }
 
-    public boolean deleteProduct(int storeId, int productId) { return false ;}
+    public boolean deleteProduct(int storeId, int productId) {
 
-    public boolean appointManager(int storeId, String username) { return false ;}
+        return dc.deleteProduct(storeId,productId) ;
+    }
+    //TODO:Match the usecases with user id's
+    public boolean appointManager(int storeId, String username) {
+        return false ;
+    }
 
     public boolean appointOwner(int storeId, String username) { return false ;}
 
     public boolean removeManager(int storeId, String username) { return false ;}
 
-    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){ return false;}
+    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){
+       return dc.editManagerOptions(storeId,userId,option);
+    }
 
-    public boolean updateItemDiscount(int storeId, int itemID, int discount){ return false;}
+    public boolean updateItemDiscount(int storeId, int itemID, int discount){
+        return false;
+    }
 
+    //TODO: Match to usecases
     public String[][] viewShopHistory(){ return null; }
 }
