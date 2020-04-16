@@ -43,7 +43,7 @@ public class Database {
     };
 
     public static String[][] History = {
-            //STORE ID, PRODUCT ID, AMOUNT BOUGHT
+            //PRSTORE ID, ODUCT ID, AMOUNT BOUGHT
             {"1", "1", "5"},
             {"1", "2", "5"}
     };
