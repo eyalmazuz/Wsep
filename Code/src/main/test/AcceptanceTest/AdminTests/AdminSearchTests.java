@@ -12,14 +12,9 @@ public class AdminSearchTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("chika", "12345");
-        openStore();
-        addProdcut(1,1, 5);
-        addProdcut(2,1, 5);
-        logout();
         login("hanamaru", "123456");
         addToCart(1, 3);
-        buyCart("hanamaru", viewCart());
+        buyCart(viewCart());
         logout();
         login("admin", "admin");
 

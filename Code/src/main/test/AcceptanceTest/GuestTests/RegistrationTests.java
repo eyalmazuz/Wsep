@@ -27,5 +27,13 @@ public class RegistrationTests extends ServiceTest {
         assertFalse(login("kanan", "654321"));
         assertFalse(login("ruby", "54321"));
     }
+
+    @Test
+    public void testLoginRegistrationBreakingSystem(){
+        assertFalse(login("", ""));
+        assertFalse(login("", null));
+        assertFalse(login(null, ""));
+        assertFalse(login(null, null));
+    }
 }
 
