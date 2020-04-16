@@ -6,7 +6,7 @@ public interface Bridge {
 
     boolean login (String username , String password);
 
-    boolean register(String username, String password);
+    int register(String username, String password);
 
     String[][] getAllInfo();
 
@@ -40,13 +40,13 @@ public interface Bridge {
 
     boolean deleteProduct(int storeId, int productId);
 
-    boolean appointManager(int storeId, String username);
+    boolean appointManager(int storeId, int userId);
 
-    boolean appointOwner(int storeId, String username);
+    boolean appointOwner(int storeId, int userId);
 
-    boolean removeManager(int storeId, String username);
+    boolean removeManager(int storeId, int userId);
 
-    boolean editManagerOptions(int storeId, int userId,int adminId, String option);
+    boolean editManagerOptions(int storeId, int userId, String option);
 
     String[][] viewShopHistory(int storeId);
 

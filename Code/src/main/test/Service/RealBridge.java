@@ -11,8 +11,8 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public boolean register(String username, String password) {
-        return false;
+    public int register(String username, String password) {
+        return -1;
     }
 
     public String[][] getAllInfo() {
@@ -71,7 +71,6 @@ public class RealBridge implements Bridge {
     }
 
     public boolean editProduct(int storeId, int productId, String productInfo) {
-        //TODO:Not match The usecases Doc.
         return false ;
     }
 
@@ -80,15 +79,15 @@ public class RealBridge implements Bridge {
         return dc.deleteProduct(storeId,productId) ;
     }
     //TODO:Match the usecases with user id's
-    public boolean appointManager(int storeId, String username) {
+    public boolean appointManager(int storeId, int userId) {
         return false ;
     }
 
-    public boolean appointOwner(int storeId, String username) { return false ;}
+    public boolean appointOwner(int storeId, int userId) { return false ;}
 
-    public boolean removeManager(int storeId, String username) { return false ;}
+    public boolean removeManager(int storeId, int userId) { return false ;}
 
-    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){
+    public boolean editManagerOptions(int storeId, int userId, String option){
        return dc.editManagerOptions(storeId,userId,option);
     }
 
@@ -96,6 +95,5 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    //TODO: Match to usecases
     public String[][] viewShopHistory(int storeId){ return null; }
 }

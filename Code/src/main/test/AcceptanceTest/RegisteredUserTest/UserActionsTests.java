@@ -42,11 +42,16 @@ public class UserActionsTests extends ServiceTest {
     @Test
     public void testOpenStoreSuccessful(){
         login("you", "12345");
-        assertTrue(openStore());
-        assertTrue(openStore());
-        assertTrue(openStore()>0);
-        assertTrue(openStore()>0);
+        assertTrue(openStore() > 0);
+        assertTrue(openStore() > 0);
     }
+
+    @Test
+    public void testOpenStoreFailure(){
+        assertEquals(-1, openStore());
+        assertEquals(-1, openStore());
+    }
+
 
     //USE CASES 3.7
     @Test

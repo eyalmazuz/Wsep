@@ -13,25 +13,26 @@ public abstract class ServiceTest extends TestCase {
         this.setUpUsers();
     }
 
+    //TODO FIX THIS SHIT
     private void setUpUsers() {
-        for(String[] userData : Database.Users){
-            register(userData[0], userData[1]);
-        }
-        login("chika", "12345");
-        int sid_1 = openStore();
-        addProdcut(1, sid_1, 5);
-        addProdcut(2, sid_1, 5);
-        appointManager(sid_1, "dia");
-        appointOwner(sid_1, "kanan");
-        logout();
-
-        login("dia", "12345");
-        appointManager(sid_1, "ruby");
-        logout();
-
-        login("hanamaru", "12345");
-        int sid_2 = openStore();
-        addProdcut(2, sid_2, 10);
+//        for(String[] userData : Database.Users){
+//            register(userData[0], userData[1]);
+//        }
+//        login("chika", "12345");
+//        int sid_1 = openStore();
+//        addProdcut(1, sid_1, 5);
+//        addProdcut(2, sid_1, 5);
+//        appointManager(sid_1, "dia");
+//        appointOwner(sid_1, "kanan");
+//        logout();
+//
+//        login("dia", "12345");
+//        appointManager(sid_1, "ruby");
+//        logout();
+//
+//        login("hanamaru", "12345");
+//        int sid_2 = openStore();
+//        addProdcut(2, sid_2, 10);
 
     }
 
@@ -43,7 +44,7 @@ public abstract class ServiceTest extends TestCase {
         return this.bridge.login(username, password);
     }
 
-    public boolean register(String username, String password){
+    public int register(String username, String password){
         return this.bridge.register(username, password);
     }
 
@@ -77,13 +78,13 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean deleteProduct(int storeId, int productId) { return bridge.deleteProduct(storeId, productId); }
 
-    public boolean appointManager(int storeId, String username) { return bridge.appointManager(storeId, username); }
+    public boolean appointManager(int storeId, int userId) { return bridge.appointManager(storeId, userId); }
 
-    public boolean appointOwner(int storeId, String username) { return bridge.appointOwner(storeId, username); }
+    public boolean appointOwner(int storeId, int userId) { return bridge.appointOwner(storeId, userId); }
 
-    public boolean removeManager(int storeId, String username) { return bridge.removeManager(storeId, username); }
+    public boolean removeManager(int storeId, int userId) { return bridge.removeManager(storeId, userId); }
 
-    public boolean editManagerOptions(int storeId, int userId,int adminId, String option){ return bridge.editManagerOptions(storeId, userId, adminId, option); }
+    public boolean editManagerOptions(int storeId, int userId, String option){ return bridge.editManagerOptions(storeId, userId, option); }
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 

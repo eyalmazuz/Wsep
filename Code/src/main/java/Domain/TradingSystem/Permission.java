@@ -1,6 +1,5 @@
 package Domain.TradingSystem;
 
-import javafx.util.Pair;
 
 import java.util.HashMap;
 import java.util.List;
