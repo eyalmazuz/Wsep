@@ -18,20 +18,20 @@ public abstract class ServiceTest extends TestCase {
             register(userData[0], userData[1]);
         }
         login("chika", "12345");
-        openStore();
-        addProdcut(1, 1, 5);
-        addProdcut(2, 1, 5);
-        appointManager(1, "dia");
-        appointOwner(1, "kanan");
+        int sid_1 = openStore();
+        addProdcut(1, sid_1, 5);
+        addProdcut(2, sid_1, 5);
+        appointManager(sid_1, "dia");
+        appointOwner(sid_1, "kanan");
         logout();
 
         login("dia", "12345");
-        appointManager(1, "ruby");
+        appointManager(sid_1, "ruby");
         logout();
 
         login("hanamaru", "12345");
-        openStore();
-        addProdcut(2, 2, 10);
+        int sid_2 = openStore();
+        addProdcut(2, sid_2, 10);
 
     }
 
@@ -69,7 +69,7 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean logout(){ return bridge.logout(); }
 
-    public boolean openStore(){ return bridge.openStore(); }
+    public int openStore(){ return bridge.openStore(); }
 
     public boolean addProdcut(int productId, int storeId, int amount) { return bridge.addProduct(productId, storeId, amount); }
 

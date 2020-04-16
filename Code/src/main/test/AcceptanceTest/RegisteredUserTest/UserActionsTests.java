@@ -12,6 +12,7 @@ public class UserActionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        login("you", "12345");
         addToCart(1, 5);
         addToCart(2, 5);
         buyCart(viewCart());
@@ -43,6 +44,8 @@ public class UserActionsTests extends ServiceTest {
         login("you", "12345");
         assertTrue(openStore());
         assertTrue(openStore());
+        assertTrue(openStore()>0);
+        assertTrue(openStore()>0);
     }
 
     //USE CASES 3.7

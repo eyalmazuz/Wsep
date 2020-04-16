@@ -42,6 +42,7 @@ public class System {
     public void addStore (){
         Store store = new Store();
         stores.add(store);
+
     }
 
     //Usecase 3.1
@@ -50,13 +51,17 @@ public class System {
     }
 
     //Usecase 3.2
-
-    public boolean openStroe(){
+    /**
+     * open new store
+     * @return the new store id
+     */
+    public int openStroe(){
         Store newStore  = currentUser.openStore();
         if (newStore != null){
             stores.add(newStore);
-        }
-        return true;
+            return newStore.getId();
+      }
+        return -1;
     }
 
 

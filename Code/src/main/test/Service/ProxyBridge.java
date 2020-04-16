@@ -116,12 +116,12 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean openStore(){
+    public int openStore(){
         if (rb != null){
-            return rb.logout();
+            return rb.openStore();
         }
         else{
-            return true;
+            return 69;
         }
     }
 
