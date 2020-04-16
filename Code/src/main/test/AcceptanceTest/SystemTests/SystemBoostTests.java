@@ -1,6 +1,7 @@
 package AcceptanceTest.SystemTests;
 
 import AcceptanceTest.ServiceTest;
+import Domain.TradingSystem.System;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,15 +20,10 @@ public class SystemBoostTests extends ServiceTest {
 
     //USE CASES 1.1
     @Test
-    public void BootSystemSuccessful(){
-        assertNotNull(searchUserHistory("hanamaru"));
-    }
+    public void BootSystemSuccessful() {
+        assertTrue(setupSystem("supply.config", "payment.config"));
 
-    @Test
-    public void BootSystemFailure(){
-        assertNull(searchUserHistory("danny"));
     }
-
 
 
 }

@@ -41,15 +41,15 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.2
     @Test
     public void testEditProductSuccessful(){
-        assertTrue(editProduct(1, 50, "food"));
-        assertTrue(editProduct(2, 10, "KB"));
+        assertTrue(editProduct(1, 1, "category: food"));
+        assertTrue(editProduct(1, 2, "category: goods"));
 
     }
 
     @Test
     public void testEditProductFailureNonExisting(){
-        assertFalse(editProduct(2, -50, "food"));
-        assertFalse(editProduct(1, 100, null));
+        assertFalse(editProduct(1, -50, "food"));
+        assertFalse(editProduct(3, 1, null));
     }
 
 

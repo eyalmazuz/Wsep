@@ -5,6 +5,8 @@ public class RealBridge implements Bridge {
 
     DomainController dc = new DomainController();
 
+    public boolean setupSystem(String supplyConfig, String paymentConfig) { return false; }
+
     public boolean login(String username, String password) {
         return false;
     }
@@ -68,7 +70,7 @@ public class RealBridge implements Bridge {
         return dc.addProduct(productId,storeId,amount) ;
     }
 
-    public boolean editProduct(int productId, int price, String category) {
+    public boolean editProduct(int storeId, int productId, String productInfo) {
         //TODO:Not match The usecases Doc.
         return false ;
     }
@@ -95,5 +97,5 @@ public class RealBridge implements Bridge {
     }
 
     //TODO: Match to usecases
-    public String[][] viewShopHistory(){ return null; }
+    public String[][] viewShopHistory(int storeId){ return null; }
 }

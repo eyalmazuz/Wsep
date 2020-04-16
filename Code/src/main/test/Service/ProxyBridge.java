@@ -4,6 +4,15 @@ public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
 
+    public boolean setupSystem(String supplyConfig, String paymentConfig){
+        if (rb != null){
+            return rb.setupSystem(supplyConfig, paymentConfig);
+        }
+        else{
+            return false;
+        }
+    }
+
     public boolean login(String username, String password) {
         if (rb != null) {
             return rb.login(username, password);
@@ -152,9 +161,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean editProduct(int productId, int price, String category){
+    public boolean editProduct(int storeId, int productId, String productInfo){
         if(rb != null){
-            return rb.editProduct(productId, price, category);
+            return rb.editProduct(storeId, productId, productInfo);
         }
         else{
             return false;
@@ -217,9 +226,9 @@ public class ProxyBridge implements Bridge {
 
 
 
-    public String[][] viewShopHistory(){
+    public String[][] viewShopHistory(int storeId){
         if(rb != null){
-            return rb.viewShopHistory();
+            return rb.viewShopHistory(storeId);
         }
         else{
             return null;

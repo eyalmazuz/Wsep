@@ -73,7 +73,7 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean addProdcut(int productId, int storeId, int amount) { return bridge.addProduct(productId, storeId, amount); }
 
-    public boolean editProduct(int productId, int price, String category) { return bridge.editProduct(productId, price, category); }
+    public boolean editProduct(int storeId, int productId, String productInfo) { return bridge.editProduct(storeId, productId, productInfo); }
 
     public boolean deleteProduct(int storeId, int productId) { return bridge.deleteProduct(storeId, productId); }
 
@@ -107,7 +107,9 @@ public abstract class ServiceTest extends TestCase {
 
     public String[][] searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
 
-    public String[][] viewShopHistory(){ return bridge.viewShopHistory(); }
+    public String[][] viewShopHistory(int storeId){ return bridge.viewShopHistory(storeId); }
+
+    public boolean setupSystem(String suppyConfig, String paymentConfig) { return bridge.setupSystem(suppyConfig, paymentConfig); }
 
 
 }

@@ -12,7 +12,6 @@ public class UserActionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("you", "12345");
         addToCart(1, 5);
         addToCart(2, 5);
         buyCart(viewCart());
@@ -21,14 +20,27 @@ public class UserActionsTests extends ServiceTest {
 
     //USE CASES 3.1
     @Test
-    public void testLogout(){
+    public void testLogoutSuccessful(){
+        login("you", "12345");
         assertTrue(logout());
+        login("chika", "12345");
+        assertTrue(logout());
+        login("ruby", "12345");
+        assertTrue(logout());
+
+
+    }
+
+    @Test
+    public void testLogoutFailedNotLoggedIn(){
+        assertFalse(logout());
     }
 
 
     //USE CASES 3.2
     @Test
     public void testOpenStoreSuccessful(){
+        login("you", "12345");
         assertTrue(openStore());
         assertTrue(openStore());
     }
@@ -36,7 +48,10 @@ public class UserActionsTests extends ServiceTest {
     //USE CASES 3.7
     @Test
     public void testViewPurchaseHistory(){
-
+        login("you", "12345");
+        addToCart(1, 5);
+        addToCart(2, 5);
+        buyCart(viewCart());
         assertNotNull(viewPurchaseHistory());
     }
 

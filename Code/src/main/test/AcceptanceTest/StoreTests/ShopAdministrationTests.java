@@ -14,7 +14,7 @@ public class ShopAdministrationTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-
+        login("chika", "12345");
     }
 
 
@@ -64,7 +64,7 @@ public class ShopAdministrationTests extends ServiceTest {
     //USE CASE 4.10
     @Test
     public void testViewShopHistory(){
-        assertNotNull(viewShopHistory());
+        assertNotNull(viewShopHistory(1));
     }
 
 

@@ -2,6 +2,8 @@ package Service;
 
 public interface Bridge {
 
+    boolean setupSystem(String supplyConfig, String paymentConfig);
+
     boolean login (String username , String password);
 
     boolean register(String username, String password);
@@ -34,7 +36,7 @@ public interface Bridge {
 
     boolean addProduct(int productId, int storeId, int amount);
 
-    boolean editProduct(int productId, int price, String category);
+    boolean editProduct(int storeId, int productId, String productInfo);
 
     boolean deleteProduct(int storeId, int productId);
 
@@ -46,7 +48,7 @@ public interface Bridge {
 
     boolean editManagerOptions(int storeId, int userId,int adminId, String option);
 
-    String[][] viewShopHistory();
+    String[][] viewShopHistory(int storeId);
 
     boolean updateItemDiscount(int storeId, int itemID, int discount);
 }
