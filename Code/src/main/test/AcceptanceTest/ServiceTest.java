@@ -13,26 +13,28 @@ public abstract class ServiceTest extends TestCase {
         this.setUpUsers();
     }
 
-    //TODO FIX THIS SHIT
     private void setUpUsers() {
-//        for(String[] userData : Database.Users){
-//            register(userData[0], userData[1]);
-//        }
-//        login("chika", "12345");
-//        int sid_1 = openStore();
-//        addProdcut(1, sid_1, 5);
-//        addProdcut(2, sid_1, 5);
-//        appointManager(sid_1, "dia");
-//        appointOwner(sid_1, "kanan");
-//        logout();
-//
-//        login("dia", "12345");
-//        appointManager(sid_1, "ruby");
-//        logout();
-//
-//        login("hanamaru", "12345");
-//        int sid_2 = openStore();
-//        addProdcut(2, sid_2, 10);
+        for(String[] userData : Database.Users){
+            int userId = register(userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+        login("chika", "12345");
+        int sid_1 = openStore();
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(1, sid_1, 5);
+        addProdcut(2, sid_1, 5);
+        appointManager(sid_1, Database.userToId.get("dia"));
+        appointOwner(sid_1, Database.userToId.get("kanan"));
+        logout();
+
+        login("dia", "12345");
+        appointManager(sid_1, Database.userToId.get("ruby"));
+        logout();
+
+        login("hanamaru", "12345");
+        int sid_2 = openStore();
+        Database.userToStore.put("hanamru", sid_2);
+        addProdcut(2, sid_2, 10);
 
     }
 

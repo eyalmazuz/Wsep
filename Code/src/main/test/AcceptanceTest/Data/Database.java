@@ -1,6 +1,8 @@
 package AcceptanceTest.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Database {
 
@@ -17,6 +19,9 @@ public class Database {
             {"mari", "12345"},
     };
 
+    public static Map<String, Integer> userToId = new HashMap<String, Integer>();
+
+    public static Map<String, Integer> userToStore = new HashMap<String, Integer>();
 
     public static String[][] Stores = {
             //STORE ID, OWNER

@@ -1,5 +1,6 @@
 package AcceptanceTest.StoreTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,44 +22,44 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.3
     @Test
     public void testAppointAnotherManagerSuccessful(){
-        assertTrue(appointManager(1,"you"));
+        assertTrue(appointManager(1, Database.userToId.get("you")));
     }
 
     @Test
     public void testAppointAnotherManagerFailureNonExistingUser(){
-        assertFalse(appointManager(1, "danny"));
+        assertFalse(appointManager(1, -5));
     }
 
     @Test
     public void testAppointAnotherManagerFailureAlreadyManager(){
-        assertFalse(appointManager(1,"dia"));
+        assertFalse(appointManager(1,Database.userToId.get("dia")));
     }
 
     // USE CASES 4.5
     @Test
     public void testAppointAnotherOwnerSuccessful(){
-        assertTrue(appointOwner(1,"mari"));
+        assertTrue(appointOwner(1,Database.userToId.get("mari")));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureNonExistingUser(){
-        assertFalse(appointOwner(1,"danny"));
+        assertFalse(appointOwner(1,-7));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureAlreadyManager(){
-        assertFalse(appointOwner(1,"kanan"));
+        assertFalse(appointOwner(1,Database.userToId.get("kanan")));
     }
 
     // USE CASES 4.7
     @Test
     public void testRemoveManagerSuccessful(){
-        assertTrue(removeManager(1, "dia"));
+        assertTrue(removeManager(1, Database.userToId.get("dia")));
     }
 
     @Test
     public void testRemoveManagerFailureNonExistingUser(){
-        assertFalse(removeManager(1, "danny"));
+        assertFalse(removeManager(1, -7));
     }
 
     //USE CASE 4.10
