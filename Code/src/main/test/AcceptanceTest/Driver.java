@@ -1,8 +1,7 @@
-package AcceptenceTest;
+package AcceptanceTest;
 
 import Service.Bridge;
 import Service.ProxyBridge;
-import Service.RealBridge;
 
 public abstract class Driver {
 
