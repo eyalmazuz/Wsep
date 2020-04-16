@@ -97,4 +97,13 @@ public class System {
         return false;
     }
 
+    public String viewStoreProductInfo() {
+        String info = "";
+        for (Store store: stores) {
+            info += store.toString() + "\n--------------------------\n";
+        }
+
+        return info;
+    }
+
 }

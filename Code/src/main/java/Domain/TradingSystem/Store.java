@@ -70,4 +70,18 @@ public class Store {
         }
         return 0;
     }
+
+    public String toString() {
+        String info =
+                "Store ID: " + id +
+                "\nBuying policy: " + buyingPolicy.toString() +
+                "\nDiscount policy: " + discountPolicy.toString() +
+                "\nProducts:\n\n";
+
+        for (ProductInStore product: products) {
+            info += product.toString() + "\n";
+        }
+
+        return info;
+    }
 }

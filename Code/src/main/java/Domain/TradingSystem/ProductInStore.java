@@ -21,4 +21,8 @@ public class ProductInStore {
     public void addAmount(int amount) {
         this.amount += amount;
     }
+
+    public String toString() {
+        return "Product ID: " + productInfo.getId() + ", amount: " + amount;
+    }
 }
