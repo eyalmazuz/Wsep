@@ -29,8 +29,8 @@ public class UserActionsTests extends ServiceTest {
     //USE CASES 3.2
     @Test
     public void testOpenStoreSuccessful(){
-        assertTrue(openStore());
-        assertTrue(openStore());
+        assertTrue(openStore()>0);
+        assertTrue(openStore()>0);
     }
 
     //USE CASES 3.7

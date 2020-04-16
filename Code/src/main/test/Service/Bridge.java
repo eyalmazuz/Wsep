@@ -24,7 +24,7 @@ public interface Bridge {
 
     boolean logout();
 
-    boolean openStore();
+    int openStore();
 
     String[][] viewPurchaseHistory();
 

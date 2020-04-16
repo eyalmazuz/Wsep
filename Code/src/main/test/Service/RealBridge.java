@@ -49,7 +49,7 @@ public class RealBridge implements Bridge {
         return dc.logout();
     }
 
-    public boolean openStore() {
+    public int openStore() {
         return dc.openStore();
     }
 

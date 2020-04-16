@@ -9,7 +9,7 @@ public class DomainController {
         system = System.getInstance();
     }
 
-    public boolean openStore() {
+    public int openStore() {
         return system.openStroe();
     }
 
