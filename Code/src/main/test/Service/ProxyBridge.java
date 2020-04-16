@@ -1,10 +1,5 @@
 package Service;
 
-import AcceptanceTest.Data.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
@@ -27,7 +22,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<String> getAllInfo(){
+    public String[][] getAllInfo(){
         if (rb != null) {
             return rb.getAllInfo();
         }
@@ -37,7 +32,7 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public List<String> searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
+    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
         if (rb != null) {
             return rb.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo);
         }
@@ -84,7 +79,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(ShoppingCart cart) {
+    public boolean buyCart(String[][] cart) {
         if (rb != null) {
             return rb.buyCart(cart);
         }
@@ -93,7 +88,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<String> viewCart(){
+    public String[][] viewCart(){
         if (rb != null) {
             return rb.viewCart();
         }
@@ -121,7 +116,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<String> viewPurchaseHistory(){
+    public String[][] viewPurchaseHistory(){
         if(rb != null){
             return rb.viewPurchaseHistory();
         }
@@ -130,7 +125,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<String> searchUserHistory(String username){
+    public String[][] searchUserHistory(String username){
         if(rb != null){
             return rb.searchUserHistory(username);
         }
@@ -139,7 +134,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<String> searchStoreHistory(int storeId){
+    public String[][] searchStoreHistory(int storeId){
         if(rb != null){
             return rb.searchStoreHistory(storeId);
         }
@@ -222,7 +217,7 @@ public class ProxyBridge implements Bridge {
 
 
 
-    public List<String> viewShopHistory(){
+    public String[][] viewShopHistory(){
         if(rb != null){
             return rb.viewShopHistory();
         }

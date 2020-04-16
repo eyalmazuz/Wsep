@@ -1,10 +1,5 @@
 package Service;
 
-import AcceptanceTest.Data.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public interface Bridge {
 
     boolean login (String username , String password);

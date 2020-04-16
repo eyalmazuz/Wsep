@@ -3,8 +3,6 @@ import AcceptanceTest.Data.*;
 import Service.Bridge;
 import junit.framework.TestCase;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ServiceTest extends TestCase {
 

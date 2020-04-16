@@ -1,9 +1,5 @@
 package Service;
 
-import AcceptanceTest.Data.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RealBridge implements Bridge {
 
