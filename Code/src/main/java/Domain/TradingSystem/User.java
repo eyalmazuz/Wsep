@@ -12,6 +12,7 @@ public class User {
     private ShoppingCart shoppingCart;
     private PurchaseHistory purchaseHistory;
 
+
     public boolean addProductToStore(int storeId, int productId, int ammount) {
         Store currStore = permissions.hasPermission(storeId,"Owner");
         if(currStore != null){
@@ -71,4 +72,13 @@ public class User {
     public boolean isGuest() {
         return state instanceof Guest;
     }
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void setState(UserState state) {
+        this.state = state;
+    }
+
 }

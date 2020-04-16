@@ -36,6 +36,8 @@ public class Subscriber implements UserState {
         return username;
     }
 
+    public String getPassword() { return password; }
+
     public boolean isAdmin() {
         return isAdmin;
     }

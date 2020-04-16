@@ -98,4 +98,8 @@ public class ShoppingCart {
         return newBasket;
     }
 
+    public void merge(ShoppingCart other) {
+        // TODO: MERGE CARTS
+    }
+
 }
