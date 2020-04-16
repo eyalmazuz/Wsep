@@ -33,7 +33,7 @@ public class Database {
     };
 
     public static String[][] ProductsFiltered = {
-            {}
+            {"1", "1", "5"},
     };
 
     public static String[][] Cart = {
@@ -43,7 +43,9 @@ public class Database {
     };
 
     public static String[][] History = {
-            {}
+            //STORE ID, PRODUCT ID, AMOUNT BOUGHT
+            {"1", "1", "5"},
+            {"1", "2", "5"}
     };
 
     public static String[][] Managers = {
