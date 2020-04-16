@@ -12,15 +12,7 @@ public class UserActionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("hanamaru", "123456");
-        openStore();
-        addProdcut(1, 1, 5);
-        addProdcut(2, 1, 5);
-        editProduct(1, 40, "Food");
-        editProduct(2, 50, "Food");
-        logout();
-
-        login("chika", "12345");
+        login("you", "12345");
         addToCart(1, 5);
         addToCart(2, 5);
         buyCart(viewCart());

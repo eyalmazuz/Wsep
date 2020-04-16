@@ -27,7 +27,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public ArrayList<Store> getAllInfo(){
+    public List<String> getAllInfo(){
         if (rb != null) {
             return rb.getAllInfo();
         }
@@ -37,9 +37,9 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions) {
+    public List<String> searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
         if (rb != null) {
-            return rb.searchProducts(id, category, keyword, filterOptions);
+            return rb.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo);
         }
         else {
            return null;
@@ -93,7 +93,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public ShoppingCart viewCart(){
+    public List<String> viewCart(){
         if (rb != null) {
             return rb.viewCart();
         }
@@ -121,7 +121,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<History> viewPurchaseHistory(){
+    public List<String> viewPurchaseHistory(){
         if(rb != null){
             return rb.viewPurchaseHistory();
         }
@@ -130,7 +130,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<History> searchUserHistory(String username){
+    public List<String> searchUserHistory(String username){
         if(rb != null){
             return rb.searchUserHistory(username);
         }
@@ -139,7 +139,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public List<History> searchStoreHistory(int storeId){
+    public List<String> searchStoreHistory(int storeId){
         if(rb != null){
             return rb.searchStoreHistory(storeId);
         }
@@ -222,7 +222,7 @@ public class ProxyBridge implements Bridge {
 
 
 
-    public List<History> viewShopHistory(){
+    public List<String> viewShopHistory(){
         if(rb != null){
             return rb.viewShopHistory();
         }

@@ -13,9 +13,6 @@ public class EditStoreInventoryTests extends ServiceTest {
     public void setUp(){
         super.setUp();
         login("chika", "12345");
-        openStore();
-        addProdcut(1, 1, 5);
-        addProdcut(2, 1, 5);
     }
 
 

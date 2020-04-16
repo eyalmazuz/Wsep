@@ -13,27 +13,28 @@ public abstract class ServiceTest extends TestCase {
     public void setUp(){
         this.bridge = Driver.getBridge();
         this.setUpUsers();
-        this.setUpStores();
-    }
-
-    private void setUpStores() {
-        Store store = new Store();
-        store.owner = new User("hanamaru", "123456");
-        store.items.add(new Product(1, 200, "Phone", 5 ));
-        store.items.add(new Product(2, 100, "Phone",5));
-        Database.Stores.add(store);
-        store = new Store();
-        store.owner = new User("chika", "12345");
-        store.items.add(new Product(1, 200, "Phone", 5 ));
-        store.items.add(new Product(3, 50, "Food",10));
-        Database.Stores.add(store);
-        Database.hcart.items.put(1, 5);
     }
 
     private void setUpUsers() {
         for(String[] userData : Database.Users){
             register(userData[0], userData[1]);
         }
+        login("chika", "12345");
+        openStore();
+        addProdcut(1, 1, 5);
+        addProdcut(2, 1, 5);
+        appointManager(1, "dia");
+        appointOwner(1, "kanan");
+        logout();
+
+        login("dia", "12345");
+        appointManager(1, "ruby");
+        logout();
+
+        login("hanamaru", "12345");
+        openStore();
+        addProdcut(2, 2, 10);
+
     }
 
     private void clearDatabase(){
@@ -64,7 +65,7 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart();
     }
 
-    public boolean buyCart(ShoppingCart cart){
+    public boolean buyCart(String[][] cart){
         return bridge.buyCart(cart);
     }
 
@@ -88,27 +89,27 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 
-    public List<Product> searchProducts(int id, String category, String keyword, FilterOption option){
-        return this.bridge.searchProducts(id, category, keyword, option); }
+    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo){
+        return this.bridge.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo); }
 
 
-    public ShoppingCart viewCart(){
+    public String[][] viewCart(){
         return this.bridge.viewCart();
     }
 
-    public ArrayList<Store> getAllInfo(){
+    public String[][] getAllInfo(){
         return this.bridge.getAllInfo();
     }
 
-    public List<History> viewPurchaseHistory(){
+    public String[][] viewPurchaseHistory(){
         return bridge.viewPurchaseHistory();
     }
 
-    public List<History> searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
+    public String[][] searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
 
-    public List<History> searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
+    public String[][] searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
 
-    public List<History> viewShopHistory(){ return bridge.viewShopHistory(); }
+    public String[][] viewShopHistory(){ return bridge.viewShopHistory(); }
 
 
 }

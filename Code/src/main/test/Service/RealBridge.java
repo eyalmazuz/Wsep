@@ -15,11 +15,11 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public ArrayList<Store> getAllInfo() {
+    public String[][] getAllInfo() {
         return null;
     }
 
-    public List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions) {
+    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
         return null;
     }
 
@@ -39,11 +39,11 @@ public class RealBridge implements Bridge {
         return false;
     }
 
-    public boolean buyCart(ShoppingCart cart) {
+    public boolean buyCart(String[][] cart) {
         return false;
     }
 
-    public ShoppingCart viewCart(){
+    public String[][] viewCart(){
         return null;
     }
 
@@ -51,11 +51,11 @@ public class RealBridge implements Bridge {
 
     public boolean openStore() { return false;}
 
-    public List<History> viewPurchaseHistory(){ return null; }
+    public String[][] viewPurchaseHistory(){ return null; }
 
-    public List<History> searchUserHistory(String username){ return null;}
+    public String[][] searchUserHistory(String username){ return null;}
 
-    public List<History> searchStoreHistory(int storeId){ return null;}
+    public String[][] searchStoreHistory(int storeId){ return null;}
 
     public boolean addProduct(int productId, int storeId, int amount) { return false ;}
 
@@ -73,5 +73,5 @@ public class RealBridge implements Bridge {
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return false;}
 
-    public List<History> viewShopHistory(){ return null; }
+    public String[][] viewShopHistory(){ return null; }
 }
