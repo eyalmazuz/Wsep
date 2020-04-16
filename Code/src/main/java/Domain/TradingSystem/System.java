@@ -77,8 +77,8 @@ public class System {
         return supplyHandler.requestSupply(user, storeProductsIds);
     }
 
-    public boolean register(String username, String password) {
-        if (!currentUser.isGuest()) return false;
+    public int register(String username, String password) {
+        if (!currentUser.isGuest()) return -1;
         return userHandler.register(username, password);
     }
 

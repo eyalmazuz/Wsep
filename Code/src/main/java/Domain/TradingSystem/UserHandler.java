@@ -35,16 +35,16 @@ public class UserHandler {
         return found;
     }
 
-    public boolean register(String username, String password) {
+    public int register(String username, String password) {
         for (Subscriber sub: subscribers.keySet())
             if (sub.getUsername().equals(username))
-                return false;
+                return -1;
 
         User newUser = new User();
         Subscriber subscriberState = new Subscriber(username, password, false);
         newUser.setState(subscriberState);
         subscribers.put(subscriberState, newUser);
-        return true;
+        return subscriberState.getId();
     }
 
     public User getSubscriberUser(String username, String password) {

@@ -4,6 +4,11 @@ import Domain.TradingSystem.UserState;
 
 public class Subscriber implements UserState {
 
+
+    private static int idCounter = 0;
+    private int id;
+
+
     private String username;
     private String password;
     private boolean isAdmin;
@@ -16,6 +21,9 @@ public class Subscriber implements UserState {
         this.username = username;
         this.password = password;
         this.isAdmin = isAdmin;
+        this.id = idCounter;
+        idCounter++;
+
     }
 
     public boolean addProductToStore(Store store, int productId, int ammount) {
@@ -45,4 +53,9 @@ public class Subscriber implements UserState {
     public void setAdmin() {
         isAdmin = true;
     }
+
+    public int getId() {
+        return id;
+    }
+
 }
