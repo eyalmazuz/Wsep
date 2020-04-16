@@ -1,7 +1,6 @@
 package AcceptanceTest.GuestTests;
 
 import AcceptanceTest.Data.Database;
-import AcceptanceTest.Data.ShoppingCart;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,19 +14,15 @@ public class CartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("chika", "12345");
-        openStore();
-        addProdcut(1,1,  500);
-        logout();
-        login("hanamaru", "123456");
         addToCart(1, 5);
+        addToCart(2, 2);
     }
 
 
     //USE CASE 2.7.1
     @Test
     public void testViewCartSuccessful(){
-        assertEquals(viewCart(), Database.hcart);
+        assertEquals(viewCart(), Database.Cart);
     }
 
 

@@ -16,10 +16,10 @@ public class LoginTests extends ServiceTest {
 
     @Test
     public void testLoginSuccessful(){
-        assertTrue(login("hanamaru", "123456"));
+        assertTrue(login("hanamaru", "12345"));
         assertTrue(login("chika", "12345"));
-        assertTrue(login("kanan", "654321"));
-        assertTrue(login("ruby", "54321"));
+        assertTrue(login("kanan", "12345"));
+        assertTrue(login("ruby", "12345"));
 
     }
 
@@ -36,5 +36,13 @@ public class LoginTests extends ServiceTest {
         assertFalse(login("yohariko", "1234"));
         assertFalse(login("yoahne", "4515"));
         assertFalse(login("yoshiko", "123121231"));
+    }
+
+    @Test
+    public void testLoginFailureBreakingSystem(){
+        assertFalse(login("", ""));
+        assertFalse(login("", null));
+        assertFalse(login(null, ""));
+        assertFalse(login(null, null));
     }
 }

@@ -17,9 +17,7 @@ public class RegistrationTests extends ServiceTest {
     @Test
     public void testRegisterSuccessful() {
         assertTrue(register("yohane", "1234"));
-        assertTrue(register("yoshiko", "12345"));
-        assertTrue(register("riko", "12345"));
-        assertTrue(register("yohariko", "12345"));
+        assertTrue(register("sarah", "12345"));
     }
 
     @Test
@@ -28,6 +26,14 @@ public class RegistrationTests extends ServiceTest {
         assertFalse(login("chika", "12345"));
         assertFalse(login("kanan", "654321"));
         assertFalse(login("ruby", "54321"));
+    }
+
+    @Test
+    public void testLoginRegistrationBreakingSystem(){
+        assertFalse(login("", ""));
+        assertFalse(login("", null));
+        assertFalse(login(null, ""));
+        assertFalse(login(null, null));
     }
 }
 

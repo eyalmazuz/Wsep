@@ -1,21 +1,16 @@
 package Service;
 
-import AcceptanceTest.Data.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public interface Bridge {
 
     boolean login (String username , String password);
 
     boolean register(String username, String password);
 
-    ArrayList<Store> getAllInfo();
+    String[][] getAllInfo();
 
-    ShoppingCart viewCart();
+    String[][] viewCart();
 
-    List<Product> searchProducts(int id, String category, String keyword, FilterOption filterOptions);
+    String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo);
 
     boolean addToCart(int productId, Integer amount);
 
@@ -25,17 +20,17 @@ public interface Bridge {
 
     boolean clearCart();
 
-    boolean buyCart(ShoppingCart cart);
+    boolean buyCart(String[][] cart);
 
     boolean logout();
 
     boolean openStore();
 
-    List<History> viewPurchaseHistory();
+    String[][] viewPurchaseHistory();
 
-    List<History> searchUserHistory(String username);
+    String[][] searchUserHistory(String username);
 
-    List<History> searchStoreHistory(int storeId);
+    String[][] searchStoreHistory(int storeId);
 
     boolean addProduct(int productId, int storeId, int amount);
 
@@ -51,7 +46,7 @@ public interface Bridge {
 
     boolean editManagerOptions(int storeId, int userId,int adminId, String option);
 
-    List<History> viewShopHistory();
+    String[][] viewShopHistory();
 
     boolean updateItemDiscount(int storeId, int itemID, int discount);
 }

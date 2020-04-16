@@ -14,33 +14,6 @@ public class ShopAdministrationTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("hanamru", "123456");
-        login("chika", "12345");
-        openStore();
-
-        addProdcut(1, 1, 5);
-        editProduct(1, 50, "Food");
-
-        addProdcut(2, 1, 100);
-        editProduct(2, 50, "Food");
-
-        addProdcut(3, 1, 10);
-        editProduct(3, 100, "Food");
-
-        logout();
-
-        login("ruby", "54321");
-        addToCart(1, 5);
-        buyCart("ruby", viewCart());
-        logout();
-
-        login("chika", "12345");
-
-        appointOwner(1,"hanamaru");
-        appointManager(1, "dia");
-        logout();
-        login("dia", "54321");
-        appointManager(1, "yoshiko");
 
     }
 
@@ -48,7 +21,7 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.3
     @Test
     public void testAppointAnotherManagerSuccessful(){
-        assertTrue(appointManager(1,"ruby"));
+        assertTrue(appointManager(1,"you"));
     }
 
     @Test
@@ -58,13 +31,13 @@ public class ShopAdministrationTests extends ServiceTest {
 
     @Test
     public void testAppointAnotherManagerFailureAlreadyManager(){
-        assertFalse(appointManager(1,"hanamaru"));
+        assertFalse(appointManager(1,"dia"));
     }
 
     // USE CASES 4.5
     @Test
     public void testAppointAnotherOwnerSuccessful(){
-        assertTrue(appointOwner(1,"kanan"));
+        assertTrue(appointOwner(1,"mari"));
     }
 
     @Test
@@ -74,7 +47,7 @@ public class ShopAdministrationTests extends ServiceTest {
 
     @Test
     public void testAppointAnotherOwnerFailureAlreadyManager(){
-        assertFalse(appointOwner(1,"dia"));
+        assertFalse(appointOwner(1,"kanan"));
     }
 
     // USE CASES 4.7

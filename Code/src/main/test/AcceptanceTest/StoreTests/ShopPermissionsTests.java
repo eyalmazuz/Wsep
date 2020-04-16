@@ -13,11 +13,7 @@ public class ShopPermissionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("hanamru", "123456");
         login("chika", "12345");
-        openStore();
-        appointOwner(1,"hanamaru");
-        appointManager(1, "dia");
     }
 
     //USECASES 4.6.1

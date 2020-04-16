@@ -12,13 +12,6 @@ public class PurchaseCartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("hanamaru", "123456");
-        openStore();
-        addProdcut(1, 1, 5);
-        addProdcut(2, 1, 5);
-        editProduct(1, 40, "Food");
-        editProduct(2, 50, "Food");
-        logout();
 
 
     }
