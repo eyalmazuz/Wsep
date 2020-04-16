@@ -31,7 +31,7 @@ public class ShopAdministrationTests extends ServiceTest {
 
         login("ruby", "54321");
         addToCart(1, 5);
-        buyCart("ruby", viewCart());
+        buyCart(viewCart());
         logout();
 
         login("chika", "12345");

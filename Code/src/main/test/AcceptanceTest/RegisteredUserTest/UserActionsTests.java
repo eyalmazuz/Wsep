@@ -23,7 +23,7 @@ public class UserActionsTests extends ServiceTest {
         login("chika", "12345");
         addToCart(1, 5);
         addToCart(2, 5);
-        buyCart("chika", viewCart());
+        buyCart(viewCart());
 
     }
 
