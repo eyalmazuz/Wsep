@@ -1,6 +1,9 @@
 package Domain.TradingSystem;
 
+import javafx.util.Pair;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +17,9 @@ public class System {
     private UserHandler userHandler;
 
     private List<Store> stores = new ArrayList<>();
+    private Map<Integer, String> productNames = new HashMap<>();
+    private Map<Integer, String> productCategories = new HashMap<>();
+    private Map<Integer, Integer> productRatings = new HashMap<>();
 
     private System(){
         userHandler = new UserHandler();
@@ -104,6 +110,54 @@ public class System {
         }
 
         return info;
+    }
+
+    public String searchProducts(String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
+        List<ProductInStore> allProducts = new ArrayList<>();
+        List<ProductInStore> filteredProducts = new ArrayList<>();
+
+
+        for (Store store: stores)
+            if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+
+        for (ProductInStore pis: allProducts) {
+            if (productName != null)
+                if (productNames.get(pis.getId()).equals(productName)) {
+                    filteredProducts.add(pis);
+                    continue;
+                }
+            if (categoryName != null)
+                if (productCategories.get(pis.getId()).equals(productName)) {
+                    filteredProducts.add(pis);
+                    continue;
+                }
+            if (priceRange != null) {
+                double price = pis.getPrice(currentUser);
+                if (price >= priceRange.getKey() && price <= priceRange.getValue()) {
+                    filteredProducts.add(pis);
+                    continue;
+                }
+            }
+            if (minItemRating != -1) {
+                if (productRatings.get(pis.getId()) >= minItemRating) {
+                    filteredProducts.add(pis);
+                }
+            }
+        }
+
+        String results = "Results:\n\n";
+        for (ProductInStore pis: filteredProducts) {
+            String productInfo = pis.toString();
+            for (String keyword: keywords) {
+                if (productInfo.contains(keyword)) {
+                    results += productInfo;
+                    break;
+                }
+            }
+        }
+
+
+        return results;
     }
 
 }

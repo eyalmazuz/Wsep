@@ -4,10 +4,12 @@ public class ProductInStore {
 
     private ProductInfo productInfo;
     private int amount;
+    private Store store;
 
-    public ProductInStore(int productId, int amount) {
+    public ProductInStore(int productId, int amount, Store store) {
         this.productInfo = new ProductInfo(productId);
         this.amount = amount;
+        this.store = store;
     }
 
     public int getId() {
@@ -24,5 +26,9 @@ public class ProductInStore {
 
     public String toString() {
         return "Product ID: " + productInfo.getId() + ", amount: " + amount;
+    }
+
+    public double getPrice(User user) {
+        return store.getProductPrice(user, getId(), 1);
     }
 }

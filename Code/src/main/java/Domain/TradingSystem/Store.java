@@ -11,6 +11,7 @@ public class Store {
     private DiscountPolicy discountPolicy;
     private History history;
     private int nextPurchaseId = 0;
+    private double rating = -1;
 
     public int getId() {
         return id;
@@ -26,7 +27,7 @@ public class Store {
         }
 
         if(!found.get()){
-            ProductInStore newProduct = new ProductInStore(productId,amount);
+            ProductInStore newProduct = new ProductInStore(productId,amount, this);
             products.add(newProduct);
         }
     }
@@ -83,5 +84,13 @@ public class Store {
         }
 
         return info;
+    }
+
+    public List<ProductInStore> getProducts() {
+        return products;
+    }
+
+    public double getRating() {
+        return rating;
     }
 }
