@@ -5,6 +5,14 @@ public class ProductInStore {
     private ProductInfo productInfo;
     private int amount;
     private String info;
+    private Store store;
+
+    public ProductInStore(int productId, int amount, Store store) {
+        this.productInfo = new ProductInfo(productId);
+        this.amount = amount;
+        this.store = store;
+    }
+
 
     public ProductInStore(int productId, int amount) {
 
@@ -16,8 +24,20 @@ public class ProductInStore {
         return productInfo.getId();
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
     public void addAmount(int amount) {
         this.amount += amount;
+    }
+
+    public String toString() {
+        return "Product ID: " + productInfo.getId() + ", amount: " + amount;
+    }
+
+    public double getPrice(User user) {
+        return store.getProductPrice(user, getId(), 1);
     }
 
     public String getInfo (){
