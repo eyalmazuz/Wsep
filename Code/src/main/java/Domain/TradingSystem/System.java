@@ -150,7 +150,7 @@ public class System {
             String productInfo = pis.toString();
             for (String keyword: keywords) {
                 if (productInfo.contains(keyword)) {
-                    results += productInfo;
+                    results += productInfo + "\n---------------------------------\n";
                     break;
                 }
             }
