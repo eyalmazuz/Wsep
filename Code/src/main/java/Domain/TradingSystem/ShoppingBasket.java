@@ -55,4 +55,11 @@ public class ShoppingBasket {
     public Map<Integer, Integer> getProducts() {
         return products;
     }
+
+    public void merge(ShoppingBasket otherBasket) {
+        for (Integer productId : otherBasket.products.keySet()) {
+            int amount = otherBasket.getProducts().get(productId);
+            products.put(productId, products.getOrDefault(productId, 0) + amount);
+        }
+    }
 }

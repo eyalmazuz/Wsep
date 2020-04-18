@@ -99,7 +99,14 @@ public class ShoppingCart {
     }
 
     public void merge(ShoppingCart other) {
-        // TODO: MERGE CARTS
-    }
+        for (ShoppingBasket basket : shoppingBaskets) {
+            for (ShoppingBasket otherBasket : other.shoppingBaskets) {
+                if (otherBasket.getStoreId() == basket.getStoreId()) {
+                    basket.merge(otherBasket);
+                    break;
+                }
+            }
+        }
 
+    }
 }
