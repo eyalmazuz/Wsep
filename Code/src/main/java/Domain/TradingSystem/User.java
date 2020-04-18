@@ -10,24 +10,26 @@ public class User {
     private Permission permissions;
     private UserState state;
     private ShoppingCart cart;
+    private ShoppingCart shoppingCart;
+    private PurchaseHistory purchaseHistory;
 
-    public User(){
+    public User() {
         this.state = new Guest();
     }
 
     public boolean addProductToStore(int storeId, int productId, int amount) {
-        return state.addProductToStore(storeId,productId,amount);
+        return state.addProductToStore(storeId, productId, amount);
 
     }
 
     public boolean editProductInStore(int storeId, int productId, String newInfo) {
 
-        return state.editProductInStore(storeId,productId,newInfo);
+        return state.editProductInStore(storeId, productId, newInfo);
     }
 
     public boolean deleteProductFromStore(int storeId, int productId) {
 
-        return state.deleteProductFromStore(storeId,productId);
+        return state.deleteProductFromStore(storeId, productId);
 
     }
 
@@ -36,7 +38,7 @@ public class User {
         return state;
     }
 
-    public void setState(UserState nState){
+    public void setState(UserState nState) {
         this.state = nState;
         state.setUser(this);
     }
@@ -46,17 +48,8 @@ public class User {
         return state.logout(cart);
 
     }
-    private ShoppingCart shoppingCart;
-    private PurchaseHistory purchaseHistory;
 
 
-    public boolean addProductToStore(int storeId, int productId, int ammount) {
-        Store currStore = permissions.hasPermission(storeId,"Owner");
-        if(currStore != null){
-            return state.addProductToStore(currStore,productId,ammount);
-        }
-        return false;
-    }
 
     public void addProductToCart(Store store, int productId, int amount) {
         shoppingCart.addProduct(store, productId, amount);
@@ -84,7 +77,6 @@ public class User {
     }
 
 
-
     public void requestConfirmedPurchase() { // from payment system
         if (!system.makePayment(this, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
@@ -94,16 +86,8 @@ public class User {
         boolean supplyAvailable = system.requestSupply(this, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
-
-            // TODO: message user with success
-    public Store openStore() {
-        return state.openStore();
-    }
-
-    public boolean addOwner(Store store, Subscriber newOwner) {
-        return state.addOwner(store,newOwner);
-
-        } else {
+        }
+        else{
             system.cancelPayment(this, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             purchaseHistory.removePurchase(storePurchaseDetails); // remove from user purchase history
@@ -111,33 +95,40 @@ public class User {
             // TODO: message user with fail and refund
         }
     }
+            // TODO: message user with success
+            public Store openStore () {
+                return state.openStore();
+            }
 
-    public boolean isGuest() {
-        return state instanceof Guest;
+            public boolean addOwner (Store store, Subscriber newOwner){
+                return state.addOwner(store, newOwner);
+
+            }
+
+
+        public boolean isGuest () {
+            return state instanceof Guest;
+        }
+
+        public ShoppingCart getShoppingCart () {
+            return shoppingCart;
+        }
+
+        public String getHistory () {
+            return state.getHistory();
+        }
+
+        public boolean addManager (Store store, Subscriber newManager){
+            return state.addManager(store, newManager);
+        }
+
+        public boolean deleteManager (Store store, Subscriber managerToDelete){
+            return state.deleteManager(store, managerToDelete);
+        }
+
+
+        public String getStoreHistory ( int storeId){
+            return state.getStoreHistory(storeId);
+        }
     }
 
-    public ShoppingCart getShoppingCart() {
-        return shoppingCart;
-    }
-
-    public void setState(UserState state) {
-        this.state = state;
-    }
-
-    public String getHistory() {
-        return state.getHistory();
-    }
-
-    public boolean addManager(Store store, Subscriber newManager) {
-        return state.addManager(store,newManager);
-    }
-
-    public boolean deleteManager(Store store, Subscriber managerToDelete) {
-        return state.deleteManager(store,managerToDelete);
-    }
-
-
-    public String getStoreHistory(int storeId) {
-        return state.getStoreHistory(storeId);
-    }
-}

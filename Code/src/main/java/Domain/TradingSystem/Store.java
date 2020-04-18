@@ -17,7 +17,6 @@ public class Store {
     private History history;
     private BuyingPolicy buyingPolicy;
     private DiscountPolicy discountPolicy;
-    private History history;
     private int nextPurchaseId = 0;
     private double rating = -1;
 

@@ -10,6 +10,7 @@ public class PurchaseHistory {
 
     private ShoppingCart latestCart;
     private List<ShoppingCart> allTimeHistory;
+    private Map<Integer, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
 
     @Override
     public String toString() {
@@ -22,12 +23,10 @@ public class PurchaseHistory {
 
     public void setLatestCart(ShoppingCart cart) {
         latestCart.copyCart(cart);
+    }
 
 
-
-    private Map<Integer, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
-
-    public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+    public void addPurchase (Map < Integer, PurchaseDetails > storePurchaseDetails){
         for (Integer storeId : storePurchaseDetails.keySet()) {
             PurchaseDetails purchaseDetails = storePurchaseDetails.get(storeId);
 
@@ -42,7 +41,7 @@ public class PurchaseHistory {
         }
     }
 
-    public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+    public void removePurchase (Map < Integer, PurchaseDetails > storePurchaseDetails){
         for (Integer storeId : storePurchaseDetails.keySet()) {
             PurchaseDetails purchaseDetails = storePurchaseDetails.get(storeId);
 
@@ -52,3 +51,4 @@ public class PurchaseHistory {
         }
     }
 
+    }
