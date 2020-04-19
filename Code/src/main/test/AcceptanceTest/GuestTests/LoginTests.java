@@ -17,9 +17,13 @@ public class LoginTests extends ServiceTest {
     @Test
     public void testLoginSuccessful(){
         assertTrue(login("hanamaru", "12345"));
+        logout();
         assertTrue(login("chika", "12345"));
+        logout();
         assertTrue(login("kanan", "12345"));
+        logout();
         assertTrue(login("ruby", "12345"));
+        logout();
 
     }
 

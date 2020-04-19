@@ -1,5 +1,6 @@
 package AcceptanceTest;
 import AcceptanceTest.Data.*;
+import Domain.TradingSystem.System;
 import Service.Bridge;
 import junit.framework.TestCase;
 
@@ -36,6 +37,7 @@ public abstract class ServiceTest extends TestCase {
         int sid_2 = openStore();
         Database.userToStore.put("hanamru", sid_2);
         addProdcut(2, sid_2, 10);
+        logout();
 
     }
 

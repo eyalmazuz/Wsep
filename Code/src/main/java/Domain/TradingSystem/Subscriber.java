@@ -19,6 +19,8 @@ public class Subscriber implements UserState {
 
     public Subscriber() {
 
+
+
     }
 
     public Subscriber(String username, String password, boolean isAdmin) {
@@ -28,6 +30,8 @@ public class Subscriber implements UserState {
         this.id = idCounter;
         idCounter++;
         permissions = new LinkedList<Permission>();
+        // FIX for acceptance tests
+        purchaseHistory = new PurchaseHistory();
 
     }
 

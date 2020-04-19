@@ -22,18 +22,17 @@ public class RegistrationTests extends ServiceTest {
 
     @Test
     public void testRegisterFailureExistingUsername() {
-        assertFalse(login("hanamaru", "123456"));
-        assertFalse(login("chika", "12345"));
-        assertFalse(login("kanan", "654321"));
-        assertFalse(login("ruby", "54321"));
+        assertFalse(register("hanamaru", "123456") > 0);
+        assertFalse(register("chika", "12345") > 0);
+        assertFalse(register("kanan", "654321") > 0);
+        assertFalse(register("ruby", "54321") > 0);
     }
 
     @Test
     public void testLoginRegistrationBreakingSystem(){
-        assertFalse(login("", ""));
-        assertFalse(login("", null));
-        assertFalse(login(null, ""));
-        assertFalse(login(null, null));
+        assertFalse(register("", null) > 0);
+        assertFalse(register(null, "") > 0);
+        assertFalse(register(null, null) > 0);
     }
 }
 

@@ -3,7 +3,6 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
-//import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +22,9 @@ public class System {
     private Map<Integer, String> productCategories = new HashMap<>();
     private Map<Integer, Integer> productRatings = new HashMap<>();
 
-    private System(){
+    public System(){
         userHandler = new UserHandler();
+
     }
 
     public static System getInstance(){
@@ -49,6 +49,12 @@ public class System {
         setPayment(paymentConfig);
         //TODO:Add Error handling.
         currentUser = new User();
+        stores = new LinkedList<>();
+        productCategories = new HashMap<>();
+        productNames = new HashMap<>();
+        productRatings = new HashMap<>();
+//        userHandler.users = new LinkedList<>();
+        userHandler.subscribers = new HashMap<>();
     }
 
     public void addStore (){

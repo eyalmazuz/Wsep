@@ -1,13 +1,17 @@
 package Service;
 
 
+import Domain.TradingSystem.Pair;
+
 public class RealBridge implements Bridge {
 
     DomainController dc = new DomainController();
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig) { return dc.setup(supplyConfig, paymentConfig); }
+    public boolean setupSystem(String supplyConfig, String paymentConfig) {
+        return dc.setup(supplyConfig, paymentConfig); }
 
     public boolean login(String username, String password) {
+
         return dc.login(username, password);
     }
 
@@ -16,31 +20,37 @@ public class RealBridge implements Bridge {
     }
 
     public String[][] getAllInfo() {
-        return null;
+
+        return dc.getAllInfo();
     }
 
     public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
-        return null;
+        Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
+        return dc.searchProducts(id, category, keyword, priceRange, productRating, storeRating);
     }
 
     public boolean addToCart(int productId, Integer amount) {
-        return false;
+
+        return dc.addToCart(productId, amount);
     }
 
     public boolean updateAmount(int productId, int amount) {
-        return false;
+        return dc.updateAmount(productId, amount);
     }
 
     public boolean deleteItemInCart(int productId) {
-        return false;
+
+        return dc.deleteItemInCart(productId);
     }
 
     public boolean clearCart() {
-        return false;
+
+        return dc.clearCart();
     }
 
     public boolean buyCart(String[][] cart) {
-        return false;
+        //TODO add ADAPTER
+        return dc.buyCart();
     }
 
     public String[][] viewCart(){
@@ -80,12 +90,12 @@ public class RealBridge implements Bridge {
     }
     //TODO:Match the usecases with user id's
     public boolean appointManager(int storeId, int userId) {
-        return false ;
+        return dc.appointManager(storeId, userId) ;
     }
 
-    public boolean appointOwner(int storeId, int userId) { return false ;}
+    public boolean appointOwner(int storeId, int userId) { return dc.appointOwner(storeId, userId);}
 
-    public boolean removeManager(int storeId, int userId) { return false ;}
+    public boolean removeManager(int storeId, int userId) { return dc.removeManager(storeId, userId);}
 
     public boolean editManagerOptions(int storeId, int userId, String option){
        return dc.editManagerOptions(storeId,userId,option);
