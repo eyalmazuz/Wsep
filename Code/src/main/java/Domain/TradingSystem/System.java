@@ -359,4 +359,28 @@ public class System {
         return results;
     }
 
+    //Usecases 6.*
+
+    //usecase 6.4.1
+    public String getUserHistory(int userId){
+        if(currentUser.isAdmin()){
+            Subscriber subscriber = userHandler.getUser(userId);
+            return subscriber.getHistory();
+        }
+        return null;
+    }
+
+    //usecase 6.4.2
+    public String getStoreHistoryAsAdmin(int storeId){
+        if(currentUser.isAdmin()){
+            for(Store s : stores){
+                if(s.getId() == storeId){
+                    return s.getHistory();
+                }
+            }
+        }
+        return null;
+    }
+
+
 }
