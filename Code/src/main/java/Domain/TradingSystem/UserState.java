@@ -37,4 +37,6 @@ interface UserState {
      void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
 
      void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
- }
+
+     boolean isAdmin();
+}
