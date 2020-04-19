@@ -253,7 +253,7 @@ public class System {
     }
 
 
-
+    // usecase 2.8.3
     public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         return paymentHandler.makePayment(paymentDetails, storeProductsIds);
     }
@@ -262,6 +262,7 @@ public class System {
         paymentHandler.cancelPayment(user, storeProductsIds);
     }
 
+    // usecase 2.8.4
     public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // check whether the stores have enough of the given products
         for (Integer storeId : storeProductsIds.keySet()) {

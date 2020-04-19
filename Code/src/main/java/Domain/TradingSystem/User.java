@@ -17,16 +17,15 @@ public class User {
         this.state = new Guest();
     }
 
+    /**
+     *
+     * Functions For Usecases 4.*
+     *
+     */
     public boolean addProductToStore(int storeId, int productId, int amount) {
         return state.addProductToStore(storeId, productId, amount);
 
     }
-
-    // string instead of user to payment handler
-
-    // comment for each method regarding its usecase number
-
-    // tests
 
     public boolean editProductInStore(int storeId, int productId, String newInfo) {
 
@@ -55,7 +54,11 @@ public class User {
     }
 
 
-
+    /**
+     *
+     * Functions For Usecases 2.6, 2.7.*
+     *
+     */
     public void addProductToCart(Store store, int productId, int amount) {
         shoppingCart.addProduct(store, productId, amount);
     }
@@ -72,6 +75,12 @@ public class User {
         shoppingCart.removeAllProducts();
     }
 
+    /**
+     *
+     * Functions For Usecases 2.8
+     *
+     */
+
     public void purchaseCart() {
         shoppingCart.attemptPurchase(this);
     }
@@ -80,7 +89,6 @@ public class User {
         // TODO: query user to confirm the price
         return true;
     }
-
 
     public void requestConfirmedPurchase() { // from payment system
         if (!system.makePayment(paymentDetails, shoppingCart.getStoreProductsIds())) {
@@ -102,6 +110,10 @@ public class User {
             // TODO: message user with fail and refund
         }
     }
+
+
+
+
     public Store openStore () {
         return state.openStore();
     }

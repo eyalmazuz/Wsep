@@ -10,6 +10,12 @@ public class ShoppingCart {
     private User user;
     private ArrayList<ShoppingBasket> shoppingBaskets = new ArrayList<ShoppingBasket>();
 
+    /**
+     *
+     * Functions For Usecases 2.6, 2.7.*
+     *
+     */
+
     public void addProduct(Store store, int productId, int amount) {
         getOrCreateBasket(store).addProduct(productId, amount);
     }
@@ -117,15 +123,6 @@ public class ShoppingCart {
             }
         }
 
-    }
-
-
-    /**
-     * Clones the shoppingBaskets from cart onto this
-     * @param cart
-     */
-    public void copyCart (ShoppingCart cart) {
-        //TODO:Implement this
     }
 
 
