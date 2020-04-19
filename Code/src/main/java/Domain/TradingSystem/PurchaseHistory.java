@@ -45,4 +45,8 @@ public class PurchaseHistory {
             }
         }
     }
+
+    public ShoppingCart getLatestCart() {
+        return latestCart;
+    }
 }

@@ -285,4 +285,8 @@ public class Subscriber implements UserState {
     public String getPassword() {
         return password;
     }
+
+    public PurchaseHistory getPurchaseHistory() {
+        return purchaseHistory;
+    }
 }

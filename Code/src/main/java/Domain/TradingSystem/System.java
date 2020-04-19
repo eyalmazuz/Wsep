@@ -18,7 +18,7 @@ public class System {
     private UserHandler userHandler;
     private List<Store> stores = new LinkedList<Store>();
 
-        private Map<Integer, String> productNames = new HashMap<>();
+    private Map<Integer, String> productNames = new HashMap<>();
     private Map<Integer, String> productCategories = new HashMap<>();
     private Map<Integer, Integer> productRatings = new HashMap<>();
 
@@ -292,26 +292,29 @@ public class System {
         return supplyHandler.requestSupply(user, storeProductsIds);
     }
 
+    // Usecase 2.2
     public int register(String username, String password) {
         if (!currentUser.isGuest()) return -1;
         return userHandler.register(username, password);
     }
 
+    // Usecase 2.3
     public boolean login(String username, String password) {
         if (!currentUser.isGuest()) return false;
 
-        User userToLogin = userHandler.getSubscriberUser(username, password);
+        Subscriber subToLogin = userHandler.getSubscriber(username, password);
 
-        if (userToLogin != null) {
-            ShoppingCart subscriberCart = userToLogin.getShoppingCart();
+        if (subToLogin != null) {
+            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
             subscriberCart.merge(currentUser.getShoppingCart());
-            currentUser = userToLogin;
+            currentUser.setState(subToLogin);
             return true;
         }
 
         return false;
     }
 
+    // Usecase 2.4
     public String viewStoreProductInfo() {
         String info = "";
         for (Store store: stores) {
@@ -321,6 +324,7 @@ public class System {
         return info;
     }
 
+    // Usecase 2.5
     public String searchProducts(String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
@@ -342,7 +346,7 @@ public class System {
                 }
             if (priceRange != null) {
                 double price = pis.getPrice(currentUser);
-                if (price >= priceRange.getKey() && price <= priceRange.getValue()) {
+                if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
                     filteredProducts.add(pis);
                     continue;
                 }
