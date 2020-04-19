@@ -9,8 +9,8 @@ public class PaymentHandler {
         this.config = config;
     }
 
-    // receives user object for user details and a map: (store id -> (product id -> amount))
-    public boolean makePayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    // receives external purchase details for user details and a map: (store id -> (product id -> amount))
+    public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         return true;
     }
 

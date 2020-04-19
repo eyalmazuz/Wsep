@@ -254,8 +254,8 @@ public class System {
 
 
 
-    public boolean makePayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.makePayment(user, storeProductsIds);
+    public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.makePayment(paymentDetails, storeProductsIds);
     }
 
     public void cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {

@@ -7,6 +7,7 @@ public class User {
 
     private System system = System.getInstance();
 
+    private String paymentDetails;
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
@@ -20,6 +21,12 @@ public class User {
         return state.addProductToStore(storeId, productId, amount);
 
     }
+
+    // string instead of user to payment handler
+
+    // comment for each method regarding its usecase number
+
+    // tests
 
     public boolean editProductInStore(int storeId, int productId, String newInfo) {
 
@@ -76,7 +83,7 @@ public class User {
 
 
     public void requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(this, shoppingCart.getStoreProductsIds())) {
+        if (!system.makePayment(paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(this); // store purchase history
