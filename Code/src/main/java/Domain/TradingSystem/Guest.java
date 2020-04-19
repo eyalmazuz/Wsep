@@ -75,4 +75,9 @@ public class Guest implements UserState {
     public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
 
     }
+
+    @Override
+    public boolean isAdmin() {
+        return false;
+    }
 }

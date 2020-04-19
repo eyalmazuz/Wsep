@@ -13,7 +13,7 @@ public class Subscriber implements UserState {
     private List <Permission> permissions;
     private User user;
     private String username;
-    private String password;
+    private String hashedPassword;
     private boolean isAdmin;
     private PurchaseHistory purchaseHistory;
 
@@ -23,9 +23,9 @@ public class Subscriber implements UserState {
 
     }
 
-    public Subscriber(String username, String password, boolean isAdmin) {
+    public Subscriber(String username, String hashedPassword, boolean isAdmin) {
         this.username = username;
-        this.password = password;
+        this.hashedPassword = hashedPassword;
         this.isAdmin = isAdmin;
         this.id = idCounter;
         idCounter++;
@@ -64,9 +64,6 @@ public class Subscriber implements UserState {
             this.username = userName;
         }
 
-    public void setPassword(String password) {
-            this.password = password;
-        }
 
 
     /**
@@ -107,18 +104,49 @@ public class Subscriber implements UserState {
     public boolean addProductToStore(int store, int productId, int ammount) {
 
         Store currStore = hasPermission(store,"Owner");
+
         if(currStore != null){
             currStore.addProduct(productId,ammount);
             return true;
         }
+        else{
+            //Adition to usecase 5.1
+            if((hasManagerPermission(store))&&(checkPrivilage(store,"add product"))){
+                currStore = hasPermission(store,"manager");
+                currStore.addProduct(productId,ammount);
+                return true;
+            }
+        }
         return false;
 
+    }
+
+    /**
+     * goes by the subscriber permissions and check if he can do certein tasks
+     * @param store_id
+     * @param type
+     * @return true if the user had the permissions, false otherwise
+     */
+    private boolean checkPrivilage(int store_id,String type) {
+        for (Permission permission: permissions){
+            if ((permission.getStore().getId()==store_id)&&(permission.hasPrivilage(type)))
+                return true;
+        }
+        return false;
     }
 
     public boolean deleteProductFromStore(int store, int productId) {
         Store currStore = hasPermission(store,"Owner");
         if(currStore != null){
             return currStore.deleteProduct(productId);
+        }
+        else{
+            //Adition to usecase 5.1
+            if((hasManagerPermission(store))&&(checkPrivilage(store,"delete product"))){
+                currStore = hasPermission(store,"manager");
+                currStore.deleteProduct(productId);
+                return true;
+            }
         }
         return false;
     }
@@ -128,6 +156,14 @@ public class Subscriber implements UserState {
         Store currStore = hasPermission(store,"Owner");
         if(currStore != null){
             return currStore.editProduct(productId,info);
+        }
+        else{
+            //Adition to usecase 5.1
+            if((hasManagerPermission(store))&&(checkPrivilage(store,"edit product"))){
+                currStore = hasPermission(store,"manager");
+                currStore.editProduct(productId,info);
+                return true;
+            }
         }
         return false;
     }
@@ -282,8 +318,8 @@ public class Subscriber implements UserState {
 
     }
 
-    public String getPassword() {
-        return password;
+    public String getHashedPassword() {
+        return hashedPassword;
     }
 
     public PurchaseHistory getPurchaseHistory() {
