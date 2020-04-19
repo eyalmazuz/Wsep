@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShoppingCart {
@@ -99,12 +100,20 @@ public class ShoppingCart {
     }
 
     public void merge(ShoppingCart other) {
+        List<Integer> existingStoreIDs = new ArrayList<>();
         for (ShoppingBasket basket : shoppingBaskets) {
+            existingStoreIDs.add(basket.getStoreId());
             for (ShoppingBasket otherBasket : other.shoppingBaskets) {
                 if (otherBasket.getStoreId() == basket.getStoreId()) {
                     basket.merge(otherBasket);
                     break;
                 }
+            }
+        }
+
+        for (ShoppingBasket otherBasket : other.shoppingBaskets) {
+            if(!existingStoreIDs.contains(otherBasket.getStoreId())) {
+                shoppingBaskets.add(otherBasket);
             }
         }
 
