@@ -38,6 +38,7 @@ public class UserHandler {
         return found;
     }
 
+    // Usecase 2.2 - Register
     public int register(String username, String password) {
         for (Subscriber sub: subscribers.keySet())
             if (sub.getUsername().equals(username))
@@ -50,6 +51,7 @@ public class UserHandler {
         return subscriberState.getId();
     }
 
+    // Usecase 2.3 - Login
     public User getSubscriberUser(String username, String password) {
         for (Map.Entry<Subscriber, User> subUser: subscribers.entrySet()) {
             Subscriber sub = subUser.getKey();
