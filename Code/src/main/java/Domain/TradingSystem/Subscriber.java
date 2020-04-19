@@ -16,13 +16,23 @@ public class Subscriber implements UserState {
     private boolean isAdmin;
     private PurchaseHistory allCartsHistory;
 
-    //METHODS:
-    public Subscriber(){
+    public Subscriber() {
+
+    }
+
+    public Subscriber(String username, String password, boolean isAdmin) {
+        this.username = username;
+        this.password = password;
+        this.isAdmin = isAdmin;
         this.id = idCounter;
         idCounter++;
-
         permissions = new LinkedList<Permission>();
 
+    }
+
+    public boolean addProductToStore(Store store, int productId, int ammount) {
+        store.addProduct(productId,ammount);
+        return true;
     }
 
     public String getUsername() {
@@ -33,20 +43,23 @@ public class Subscriber implements UserState {
      * Functions For Usecases 1.*
      *
      */
-        public boolean isAdmin() {
+    public boolean isAdmin() {
             return isAdmin;
         }
 
-        public void setAdmin() {
-            isAdmin = true;
-        }
+    public void setAdmin() {
+        isAdmin = true;
+    }
 
-        public void setUserName(String userName) {
+
+
+
+
+    public void setUserName(String userName) {
             this.username = userName;
         }
 
-
-        public void setPassword(String password) {
+    public void setPassword(String password) {
             this.password = password;
         }
 
@@ -254,4 +267,7 @@ public class Subscriber implements UserState {
 
     }
 
+    public String getPassword() {
+        return password;
+    }
 }
