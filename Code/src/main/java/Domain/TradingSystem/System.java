@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
+import Domain.Security.Security;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -284,13 +285,13 @@ public class System {
 
     public int register(String username, String password) {
         if (!currentUser.isGuest()) return -1;
-        return userHandler.register(username, password);
+        return userHandler.register(username, Security.getHash(password));
     }
 
     public boolean login(String username, String password) {
         if (!currentUser.isGuest()) return false;
 
-        User userToLogin = userHandler.getSubscriberUser(username, password);
+        User userToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
         if (userToLogin != null) {
             ShoppingCart subscriberCart = userToLogin.getShoppingCart();

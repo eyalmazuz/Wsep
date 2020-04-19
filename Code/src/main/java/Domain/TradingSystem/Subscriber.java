@@ -13,7 +13,7 @@ public class Subscriber implements UserState {
     private List <Permission> permissions;
     private User user;
     private String username;
-    private String password;
+    private String hashedPassword;
     private boolean isAdmin;
     private PurchaseHistory purchaseHistory;
 
@@ -21,9 +21,9 @@ public class Subscriber implements UserState {
 
     }
 
-    public Subscriber(String username, String password, boolean isAdmin) {
+    public Subscriber(String username, String hashedPassword, boolean isAdmin) {
         this.username = username;
-        this.password = password;
+        this.hashedPassword = hashedPassword;
         this.isAdmin = isAdmin;
         this.id = idCounter;
         idCounter++;
@@ -60,9 +60,6 @@ public class Subscriber implements UserState {
             this.username = userName;
         }
 
-    public void setPassword(String password) {
-            this.password = password;
-        }
 
 
     /**
@@ -317,7 +314,7 @@ public class Subscriber implements UserState {
 
     }
 
-    public String getPassword() {
-        return password;
+    public String getHashedPassword() {
+        return hashedPassword;
     }
 }
