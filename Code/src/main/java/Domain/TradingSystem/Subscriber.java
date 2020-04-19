@@ -325,4 +325,5 @@ public class Subscriber implements UserState {
     public PurchaseHistory getPurchaseHistory() {
         return purchaseHistory;
     }
+
 }

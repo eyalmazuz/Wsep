@@ -47,7 +47,7 @@ public class UserHandler {
     // Usecase 2.3 - Login
     public Subscriber getSubscriber(String username, String password) {
         for (Subscriber sub: subscribers) {
-            if (sub.getUsername().equals(username) && sub.getPassword().equals(password))
+            if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(password))
                 return sub;
         }
         return null;
