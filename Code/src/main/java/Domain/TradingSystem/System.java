@@ -290,12 +290,12 @@ public class System {
     public boolean login(String username, String password) {
         if (!currentUser.isGuest()) return false;
 
-        User userToLogin = userHandler.getSubscriberUser(username, password);
+        Subscriber subToLogin = userHandler.getSubscriber(username, password);
 
-        if (userToLogin != null) {
-            ShoppingCart subscriberCart = userToLogin.getShoppingCart();
+        if (subToLogin != null) {
+            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
             subscriberCart.merge(currentUser.getShoppingCart());
-            currentUser = userToLogin;
+            currentUser.setState(subToLogin);
             return true;
         }
 

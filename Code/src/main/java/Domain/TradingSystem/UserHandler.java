@@ -11,26 +11,22 @@ import java.util.Map;
 public class UserHandler {
 
     //TODO:WORK WITH ONLY ONE OF THOSE
-    List<Subscriber> users;
-    Map<Subscriber, User> subscribers;
+    List<Subscriber> subscribers;
 
     public UserHandler(){
-        users = new LinkedList<Subscriber>();
-        subscribers = new HashMap<>();
+        subscribers = new LinkedList<Subscriber>();
     }
 
     public void setAdmin() {
         if(!hasAdmin()){
-            User adminUser = new User();
-            Subscriber adminState = new Subscriber("admin", Security.getHash("admin"), true);
-            adminUser.setState(adminState);
-            subscribers.put(adminState, adminUser);
+            Subscriber admin = new Subscriber("admin", Security.getHash("admin"), true);
+            subscribers.add(admin);
         }
     }
 
     private boolean hasAdmin() {
         boolean found = false;
-        for(Subscriber sub : subscribers.keySet()){
+        for(Subscriber sub : subscribers){
             if(sub.isAdmin()){
                 found = true;
             }
@@ -40,23 +36,20 @@ public class UserHandler {
 
     // Usecase 2.2 - Register
     public int register(String username, String password) {
-        for (Subscriber sub: subscribers.keySet())
+        for (Subscriber sub: subscribers)
             if (sub.getUsername().equals(username))
                 return -1;
 
-        User newUser = new User();
-        Subscriber subscriberState = new Subscriber(username, password, false);
-        newUser.setState(subscriberState);
-        subscribers.put(subscriberState, newUser);
-        return subscriberState.getId();
+        Subscriber newSubscriber = new Subscriber(username, password, false);
+        subscribers.add(newSubscriber);
+        return newSubscriber.getId();
     }
 
     // Usecase 2.3 - Login
-    public User getSubscriberUser(String username, String password) {
-        for (Map.Entry<Subscriber, User> subUser: subscribers.entrySet()) {
-            Subscriber sub = subUser.getKey();
+    public Subscriber getSubscriber(String username, String password) {
+        for (Subscriber sub: subscribers) {
             if (sub.getUsername().equals(username) && sub.getPassword().equals(password))
-                return subUser.getValue();
+                return sub;
         }
         return null;
     }
@@ -69,7 +62,7 @@ public class UserHandler {
      */
     public List <Integer> getAvailableUsersToOwn(List <Subscriber> owners) {
         List <Integer> availableSubs = new LinkedList<Integer>();
-        for (Subscriber user: users){
+        for (Subscriber user: subscribers){
             if (!owners.contains(user))
                 availableSubs.add(user.getId());
         }
@@ -77,7 +70,7 @@ public class UserHandler {
     }
 
     public Subscriber getUser(int userId) {
-        for(Subscriber s : users){
+        for(Subscriber s : subscribers){
             if (s.getId() == userId){
                 return s;
             }
@@ -87,7 +80,7 @@ public class UserHandler {
 
     public List<Integer> getManagersOfCurUser(int storeId, int grantorId) {
         List <Integer> ans = new LinkedList<Integer>();
-        for (Subscriber user: users){
+        for (Subscriber user: subscribers){
             if (user.isGrantedBy(storeId,grantorId)){
                 ans.add(user.getId());
             }
@@ -96,7 +89,7 @@ public class UserHandler {
     }
 
     public String getManagerDetails(int managerId, int storeId) {
-        for (Subscriber user: users){
+        for (Subscriber user: subscribers){
             if (user.getId() == managerId)
                 return user.getManagerDetails(storeId);
         }
