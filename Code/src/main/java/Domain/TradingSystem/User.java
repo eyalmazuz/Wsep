@@ -15,6 +15,8 @@ public class User {
 
     public User() {
         this.state = new Guest();
+        // FIX for acceptance testing
+        this.shoppingCart = new ShoppingCart();
     }
 
     public boolean addProductToStore(int storeId, int productId, int amount) {

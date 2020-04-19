@@ -5,14 +5,14 @@ public class RealBridge implements Bridge {
 
     DomainController dc = new DomainController();
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig) { return false; }
+    public boolean setupSystem(String supplyConfig, String paymentConfig) { return dc.setup(supplyConfig, paymentConfig); }
 
     public boolean login(String username, String password) {
-        return false;
+        return dc.login(username, password);
     }
 
     public int register(String username, String password) {
-        return -1;
+        return dc.register(username, password);
     }
 
     public String[][] getAllInfo() {

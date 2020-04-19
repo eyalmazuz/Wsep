@@ -32,4 +32,17 @@ public class DomainController {
     public boolean editManagerOptions(int storeId, int userId,  String option) {
         return system.setManagerDetalis(userId,storeId,option);
     }
+
+    public int register(String username, String password) {
+        return system.register(username, password);
+    }
+
+    public boolean login(String username, String password) {
+        return system.login(username, password);
+    }
+
+    public boolean setup(String supplyConfig, String paymentConfig) {
+        system.setup(supplyConfig, paymentConfig);
+        return true;
+    }
 }

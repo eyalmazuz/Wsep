@@ -25,6 +25,9 @@ public class Store {
     public Store(){
         this.id = globalId;
         globalId ++;
+        // FIX for acceptance tests
+        managers = new LinkedList<>();
+        products = new LinkedList<>();
     }
 
     public int getId() {

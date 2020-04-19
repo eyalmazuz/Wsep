@@ -3,8 +3,7 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
-import javafx.util.Pair;
-
+//import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
