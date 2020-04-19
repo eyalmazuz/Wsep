@@ -129,7 +129,7 @@ public class ShoppingCart {
     }
 
 
-    public List<ShoppingBasket> getBaskets(){
+    public ArrayList<ShoppingBasket> getBaskets(){
         return shoppingBaskets;
     }
 }

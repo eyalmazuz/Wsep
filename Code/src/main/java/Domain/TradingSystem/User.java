@@ -10,10 +10,7 @@ public class User {
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
-
-    // also fix passing String to system and not User
-
-    // add comment before each method so we know which usecase its about
+    private PurchaseHistory purchaseHistory;
 
     public User() {
         this.state = new Guest();
@@ -132,5 +129,5 @@ public class User {
     public String getStoreHistory ( int storeId){
         return state.getStoreHistory(storeId);
     }
-    }
+}
 
