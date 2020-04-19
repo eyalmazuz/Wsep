@@ -126,7 +126,7 @@ public class ShoppingCart {
         //TODO:Implemet this
     }
 
-    public List<ShoppingBasket> getBaskets(){
+    public ArrayList<ShoppingBasket> getBaskets(){
         return shoppingBaskets;
     }
 }

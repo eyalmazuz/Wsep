@@ -9,7 +9,6 @@ public class User {
 
     private Permission permissions;
     private UserState state;
-    private ShoppingCart cart;
     private ShoppingCart shoppingCart;
     private PurchaseHistory purchaseHistory;
 
@@ -45,7 +44,7 @@ public class User {
 
 
     public boolean logout() {
-        return state.logout(cart);
+        return state.logout(shoppingCart);
 
     }
 
