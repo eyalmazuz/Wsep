@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
+import Domain.Logger.SystemLogger;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class System {
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
     private List<Store> stores = new LinkedList<Store>();
+    private SystemLogger logger;
 
         private Map<Integer, String> productNames = new HashMap<>();
     private Map<Integer, String> productCategories = new HashMap<>();
@@ -26,6 +28,7 @@ public class System {
 
     private System(){
         userHandler = new UserHandler();
+        logger = new SystemLogger();
     }
 
     public static System getInstance(){
@@ -44,7 +47,7 @@ public class System {
 
 
     public void setup(String supplyConfig,String paymentConfig){
-        //TODO:Add logger call
+        logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
         setSupply(supplyConfig);
         setPayment(paymentConfig);
