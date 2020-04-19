@@ -1,5 +1,6 @@
 package AcceptanceTest.AdminTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +25,12 @@ public class AdminSearchTests extends ServiceTest {
     //USE CASES 6.4.1
     @Test
     public void testSearchUserHistorySuccessful(){
-        assertNotNull(searchUserHistory("hanamaru"));
+        assertNotNull(searchUserHistory(Database.userToId.get("hanamaru")));
     }
 
     @Test
     public void testSearchUserHistoryFailure(){
-        assertNull(searchUserHistory("danny"));
+        assertNull(searchUserHistory(Database.userToId.get("danny")));
     }
 
 

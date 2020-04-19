@@ -134,9 +134,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String[][] searchUserHistory(String username){
+    public String[][] searchUserHistory(int userId){
         if(rb != null){
-            return rb.searchUserHistory(username);
+            return rb.searchUserHistory(userId);
         }
         else{
             return null;

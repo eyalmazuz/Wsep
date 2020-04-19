@@ -30,7 +30,7 @@ public interface Bridge {
 
     String[][] viewPurchaseHistory();
 
-    String[][] searchUserHistory(String username);
+    String[][] searchUserHistory(int userId);
 
     String[][] searchStoreHistory(int storeId);
 

@@ -394,8 +394,8 @@ public class System {
     }
 
     public void deleteItemInCart(int storeId, int productId) {
-
-        currentUser.deleteProductFromStore(storeId, productId);
+        Store store = getStoreById(storeId);
+        currentUser.removeProductFromCart(store, productId);
     }
 
     public void clearCart() {

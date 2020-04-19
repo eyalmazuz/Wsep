@@ -109,7 +109,7 @@ public abstract class ServiceTest extends TestCase {
         return bridge.viewPurchaseHistory();
     }
 
-    public String[][] searchUserHistory(String username) { return this.bridge.searchUserHistory(username);}
+    public String[][] searchUserHistory(int userId) { return this.bridge.searchUserHistory(userId);}
 
     public String[][] searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
 

@@ -91,8 +91,29 @@ public class DomainController {
         return system.deleteManager(storeId, userId);
     }
 
+    //TODO FIX THIS
     public String[][] viewCart() {
         String cart = system.getCart();
+        return null;
+    }
+
+    public boolean editProdct(int storeId, int productId, String productInfo) {
+        return system.editProductInStore(storeId, productId, productInfo);
+    }
+
+    public boolean updateItemDiscount(int storeId, int itemID, int discount) {
+        //TODO FIX THIS
+        return true;
+    }
+
+    public String[][] viewShopHistory(int storeId) {
+        //TODO FIX THIS
+        String storeHistory = system.getStoreHistory(storeId);
+        return null;
+    }
+
+    public String[][] viewUserHistory(int userId) {
+        //TODO FIX THIS
         return null;
     }
 }
