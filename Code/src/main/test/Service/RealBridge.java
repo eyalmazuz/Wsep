@@ -29,27 +29,27 @@ public class RealBridge implements Bridge {
         return dc.searchProducts(id, category, keyword, priceRange, productRating, storeRating);
     }
 
-    public void addToCart(int storeId, int productId, Integer amount) {
-        dc.addToCart(storeId, productId, amount);
+    public boolean addToCart(int storeId, int productId, Integer amount) {
+        return dc.addToCart(storeId, productId, amount);
     }
 
-    public void updateAmount(int storeId, int productId, int amount) {
-        dc.updateAmount(storeId, productId, amount);
+    public boolean updateAmount(int storeId, int productId, int amount) {
+        return dc.updateAmount(storeId, productId, amount);
     }
 
-    public void deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int storeId, int productId) {
 
-        dc.deleteItemInCart(storeId, productId);
+        return dc.deleteItemInCart(storeId, productId);
     }
 
-    public void clearCart() {
-        dc.clearCart();
+    public boolean clearCart() {
+        return dc.clearCart();
     }
 
     //TODO FIX THIS
-    public void buyCart(String[][] cart) {
+    public boolean buyCart(String[][] cart) {
         //TODO add ADAPTER
-        dc.buyCart();
+        return dc.buyCart();
     }
 
     //TODO FIX THIS

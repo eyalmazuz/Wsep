@@ -14,15 +14,15 @@ public interface Bridge {
 
     String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo);
 
-    void addToCart(int storeId, int productId, Integer amount);
+    boolean addToCart(int storeId, int productId, Integer amount);
 
-    void updateAmount(int storeId, int productId, int amount);
+    boolean updateAmount(int storeId, int productId, int amount);
 
-    void deleteItemInCart(int storeId, int productId);
+    boolean deleteItemInCart(int storeId, int productId);
 
-    void clearCart();
+    boolean clearCart();
 
-    void buyCart(String[][] cart);
+    boolean buyCart(String[][] cart);
 
     boolean logout();
 

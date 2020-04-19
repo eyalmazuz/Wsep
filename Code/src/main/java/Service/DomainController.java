@@ -59,24 +59,25 @@ public class DomainController {
         return null;
     }
 
-    public void addToCart(int storeId, int productId, Integer amount) {
-        system.addToCart(storeId, productId, amount);
+    public boolean addToCart(int storeId, int productId, Integer amount) {
+        return system.addToCart(storeId, productId, amount);
     }
 
-    public void updateAmount(int storeId, int productId, int amount) {
-        system.updateAmount(storeId, productId, amount);
+    public boolean updateAmount(int storeId, int productId, int amount) {
+        return system.updateAmount(storeId, productId, amount);
     }
 
-    public void deleteItemInCart(int storeId, int productId) {
-        system.deleteItemInCart(storeId, productId);
+    public boolean deleteItemInCart(int storeId, int productId) {
+        return system.deleteItemInCart(storeId, productId);
     }
 
-    public void clearCart() {
-       system.clearCart();
+    public boolean clearCart() {
+        return system.clearCart();
     }
 
-    public void buyCart() {
-        system.buyCart();
+    public boolean buyCart() {
+
+        return system.buyCart();
     }
 
     public boolean appointManager(int storeId, int userId) {

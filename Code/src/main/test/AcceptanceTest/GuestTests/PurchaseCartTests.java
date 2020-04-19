@@ -22,7 +22,7 @@ public class PurchaseCartTests extends ServiceTest {
         addToCart(1,1, 5);
         addToCart(1,2, 5);
         //TODO FIX THIS
-        buyCart(viewCart());
+        assertTrue(buyCart(viewCart()));
     }
 
     @Test
@@ -30,7 +30,7 @@ public class PurchaseCartTests extends ServiceTest {
         addToCart(1,1, 5);
         addToCart(1,2, 5);
         //TODO FIX THIS
-        buyCart(viewCart());
+        assertFalse(buyCart(viewCart()));
 
     }
 
@@ -39,7 +39,7 @@ public class PurchaseCartTests extends ServiceTest {
         addToCart(1,1, 500);
         addToCart(1,2, 500);
         //TODO FIX THIS
-        buyCart(viewCart());
+        assertFalse(buyCart(viewCart()));
 
     }
 
@@ -48,7 +48,7 @@ public class PurchaseCartTests extends ServiceTest {
         addToCart(1,1, 5);
         addToCart(1,3, 5);
         //TODO FIX THIS
-        buyCart(viewCart());
+        assertFalse(buyCart(viewCart()));
 
     }
 }

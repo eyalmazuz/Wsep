@@ -51,49 +51,49 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public void addToCart(int storeId, int productId, Integer amount) {
+    public boolean addToCart(int storeId, int productId, Integer amount) {
         if (rb != null) {
-            rb.addToCart(storeId, productId, amount);
+            return rb.addToCart(storeId, productId, amount);
         }
         else {
-
+            return false;
 
         }
     }
 
-    public void updateAmount(int storeId, int productId, int amount) {
+    public boolean updateAmount(int storeId, int productId, int amount) {
         if (rb != null) {
-            rb.updateAmount(storeId, productId, amount);
+            return rb.updateAmount(storeId, productId, amount);
         }
         else {
-
+            return false;
         }
     }
 
-    public void deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int storeId, int productId) {
         if (rb != null) {
-            rb.deleteItemInCart(storeId, productId);
+            return rb.deleteItemInCart(storeId, productId);
         }
         else {
-
+            return false;
         }
     }
 
-    public void clearCart() {
+    public boolean clearCart() {
         if (rb != null) {
-            rb.clearCart();
+            return rb.clearCart();
         }
         else {
-
+            return false;
         }
     }
 
-    public void buyCart(String[][] cart) {
+    public boolean buyCart(String[][] cart) {
         if (rb != null) {
-            rb.buyCart(cart);
+            return rb.buyCart(cart);
         }
         else {
-
+            return false;
         }
     }
 

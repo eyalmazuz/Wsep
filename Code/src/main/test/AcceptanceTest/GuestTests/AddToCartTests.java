@@ -21,21 +21,15 @@ public class AddToCartTests extends ServiceTest {
 
     @Test
     public void testAddToCartSuccessful(){
-        addToCart(1,1, 5);
-        assertEquals(Database.Cart1, viewCart());
-        addToCart(1,2, 5);
-        assertEquals(Database.Cart1, viewCart());
+        assertTrue(addToCart(1,1, 5));
+        assertTrue(addToCart(1,2, 5));
     }
 
     @Test
     public void testAddToCartFailure(){
-        addToCart(1,1, 15);
-        assertEquals(Database.Cart0, viewCart());
-        addToCart(1,2, 0);
-        assertEquals(Database.Cart0, viewCart());
-        addToCart(1,2, -5);
-        assertEquals(Database.Cart0, viewCart());
-        addToCart(1,3, null);
-        assertEquals(Database.Cart0, viewCart());
+        assertFalse(addToCart(1,1, 15));
+        assertFalse(addToCart(1,2, 0));
+        assertFalse(addToCart(1,2, -5));
+        assertFalse(addToCart(1,3, null));
     }
 }

@@ -53,24 +53,24 @@ public abstract class ServiceTest extends TestCase {
         return this.bridge.register(username, password);
     }
 
-    public void addToCart(int storeId, int productId, Integer amount){
-        this.bridge.addToCart(storeId, productId, amount);
+    public boolean addToCart(int storeId, int productId, Integer amount){
+        return this.bridge.addToCart(storeId, productId, amount);
     }
 
-    public void updateAmount(int storeId, int productId, int amount){
-        bridge.updateAmount(storeId, productId, amount);
+    public boolean updateAmount(int storeId, int productId, int amount){
+        return bridge.updateAmount(storeId, productId, amount);
     }
 
-    public void deleteItemInCart(int storeId, int productId){
-        bridge.deleteItemInCart(storeId, productId);
+    public boolean deleteItemInCart(int storeId, int productId){
+        return bridge.deleteItemInCart(storeId, productId);
     }
 
-    public void clearCart(){
-        bridge.clearCart();
+    public boolean clearCart(){
+        return bridge.clearCart();
     }
 
-    public void buyCart(String[][] cart){
-        bridge.buyCart(cart);
+    public boolean buyCart(String[][] cart){
+        return bridge.buyCart(cart);
     }
 
     public boolean logout(){ return bridge.logout(); }
