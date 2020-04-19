@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class UserHandler {
 
-    //TODO:WORK WITH ONLY ONE OF THOSE
     List<Subscriber> subscribers;
 
     public UserHandler(){
