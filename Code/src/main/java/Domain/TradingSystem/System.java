@@ -258,17 +258,6 @@ public class System {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     public boolean makePayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         return paymentHandler.makePayment(user, storeProductsIds);
     }

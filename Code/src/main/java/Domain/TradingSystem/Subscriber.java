@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Subscriber implements UserState {
 
@@ -14,7 +15,7 @@ public class Subscriber implements UserState {
     private String username;
     private String password;
     private boolean isAdmin;
-    private PurchaseHistory allCartsHistory;
+    private PurchaseHistory purchaseHistory;
 
     public Subscriber() {
 
@@ -69,16 +70,16 @@ public class Subscriber implements UserState {
      * Function For Usecases 3.*
      *
      */
-        public boolean logout(ShoppingCart cart) {
-            allCartsHistory.setLatestCart(cart);
-            cart.cleanCart();
-            user.setState(new Guest());
-            return true;
+    public boolean logout (ShoppingCart cart) {
+        purchaseHistory.setLatestCart(cart);
+        cart.removeAllProducts();
+        user.setState(new Guest());
+        return true;
 
-        }
+    }
 
     public String getHistory() {
-        return allCartsHistory.toString();
+        return purchaseHistory.toString();
     }
 
     public void setUser(User user) {
@@ -256,6 +257,16 @@ public class Subscriber implements UserState {
             return store.getHistory();
         }
         return null;
+    }
+
+    @Override
+    public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+        purchaseHistory.addPurchase(storePurchaseDetails);
+    }
+
+    @Override
+    public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+        purchaseHistory.removePurchase(storePurchaseDetails);
     }
 
     private void overridePermission(String type, Store store, String details) {

@@ -1,6 +1,8 @@
 package Domain.TradingSystem;
 
- interface UserState {
+import java.util.Map;
+
+interface UserState {
 
      boolean addProductToStore(int storeId, int productId, int ammount);
 
@@ -31,4 +33,8 @@ package Domain.TradingSystem;
      boolean editPermission(Subscriber manager, Store store, String details);
 
      String getStoreHistory(int storeId);
+
+     void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
+
+     void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
  }
