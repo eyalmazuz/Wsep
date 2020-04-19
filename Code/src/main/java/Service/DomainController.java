@@ -59,29 +59,24 @@ public class DomainController {
         return null;
     }
 
-    public boolean addToCart(int productId, Integer amount) {
-        //TODO NO ADD TO CART FIX LATER
-        return false;
+    public void addToCart(int storeId, int productId, Integer amount) {
+        system.addToCart(storeId, productId, amount);
     }
 
-    public boolean updateAmount(int productId, int amount) {
-        //TODO NO UPDATE AMOUNT
-        return false;
+    public void updateAmount(int storeId, int productId, int amount) {
+        system.updateAmount(storeId, productId, amount);
     }
 
-    public boolean deleteItemInCart(int productId) {
-        //TODO NO DELETE
-        return false;
+    public void deleteItemInCart(int storeId, int productId) {
+        system.deleteItemInCart(storeId, productId);
     }
 
-    public boolean clearCart() {
-        //TODO NO CLEAR
-        return false;
+    public void clearCart() {
+       system.clearCart();
     }
 
-    public boolean buyCart() {
-        //TODO NO BUY
-        return false;
+    public void buyCart() {
+        system.buyCart();
     }
 
     public boolean appointManager(int storeId, int userId) {
@@ -94,5 +89,10 @@ public class DomainController {
 
     public boolean removeManager(int storeId, int userId) {
         return system.deleteManager(storeId, userId);
+    }
+
+    public String[][] viewCart() {
+        String cart = system.getCart();
+        return null;
     }
 }

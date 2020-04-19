@@ -13,8 +13,8 @@ public class UserActionsTests extends ServiceTest {
     public void setUp(){
         super.setUp();
         login("you", "12345");
-        addToCart(1, 5);
-        addToCart(2, 5);
+        addToCart(1,1, 5);
+        addToCart(1,2, 5);
         buyCart(viewCart());
 
     }
@@ -57,8 +57,8 @@ public class UserActionsTests extends ServiceTest {
     @Test
     public void testViewPurchaseHistory(){
         login("you", "12345");
-        addToCart(1, 5);
-        addToCart(2, 5);
+        addToCart(1,1, 5);
+        addToCart(1,2, 5);
         buyCart(viewCart());
         assertNotNull(viewPurchaseHistory());
     }

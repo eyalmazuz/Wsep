@@ -13,7 +13,7 @@ public class AdminSearchTests extends ServiceTest {
     public void setUp(){
         super.setUp();
         login("hanamaru", "123456");
-        addToCart(1, 3);
+        addToCart(1,1, 3);
         buyCart(viewCart());
         logout();
         login("admin", "admin");

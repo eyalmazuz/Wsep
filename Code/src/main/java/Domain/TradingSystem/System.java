@@ -53,8 +53,6 @@ public class System {
         productCategories = new HashMap<>();
         productNames = new HashMap<>();
         productRatings = new HashMap<>();
-//        userHandler.users = new LinkedList<>();
-        userHandler.subscribers = new HashMap<>();
     }
 
     public void addStore (){
@@ -306,7 +304,9 @@ public class System {
 
         if (subToLogin != null) {
             ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
-            subscriberCart.merge(currentUser.getShoppingCart());
+            if(subscriberCart != null) {
+                subscriberCart.merge(currentUser.getShoppingCart());
+            }
             currentUser.setState(subToLogin);
             return true;
         }
@@ -373,4 +373,40 @@ public class System {
         return results;
     }
 
+    private Store getStoreById(int storeId){
+        for(Store s: stores){
+            if (s.getId() == storeId){
+                return s;
+            }
+        }
+        return null;
+    }
+
+    public void addToCart(int storeId, int productId, int amount){
+        Store store = getStoreById(storeId);
+        currentUser.addProductToCart(store, productId, amount);
+
+    }
+
+    public void updateAmount(int storeId, int productId, int amount) {
+        Store store = getStoreById(storeId);
+        currentUser.editCartProductAmount(store, productId, amount);
+    }
+
+    public void deleteItemInCart(int storeId, int productId) {
+
+        currentUser.deleteProductFromStore(storeId, productId);
+    }
+
+    public void clearCart() {
+        currentUser.removeAllProductsFromCart();
+    }
+
+    public void buyCart() {
+        currentUser.purchaseCart();
+    }
+
+    public String getCart() {
+        return currentUser.getShoppingCart().toString();
+    }
 }

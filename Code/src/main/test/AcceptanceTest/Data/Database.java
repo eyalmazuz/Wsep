@@ -41,11 +41,24 @@ public class Database {
             {"1", "1", "5"},
     };
 
-    public static String[][] Cart = {
+
+
+    public static String[][] Cart0 = {
+            //ID, STORE ID, AMOUNT
+    };
+
+
+    public static String[][] Cart1 = {
+            //ID, STORE ID, AMOUNT
+            {"1", "1", "5"},
+    };
+
+    public static String[][] Cart2 = {
             //ID, STORE ID, AMOUNT
             {"1", "1", "5"},
             {"2", "1", "5"}
     };
+
 
     public static String[][] History = {
             //PRSTORE ID, ODUCT ID, AMOUNT BOUGHT
