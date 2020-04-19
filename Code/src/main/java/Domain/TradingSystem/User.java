@@ -9,9 +9,11 @@ public class User {
 
     private Permission permissions;
     private UserState state;
-    private ShoppingCart cart;
     private ShoppingCart shoppingCart;
-    private PurchaseHistory purchaseHistory;
+
+    // also fix passing String to system and not User
+
+    // add comment before each method so we know which usecase its about
 
     public User() {
         this.state = new Guest();
@@ -45,8 +47,7 @@ public class User {
 
 
     public boolean logout() {
-        return state.logout(cart);
-
+        return state.logout(shoppingCart);
     }
 
 
@@ -82,53 +83,54 @@ public class User {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(this); // store purchase history
-        purchaseHistory.addPurchase(storePurchaseDetails); // user purchase history
+        state.addPurchase(storePurchaseDetails);
         boolean supplyAvailable = system.requestSupply(this, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
+            // TODO: message user with success
         }
         else{
             system.cancelPayment(this, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
-            purchaseHistory.removePurchase(storePurchaseDetails); // remove from user purchase history
+            state.removePurchase(storePurchaseDetails); // remove from user purchase history
+
 
             // TODO: message user with fail and refund
         }
     }
-            // TODO: message user with success
-            public Store openStore () {
-                return state.openStore();
-            }
+    public Store openStore () {
+        return state.openStore();
+    }
 
-            public boolean addOwner (Store store, Subscriber newOwner){
-                return state.addOwner(store, newOwner);
+    public boolean addOwner (Store store, Subscriber newOwner){
+        return state.addOwner(store, newOwner);
 
-            }
-
-
-        public boolean isGuest () {
-            return state instanceof Guest;
-        }
-
-        public ShoppingCart getShoppingCart () {
-            return shoppingCart;
-        }
-
-        public String getHistory () {
-            return state.getHistory();
-        }
-
-        public boolean addManager (Store store, Subscriber newManager){
-            return state.addManager(store, newManager);
-        }
-
-        public boolean deleteManager (Store store, Subscriber managerToDelete){
-            return state.deleteManager(store, managerToDelete);
-        }
+    }
 
 
-        public String getStoreHistory ( int storeId){
-            return state.getStoreHistory(storeId);
-        }
+    public boolean isGuest () {
+        return state instanceof Guest;
+    }
+
+    public ShoppingCart getShoppingCart () {
+        return shoppingCart;
+    }
+
+    public String getHistory () {
+        return state.getHistory();
+    }
+
+    public boolean addManager (Store store, Subscriber newManager){
+        return state.addManager(store, newManager);
+    }
+
+    public boolean deleteManager (Store store, Subscriber managerToDelete){
+        return state.deleteManager(store, managerToDelete);
+    }
+
+
+    public String getStoreHistory ( int storeId){
+        return state.getStoreHistory(storeId);
+    }
     }
 

@@ -1,12 +1,9 @@
 package Domain.TradingSystem;
 
 
+import java.util.Map;
 
 public class Guest implements UserState {
-
-
-
-
 
     /**
      *
@@ -67,5 +64,15 @@ public class Guest implements UserState {
 
     public String getStoreHistory(int storeId) {
         return null;
+    }
+
+    @Override
+    public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+
+    }
+
+    @Override
+    public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+
     }
 }

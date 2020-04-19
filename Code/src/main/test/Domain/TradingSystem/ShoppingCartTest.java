@@ -14,18 +14,10 @@ class ShoppingCartTest {
         shoppingCart = new ShoppingCart();
     }
 
-    @Test
-    void copyCart() {
-        ShoppingCart cart2 = new ShoppingCart();
-        shoppingCart.copyCart(cart2);
-        for(ShoppingBasket basket : cart2.getBaskets()){
-            assertTrue(shoppingCart.getBaskets().contains(basket));
-        }
-    }
 
     @Test
     void cleanCart() {
-        shoppingCart.cleanCart();
+        shoppingCart.removeAllProducts();
         assertTrue(shoppingCart.getBaskets().size() == 0);
 
     }

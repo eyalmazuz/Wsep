@@ -9,22 +9,17 @@ import java.util.Map;
 public class PurchaseHistory {
 
     private ShoppingCart latestCart;
-    private List<ShoppingCart> allTimeHistory;
     private Map<Integer, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
 
     @Override
     public String toString() {
-        String output = "History:\n ";
-        for (ShoppingCart cart: allTimeHistory){
-            output+=cart.toString();
-        }
-        return output;
+        // TODO: tostring
+        return "";
     }
 
     public void setLatestCart(ShoppingCart cart) {
-        latestCart.copyCart(cart);
+        latestCart = cart;
     }
-
 
     public void addPurchase (Map < Integer, PurchaseDetails > storePurchaseDetails){
         for (Integer storeId : storePurchaseDetails.keySet()) {
@@ -41,7 +36,7 @@ public class PurchaseHistory {
         }
     }
 
-    public void removePurchase (Map < Integer, PurchaseDetails > storePurchaseDetails){
+    public void removePurchase (Map < Integer, PurchaseDetails > storePurchaseDetails) {
         for (Integer storeId : storePurchaseDetails.keySet()) {
             PurchaseDetails purchaseDetails = storePurchaseDetails.get(storeId);
 
@@ -50,5 +45,4 @@ public class PurchaseHistory {
             }
         }
     }
-
-    }
+}
