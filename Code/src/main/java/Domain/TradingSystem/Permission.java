@@ -54,4 +54,7 @@ public class Permission {
     }
 
 
+    public boolean hasPrivilage(String type) {
+        return details.equals(type);
+    }
 }
