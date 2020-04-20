@@ -20,8 +20,10 @@ public class ShoppingBasket {
         return store.getId();
     }
 
-    public void editProduct(int productId, int newAmount) {
+    public boolean editProduct(int productId, int newAmount) {
+        if (!products.containsKey(productId)) return false;
         products.put(productId, newAmount);
+        return true;
     }
 
     public boolean removeProduct(int productId) {

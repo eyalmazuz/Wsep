@@ -8,7 +8,7 @@ import java.util.Map;
 public class ShoppingCart {
 
     private User user;
-    private ArrayList<ShoppingBasket> shoppingBaskets = new ArrayList<ShoppingBasket>();
+    private ArrayList<ShoppingBasket> shoppingBaskets;
 
     /**
      *
@@ -16,29 +16,30 @@ public class ShoppingCart {
      *
      */
 
+    public ShoppingCart() {
+        shoppingBaskets = new ArrayList<>();
+    }
+
     public boolean addProduct(Store store, int productId, int amount) {
-        if (amount < 1) return false;
+        if (store == null || productId < 0 || amount < 1) return false;
         getOrCreateBasket(store).addProduct(productId, amount);
         return true;
     }
 
     public boolean editProduct(Store store, int productId, int newAmount) {
-        if (newAmount < 0) return false;
+        if (newAmount < 1 || store == null) return false;
 
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            //TODO: error, no such basket
             return false;
         } else {
-            basket.editProduct(productId, newAmount);
-            return true;
+            return basket.editProduct(productId, newAmount);
         }
     }
 
     public boolean removeProductFromCart(Store store, int productId) {
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            //TODO: error, no such basket
             return false;
         } else {
             return basket.removeProduct(productId);
@@ -53,7 +54,6 @@ public class ShoppingCart {
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
             if (!basket.checkBuyingPolicy(user)) {
-                // TODO: message the user with an error
                 return false;
             }
             double basketPrice = basket.getTotalPrice(user);
