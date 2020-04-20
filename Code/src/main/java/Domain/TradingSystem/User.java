@@ -59,16 +59,16 @@ public class User {
      * Functions For Usecases 2.6, 2.7.*
      *
      */
-    public void addProductToCart(Store store, int productId, int amount) {
-        shoppingCart.addProduct(store, productId, amount);
+    public boolean addProductToCart(Store store, int productId, int amount) {
+        return shoppingCart.addProduct(store, productId, amount);
     }
 
-    public void editCartProductAmount(Store store, int productId, int newAmount) {
-        shoppingCart.editProduct(store, productId, newAmount);
+    public boolean editCartProductAmount(Store store, int productId, int newAmount) {
+        return shoppingCart.editProduct(store, productId, newAmount);
     }
 
-    public void removeProductFromCart(Store store, int productId) {
-        shoppingCart.removeProductFromCart(store, productId);
+    public boolean removeProductFromCart(Store store, int productId) {
+        return shoppingCart.removeProductFromCart(store, productId);
     }
 
     public void removeAllProductsFromCart() {
@@ -81,8 +81,8 @@ public class User {
      *
      */
 
-    public void purchaseCart() {
-        shoppingCart.attemptPurchase(this);
+    public boolean purchaseCart() {
+        return shoppingCart.attemptPurchase(this);
     }
 
     public boolean confirmPrice(double totalPrice) {
@@ -90,7 +90,7 @@ public class User {
         return true;
     }
 
-    public void requestConfirmedPurchase() { // from payment system
+    public boolean requestConfirmedPurchase() { // from payment system
         if (!system.makePayment(paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
@@ -100,14 +100,15 @@ public class User {
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
             // TODO: message user with success
-        }
-        else{
+
+            return true;
+        } else {
             system.cancelPayment(this, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
 
-
             // TODO: message user with fail and refund
+            return false;
         }
     }
 

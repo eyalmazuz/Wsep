@@ -24,8 +24,12 @@ public class ShoppingBasket {
         products.put(productId, newAmount);
     }
 
-    public void removeProduct(int productId) {
-        products.remove(productId);
+    public boolean removeProduct(int productId) {
+        if (products.containsKey(productId)) {
+            products.remove(productId);
+            return true;
+        }
+        return false;
     }
 
     public boolean checkBuyingPolicy(User user) {

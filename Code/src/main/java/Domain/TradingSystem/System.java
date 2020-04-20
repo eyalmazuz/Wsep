@@ -258,8 +258,8 @@ public class System {
         return paymentHandler.makePayment(paymentDetails, storeProductsIds);
     }
 
-    public void cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        paymentHandler.cancelPayment(user, storeProductsIds);
+    public boolean cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.cancelPayment(user, storeProductsIds);
     }
 
     // usecase 2.8.4

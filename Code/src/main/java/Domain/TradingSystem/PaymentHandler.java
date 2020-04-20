@@ -15,7 +15,7 @@ public class PaymentHandler {
         return true;
     }
 
-    public void cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-
+    public boolean cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return true;
     }
 }

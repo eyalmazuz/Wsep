@@ -16,25 +16,32 @@ public class ShoppingCart {
      *
      */
 
-    public void addProduct(Store store, int productId, int amount) {
+    public boolean addProduct(Store store, int productId, int amount) {
+        if (amount < 1) return false;
         getOrCreateBasket(store).addProduct(productId, amount);
+        return true;
     }
 
-    public void editProduct(Store store, int productId, int newAmount) {
+    public boolean editProduct(Store store, int productId, int newAmount) {
+        if (newAmount < 0) return false;
+
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             //TODO: error, no such basket
+            return false;
         } else {
             basket.editProduct(productId, newAmount);
+            return true;
         }
     }
 
-    public void removeProductFromCart(Store store, int productId) {
+    public boolean removeProductFromCart(Store store, int productId) {
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             //TODO: error, no such basket
+            return false;
         } else {
-            basket.removeProduct(productId);
+            return basket.removeProduct(productId);
         }
     }
 
@@ -42,18 +49,18 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    public void attemptPurchase(User user) {
+    public boolean attemptPurchase(User user) {
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
             if (!basket.checkBuyingPolicy(user)) {
                 // TODO: message the user with an error
-                return;
+                return false;
             }
             double basketPrice = basket.getTotalPrice(user);
             totalPrice += basketPrice;
         }
         if (user.confirmPrice(totalPrice)) {
-            user.requestConfirmedPurchase();
+            return user.requestConfirmedPurchase();
         }
     }
 
