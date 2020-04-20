@@ -407,6 +407,7 @@ public class System {
         return true;
     }
 
+    //TODO FIX THIS
     public boolean buyCart() {
         currentUser.purchaseCart();
         return true;

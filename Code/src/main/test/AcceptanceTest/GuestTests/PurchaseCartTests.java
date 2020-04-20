@@ -22,7 +22,6 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseSuccessful(){
         addToCart(Database.userToStore.get("chika"),1, 5);
         addToCart(Database.userToStore.get("chika"),2, 5);
-        //TODO FIX THIS
         assertTrue(buyCart());
     }
 
@@ -30,7 +29,6 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureBadPolicy(){
         addToCart(Database.userToStore.get("chika"),1, 5);
         addToCart(Database.userToStore.get("chika"),2, 5);
-        //TODO FIX THIS
         assertFalse(buyCart());
 
     }
@@ -39,7 +37,6 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureNotEnoughItemsInStore(){
         addToCart(Database.userToStore.get("chika"),1, 500);
         addToCart(Database.userToStore.get("chika"),2, 500);
-        //TODO FIX THIS
         assertFalse(buyCart());
 
     }
@@ -48,7 +45,6 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureInvalidDetails(){
         addToCart(Database.userToStore.get("chika"),1, 5);
         addToCart(Database.userToStore.get("chika"),3, 5);
-        //TODO FIX THIS
         assertFalse(buyCart());
 
     }

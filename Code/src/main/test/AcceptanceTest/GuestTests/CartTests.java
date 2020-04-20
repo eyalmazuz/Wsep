@@ -37,14 +37,12 @@ public class CartTests extends ServiceTest {
     //USE CASE 2.7.2
     @Test
     public void testEditAmountInCartSuccessful(){
-        //TODO FIX THIS
         assertTrue(updateAmount(Database.userToStore.get("chika"),1, 3));
         assertTrue(updateAmount(Database.userToStore.get("chika"),2, 5));
     }
 
     @Test
     public void testEditAmountInCartFailure(){
-        //TODO FIX THIS
         assertFalse(updateAmount(Database.userToStore.get("chika"),1,-5));
 
 
@@ -53,15 +51,12 @@ public class CartTests extends ServiceTest {
     //USE CASE 2.7.3
     @Test
     public void testDeleteItemInCartSuccessful(){
-
-        //TODO FIX THIS
         assertTrue(deleteItemInCart(Database.userToStore.get("chika"),1));
     }
 
     //USE CASE 2.7.4
     @Test
     public void testDeleteAllCartSuccessful(){
-        //TODO FIX THIS
         assertTrue(clearCart());
     }
 

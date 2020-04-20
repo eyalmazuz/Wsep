@@ -7,8 +7,6 @@ import AcceptanceTest.StoreTests.StoreTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-//TODO:Remove this class if find it unnecessary
-
 /**An Example of Testsuite**/
 public class AllTests {
 

@@ -5,7 +5,6 @@ import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 
-//TODO FIX THIS ENTIRE CLASS
 public class ShopPermissionsTests extends ServiceTest {
     /*
      * USE CASES 4.6.1-4.6.2
