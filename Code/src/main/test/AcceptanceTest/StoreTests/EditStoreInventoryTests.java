@@ -1,5 +1,6 @@
 package AcceptanceTest.StoreTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,52 +20,52 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.1
     @Test
     public void testAddProductSuccessful(){
-        assertTrue(addProdcut(3, 1,4));
-        assertTrue(addProdcut(4, 1,6));
+        assertTrue(addProdcut(3, Database.userToStore.get("chika"),4));
+        assertTrue(addProdcut(4, Database.userToStore.get("chika"),6));
 
     }
 
     @Test
     public void testAddProductFailureNonExisting(){
-        assertFalse(addProdcut(12313, 1,4));
-        assertFalse(addProdcut(14252, 1,4));
+        assertFalse(addProdcut(12313, Database.userToStore.get("chika"),4));
+        assertFalse(addProdcut(14252, Database.userToStore.get("chika"),4));
     }
 
     @Test
     public void testAddProductFailureInvalidCount(){
-        assertFalse(addProdcut(1, 1,-4));
-        assertFalse(addProdcut(1, 1, 0));
-        assertFalse(addProdcut(2, 1,-200));
+        assertFalse(addProdcut(1, Database.userToStore.get("chika"),-4));
+        assertFalse(addProdcut(1, Database.userToStore.get("chika"), 0));
+        assertFalse(addProdcut(2, Database.userToStore.get("chika"),-200));
     }
 
 
     //USE CASES 4.1.2
     @Test
     public void testEditProductSuccessful(){
-        assertTrue(editProduct(1, 1, "category: food"));
-        assertTrue(editProduct(1, 2, "category: goods"));
+        assertTrue(editProduct(Database.userToStore.get("chika"), 1, "category: food"));
+        assertTrue(editProduct(Database.userToStore.get("chika"), 2, "category: goods"));
 
     }
 
     @Test
     public void testEditProductFailureNonExisting(){
-        assertFalse(editProduct(1, -50, "food"));
-        assertFalse(editProduct(3, 1, null));
+        assertFalse(editProduct(Database.userToStore.get("chika"), -50, "food"));
+        assertFalse(editProduct(-2, 1, null));
     }
 
 
     //USE CASES 4.1.3
     @Test
     public void testDeleteProductSuccessful(){
-        assertTrue(deleteProduct(1, 1));
-        assertTrue(deleteProduct(1, 2));
+        assertTrue(deleteProduct(Database.userToStore.get("chika"), 1));
+        assertTrue(deleteProduct(Database.userToStore.get("chika"), 2));
 
     }
 
     @Test
     public void testDeleteProductFailureNonExisting(){
-        assertFalse(deleteProduct(1, 12313));
-        assertFalse(deleteProduct(1, 14252));
+        assertFalse(deleteProduct(Database.userToStore.get("chika"), 12313));
+        assertFalse(deleteProduct(Database.userToStore.get("chika"), 14252));
     }
 
 

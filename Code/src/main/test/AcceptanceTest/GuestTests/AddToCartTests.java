@@ -21,15 +21,15 @@ public class AddToCartTests extends ServiceTest {
 
     @Test
     public void testAddToCartSuccessful(){
-        assertTrue(addToCart(1,1, 5));
-        assertTrue(addToCart(1,2, 5));
+        assertTrue(addToCart(Database.userToStore.get("chika"),1, 5));
+        assertTrue(addToCart(Database.userToStore.get("chika"),2, 5));
     }
 
     @Test
     public void testAddToCartFailure(){
-        assertFalse(addToCart(1,1, 15));
-        assertFalse(addToCart(1,2, 0));
-        assertFalse(addToCart(1,2, -5));
-        assertFalse(addToCart(1,3, null));
+        assertFalse(addToCart(Database.userToStore.get("chika"),1, 15));
+        assertFalse(addToCart(Database.userToStore.get("chika"),2, 0));
+        assertFalse(addToCart(Database.userToStore.get("chika"),2, -5));
+        assertFalse(addToCart(Database.userToStore.get("chika"),3, null));
     }
 }

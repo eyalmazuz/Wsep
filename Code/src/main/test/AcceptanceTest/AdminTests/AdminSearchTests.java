@@ -14,8 +14,8 @@ public class AdminSearchTests extends ServiceTest {
     public void setUp(){
         super.setUp();
         login("hanamaru", "123456");
-        addToCart(1,1, 3);
-        buyCart(viewCart());
+        addToCart(Database.userToStore.get("chika"),1, 3);
+        buyCart();
         logout();
         login("admin", "admin");
 
@@ -37,12 +37,12 @@ public class AdminSearchTests extends ServiceTest {
     //USE CASES 6.4.2
     @Test
     public void testSearchStoreHistorySuccessful(){
-        assertNotNull(searchStoreHistory(1));
+        assertNotNull(searchStoreHistory(Database.userToStore.get("chika")));
     }
 
     @Test
     public void testSearchStoreHistoryFailure(){
-        assertNull(searchStoreHistory(2));
+        assertNull(searchStoreHistory(-2));
     }
 
 

@@ -7,7 +7,8 @@ public class DomainController {
     private Domain.TradingSystem.System system;
 
     public DomainController(){
-        system = System.getInstance();
+
+        system = new System();
     }
 
     public int openStore() {
@@ -47,16 +48,13 @@ public class DomainController {
         return true;
     }
 
-    public String[][] getAllInfo() {
-        //TODO FIX THIS CHANGE FROM STRING[][] TO STRING
-        String info = system.viewStoreProductInfo();
-        return null;
+    public String getAllInfo() {
+
+        return system.viewStoreProductInfo();
     }
 
-    public String[][] searchProducts(int id, String category, String keyword, Pair<Integer, Integer> priceRange, Integer productRating, Integer storeRating) {
-        //TODO FIX THIS PRODUCT NAME and FROM STRING[][] to STRING
-        String products = system.searchProducts("", category, new String[]{keyword}, priceRange, productRating, storeRating);
-        return null;
+    public String searchProducts(int id, String category, String keyword, Pair<Integer, Integer> priceRange, Integer productRating, Integer storeRating) {
+        return system.searchProducts("", category, new String[]{keyword}, priceRange, productRating, storeRating);
     }
 
     public boolean addToCart(int storeId, int productId, Integer amount) {
@@ -92,13 +90,11 @@ public class DomainController {
         return system.deleteManager(storeId, userId);
     }
 
-    //TODO FIX THIS
-    public String[][] viewCart() {
-        String cart = system.getCart();
-        return null;
+    public String viewCart() {
+        return system.getCart();
     }
 
-    public boolean editProdct(int storeId, int productId, String productInfo) {
+    public boolean editProduct(int storeId, int productId, String productInfo) {
         return system.editProductInStore(storeId, productId, productInfo);
     }
 
@@ -107,13 +103,11 @@ public class DomainController {
         return true;
     }
 
-    public String[][] viewShopHistory(int storeId) {
-        //TODO FIX THIS
-        String storeHistory = system.getStoreHistory(storeId);
-        return null;
+    public String viewShopHistory(int storeId) {
+        return system.getStoreHistory(storeId);
     }
 
-    public String[][] viewUserHistory(int userId) {
+    public String viewUserHistory(int userId) {
         //TODO FIX THIS
         return null;
     }

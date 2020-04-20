@@ -1,5 +1,6 @@
 package AcceptanceTest.RegisteredUserTest;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +14,9 @@ public class UserActionsTests extends ServiceTest {
     public void setUp(){
         super.setUp();
         login("you", "12345");
-        addToCart(1,1, 5);
-        addToCart(1,2, 5);
-        buyCart(viewCart());
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),2, 5);
+        buyCart();
 
     }
 
@@ -57,9 +58,9 @@ public class UserActionsTests extends ServiceTest {
     @Test
     public void testViewPurchaseHistory(){
         login("you", "12345");
-        addToCart(1,1, 5);
-        addToCart(1,2, 5);
-        buyCart(viewCart());
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),2, 5);
+        buyCart();
         assertNotNull(viewPurchaseHistory());
     }
 

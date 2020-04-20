@@ -27,7 +27,7 @@ public class ShopAdministrationTests extends ServiceTest {
 
     @Test
     public void testAppointAnotherManagerFailureNonExistingUser(){
-        assertFalse(appointManager(1, -5));
+        assertFalse(appointManager(Database.userToStore.get("chika"), -5));
     }
 
     @Test
@@ -38,55 +38,56 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.5
     @Test
     public void testAppointAnotherOwnerSuccessful(){
-        assertTrue(appointOwner(1,Database.userToId.get("mari")));
+        assertTrue(appointOwner(Database.userToStore.get("chika"),Database.userToId.get("mari")));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureNonExistingUser(){
-        assertFalse(appointOwner(1,-7));
+        assertFalse(appointOwner(Database.userToStore.get("chika"),-7));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureAlreadyManager(){
-        assertFalse(appointOwner(1,Database.userToId.get("kanan")));
+        assertFalse(appointOwner(Database.userToStore.get("chika"),Database.userToId.get("kanan")));
     }
 
     // USE CASES 4.7
     @Test
     public void testRemoveManagerSuccessful(){
-        assertTrue(removeManager(1, Database.userToId.get("dia")));
+        assertTrue(removeManager(Database.userToStore.get("chika"), Database.userToId.get("dia")));
     }
 
     @Test
     public void testRemoveManagerFailureNonExistingUser(){
-        assertFalse(removeManager(1, -7));
+        assertFalse(removeManager(Database.userToStore.get("chika"), -7));
     }
 
     //USE CASE 4.10
     @Test
     public void testViewShopHistory(){
-        assertNotNull(viewShopHistory(1));
+        String shopHistory = viewShopHistory(Database.userToStore.get("chika"));
+        assertNotNull(shopHistory);
     }
 
 
     //USE CASE 5.1
     @Test
     public void testUpdateDiscountItemSuccessful(){
-        assertTrue(updateItemDiscount(1, 5, 20));
+        assertTrue(updateItemDiscount(Database.userToStore.get("chika"), 5, 20));
     }
 
     @Test
     public void testUpdateDiscountItemFailureInvalidID(){
-        assertFalse(updateItemDiscount(1,15, 20));
-        assertFalse(updateItemDiscount(1,25, 20));
-        assertFalse(updateItemDiscount(1,35, 20));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),15, 20));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),25, 20));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),35, 20));
     }
 
     @Test
     public void testUpdateDiscountItemFailureInvalidDiscount(){
-        assertFalse(updateItemDiscount(1,5, -20));
-        assertFalse(updateItemDiscount(1,5, 500));
-        assertFalse(updateItemDiscount(1,5, 0));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, -20));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, 500));
+        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, 0));
     }
 
 

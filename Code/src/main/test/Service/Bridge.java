@@ -8,11 +8,11 @@ public interface Bridge {
 
     int register(String username, String password);
 
-    String[][] getAllInfo();
+    String getAllInfo();
 
-    String[][] viewCart();
+    String viewCart();
 
-    String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo);
+    String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo);
 
     boolean addToCart(int storeId, int productId, Integer amount);
 
@@ -22,17 +22,17 @@ public interface Bridge {
 
     boolean clearCart();
 
-    boolean buyCart(String[][] cart);
+    boolean buyCart();
 
     boolean logout();
 
     int openStore();
 
-    String[][] viewPurchaseHistory();
+    String viewPurchaseHistory();
 
-    String[][] searchUserHistory(int userId);
+    String searchUserHistory(int userId);
 
-    String[][] searchStoreHistory(int storeId);
+    String searchStoreHistory(int storeId);
 
     boolean addProduct(int productId, int storeId, int amount);
 
@@ -48,7 +48,7 @@ public interface Bridge {
 
     boolean editManagerOptions(int storeId, int userId, String option);
 
-    String[][] viewShopHistory(int storeId);
+    String viewShopHistory(int storeId);
 
     boolean updateItemDiscount(int storeId, int itemID, int discount);
 }

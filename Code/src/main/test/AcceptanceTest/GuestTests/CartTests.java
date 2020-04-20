@@ -14,20 +14,22 @@ public class CartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        addToCart(1,1, 5);
-        addToCart(1,2, 5);
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),2, 5);
     }
 
 
     //USE CASE 2.7.1
     @Test
     public void testViewCartSuccessful(){
-        assertEquals(viewCart(), Database.Cart2);
+        String cart = viewCart();
+        System.out.println(cart);
+        assertEquals(cart, Database.Cart2);
         logout();
         login("hanamaru", "123456");
         clearCart();
-        addToCart(1,1,5);
-        addToCart(1,2,5);
+        addToCart(Database.userToStore.get("chika"),1,5);
+        addToCart(Database.userToStore.get("chika"),2,5);
         assertEquals(viewCart(), Database.Cart2);
     }
 
@@ -36,14 +38,14 @@ public class CartTests extends ServiceTest {
     @Test
     public void testEditAmountInCartSuccessful(){
         //TODO FIX THIS
-        assertTrue(updateAmount(1,1, 3));
-        assertTrue(updateAmount(1,2, 5));
+        assertTrue(updateAmount(Database.userToStore.get("chika"),1, 3));
+        assertTrue(updateAmount(Database.userToStore.get("chika"),2, 5));
     }
 
     @Test
     public void testEditAmountInCartFailure(){
         //TODO FIX THIS
-        assertFalse(updateAmount(1,1,-5));
+        assertFalse(updateAmount(Database.userToStore.get("chika"),1,-5));
 
 
     }
@@ -53,7 +55,7 @@ public class CartTests extends ServiceTest {
     public void testDeleteItemInCartSuccessful(){
 
         //TODO FIX THIS
-        assertTrue(deleteItemInCart(1,1));
+        assertTrue(deleteItemInCart(Database.userToStore.get("chika"),1));
     }
 
     //USE CASE 2.7.4

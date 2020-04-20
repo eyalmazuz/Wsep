@@ -69,8 +69,8 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart();
     }
 
-    public boolean buyCart(String[][] cart){
-        return bridge.buyCart(cart);
+    public boolean buyCart(){
+        return bridge.buyCart();
     }
 
     public boolean logout(){ return bridge.logout(); }
@@ -93,27 +93,27 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
 
-    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo){
+    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo){
         return this.bridge.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo); }
 
 
-    public String[][] viewCart(){
+    public String viewCart(){
         return this.bridge.viewCart();
     }
 
-    public String[][] getAllInfo(){
+    public String getAllInfo(){
         return this.bridge.getAllInfo();
     }
 
-    public String[][] viewPurchaseHistory(){
+    public String viewPurchaseHistory(){
         return bridge.viewPurchaseHistory();
     }
 
-    public String[][] searchUserHistory(int userId) { return this.bridge.searchUserHistory(userId);}
+    public String searchUserHistory(int userId) { return this.bridge.searchUserHistory(userId);}
 
-    public String[][] searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
+    public String searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
 
-    public String[][] viewShopHistory(int storeId){ return bridge.viewShopHistory(storeId); }
+    public String viewShopHistory(int storeId){ return bridge.viewShopHistory(storeId); }
 
     public boolean setupSystem(String suppyConfig, String paymentConfig) { return bridge.setupSystem(suppyConfig, paymentConfig); }
 

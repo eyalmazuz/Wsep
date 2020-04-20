@@ -18,6 +18,7 @@ public class ViewInfoTests extends ServiceTest {
 
     @Test
     public void testGetAllInfoSuccessful(){
-        assertEquals(getAllInfo(), Database.Stores);
+        String stores = getAllInfo();
+        assertEquals(stores, Database.Stores);
     }
 }

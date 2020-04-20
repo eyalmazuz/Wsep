@@ -19,12 +19,12 @@ public class RealBridge implements Bridge {
         return dc.register(username, password);
     }
 
-    public String[][] getAllInfo() {
+    public String getAllInfo() {
 
         return dc.getAllInfo();
     }
 
-    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
+    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
         return dc.searchProducts(id, category, keyword, priceRange, productRating, storeRating);
     }
@@ -47,13 +47,13 @@ public class RealBridge implements Bridge {
     }
 
     //TODO FIX THIS
-    public boolean buyCart(String[][] cart) {
+    public boolean buyCart() {
         //TODO add ADAPTER
         return dc.buyCart();
     }
 
     //TODO FIX THIS
-    public String[][] viewCart(){
+    public String viewCart(){
         //TODO add ADAPTER
         return dc.viewCart();
     }
@@ -66,31 +66,31 @@ public class RealBridge implements Bridge {
         return dc.openStore();
     }
 
-    //TODO FIX THIS
-    public String[][] viewPurchaseHistory(){
-        String systemHistory = dc.getPurchaseHistory();
+    //TODO FIX THIS CHANGE FROM STRING[][] TO STRING
+    public String viewPurchaseHistory(){
         //TODO: adapt the System history to the AT structure of history.
-        return null;
+        return dc.getPurchaseHistory();
     }
-    //TODO FIX THIS
-    public String[][] searchUserHistory(int userId){ return dc.viewUserHistory(userId);}
+    //TODO FIX THIS CHANGE FROM STRING[][] TO STRING
+    public String searchUserHistory(int userId){
+        return dc.viewUserHistory(userId);}
 
-    //TODO FIX THIS
-    public String[][] searchStoreHistory(int storeId){ return dc.viewShopHistory(storeId);}
+    //TODO FIX THIS CHANGE FROM STRING[][] TO STRING
+    public String searchStoreHistory(int storeId){ return dc.viewShopHistory(storeId);}
 
     public boolean addProduct(int productId, int storeId, int amount) {
         return dc.addProduct(productId,storeId,amount) ;
     }
 
     public boolean editProduct(int storeId, int productId, String productInfo) {
-        return dc.editProdct(storeId, productId, productInfo) ;
+        return dc.editProduct(storeId, productId, productInfo) ;
     }
 
     public boolean deleteProduct(int storeId, int productId) {
 
         return dc.deleteProduct(storeId,productId) ;
     }
-    //TODO:Match the usecases with user id's
+
     public boolean appointManager(int storeId, int userId) {
         return dc.appointManager(storeId, userId) ;
     }
@@ -107,5 +107,6 @@ public class RealBridge implements Bridge {
         return dc.updateItemDiscount(storeId, itemID, discount);
     }
 
-    public String[][] viewShopHistory(int storeId){ return dc.viewShopHistory(storeId); }
+    //TODO FIX THIS CHANGE FROM STRING[][] TO STRING
+    public String viewShopHistory(int storeId){ return dc.viewShopHistory(storeId); }
 }

@@ -24,6 +24,10 @@ public class System {
 
     public System(){
         userHandler = new UserHandler();
+        stores = new LinkedList<>();
+        productCategories = new HashMap<>();
+        productNames = new HashMap<>();
+        productRatings = new HashMap<>();
 
     }
 
@@ -49,10 +53,7 @@ public class System {
         setPayment(paymentConfig);
         //TODO:Add Error handling.
         currentUser = new User();
-        stores = new LinkedList<>();
-        productCategories = new HashMap<>();
-        productNames = new HashMap<>();
-        productRatings = new HashMap<>();
+
     }
 
     public void addStore (){
@@ -382,28 +383,33 @@ public class System {
         return null;
     }
 
-    public void addToCart(int storeId, int productId, int amount){
+    public boolean addToCart(int storeId, int productId, int amount){
         Store store = getStoreById(storeId);
         currentUser.addProductToCart(store, productId, amount);
+        return true;
 
     }
 
-    public void updateAmount(int storeId, int productId, int amount) {
+    public boolean updateAmount(int storeId, int productId, int amount) {
         Store store = getStoreById(storeId);
         currentUser.editCartProductAmount(store, productId, amount);
+        return true;
     }
 
-    public void deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int storeId, int productId) {
         Store store = getStoreById(storeId);
         currentUser.removeProductFromCart(store, productId);
+        return true;
     }
 
-    public void clearCart() {
+    public boolean clearCart() {
         currentUser.removeAllProductsFromCart();
+        return true;
     }
 
-    public void buyCart() {
+    public boolean buyCart() {
         currentUser.purchaseCart();
+        return true;
     }
 
     public String getCart() {

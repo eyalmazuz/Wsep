@@ -1,5 +1,6 @@
 package AcceptanceTest.GuestTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,36 +20,36 @@ public class PurchaseCartTests extends ServiceTest {
 
     @Test
     public void testPurchaseSuccessful(){
-        addToCart(1,1, 5);
-        addToCart(1,2, 5);
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),2, 5);
         //TODO FIX THIS
-        assertTrue(buyCart(viewCart()));
+        assertTrue(buyCart());
     }
 
     @Test
     public void testPurchaseFailureBadPolicy(){
-        addToCart(1,1, 5);
-        addToCart(1,2, 5);
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),2, 5);
         //TODO FIX THIS
-        assertFalse(buyCart(viewCart()));
+        assertFalse(buyCart());
 
     }
 
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
-        addToCart(1,1, 500);
-        addToCart(1,2, 500);
+        addToCart(Database.userToStore.get("chika"),1, 500);
+        addToCart(Database.userToStore.get("chika"),2, 500);
         //TODO FIX THIS
-        assertFalse(buyCart(viewCart()));
+        assertFalse(buyCart());
 
     }
 
     @Test
     public void testPurchaseFailureInvalidDetails(){
-        addToCart(1,1, 5);
-        addToCart(1,3, 5);
+        addToCart(Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.userToStore.get("chika"),3, 5);
         //TODO FIX THIS
-        assertFalse(buyCart(viewCart()));
+        assertFalse(buyCart());
 
     }
 }

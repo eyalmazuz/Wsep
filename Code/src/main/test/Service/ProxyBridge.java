@@ -31,7 +31,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String[][] getAllInfo(){
+    public String getAllInfo(){
         if (rb != null) {
             return rb.getAllInfo();
         }
@@ -41,7 +41,7 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public String[][] searchProducts(int id, String category, String keyword, Integer productRating, Integer storeRating, Integer priceFrom, Integer priceTo) {
+    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         if (rb != null) {
             return rb.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo);
         }
@@ -88,16 +88,16 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(String[][] cart) {
+    public boolean buyCart() {
         if (rb != null) {
-            return rb.buyCart(cart);
+            return rb.buyCart();
         }
         else {
             return false;
         }
     }
 
-    public String[][] viewCart(){
+    public String viewCart(){
         if (rb != null) {
             return rb.viewCart();
         }
@@ -125,7 +125,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String[][] viewPurchaseHistory(){
+    public String viewPurchaseHistory(){
         if(rb != null){
             return rb.viewPurchaseHistory();
         }
@@ -134,7 +134,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String[][] searchUserHistory(int userId){
+    public String searchUserHistory(int userId){
         if(rb != null){
             return rb.searchUserHistory(userId);
         }
@@ -143,7 +143,7 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String[][] searchStoreHistory(int storeId){
+    public String searchStoreHistory(int storeId){
         if(rb != null){
             return rb.searchStoreHistory(storeId);
         }
@@ -226,7 +226,7 @@ public class ProxyBridge implements Bridge {
 
 
 
-    public String[][] viewShopHistory(int storeId){
+    public String viewShopHistory(int storeId){
         if(rb != null){
             return rb.viewShopHistory(storeId);
         }
