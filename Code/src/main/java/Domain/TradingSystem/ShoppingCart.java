@@ -61,6 +61,8 @@ public class ShoppingCart {
         }
         if (user.confirmPrice(totalPrice)) {
             return user.requestConfirmedPurchase();
+        } else {
+            return false;
         }
     }
 
