@@ -25,6 +25,7 @@ public class PurchaseCartTests extends ServiceTest {
         assertTrue(buyCart());
     }
 
+    // TESTS HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
     @Test
     public void testPurchaseFailureBadPolicy(){
         addToCart(Database.userToStore.get("chika"),1, 5);

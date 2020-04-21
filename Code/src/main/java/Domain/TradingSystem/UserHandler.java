@@ -33,21 +33,21 @@ public class UserHandler {
         return found;
     }
 
-    // Usecase 2.2 - Register
-    public int register(String username, String password) {
+    public int register(String username, String hashedPassword) {
         for (Subscriber sub: subscribers)
             if (sub.getUsername().equals(username))
                 return -1;
 
-        Subscriber newSubscriber = new Subscriber(username, password, false);
-        subscribers.add(newSubscriber);
-        return newSubscriber.getId();
+        User newUser = new User();
+        Subscriber subscriberState = new Subscriber(username, hashedPassword, false);
+        newUser.setState(subscriberState);
+        subscribers.add(subscriberState);
+        return subscriberState.getId();
     }
 
-    // Usecase 2.3 - Login
-    public Subscriber getSubscriber(String username, String password) {
+    public Subscriber getSubscriberUser(String username, String hashedPassword) {
         for (Subscriber sub: subscribers) {
-            if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(password))
+            if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
         }
         return null;

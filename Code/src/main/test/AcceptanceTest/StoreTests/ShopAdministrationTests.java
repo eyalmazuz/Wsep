@@ -22,7 +22,7 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.3
     @Test
     public void testAppointAnotherManagerSuccessful(){
-        assertTrue(appointManager(1, Database.userToId.get("you")));
+        assertTrue(appointManager(Database.userToStore.get("chika"), Database.userToId.get("you")));
     }
 
     @Test
@@ -65,30 +65,10 @@ public class ShopAdministrationTests extends ServiceTest {
     //USE CASE 4.10
     @Test
     public void testViewShopHistory(){
-        String shopHistory = viewShopHistory(Database.userToStore.get("chika"));
+        String shopHistory = getStoreHistory(Database.userToStore.get("chika"));
         assertNotNull(shopHistory);
     }
 
-
-    //USE CASE 5.1
-    @Test
-    public void testUpdateDiscountItemSuccessful(){
-        assertTrue(updateItemDiscount(Database.userToStore.get("chika"), 5, 20));
-    }
-
-    @Test
-    public void testUpdateDiscountItemFailureInvalidID(){
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),15, 20));
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),25, 20));
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),35, 20));
-    }
-
-    @Test
-    public void testUpdateDiscountItemFailureInvalidDiscount(){
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, -20));
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, 500));
-        assertFalse(updateItemDiscount(Database.userToStore.get("chika"),5, 0));
-    }
 
 
 }

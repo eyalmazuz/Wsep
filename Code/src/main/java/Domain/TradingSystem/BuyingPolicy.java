@@ -8,4 +8,10 @@ public class BuyingPolicy {
         //TODO: define logic for buying policy
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "";
+
+    }
 }

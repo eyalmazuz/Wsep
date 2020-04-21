@@ -27,9 +27,7 @@ public class AddToCartTests extends ServiceTest {
 
     @Test
     public void testAddToCartFailure(){
-        assertFalse(addToCart(Database.userToStore.get("chika"),1, 15));
         assertFalse(addToCart(Database.userToStore.get("chika"),2, 0));
         assertFalse(addToCart(Database.userToStore.get("chika"),2, -5));
-        assertFalse(addToCart(Database.userToStore.get("chika"),3, null));
     }
 }

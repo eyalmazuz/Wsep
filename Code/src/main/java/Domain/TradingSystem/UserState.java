@@ -1,4 +1,9 @@
-package Domain.TradingSystem;
+package Domain.TradingSystem;//    @Test
+//    public void testAddProductFailureNonExisting(){
+//        assertFalse(addProdcut(12313, Database.userToStore.get("chika"),4));
+//        assertFalse(addProdcut(14252, Database.userToStore.get("chika"),4));
+//    }
+
 
 import java.util.Map;
 

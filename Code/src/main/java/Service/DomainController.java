@@ -98,17 +98,16 @@ public class DomainController {
         return system.editProductInStore(storeId, productId, productInfo);
     }
 
-    public boolean updateItemDiscount(int storeId, int itemID, int discount) {
-        //TODO FIX THIS
-        return true;
-    }
-
     public String viewShopHistory(int storeId) {
-        return system.getStoreHistory(storeId);
+        return system.getStoreHistoryAsAdmin(storeId);
     }
 
     public String viewUserHistory(int userId) {
         //TODO FIX THIS
         return system.getUserHistory(userId);
+    }
+
+    public String getStoryHistory(int storeId) {
+        return system.getStoreHistory(storeId);
     }
 }

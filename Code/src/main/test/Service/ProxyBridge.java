@@ -215,15 +215,6 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean updateItemDiscount(int storeId, int itemID, int discount){
-        if(rb != null){
-            return rb.updateItemDiscount(storeId, itemID, discount);
-        }
-        else{
-            return false;
-        }
-    }
-
 
 
     public String viewShopHistory(int storeId){
@@ -235,7 +226,14 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-
+    public String getStoreHistory(int storeId){
+        if(rb != null){
+            return rb.getStoreHistory(storeId);
+        }
+        else{
+            return null;
+        }
+    }
     public void setRealBridge(RealBridge realBridge) {
         rb = realBridge;
     }

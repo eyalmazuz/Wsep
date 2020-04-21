@@ -50,5 +50,7 @@ public interface Bridge {
 
     String viewShopHistory(int storeId);
 
-    boolean updateItemDiscount(int storeId, int itemID, int discount);
+    String getStoreHistory(int storeId);
+
+
 }

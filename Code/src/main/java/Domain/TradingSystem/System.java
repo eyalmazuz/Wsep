@@ -3,6 +3,9 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
+import Domain.Logger.SystemLogger;
+import Domain.Security.Security;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,7 @@ public class System {
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
     private List<Store> stores = new LinkedList<Store>();
+    private SystemLogger logger;
 
     private Map<Integer, String> productNames = new HashMap<>();
     private Map<Integer, String> productCategories = new HashMap<>();
@@ -28,6 +32,7 @@ public class System {
         productCategories = new HashMap<>();
         productNames = new HashMap<>();
         productRatings = new HashMap<>();
+        logger = new SystemLogger();
 
     }
 
@@ -47,7 +52,7 @@ public class System {
 
 
     public void setup(String supplyConfig,String paymentConfig){
-        //TODO:Add logger call
+        logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
         setSupply(supplyConfig);
         setPayment(paymentConfig);
@@ -263,15 +268,16 @@ public class System {
     }
 
 
-
-    public boolean makePayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.makePayment(user, storeProductsIds);
+    // usecase 2.8.3
+    public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.makePayment(paymentDetails, storeProductsIds);
     }
 
-    public void cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        paymentHandler.cancelPayment(user, storeProductsIds);
+    public boolean cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.cancelPayment(user, storeProductsIds);
     }
 
+    // usecase 2.8.4
     public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // check whether the stores have enough of the given products
         for (Integer storeId : storeProductsIds.keySet()) {
@@ -294,15 +300,17 @@ public class System {
 
     // Usecase 2.2
     public int register(String username, String password) {
+        if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         if (!currentUser.isGuest()) return -1;
-        return userHandler.register(username, password);
+        return userHandler.register(username, Security.getHash(password));
     }
 
     // Usecase 2.3
     public boolean login(String username, String password) {
         if (!currentUser.isGuest()) return false;
+        if(username == null || password == null || username.equals("") || password.equals("")) return false;
 
-        Subscriber subToLogin = userHandler.getSubscriber(username, password);
+        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
         if (subToLogin != null) {
             ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
@@ -375,6 +383,30 @@ public class System {
         return results;
     }
 
+    //Usecases 6.*
+
+    //usecase 6.4.1
+    public String getUserHistory(int userId){
+        if(currentUser.isAdmin()){
+            Subscriber subscriber = userHandler.getUser(userId);
+            if (subscriber != null)
+                return subscriber.getHistory();
+        }
+        return null;
+    }
+
+    //usecase 6.4.2
+    public String getStoreHistoryAsAdmin(int storeId){
+        if(currentUser.isAdmin()){
+            for(Store s : stores){
+                if(s.getId() == storeId){
+                    return s.getHistory();
+                }
+            }
+        }
+        return null;
+    }
+
     private Store getStoreById(int storeId){
         for(Store s: stores){
             if (s.getId() == storeId){
@@ -386,15 +418,14 @@ public class System {
 
     public boolean addToCart(int storeId, int productId, int amount){
         Store store = getStoreById(storeId);
-        currentUser.addProductToCart(store, productId, amount);
-        return true;
+        return currentUser.addProductToCart(store, productId, amount);
+
 
     }
 
     public boolean updateAmount(int storeId, int productId, int amount) {
         Store store = getStoreById(storeId);
-        currentUser.editCartProductAmount(store, productId, amount);
-        return true;
+        return currentUser.editCartProductAmount(store, productId, amount);
     }
 
     public boolean deleteItemInCart(int storeId, int productId) {
@@ -418,12 +449,4 @@ public class System {
         return currentUser.getShoppingCart().toString();
     }
 
-    public String getUserHistory(int userId) {
-        Subscriber sub = userHandler.getUser(userId);
-        if (sub == null) {
-            return null;
-        } else {
-            return userHandler.getUser(userId).getHistory();
-        }
-    }
 }

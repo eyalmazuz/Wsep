@@ -8,27 +8,41 @@ import java.util.Map;
 public class ShoppingCart {
 
     private User user;
-    private ArrayList<ShoppingBasket> shoppingBaskets = new ArrayList<ShoppingBasket>();
+    private ArrayList<ShoppingBasket> shoppingBaskets;
 
-    public void addProduct(Store store, int productId, int amount) {
-        getOrCreateBasket(store).addProduct(productId, amount);
+    /**
+     *
+     * Functions For Usecases 2.6, 2.7.*
+     *
+     */
+
+    public ShoppingCart() {
+        shoppingBaskets = new ArrayList<>();
     }
 
-    public void editProduct(Store store, int productId, int newAmount) {
+    public boolean addProduct(Store store, int productId, int amount) {
+        if (store == null || productId < 0 || amount < 1) return false;
+        getOrCreateBasket(store).addProduct(productId, amount);
+        return true;
+    }
+
+    public boolean editProduct(Store store, int productId, int newAmount) {
+        if (newAmount < 1 || store == null) return false;
+
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            //TODO: error, no such basket
+            return false;
         } else {
-            basket.editProduct(productId, newAmount);
+            return basket.editProduct(productId, newAmount);
         }
     }
 
-    public void removeProductFromCart(Store store, int productId) {
+    public boolean removeProductFromCart(Store store, int productId) {
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            //TODO: error, no such basket
+            return false;
         } else {
-            basket.removeProduct(productId);
+            return basket.removeProduct(productId);
         }
     }
 
@@ -36,18 +50,19 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    public void attemptPurchase(User user) {
+    public boolean attemptPurchase(User user) {
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
             if (!basket.checkBuyingPolicy(user)) {
-                // TODO: message the user with an error
-                return;
+                return false;
             }
             double basketPrice = basket.getTotalPrice(user);
             totalPrice += basketPrice;
         }
         if (user.confirmPrice(totalPrice)) {
-            user.requestConfirmedPurchase();
+            return user.requestConfirmedPurchase();
+        } else {
+            return false;
         }
     }
 
@@ -117,15 +132,6 @@ public class ShoppingCart {
             }
         }
 
-    }
-
-
-    /**
-     * Clones the shoppingBaskets from cart onto this
-     * @param cart
-     */
-    public void copyCart (ShoppingCart cart) {
-        //TODO:Implement this
     }
 
 

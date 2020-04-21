@@ -25,11 +25,6 @@ public class EditStoreInventoryTests extends ServiceTest {
 
     }
 
-    @Test
-    public void testAddProductFailureNonExisting(){
-        assertFalse(addProdcut(12313, Database.userToStore.get("chika"),4));
-        assertFalse(addProdcut(14252, Database.userToStore.get("chika"),4));
-    }
 
     @Test
     public void testAddProductFailureInvalidCount(){

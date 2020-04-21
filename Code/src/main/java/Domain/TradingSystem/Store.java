@@ -37,7 +37,8 @@ public class Store {
         return id;
     }
 
-    public void addProduct(int productId, int amount) {
+    public boolean addProduct(int productId, int amount) {
+        if (productId < 0 || amount < 1) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
             if(p.getId() == productId){
@@ -50,6 +51,7 @@ public class Store {
             ProductInStore newProduct = new ProductInStore(productId,amount, this);
             products.add(newProduct);
         }
+        return true;
     }
 
     public boolean editProduct(int productId, String info) {

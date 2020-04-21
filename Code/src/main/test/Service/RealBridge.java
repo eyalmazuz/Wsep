@@ -95,9 +95,8 @@ public class RealBridge implements Bridge {
        return dc.editManagerOptions(storeId,userId,option);
     }
 
-    public boolean updateItemDiscount(int storeId, int itemID, int discount){
-        return dc.updateItemDiscount(storeId, itemID, discount);
-    }
-
     public String viewShopHistory(int storeId){ return dc.viewShopHistory(storeId); }
+
+    public String getStoreHistory(int storeId) { return dc.getStoryHistory(storeId); }
+
 }

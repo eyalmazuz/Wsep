@@ -23,11 +23,7 @@ public class Database {
 
     public static Map<String, Integer> userToStore = new HashMap<String, Integer>();
 
-    public static String[][] Stores = {
-            //STORE ID, OWNER
-            {"1", "chika"},
-            {"2", "hanamaru"},
-    };
+    public static String Stores;
 
     public static String[][] Products = {
             //ID, STORE ID, AMOUNT

@@ -6,4 +6,10 @@ public class DiscountPolicy {
         //TODO: define logic for price calculation
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "";
+
+    }
 }

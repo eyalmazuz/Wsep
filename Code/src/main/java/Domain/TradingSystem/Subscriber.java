@@ -18,7 +18,7 @@ public class Subscriber implements UserState {
     private PurchaseHistory purchaseHistory;
 
     public Subscriber() {
-
+        purchaseHistory = new PurchaseHistory();
 
 
     }
@@ -106,8 +106,7 @@ public class Subscriber implements UserState {
         Store currStore = hasPermission(store,"Owner");
 
         if(currStore != null){
-            currStore.addProduct(productId,ammount);
-            return true;
+            return currStore.addProduct(productId,ammount);
         }
         else{
             //Adition to usecase 5.1
@@ -294,9 +293,9 @@ public class Subscriber implements UserState {
             store = hasPermission(storeId, "Manager");
             if (store == null)
                 return null;
-            return store.getHistory();
+
         }
-        return null;
+        return store.getHistory();
     }
 
     @Override

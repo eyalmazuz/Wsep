@@ -7,6 +7,7 @@ public class User {
 
     private System system = System.getInstance();
 
+    private String paymentDetails;
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
@@ -18,6 +19,11 @@ public class User {
         this.shoppingCart = new ShoppingCart();
     }
 
+    /**
+     *
+     * Functions For Usecases 4.*
+     *
+     */
     public boolean addProductToStore(int storeId, int productId, int amount) {
         return state.addProductToStore(storeId, productId, amount);
 
@@ -50,25 +56,35 @@ public class User {
     }
 
 
-
-    public void addProductToCart(Store store, int productId, int amount) {
-        shoppingCart.addProduct(store, productId, amount);
+    /**
+     *
+     * Functions For Usecases 2.6, 2.7.*
+     *
+     */
+    public boolean addProductToCart(Store store, int productId, int amount) {
+        return shoppingCart.addProduct(store, productId, amount);
     }
 
-    public void editCartProductAmount(Store store, int productId, int newAmount) {
-        shoppingCart.editProduct(store, productId, newAmount);
+    public boolean editCartProductAmount(Store store, int productId, int newAmount) {
+        return shoppingCart.editProduct(store, productId, newAmount);
     }
 
-    public void removeProductFromCart(Store store, int productId) {
-        shoppingCart.removeProductFromCart(store, productId);
+    public boolean removeProductFromCart(Store store, int productId) {
+        return shoppingCart.removeProductFromCart(store, productId);
     }
 
     public void removeAllProductsFromCart() {
         shoppingCart.removeAllProducts();
     }
 
-    public void purchaseCart() {
-        shoppingCart.attemptPurchase(this);
+    /**
+     *
+     * Functions For Usecases 2.8
+     *
+     */
+
+    public boolean purchaseCart() {
+        return shoppingCart.attemptPurchase(this);
     }
 
     public boolean confirmPrice(double totalPrice) {
@@ -76,9 +92,8 @@ public class User {
         return true;
     }
 
-
-    public void requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(this, shoppingCart.getStoreProductsIds())) {
+    public boolean requestConfirmedPurchase() { // from payment system
+        if (!system.makePayment(paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(this); // store purchase history
@@ -87,16 +102,21 @@ public class User {
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
             // TODO: message user with success
-        }
-        else{
+
+            return true;
+        } else {
             system.cancelPayment(this, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
 
-
             // TODO: message user with fail and refund
+            return false;
         }
     }
+
+
+
+
     public Store openStore () {
         return state.openStore();
     }

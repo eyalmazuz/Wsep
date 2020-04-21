@@ -35,10 +35,27 @@ public abstract class ServiceTest extends TestCase {
 
         login("hanamaru", "12345");
         int sid_2 = openStore();
-        Database.userToStore.put("hanamru", sid_2);
+        Database.userToStore.put("hanamaru", sid_2);
         addProdcut(2, sid_2, 10);
         logout();
 
+        Database.Stores = "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + "\n" +
+                "Buying policy: \n" +
+                "Discount policy: \n" +
+                "Products:\n" +
+                "\n" +
+                "Product ID: 1, amount: 5\n" +
+                "Product ID: 2, amount: 5\n" +
+                "\n" +
+                "--------------------------\n" +
+                "Store ID: " + String.valueOf(Database.userToStore.get("hanamaru")) + "\n" +
+                "Buying policy: \n" +
+                "Discount policy: \n" +
+                "Products:\n" +
+                "\n" +
+                "Product ID: 2, amount: 10\n" +
+                "\n" +
+                "--------------------------\n";
     }
 
     private void clearDatabase(){
@@ -91,8 +108,6 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean editManagerOptions(int storeId, int userId, String option){ return bridge.editManagerOptions(storeId, userId, option); }
 
-    public boolean updateItemDiscount(int storeId, int itemID, int discount){ return bridge.updateItemDiscount(storeId, itemID, discount); }
-
     public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo){
         return this.bridge.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo); }
 
@@ -112,6 +127,8 @@ public abstract class ServiceTest extends TestCase {
     public String searchUserHistory(int userId) { return this.bridge.searchUserHistory(userId);}
 
     public String searchStoreHistory(int storeId) { return this.bridge.searchStoreHistory(storeId);}
+
+    public String getStoreHistory(int storeId) { return this.bridge.getStoreHistory(storeId); }
 
     public String viewShopHistory(int storeId){ return bridge.viewShopHistory(storeId); }
 
