@@ -52,7 +52,7 @@ public class System {
 
 
     public void setup(String supplyConfig,String paymentConfig){
-        logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
+        //TODO:Add logger call
         userHandler.setAdmin();
         setSupply(supplyConfig);
         setPayment(paymentConfig);

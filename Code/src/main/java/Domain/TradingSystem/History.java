@@ -17,4 +17,8 @@ public class History {
     public void removePurchase(PurchaseDetails purchaseDetails) {
         purchaseHistory.remove(purchaseDetails);
     }
+
+    public List<PurchaseDetails> getPurchaseHistory() {
+        return purchaseHistory;
+    }
 }

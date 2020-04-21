@@ -295,7 +295,7 @@ public class Subscriber implements UserState {
                 return null;
 
         }
-        return store.getHistory();
+        return store.getHistory().toString();
     }
 
     @Override

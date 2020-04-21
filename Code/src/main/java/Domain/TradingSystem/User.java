@@ -15,8 +15,6 @@ public class User {
 
     public User() {
         this.state = new Guest();
-        // FIX for acceptance testing
-        this.shoppingCart = new ShoppingCart();
     }
 
     /**
@@ -61,20 +59,29 @@ public class User {
      * Functions For Usecases 2.6, 2.7.*
      *
      */
+    public void setShoppingCart(ShoppingCart cart) {
+        this.shoppingCart = cart;
+    }
+
     public boolean addProductToCart(Store store, int productId, int amount) {
+        if (shoppingCart == null) return false;
         return shoppingCart.addProduct(store, productId, amount);
     }
 
     public boolean editCartProductAmount(Store store, int productId, int newAmount) {
+        if (shoppingCart == null) return false;
         return shoppingCart.editProduct(store, productId, newAmount);
     }
 
     public boolean removeProductFromCart(Store store, int productId) {
+        if (shoppingCart == null) return false;
         return shoppingCart.removeProductFromCart(store, productId);
     }
 
-    public void removeAllProductsFromCart() {
+    public boolean removeAllProductsFromCart() {
+        if (shoppingCart == null) return false;
         shoppingCart.removeAllProducts();
+        return true;
     }
 
     /**
@@ -84,7 +91,8 @@ public class User {
      */
 
     public boolean purchaseCart() {
-        return shoppingCart.attemptPurchase(this);
+        if (shoppingCart == null) return false;
+        return shoppingCart.attemptPurchase();
     }
 
     public boolean confirmPrice(double totalPrice) {
@@ -92,11 +100,12 @@ public class User {
         return true;
     }
 
-    public boolean requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(paymentDetails, shoppingCart.getStoreProductsIds())) {
+
+    public void requestConfirmedPurchase() { // from payment system
+        if (!system.makePayment(this, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
-        Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(this); // store purchase history
+        Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
         state.addPurchase(storePurchaseDetails);
         boolean supplyAvailable = system.requestSupply(this, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
@@ -108,6 +117,7 @@ public class User {
             system.cancelPayment(this, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
+
 
             // TODO: message user with fail and refund
             return false;

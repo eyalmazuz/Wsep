@@ -98,8 +98,8 @@ public class Store {
         }
         return managers_;
     }
-    public String getHistory(){
-        return history.toString();
+    public History getHistory(){
+        return history;
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {

@@ -11,6 +11,7 @@ public class SupplyHandler {
 
     public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // communicate with supply system
-        return true;
+        if (config.equals("Mock Config")) return true;
+        return false;
     }
 }
