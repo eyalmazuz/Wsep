@@ -80,4 +80,5 @@ public class Guest implements UserState {
     public boolean isAdmin() {
         return false;
     }
+
 }

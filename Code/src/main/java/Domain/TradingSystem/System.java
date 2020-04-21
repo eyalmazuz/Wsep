@@ -400,7 +400,7 @@ public class System {
         if(currentUser.isAdmin()){
             for(Store s : stores){
                 if(s.getId() == storeId){
-                    return s.getHistory();
+                    return s.getHistory().toString();
                 }
             }
         }

@@ -20,8 +20,8 @@ public class SystemBoostTests extends ServiceTest {
 
     //USE CASES 1.1
     @Test
-    public void BootSystemSuccessful() {
-        assertTrue(setupSystem("supply.config", "payment.config"));
+    public void testBootSystemSuccessful() {
+        assertTrue(setupSystem("Mock Config", "Mock Config"));
 
     }
 

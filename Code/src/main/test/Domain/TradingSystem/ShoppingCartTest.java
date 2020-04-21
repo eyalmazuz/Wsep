@@ -177,7 +177,8 @@ public class ShoppingCartTest {
                 found = true;
                 break;
             }
-        }
+        }// FIX for acceptance testing
+        this.shoppingCart = new ShoppingCart(user);
         assertTrue(found);
     }
 
@@ -195,8 +196,7 @@ public class ShoppingCartTest {
     @Test
     public void attemptPurchase() {
         user.setShoppingCart(shoppingCart);
-        System.getInstance().setPayment("Mock Config");
-        System.getInstance().setSupply("Mock Config");
+        System.getInstance().setup("Mock Config", "Mock Config");
         assertFalse(shoppingCart.attemptPurchase()); // cant purchase empty cart
         shoppingCart.addProduct(store1, 0, 15);
         assertTrue(shoppingCart.attemptPurchase());

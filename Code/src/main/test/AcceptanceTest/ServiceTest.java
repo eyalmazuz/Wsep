@@ -11,7 +11,7 @@ public abstract class ServiceTest extends TestCase {
 
     public void setUp(){
         this.bridge = Driver.getBridge();
-        this.setupSystem("supply.config", "payment.config");
+        this.setupSystem("Mock Config", "Mock Config");
         this.setUpUsers();
     }
 

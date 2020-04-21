@@ -317,6 +317,7 @@ public class Subscriber implements UserState {
 
     }
 
+
     public String getHashedPassword() {
         return hashedPassword;
     }

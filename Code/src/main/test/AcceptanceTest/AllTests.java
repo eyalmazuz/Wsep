@@ -4,6 +4,7 @@ import AcceptanceTest.AdminTests.AdminTests;
 import AcceptanceTest.GuestTests.GuestTests;
 import AcceptanceTest.RegisteredUserTest.RegisteredUserTests;
 import AcceptanceTest.StoreTests.StoreTests;
+import AcceptanceTest.SystemTests.SystemTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -16,6 +17,7 @@ public class AllTests {
         suite.addTest(RegisteredUserTests.suite());
         suite.addTest(StoreTests.suite());
         suite.addTest(AdminTests.suite());
+        suite.addTest(SystemTests.suite());
         return suite;
     }
 }

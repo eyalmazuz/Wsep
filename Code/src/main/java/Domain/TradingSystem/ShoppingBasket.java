@@ -68,4 +68,5 @@ public class ShoppingBasket {
             products.put(productId, products.getOrDefault(productId, 0) + amount);
         }
     }
+
 }

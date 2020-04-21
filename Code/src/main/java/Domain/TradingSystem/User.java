@@ -15,6 +15,8 @@ public class User {
 
     public User() {
         this.state = new Guest();
+        // FIX for acceptance testing
+        this.shoppingCart = new ShoppingCart(this);
     }
 
     /**
@@ -101,8 +103,8 @@ public class User {
     }
 
 
-    public void requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(this, shoppingCart.getStoreProductsIds())) {
+    public boolean requestConfirmedPurchase() { // from payment system
+        if (!system.makePayment(this.paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
@@ -166,5 +168,7 @@ public class User {
     public boolean isAdmin() {
     return state.isAdmin();
     }
+
+
 }
 
