@@ -17,19 +17,19 @@ public class SearchProductTests extends ServiceTest {
 
     @Test
     public void testSearchProductSuccessful(){
-        String products = searchProducts(1, "KB", null, 0, 0, 0, 0);
+        String products = searchProducts(1, "KB", null, -1, -1, 0, 0);
         System.out.println(products);
         assertNotNull(products);
     }
 
     @Test
     public void testSearchProductsFilterSuccessful(){
-        assertNotNull(searchProducts(1, "KB", null, 0, 0, 0, 0));
+        assertNotNull(searchProducts(1, "KB", null, -1, -1, 0, 0));
 
     }
 
     public void testSearchProductsFailure(){
-        assertNull(searchProducts(0, null, null, 0, 0, 2500, 0));
+        assertNull(searchProducts(0, null, null, -1, -1, 2500, 0));
 
     }
 

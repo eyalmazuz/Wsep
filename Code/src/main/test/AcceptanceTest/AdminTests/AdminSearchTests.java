@@ -30,14 +30,15 @@ public class AdminSearchTests extends ServiceTest {
 
     @Test
     public void testSearchUserHistoryFailure(){
-        assertNull(searchUserHistory(Database.userToId.get("danny")));
+        assertNull(searchUserHistory(-1));
     }
 
 
     //USE CASES 6.4.2
     @Test
     public void testSearchStoreHistorySuccessful(){
-        assertNotNull(searchStoreHistory(Database.userToStore.get("chika")));
+        String history = searchStoreHistory(Database.userToStore.get("chika"));
+        assertNotNull(history);
     }
 
     @Test

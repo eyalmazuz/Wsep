@@ -109,6 +109,6 @@ public class DomainController {
 
     public String viewUserHistory(int userId) {
         //TODO FIX THIS
-        return null;
+        return system.getUserHistory(userId);
     }
 }

@@ -52,6 +52,7 @@ public class System {
         setSupply(supplyConfig);
         setPayment(paymentConfig);
         //TODO:Add Error handling.
+        instance = this;
         currentUser = new User();
 
     }
@@ -415,5 +416,14 @@ public class System {
 
     public String getCart() {
         return currentUser.getShoppingCart().toString();
+    }
+
+    public String getUserHistory(int userId) {
+        Subscriber sub = userHandler.getUser(userId);
+        if (sub == null) {
+            return null;
+        } else {
+            return userHandler.getUser(userId).getHistory();
+        }
     }
 }

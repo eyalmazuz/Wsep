@@ -28,6 +28,9 @@ public class Store {
         // FIX for acceptance tests
         managers = new LinkedList<>();
         products = new LinkedList<>();
+        buyingPolicy = new BuyingPolicy();
+        discountPolicy = new DiscountPolicy();
+        history = new History();
     }
 
     public int getId() {

@@ -35,6 +35,7 @@ public class UserActionsTests extends ServiceTest {
 
     @Test
     public void testLogoutFailedNotLoggedIn(){
+        logout();
         assertFalse(logout());
     }
 
@@ -49,6 +50,7 @@ public class UserActionsTests extends ServiceTest {
 
     @Test
     public void testOpenStoreFailure(){
+        logout();
         assertEquals(-1, openStore());
         assertEquals(-1, openStore());
     }
