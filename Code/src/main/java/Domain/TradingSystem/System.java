@@ -34,11 +34,11 @@ public class System {
     }
 
     //Usecase 1.1
-    private void setSupply(String config){
+    public void setSupply(String config){
         supplyHandler = new SupplyHandler(config);
     }
 
-    private void setPayment(String config){
+    public void setPayment(String config){
        paymentHandler = new PaymentHandler(config);
     }
 
@@ -64,7 +64,8 @@ public class System {
 
     //Usecase 3.2
 
-    public boolean openStroe(){
+    public boolean openStore() {
+        // TODO: buying and discount policies
         Store newStore  = currentUser.openStore();
         if (newStore != null){
             stores.add(newStore);

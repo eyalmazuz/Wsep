@@ -16,8 +16,9 @@ public class ShoppingCart {
      *
      */
 
-    public ShoppingCart() {
+    public ShoppingCart(User user) {
         shoppingBaskets = new ArrayList<>();
+        this.user = user;
     }
 
     public boolean addProduct(Store store, int productId, int amount) {
@@ -50,7 +51,18 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    public boolean attemptPurchase(User user) {
+    // usecase 2.8
+    public boolean attemptPurchase() {
+        // check if all baskets are empty
+        boolean allEmpty = true;
+        for (ShoppingBasket basket : shoppingBaskets) {
+            if (!basket.getProducts().isEmpty()) {
+                allEmpty = false;
+                break;
+            }
+        }
+        if (allEmpty) return false;
+
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
             if (!basket.checkBuyingPolicy(user)) {
@@ -74,7 +86,8 @@ public class ShoppingCart {
         return storeProductsIds;
     }
 
-    public Map<Integer, PurchaseDetails> savePurchase(User user) {
+    // usecase 2.8
+    public Map<Integer, PurchaseDetails> savePurchase() {
         Map<Integer, PurchaseDetails> storePurchaseDetails = new HashMap<>();
         for (ShoppingBasket basket : shoppingBaskets) {
             PurchaseDetails details = basket.savePurchase(user);
@@ -83,6 +96,7 @@ public class ShoppingCart {
         return storePurchaseDetails;
     }
 
+    // usecase 2.8
     public void cancelPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
         for (Integer storeId : storePurchaseDetails.keySet()) {
             for (ShoppingBasket basket : shoppingBaskets) {

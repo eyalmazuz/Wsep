@@ -254,7 +254,7 @@ public class Subscriber implements UserState {
             store = hasPermission(storeId, "Manager");
             if (store == null)
                 return null;
-            return store.getHistory();
+            return store.getHistory().toString();
         }
         return null;
     }

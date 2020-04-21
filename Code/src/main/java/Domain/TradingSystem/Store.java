@@ -22,9 +22,12 @@ public class Store {
 
 
 
-    public Store(){
+    public Store() {
         this.id = globalId;
         globalId ++;
+        this.buyingPolicy = new BuyingPolicy();
+        this.discountPolicy = new DiscountPolicy();
+        this.history = new History();
     }
 
     public int getId() {
@@ -90,8 +93,8 @@ public class Store {
         }
         return managers_;
     }
-    public String getHistory(){
-        return history.toString();
+    public History getHistory(){
+        return history;
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
