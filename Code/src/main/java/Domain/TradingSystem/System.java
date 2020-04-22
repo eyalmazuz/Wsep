@@ -426,26 +426,29 @@ public class System {
     //Usecases 6.*
 
     //usecase 6.4.1
-    public String getUserHistory(int sessionId,int subId){
+
+    public boolean isAdmin(int sessionId) {
         User u = userHandler.getUser(sessionId);
-        if(u.isAdmin()){
+        return u!=null && u.isAdmin();
+    }
+    public String getUserHistory(int subId){
+
             Subscriber subscriber = userHandler.getSubscriber(subId);
             if (subscriber != null)
                 return subscriber.getHistory();
-        }
-        return null;
+            return null;
+
     }
 
     //usecase 6.4.2
-    public String getStoreHistoryAsAdmin(int sessionId, int storeId){
-        User u = userHandler.getUser(sessionId);
-        if(u.isAdmin()){
+    public String getStoreHistoryAsAdmin( int storeId){
+
             for(Store s : stores){
                 if(s.getId() == storeId){
                     return s.getHistory().toString();
                 }
             }
-        }
+
         return null;
     }
 
@@ -518,6 +521,7 @@ public class System {
     public void mergeCartWithSubscriber(int sessionId) {
 
     }
+
 
 
 }
