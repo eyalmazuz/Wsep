@@ -15,7 +15,7 @@ public class System {
 
     private static System instance = null;
 
-    private User currentUser;
+
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
@@ -58,8 +58,10 @@ public class System {
         setPayment(paymentConfig);
         //TODO:Add Error handling.
         instance = this;
-        currentUser = new User();
+    }
 
+    public int startSession(){
+        return userHandler.createSession();
     }
 
     public void addStore (){
@@ -69,8 +71,9 @@ public class System {
     }
 
     //Usecase 3.1
-    public boolean logout(){
-        return currentUser.logout();
+    public boolean logout(int sessionId){
+        User u = userHandler.getUser(sessionId);
+        return u.logout();
     }
 
     //Usecase 3.2
@@ -78,8 +81,9 @@ public class System {
      * open new store
      * @return the new store id
      */
-    public int openStroe(){
-        Store newStore  = currentUser.openStore();
+    public int openStroe(int sessionId){
+        User u = userHandler.getUser(sessionId);
+        Store newStore  = u.openStore();
         if (newStore != null){
             stores.add(newStore);
             return newStore.getId();
@@ -89,34 +93,38 @@ public class System {
 
 
     //Usecase 3.7
-    public String getHistory(){
-        return currentUser.getHistory();
+    public String getHistory(int sessionId){
+        User u = userHandler.getUser(sessionId);
+        return u.getHistory();
     }
 
 
     // UseCase 4.1.1
-    public boolean addProductToStore(int storeId, int productId,int ammount){
+    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
         //TODO:Add logger call
-        if(currentUser!=null) {
-            return currentUser.addProductToStore(storeId, productId, ammount);
+        User u = userHandler.getUser(sessionId);
+        if(u!=null) {
+            return u.addProductToStore(storeId, productId, ammount);
         }
         return false;
     }
 
     //UseCase 4.1.2
-    public boolean editProductInStore(int storeId, int productId,String newInfo){
+    public boolean editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         //TODO:Add logger call
-        if(currentUser!=null) {
-            return currentUser.editProductInStore(storeId, productId, newInfo);
+        User u = userHandler.getUser(sessionId);
+        if(u!=null) {
+            return u.editProductInStore(storeId, productId, newInfo);
         }
         return false;
     }
 
     //UseCase 4.1.3
-    public boolean deleteProductFromStore(int storeId, int productId){
+    public boolean deleteProductFromStore(int sessionId, int storeId, int productId){
         //TODO:Add logger call
-        if(currentUser!=null) {
-            return currentUser.deleteProductFromStore(storeId, productId);
+        User u = userHandler.getUser(sessionId);
+        if(u!=null) {
+            return u.deleteProductFromStore(storeId, productId);
         }
         return false;
     }
@@ -129,10 +137,11 @@ public class System {
      * @return - list of available user id's
      *           if there is no premission returns null.
      */
-    public List <Integer> getAvailableUsersToOwn(int storeId) {
+    public List <Integer> getAvailableUsersToOwn(int sessionId,int storeId) {
         //TODO:Add logger call
+        User u = userHandler.getUser(sessionId);
         List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
-        if (currentUser.getState().hasOwnerPermission(storeId)){
+        if (u.getState().hasOwnerPermission(storeId)){
             for (Store store: stores) {
                 if (store.getId()==storeId)
                     owners = store.getOwners();
@@ -144,14 +153,15 @@ public class System {
             return null;
     }
 
-    public boolean addStoreOwner (int storeId, int userId) {
+    public boolean addStoreOwner (int sessionId, int storeId, int subId) {
         //TODO:Add logger call
-        Subscriber newOwner = userHandler.getUser(userId);
+        User u = userHandler.getUser(sessionId);
+        Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
             return false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                return currentUser.addOwner(store,newOwner);
+                return u.addOwner(store,newOwner);
 
             }
         }
@@ -165,10 +175,11 @@ public class System {
      * @return - list of available user id's
      *           if there is no premission returns null.
      */
-    public List <Integer> getAvailableUsersToManage(int storeId) {
+    public List <Integer> getAvailableUsersToManage(int sessionId, int storeId) {
         //TODO:Add logger call
+        User u = userHandler.getUser(sessionId);
         List <Subscriber> managers = new LinkedList<Subscriber>(); //update store owners list
-        if (currentUser.getState().hasOwnerPermission(storeId)){
+        if (u.getState().hasOwnerPermission(storeId)){
             for (Store store: stores) {
                 if (store.getId()==storeId)
                     managers = store.getManagers();
@@ -180,14 +191,15 @@ public class System {
             return null;
     }
 
-    public boolean addStoreManager (int storeId, int userId) {
+    public boolean addStoreManager (int sessionId, int storeId, int userId) {
+        User u = userHandler.getUser(sessionId);
         //TODO:Add logger call
-        Subscriber newManager = userHandler.getUser(userId);
+        Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                return currentUser.addManager(store,newManager);
+                return u.addManager(store,newManager);
 
             }
         }
@@ -200,14 +212,15 @@ public class System {
      * @param userId
      * @return
      */
-    public boolean deleteManager (int storeId, int userId) {
+    public boolean deleteManager (int sessionId, int storeId, int userId) {
         //TODO:Add logger call
-        Subscriber managerToDelete = userHandler.getUser(userId);
+        User u = userHandler.getUser(sessionId);
+        Subscriber managerToDelete = userHandler.getSubscriber(userId);
         if (managerToDelete == null)
             return false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                return currentUser.deleteManager(store,managerToDelete);
+                return u.deleteManager(store,managerToDelete);
             }
         }
         return false;
@@ -220,11 +233,12 @@ public class System {
      * @return list of users ID's. If there is no permission, returns null.
      * If there are'nt users - return empty list.
      */
-    public List <Integer> getManagersOfCurUser(int storeId){
+    public List <Integer> getManagersOfCurUser(int sessionId, int storeId){
         //TODO:Add logger call
-        if (currentUser.getState().hasOwnerPermission(storeId)){
+        User u = userHandler.getUser(sessionId);
+        if (u.getState().hasOwnerPermission(storeId)){
             return userHandler.getManagersOfCurUser(storeId,
-                    ((Subscriber)currentUser.getState()).getId());
+                    ((Subscriber)u.getState()).getId());
         }
         else
             return null;
@@ -237,8 +251,9 @@ public class System {
      * @param storeId
      * @return
      */
-    public String getManagerDetails(int managerId, int storeId){
-        if (currentUser.getState().hasOwnerPermission(storeId)) {
+    public String getManagerDetails(int sessionId, int managerId, int storeId){
+        User u = userHandler.getUser(sessionId);
+        if (u.getState().hasOwnerPermission(storeId)) {
             return userHandler.getManagerDetails(managerId, storeId);
         }
         return null;
@@ -251,34 +266,37 @@ public class System {
      * @param details
      * @return
      */
-    public boolean setManagerDetalis(int managerId, int storeId, String details){
-        Subscriber manager = userHandler.getUser(managerId);
+    public boolean setManagerDetalis(int sessionId, int managerId, int storeId, String details){
+        User u = userHandler.getUser(sessionId);
+        Subscriber manager = userHandler.getSubscriber(managerId);
         if (manager == null)
             return false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
-                return currentUser.getState().editPermission(manager, store, details);
+                return u.getState().editPermission(manager, store, details);
             }
         }
         return false;
     }
 
-    public String getStoreHistory(int storeId){
-        return currentUser.getStoreHistory(storeId);
+    public String getStoreHistory(int sessionId, int storeId){
+
+        User u = userHandler.getUser(sessionId);
+        return u.getStoreHistory(storeId);
     }
 
 
     // usecase 2.8.3
-    public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         return paymentHandler.makePayment(paymentDetails, storeProductsIds);
     }
 
-    public boolean cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.cancelPayment(user, storeProductsIds);
+    public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return paymentHandler.cancelPayment(sessionId, storeProductsIds);
     }
 
     // usecase 2.8.4
-    public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean requestSupply(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // check whether the stores have enough of the given products
         for (Integer storeId : storeProductsIds.keySet()) {
             for (Store store : stores) {
@@ -295,19 +313,21 @@ public class System {
             }
         }
 
-        return supplyHandler.requestSupply(user, storeProductsIds);
+        return supplyHandler.requestSupply(sessionId, storeProductsIds);
     }
 
     // Usecase 2.2
-    public int register(String username, String password) {
-        if(username == null || password == null || username.equals("") || password.equals("")) return -1;
-        if (!currentUser.isGuest()) return -1;
-        return userHandler.register(username, Security.getHash(password));
+    public int register(int sessionId,String username, String password) {
+        User u = userHandler.getUser(sessionId);
+        if (!u.isGuest()) return -1;
+        if (username == null || password == null) return -1;
+        return userHandler.register(username, password);
     }
 
     // Usecase 2.3
-    public boolean login(String username, String password) {
-        if (!currentUser.isGuest()) return false;
+    public boolean login(int sessionId, String username, String password) {
+        User u = userHandler.getUser(sessionId);
+        if (!u.isGuest()) return false;
         if(username == null || password == null || username.equals("") || password.equals("")) return false;
 
         Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
@@ -315,9 +335,9 @@ public class System {
         if (subToLogin != null) {
             ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
             if(subscriberCart != null) {
-                subscriberCart.merge(currentUser.getShoppingCart());
+                subscriberCart.merge(u.getShoppingCart());
             }
-            currentUser.setState(subToLogin);
+            u.setState(subToLogin);
             return true;
         }
 
@@ -335,7 +355,8 @@ public class System {
     }
 
     // Usecase 2.5
-    public String searchProducts(String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
+    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
+        User u = userHandler.getUser(sessionId);
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
@@ -355,7 +376,7 @@ public class System {
                     continue;
                 }
             if (priceRange != null) {
-                double price = pis.getPrice(currentUser);
+                double price = pis.getPrice(u);
                 if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
                     filteredProducts.add(pis);
                     continue;
@@ -371,24 +392,34 @@ public class System {
         String results = "Results:\n\n";
         for (ProductInStore pis: filteredProducts) {
             String productInfo = pis.toString();
-            for (String keyword: keywords) {
-                if (productInfo.contains(keyword)) {
-                    results += productInfo + "\n---------------------------------\n";
-                    break;
+            if (keywords != null) {
+                for (String keyword : keywords) {
+                    if (productInfo.contains(keyword)) {
+                        results += productInfo + "\n---------------------------------\n";
+                        break;
+                    }
                 }
             }
+            else results += productInfo + "\n---------------------------------\n";
         }
 
 
         return results;
     }
 
+
+
+    public void deleteUsers() {
+        userHandler.deleteUsers();
+    }
+
     //Usecases 6.*
 
     //usecase 6.4.1
-    public String getUserHistory(int userId){
-        if(currentUser.isAdmin()){
-            Subscriber subscriber = userHandler.getUser(userId);
+    public String getUserHistory(int sessionId,int subId){
+        User u = userHandler.getUser(sessionId);
+        if(u.isAdmin()){
+            Subscriber subscriber = userHandler.getSubscriber(subId);
             if (subscriber != null)
                 return subscriber.getHistory();
         }
@@ -396,8 +427,9 @@ public class System {
     }
 
     //usecase 6.4.2
-    public String getStoreHistoryAsAdmin(int storeId){
-        if(currentUser.isAdmin()){
+    public String getStoreHistoryAsAdmin(int sessionId, int storeId){
+        User u = userHandler.getUser(sessionId);
+        if(u.isAdmin()){
             for(Store s : stores){
                 if(s.getId() == storeId){
                     return s.getHistory().toString();
@@ -416,37 +448,64 @@ public class System {
         return null;
     }
 
-    public boolean addToCart(int storeId, int productId, int amount){
+    public boolean addToCart(int sessionId, int storeId, int productId, int amount){
+        User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        return currentUser.addProductToCart(store, productId, amount);
+        return u.addProductToCart(store, productId, amount);
 
 
     }
 
-    public boolean updateAmount(int storeId, int productId, int amount) {
+    public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+        User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        return currentUser.editCartProductAmount(store, productId, amount);
+        return u.editCartProductAmount(store, productId, amount);
     }
 
-    public boolean deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
+        User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        currentUser.removeProductFromCart(store, productId);
+        u.removeProductFromCart(store, productId);
         return true;
     }
 
-    public boolean clearCart() {
-        currentUser.removeAllProductsFromCart();
+    public boolean clearCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.removeAllProductsFromCart();
         return true;
     }
 
     //TODO FIX THIS
-    public boolean buyCart() {
-        currentUser.purchaseCart();
+    public boolean buyCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.purchaseCart();
         return true;
     }
 
-    public String getCart() {
-        return currentUser.getShoppingCart().toString();
+    public String getCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u.getShoppingCart().toString();
     }
 
+    //New uscase 2.3
+    public boolean isGuest(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u!=null && u.isGuest();
+    }
+
+    public int getSubscriber(String username, String password) {
+        Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
+        if (s == null)
+            return -1;
+        else
+            return s.getId();
+    }
+
+    public void setState(int sessionId, int subId) {
+        userHandler.setState(sessionId,subId);
+    }
+
+    public void mergeCartWithSubscriber(int sessionId) {
+
+    }
 }

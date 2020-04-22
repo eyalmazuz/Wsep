@@ -9,7 +9,7 @@ public class SupplyHandler {
         this.config = config;
     }
 
-    public boolean requestSupply(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean requestSupply(int user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // communicate with supply system
         if (config.equals("Mock Config")) return true;
         return false;
