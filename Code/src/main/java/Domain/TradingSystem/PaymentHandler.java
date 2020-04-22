@@ -16,7 +16,7 @@ public class PaymentHandler {
         return false;
     }
 
-    public boolean cancelPayment(User user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean cancelPayment(int user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         if (config.equals("Mock Config")) return true;
         return false;
     }

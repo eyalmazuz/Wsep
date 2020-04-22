@@ -10,22 +10,24 @@ import java.util.Map;
 
 public class UserHandler {
 
-    List<Subscriber> subscribers;
+    Map<Integer,Subscriber> subscribers;
+    Map<Integer,User> users;
 
     public UserHandler(){
-        subscribers = new LinkedList<Subscriber>();
+        subscribers = new HashMap<>();
+        users = new HashMap<>();
     }
 
     public void setAdmin() {
         if(!hasAdmin()){
             Subscriber admin = new Subscriber("admin", Security.getHash("admin"), true);
-            subscribers.add(admin);
+            subscribers.put(admin.getId(),admin);
         }
     }
 
     private boolean hasAdmin() {
         boolean found = false;
-        for(Subscriber sub : subscribers){
+        for(Subscriber sub : subscribers.values()){
             if(sub.isAdmin()){
                 found = true;
             }
@@ -34,19 +36,21 @@ public class UserHandler {
     }
 
     public int register(String username, String hashedPassword) {
-        for (Subscriber sub: subscribers)
+        for (Subscriber sub: subscribers.values())
             if (sub.getUsername().equals(username))
                 return -1;
 
-        User newUser = new User();
         Subscriber subscriberState = new Subscriber(username, hashedPassword, false);
-        newUser.setState(subscriberState);
-        subscribers.add(subscriberState);
+        subscribers.put(subscriberState.getId(),subscriberState);
         return subscriberState.getId();
     }
 
+    public User getUser(int sessionId){
+        return users.get(sessionId);
+    }
+
     public Subscriber getSubscriberUser(String username, String hashedPassword) {
-        for (Subscriber sub: subscribers) {
+        for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
         }
@@ -61,25 +65,20 @@ public class UserHandler {
      */
     public List <Integer> getAvailableUsersToOwn(List <Subscriber> owners) {
         List <Integer> availableSubs = new LinkedList<Integer>();
-        for (Subscriber user: subscribers){
+        for (Subscriber user: subscribers.values()){
             if (!owners.contains(user))
                 availableSubs.add(user.getId());
         }
         return availableSubs;
     }
 
-    public Subscriber getUser(int userId) {
-        for(Subscriber s : subscribers){
-            if (s.getId() == userId){
-                return s;
-            }
-        }
-        return null;
+    public Subscriber getSubscriber(int subId) {
+        return subscribers.get(subId);
     }
 
     public List<Integer> getManagersOfCurUser(int storeId, int grantorId) {
         List <Integer> ans = new LinkedList<Integer>();
-        for (Subscriber user: subscribers){
+        for (Subscriber user: subscribers.values()){
             if (user.isGrantedBy(storeId,grantorId)){
                 ans.add(user.getId());
             }
@@ -88,7 +87,7 @@ public class UserHandler {
     }
 
     public String getManagerDetails(int managerId, int storeId) {
-        for (Subscriber user: subscribers){
+        for (Subscriber user: subscribers.values()){
             if (user.getId() == managerId)
                 return user.getManagerDetails(storeId);
         }
@@ -96,11 +95,19 @@ public class UserHandler {
     }
 
     public void deleteUsers() {
-        subscribers = new LinkedList<>();
+        subscribers.clear();
     }
 
 
     public void setState(int sessionId, int subId) {
 
     }
+
+    public int createSession() {
+        User newUser = new User();
+        users.put(newUser.getId(),newUser);
+        return newUser.getId();
+    }
+
+
 }

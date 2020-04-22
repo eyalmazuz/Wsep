@@ -7,13 +7,18 @@ public class User {
 
     private System system = System.getInstance();
 
+
     private String paymentDetails;
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
     private PurchaseHistory purchaseHistory;
+    private static int idCounter = 0;
+    private int id;
 
     public User() {
+        this.id = idCounter;
+        idCounter++;
         this.state = new Guest();
         // FIX for acceptance testing
         this.shoppingCart = new ShoppingCart(this);
@@ -169,6 +174,8 @@ public class User {
     return state.isAdmin();
     }
 
-
+    public int getId(){
+        return id;
+    }
 }
 
