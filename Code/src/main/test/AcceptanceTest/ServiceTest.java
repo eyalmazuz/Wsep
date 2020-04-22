@@ -22,42 +22,7 @@ public abstract class ServiceTest extends TestCase {
             Database.userToId.put(userData[0], userId);
         }
 
-        login(Database.sessionId, "chika", "12345");
-        int sid_1 = openStore(Database.sessionId);
-        Database.userToStore.put("chika", sid_1);
-        addProdcut(Database.sessionId, 1, sid_1, 5);
-        addProdcut(Database.sessionId, 2, sid_1, 5);
-        appointManager(Database.sessionId, sid_1, Database.userToId.get("dia"));
-        appointOwner(Database.sessionId, sid_1, Database.userToId.get("kanan"));
-        logout(Database.sessionId);
 
-        login(Database.sessionId, "dia", "12345");
-        appointManager(Database.sessionId, sid_1, Database.userToId.get("ruby"));
-        logout(Database.sessionId);
-
-        login(Database.sessionId, "hanamaru", "12345");
-        int sid_2 = openStore(Database.sessionId);
-        Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(Database.sessionId, 2, sid_2, 10);
-        logout(Database.sessionId);
-
-        Database.Stores = "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + "\n" +
-                "Buying policy: \n" +
-                "Discount policy: \n" +
-                "Products:\n" +
-                "\n" +
-                "Product ID: 1, amount: 5\n" +
-                "Product ID: 2, amount: 5\n" +
-                "\n" +
-                "--------------------------\n" +
-                "Store ID: " + String.valueOf(Database.userToStore.get("hanamaru")) + "\n" +
-                "Buying policy: \n" +
-                "Discount policy: \n" +
-                "Products:\n" +
-                "\n" +
-                "Product ID: 2, amount: 10\n" +
-                "\n" +
-                "--------------------------\n";
 
     }
 
