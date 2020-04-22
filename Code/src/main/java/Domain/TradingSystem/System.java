@@ -460,4 +460,26 @@ public class System {
         return currentUser.getShoppingCart().toString();
     }
 
+    //New uscase 2.3
+    public boolean isGuest(int sessionId) {
+        //User u = userHandler.getUser(sessionId);
+        //return u!=null && u.isGuest();
+        return true;
+    }
+
+    public int getSubscriber(String username, String password) {
+        Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
+        if (s == null)
+            return -1;
+        else
+            return s.getId();
+    }
+
+    public void setState(int sessionId, int subId) {
+        userHandler.setState(sessionId,subId);
+    }
+
+    public void mergeCartWithSubscriber(int sessionId) {
+
+    }
 }

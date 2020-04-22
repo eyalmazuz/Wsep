@@ -98,4 +98,9 @@ public class UserHandler {
     public void deleteUsers() {
         subscribers = new LinkedList<>();
     }
+
+
+    public void setState(int sessionId, int subId) {
+
+    }
 }
