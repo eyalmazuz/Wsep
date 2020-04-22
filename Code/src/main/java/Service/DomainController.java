@@ -12,7 +12,7 @@ public class DomainController {
     }
 
     public int openStore() {
-        return system.openStroe();
+        return system.openStore();
     }
 
     public String getPurchaseHistory() {

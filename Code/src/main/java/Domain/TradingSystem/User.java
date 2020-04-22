@@ -56,11 +56,6 @@ public class User {
     }
 
 
-    public boolean logout() {
-        return state.logout(shoppingCart);
-    }
-
-
     /**
      *
      * Functions For Usecases 2.6, 2.7.*
@@ -133,6 +128,18 @@ public class User {
 
 
 
+//Usecase 3.1
+    public boolean logout() {
+        return state.logout();
+    }
+
+    public void saveLatestCart() {
+        if(!isGuest()){
+            Subscriber s = (Subscriber)state;
+            s.saveCart(shoppingCart);
+        }
+    }
+
 
     public Store openStore () {
         return state.openStore();
@@ -177,5 +184,7 @@ public class User {
     public int getId(){
         return id;
     }
+
+
 }
 

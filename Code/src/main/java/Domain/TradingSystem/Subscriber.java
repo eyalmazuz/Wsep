@@ -71,12 +71,16 @@ public class Subscriber implements UserState {
      * Function For Usecases 3.*
      *
      */
-    public boolean logout (ShoppingCart cart) {
-        purchaseHistory.setLatestCart(cart);
-        cart.removeAllProducts();
+    public boolean logout () {
+
         user.setState(new Guest());
         return true;
 
+    }
+
+    public void saveCart (ShoppingCart cart){
+        purchaseHistory.setLatestCart(cart);
+        cart.removeAllProducts();
     }
 
     public String getHistory() {

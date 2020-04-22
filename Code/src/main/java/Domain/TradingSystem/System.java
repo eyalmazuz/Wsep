@@ -71,6 +71,16 @@ public class System {
     }
 
     //Usecase 3.1
+
+    public boolean isSubscriber(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u!=null && !u.isGuest();
+    }
+
+    public void saveLatestCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.saveLatestCart();
+    }
     public boolean logout(int sessionId){
         User u = userHandler.getUser(sessionId);
         return u.logout();
@@ -81,7 +91,7 @@ public class System {
      * open new store
      * @return the new store id
      */
-    public int openStroe(int sessionId){
+    public int openStore(int sessionId){
         User u = userHandler.getUser(sessionId);
         Store newStore  = u.openStore();
         if (newStore != null){
@@ -508,4 +518,6 @@ public class System {
     public void mergeCartWithSubscriber(int sessionId) {
 
     }
+
+
 }

@@ -30,7 +30,7 @@ public class Guest implements UserState {
         return false;
     }
 
-    public boolean logout(ShoppingCart cart) {
+    public boolean logout() {
         return false;
     }
 

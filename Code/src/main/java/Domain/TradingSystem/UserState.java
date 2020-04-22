@@ -20,7 +20,7 @@ interface UserState {
      boolean addPermission(Store store, Subscriber grantor, String type );
 
 
-     boolean logout(ShoppingCart cart);
+     boolean logout();
 
      String getHistory();
 
