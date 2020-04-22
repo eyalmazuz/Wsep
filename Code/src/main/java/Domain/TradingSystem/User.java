@@ -97,9 +97,9 @@ public class User {
      *
      */
 
-    public boolean purchaseCart() {
+    public boolean purchaseCart(int sessionId) {
         if (shoppingCart == null) return false;
-        return shoppingCart.attemptPurchase();
+        return shoppingCart.attemptPurchase(sessionId);
     }
 
     public boolean confirmPrice(double totalPrice) {
@@ -108,20 +108,20 @@ public class User {
     }
 
 
-    public boolean requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(this.paymentDetails, shoppingCart.getStoreProductsIds())) {
+    public boolean requestConfirmedPurchase(int sessionId) { // from payment system
+        if (!system.makePayment(sessionId, this.paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
         state.addPurchase(storePurchaseDetails);
-        boolean supplyAvailable = system.requestSupply(this, shoppingCart.getStoreProductsIds());
+        boolean supplyAvailable = system.requestSupply(sessionId, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
             // TODO: message user with success
 
             return true;
         } else {
-            system.cancelPayment(this, shoppingCart.getStoreProductsIds());
+            system.cancelPayment(sessionId, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
 

@@ -52,7 +52,7 @@ public class ShoppingCart {
     }
 
     // usecase 2.8
-    public boolean attemptPurchase() {
+    public boolean attemptPurchase(int sessionId) {
         // check if all baskets are empty
         boolean allEmpty = true;
         for (ShoppingBasket basket : shoppingBaskets) {
@@ -72,7 +72,7 @@ public class ShoppingCart {
             totalPrice += basketPrice;
         }
         if (user.confirmPrice(totalPrice)) {
-            return user.requestConfirmedPurchase();
+            return user.requestConfirmedPurchase(sessionId);
         } else {
             return false;
         }

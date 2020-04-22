@@ -4,53 +4,53 @@ public interface Bridge {
 
     boolean setupSystem(String supplyConfig, String paymentConfig);
 
-    boolean login (String username , String password);
+    boolean login (int sessionId, String username , String password);
 
-    int register(String username, String password);
+    int register(int sessionId, String username, String password);
 
-    String getAllInfo();
+    String getAllInfo(int sessionId);
 
-    String viewCart();
+    String viewCart(int sessionId);
 
-    String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo);
+    String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo);
 
-    boolean addToCart(int storeId, int productId, Integer amount);
+    boolean addToCart(int sessionId, int storeId, int productId, Integer amount);
 
-    boolean updateAmount(int storeId, int productId, int amount);
+    boolean updateAmount(int sessionId, int storeId, int productId, int amount);
 
-    boolean deleteItemInCart(int storeId, int productId);
+    boolean deleteItemInCart(int sessionId, int storeId, int productId);
 
-    boolean clearCart();
+    boolean clearCart(int sessionId);
 
-    boolean buyCart();
+    boolean buyCart(int sessionId);
 
-    boolean logout();
+    boolean logout(int sessionId);
 
-    int openStore();
+    int openStore(int sessionId);
 
-    String viewPurchaseHistory();
+    String viewPurchaseHistory(int sessionId);
 
-    String searchUserHistory(int userId);
+    String searchUserHistory(int sessionId, int userId);
 
-    String searchStoreHistory(int storeId);
+    String searchStoreHistory(int sessionId, int storeId);
 
-    boolean addProduct(int productId, int storeId, int amount);
+    boolean addProduct(int sessionId, int productId, int storeId, int amount);
 
-    boolean editProduct(int storeId, int productId, String productInfo);
+    boolean editProduct(int sessionId, int storeId, int productId, String productInfo);
 
-    boolean deleteProduct(int storeId, int productId);
+    boolean deleteProduct(int sessionId, int storeId, int productId);
 
-    boolean appointManager(int storeId, int userId);
+    boolean appointManager(int sessionId, int storeId, int userId);
 
-    boolean appointOwner(int storeId, int userId);
+    boolean appointOwner(int sessionId, int storeId, int userId);
 
-    boolean removeManager(int storeId, int userId);
+    boolean removeManager(int sessionId, int storeId, int userId);
 
-    boolean editManagerOptions(int storeId, int userId, String option);
+    boolean editManagerOptions(int sessionId, int storeId, int userId, String option);
 
-    String viewShopHistory(int storeId);
+    String viewShopHistory(int sessionId, int storeId);
 
-    String getStoreHistory(int storeId);
+    String getStoreHistory(int sessionId, int storeId);
 
-
+    int startSession();
 }

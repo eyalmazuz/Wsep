@@ -13,23 +13,23 @@ public class ShopPermissionsTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login("chika", "12345");
+        login(Database.sessionId, "chika", "12345");
     }
 
     //USECASES 4.6.1
     @Test
     public void testEditManagerOptionSuccessful(){
-        assertTrue(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"), "can edit prices"));
-        assertTrue(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"), "can change amount"));
-        assertTrue(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"),"can go fuck himself"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can edit prices"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can change amount"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"can go fuck himself"));
     }
 
     // TEST HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
     @Test
     public void testEditManagerOptionFailureInvalidOption(){
-        assertFalse(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"), "delete store"));
-        assertFalse(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"),"can break system"));
-        assertFalse(editManagerOptions(Database.userToStore.get("chika"), Database.userToId.get("dia"), "can give free money"));
+        assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "delete store"));
+        assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"can break system"));
+        assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can give free money"));
     }
 
 

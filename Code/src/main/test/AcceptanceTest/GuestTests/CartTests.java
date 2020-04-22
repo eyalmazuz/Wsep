@@ -14,36 +14,36 @@ public class CartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        addToCart(Database.userToStore.get("chika"),1, 5);
-        addToCart(Database.userToStore.get("chika"),2, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
     }
 
 
     //USE CASE 2.7.1
     @Test
     public void testViewCartSuccessful(){
-        String cart = viewCart();
+        String cart = viewCart(Database.sessionId);
         System.out.println(cart);
         assertEquals(cart, Database.Cart2);
-        logout();
-        login("hanamaru", "123456");
-        clearCart();
-        addToCart(Database.userToStore.get("chika"),1,5);
-        addToCart(Database.userToStore.get("chika"),2,5);
-        assertEquals(viewCart(), Database.Cart2);
+        logout(Database.sessionId);
+        login(Database.sessionId, "hanamaru", "123456");
+        clearCart(Database.sessionId);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1,5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2,5);
+        assertEquals(viewCart(Database.sessionId), Database.Cart2);
     }
 
 
     //USE CASE 2.7.2
     @Test
     public void testEditAmountInCartSuccessful(){
-        assertTrue(updateAmount(Database.userToStore.get("chika"),1, 3));
-        assertTrue(updateAmount(Database.userToStore.get("chika"),2, 5));
+        assertTrue(updateAmount(Database.sessionId, Database.userToStore.get("chika"),1, 3));
+        assertTrue(updateAmount(Database.sessionId, Database.userToStore.get("chika"),2, 5));
     }
 
     @Test
     public void testEditAmountInCartFailure(){
-        assertFalse(updateAmount(Database.userToStore.get("chika"),1,-5));
+        assertFalse(updateAmount(Database.sessionId, Database.userToStore.get("chika"),1,-5));
 
 
     }
@@ -51,13 +51,13 @@ public class CartTests extends ServiceTest {
     //USE CASE 2.7.3
     @Test
     public void testDeleteItemInCartSuccessful(){
-        assertTrue(deleteItemInCart(Database.userToStore.get("chika"),1));
+        assertTrue(deleteItemInCart(Database.sessionId, Database.userToStore.get("chika"),1));
     }
 
     //USE CASE 2.7.4
     @Test
     public void testDeleteAllCartSuccessful(){
-        assertTrue(clearCart());
+        assertTrue(clearCart(Database.sessionId));
     }
 
 

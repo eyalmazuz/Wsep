@@ -18,7 +18,7 @@ public class ViewInfoTests extends ServiceTest {
 
     @Test
     public void testGetAllInfoSuccessful(){
-        String stores = getAllInfo();
+        String stores = getAllInfo(Database.sessionId);
         assertEquals(stores, Database.Stores);
     }
 }

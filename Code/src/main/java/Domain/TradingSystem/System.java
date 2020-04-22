@@ -321,7 +321,7 @@ public class System {
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return -1;
         if (username == null || password == null) return -1;
-        return userHandler.register(username, password);
+        return userHandler.register(username, Security.getHash(password));
     }
 
     // Usecase 2.3
@@ -478,7 +478,7 @@ public class System {
     //TODO FIX THIS
     public boolean buyCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
-        u.purchaseCart();
+        u.purchaseCart(sessionId);
         return true;
     }
 

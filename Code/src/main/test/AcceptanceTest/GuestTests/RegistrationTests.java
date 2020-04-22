@@ -1,5 +1,6 @@
 package AcceptanceTest.GuestTests;
 
+import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,23 +17,23 @@ public class RegistrationTests extends ServiceTest {
 
     @Test
     public void testRegisterSuccessful() {
-        assertTrue(register("yohane", "1234") > 0);
-        assertTrue(register("sarah", "12345") > 0);
+        assertTrue(register(Database.sessionId, "yohane", "1234") > 0);
+        assertTrue(register(Database.sessionId, "sarah", "12345") > 0);
     }
 
     @Test
     public void testRegisterFailureExistingUsername() {
-        assertFalse(register("hanamaru", "123456") > 0);
-        assertFalse(register("chika", "12345") > 0);
-        assertFalse(register("kanan", "654321") > 0);
-        assertFalse(register("ruby", "54321") > 0);
+        assertFalse(register(Database.sessionId, "hanamaru", "123456") > 0);
+        assertFalse(register(Database.sessionId, "chika", "12345") > 0);
+        assertFalse(register(Database.sessionId,"kanan", "654321") > 0);
+        assertFalse(register(Database.sessionId, "ruby", "54321") > 0);
     }
 
     @Test
     public void testLoginRegistrationBreakingSystem(){
-        assertFalse(register("", null) > 0);
-        assertFalse(register(null, "") > 0);
-        assertFalse(register(null, null) > 0);
+        assertFalse(register(Database.sessionId, "", null) > 0);
+        assertFalse(register(Database.sessionId, null, "") > 0);
+        assertFalse(register(Database.sessionId, null, null) > 0);
     }
 }
 

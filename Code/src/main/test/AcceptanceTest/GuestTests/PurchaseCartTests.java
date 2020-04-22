@@ -20,33 +20,33 @@ public class PurchaseCartTests extends ServiceTest {
 
     @Test
     public void testPurchaseSuccessful(){
-        addToCart(Database.userToStore.get("chika"),1, 5);
-        addToCart(Database.userToStore.get("chika"),2, 5);
-        assertTrue(buyCart());
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertTrue(buyCart(Database.sessionId));
     }
 
     // TESTS HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
     @Test
     public void testPurchaseFailureBadPolicy(){
-        addToCart(Database.userToStore.get("chika"),1, 5);
-        addToCart(Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart());
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId));
 
     }
 
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
-        addToCart(Database.userToStore.get("chika"),1, 500);
-        addToCart(Database.userToStore.get("chika"),2, 500);
-        assertFalse(buyCart());
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 500);
+        assertFalse(buyCart(Database.sessionId));
 
     }
 
     @Test
     public void testPurchaseFailureInvalidDetails(){
-        addToCart(Database.userToStore.get("chika"),1, 5);
-        addToCart(Database.userToStore.get("chika"),3, 5);
-        assertFalse(buyCart());
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
+        assertFalse(buyCart(Database.sessionId));
 
     }
 }

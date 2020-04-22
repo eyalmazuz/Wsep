@@ -10,93 +10,96 @@ public class RealBridge implements Bridge {
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         return dc.setup(supplyConfig, paymentConfig); }
 
-    public boolean login(String username, String password) {
+    public boolean login(int sessionId, String username, String password) {
 
-        return dc.login(username, password);
+        return dc.login(sessionId, username, password);
     }
 
-    public int register(String username, String password) {
-        return dc.register(username, password);
+    public int register(int sessionId, String username, String password) {
+        return dc.register(sessionId, username, password);
     }
 
-    public String getAllInfo() {
+    public String getAllInfo(int sessionId) {
 
         return dc.getAllInfo();
     }
 
-    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
-        return dc.searchProducts(id, category, keyword, priceRange, productRating, storeRating);
+        return dc.searchProducts(sessionId, id, category, keyword, priceRange, productRating, storeRating);
     }
 
-    public boolean addToCart(int storeId, int productId, Integer amount) {
-        return dc.addToCart(storeId, productId, amount);
+    public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
+        return dc.addToCart(sessionId, storeId, productId, amount);
     }
 
-    public boolean updateAmount(int storeId, int productId, int amount) {
-        return dc.updateAmount(storeId, productId, amount);
+    public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+        return dc.updateAmount(sessionId, storeId, productId, amount);
     }
 
-    public boolean deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
 
-        return dc.deleteItemInCart(storeId, productId);
+        return dc.deleteItemInCart(sessionId, storeId, productId);
     }
 
-    public boolean clearCart() {
-        return dc.clearCart();
+    public boolean clearCart(int sessionId) {
+        return dc.clearCart(sessionId);
     }
 
-    public boolean buyCart() {
-        return dc.buyCart();
+    public boolean buyCart(int sessionId) {
+        return dc.buyCart(sessionId);
     }
 
-    public String viewCart(){
-        return dc.viewCart();
+    public String viewCart(int sessionId){
+        return dc.viewCart(sessionId);
     }
 
-    public boolean logout(){
-        return dc.logout();
+    public boolean logout(int sessionId){
+        return dc.logout(sessionId);
     }
 
-    public int openStore() {
-        return dc.openStore();
+    public int openStore(int sessionId) {
+        return dc.openStore(sessionId);
     }
 
-    public String viewPurchaseHistory(){
-        return dc.getPurchaseHistory();
-    }
-    public String searchUserHistory(int userId){
-        return dc.viewUserHistory(userId);}
-
-    public String searchStoreHistory(int storeId){ return dc.viewShopHistory(storeId);}
-
-    public boolean addProduct(int productId, int storeId, int amount) {
-        return dc.addProduct(productId,storeId,amount) ;
+    public String viewPurchaseHistory(int sessionId){
+        return dc.getPurchaseHistory(sessionId);
     }
 
-    public boolean editProduct(int storeId, int productId, String productInfo) {
-        return dc.editProduct(storeId, productId, productInfo) ;
+    public String searchUserHistory(int sessionId, int userId){
+        return dc.viewUserHistory(sessionId, userId);}
+
+    public String searchStoreHistory(int sessionId, int storeId){ return dc.viewShopHistory(sessionId, storeId);}
+
+    public boolean addProduct(int sessionId, int productId, int storeId, int amount) {
+        return dc.addProduct(sessionId, productId,storeId,amount) ;
     }
 
-    public boolean deleteProduct(int storeId, int productId) {
-
-        return dc.deleteProduct(storeId,productId) ;
+    public boolean editProduct(int sessionId, int storeId, int productId, String productInfo) {
+        return dc.editProduct(sessionId, storeId, productId, productInfo) ;
     }
 
-    public boolean appointManager(int storeId, int userId) {
-        return dc.appointManager(storeId, userId) ;
+    public boolean deleteProduct(int sessionId, int storeId, int productId) {
+
+        return dc.deleteProduct(sessionId, storeId,productId) ;
     }
 
-    public boolean appointOwner(int storeId, int userId) { return dc.appointOwner(storeId, userId);}
-
-    public boolean removeManager(int storeId, int userId) { return dc.removeManager(storeId, userId);}
-
-    public boolean editManagerOptions(int storeId, int userId, String option){
-       return dc.editManagerOptions(storeId,userId,option);
+    public boolean appointManager(int sessionId, int storeId, int userId) {
+        return dc.appointManager(sessionId, storeId, userId) ;
     }
 
-    public String viewShopHistory(int storeId){ return dc.viewShopHistory(storeId); }
+    public boolean appointOwner(int sessionId, int storeId, int userId) { return dc.appointOwner(sessionId, storeId, userId);}
 
-    public String getStoreHistory(int storeId) { return dc.getStoryHistory(storeId); }
+    public boolean removeManager(int sessionId, int storeId, int userId) { return dc.removeManager(sessionId, storeId, userId);}
+
+    public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){
+       return dc.editManagerOptions(sessionId, storeId,userId,option);
+    }
+
+    public String viewShopHistory(int sessionId, int storeId){ return dc.viewShopHistory(sessionId, storeId); }
+
+    public String getStoreHistory(int sessionId, int storeId) { return dc.getStoryHistory(sessionId, storeId); }
+
+    public int startSession() { return dc.startSession(); }
 
 }
