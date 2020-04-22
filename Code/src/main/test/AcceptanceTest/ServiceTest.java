@@ -12,6 +12,7 @@ public abstract class ServiceTest extends TestCase {
     public void setUp(){
         this.bridge = Driver.getBridge();
         this.setupSystem("Mock Config", "Mock Config");
+        Database.sessionId = startSession();
         this.setUpUsers();
     }
 
@@ -20,42 +21,7 @@ public abstract class ServiceTest extends TestCase {
             int userId = register(userData[0], userData[1]);
             Database.userToId.put(userData[0], userId);
         }
-        login("chika", "12345");
-        int sid_1 = openStore();
-        Database.userToStore.put("chika", sid_1);
-        addProdcut(1, sid_1, 5);
-        addProdcut(2, sid_1, 5);
-        appointManager(sid_1, Database.userToId.get("dia"));
-        appointOwner(sid_1, Database.userToId.get("kanan"));
-        logout();
 
-        login("dia", "12345");
-        appointManager(sid_1, Database.userToId.get("ruby"));
-        logout();
-
-        login("hanamaru", "12345");
-        int sid_2 = openStore();
-        Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(2, sid_2, 10);
-        logout();
-
-        Database.Stores = "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + "\n" +
-                "Buying policy: \n" +
-                "Discount policy: \n" +
-                "Products:\n" +
-                "\n" +
-                "Product ID: 1, amount: 5\n" +
-                "Product ID: 2, amount: 5\n" +
-                "\n" +
-                "--------------------------\n" +
-                "Store ID: " + String.valueOf(Database.userToStore.get("hanamaru")) + "\n" +
-                "Buying policy: \n" +
-                "Discount policy: \n" +
-                "Products:\n" +
-                "\n" +
-                "Product ID: 2, amount: 10\n" +
-                "\n" +
-                "--------------------------\n";
     }
 
     private void clearDatabase(){
