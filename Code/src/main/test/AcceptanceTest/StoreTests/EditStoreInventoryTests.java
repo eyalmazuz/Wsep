@@ -2,6 +2,7 @@ package AcceptanceTest.StoreTests;
 
 import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +14,20 @@ public class EditStoreInventoryTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        login(Database.sessionId,"chika", "12345");
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(Database.sessionId, 1, sid_1, 5);
+        addProdcut(Database.sessionId, 2, sid_1, 5);
+
+
+    }
+
+    @After
+    public void tearDown(){
+        Database.userToId.clear();
+        Database.userToStore.clear();
     }
 
 

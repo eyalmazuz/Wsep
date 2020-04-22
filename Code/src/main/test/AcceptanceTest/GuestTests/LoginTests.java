@@ -2,6 +2,7 @@ package AcceptanceTest.GuestTests;
 
 import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +15,13 @@ public class LoginTests extends ServiceTest {
     public void setUp(){
         super.setUp();
     }
+
+    @After
+    public void tearDown(){
+        Database.userToId.clear();
+        Database.userToStore.clear();
+    }
+
 
     @Test
     public void testLoginSuccessful(){
