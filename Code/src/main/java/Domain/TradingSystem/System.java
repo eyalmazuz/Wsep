@@ -51,13 +51,18 @@ public class System {
     }
 
 
-    public void setup(String supplyConfig,String paymentConfig){
-        //TODO:Add logger call
+    public boolean setup(String supplyConfig,String paymentConfig){
+        logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
-        setSupply(supplyConfig);
-        setPayment(paymentConfig);
-        //TODO:Add Error handling.
-        instance = this;
+        try {
+            setSupply(supplyConfig);
+            setPayment(paymentConfig);
+        }
+        catch(Exception e){
+            logger.error(e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     public int startSession(){
