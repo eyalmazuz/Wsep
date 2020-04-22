@@ -95,4 +95,7 @@ public class UserHandler {
         return null;
     }
 
+    public void deleteUsers() {
+        subscribers = new LinkedList<>();
+    }
 }

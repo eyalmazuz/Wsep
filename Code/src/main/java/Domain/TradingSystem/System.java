@@ -283,6 +283,7 @@ public class System {
     // Usecase 2.2
     public int register(String username, String password) {
         if (!currentUser.isGuest()) return -1;
+        if (username == null || password == null) return -1;
         return userHandler.register(username, password);
     }
 
@@ -349,16 +350,27 @@ public class System {
         String results = "Results:\n\n";
         for (ProductInStore pis: filteredProducts) {
             String productInfo = pis.toString();
-            for (String keyword: keywords) {
-                if (productInfo.contains(keyword)) {
-                    results += productInfo + "\n---------------------------------\n";
-                    break;
+            if (keywords != null) {
+                for (String keyword : keywords) {
+                    if (productInfo.contains(keyword)) {
+                        results += productInfo + "\n---------------------------------\n";
+                        break;
+                    }
                 }
             }
+            else results += productInfo + "\n---------------------------------\n";
         }
 
 
         return results;
+    }
+
+    public void setCurrentUser(User user){
+        currentUser = user;
+    }
+
+    public void deleteUsers() {
+        userHandler.deleteUsers();
     }
 
 }
