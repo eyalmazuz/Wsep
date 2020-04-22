@@ -300,9 +300,9 @@ public class System {
 
     // Usecase 2.2
     public int register(String username, String password) {
-        if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         if (!currentUser.isGuest()) return -1;
-        return userHandler.register(username, Security.getHash(password));
+        if (username == null || password == null) return -1;
+        return userHandler.register(username, password);
     }
 
     // Usecase 2.3
@@ -371,16 +371,27 @@ public class System {
         String results = "Results:\n\n";
         for (ProductInStore pis: filteredProducts) {
             String productInfo = pis.toString();
-            for (String keyword: keywords) {
-                if (productInfo.contains(keyword)) {
-                    results += productInfo + "\n---------------------------------\n";
-                    break;
+            if (keywords != null) {
+                for (String keyword : keywords) {
+                    if (productInfo.contains(keyword)) {
+                        results += productInfo + "\n---------------------------------\n";
+                        break;
+                    }
                 }
             }
+            else results += productInfo + "\n---------------------------------\n";
         }
 
 
         return results;
+    }
+
+    public void setCurrentUser(User user){
+        currentUser = user;
+    }
+
+    public void deleteUsers() {
+        userHandler.deleteUsers();
     }
 
     //Usecases 6.*
