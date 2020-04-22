@@ -29,8 +29,8 @@ public class User {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(int storeId, int productId, int amount) {
-        return state.addProductToStore(storeId, productId, amount);
+    public boolean addProductToStore(Store store, int productId, int amount) {
+        return state.addProductToStore(store, productId, amount);
 
     }
 

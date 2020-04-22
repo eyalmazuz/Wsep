@@ -108,13 +108,31 @@ public class System {
         return u.getHistory();
     }
 
+    //Usecase 5.1
+
+    public boolean isManagerWith(int sessionId, int storeId,String details) {
+        User u = userHandler.getUser(sessionId);
+        Subscriber s = (Subscriber) u.getState();
+        return s.hasManagerPermission(storeId) && s.checkPrivilage(storeId,details);
+    }
 
     // UseCase 4.1.1
-    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
-        //TODO:Add logger call
+
+    public boolean isOwner(int sessionId, int storeId) {
         User u = userHandler.getUser(sessionId);
+        Subscriber s = (Subscriber) u.getState();
+        return s.hasOwnerPermission(storeId);
+
+    }
+    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
+
+        User u = userHandler.getUser(sessionId);
+        logger.info(String.format("UserId %d Add %d of Product %d to Store %d",u.getId(),ammount,productId,storeId));
         if(u!=null) {
-            return u.addProductToStore(storeId, productId, ammount);
+            Store s = getStoreById(storeId);
+            if(s!=null) {
+                return u.addProductToStore(s, productId, ammount);
+            }
         }
         return false;
     }

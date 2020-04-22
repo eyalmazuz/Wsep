@@ -10,7 +10,7 @@ public class Guest implements UserState {
      *Unused Methods Of subscriber state
      *
      */
-    public boolean addProductToStore(int storeId, int productId, int ammount) {
+    public boolean addProductToStore(Store store, int productId, int ammount) {
         return false;
     }
 

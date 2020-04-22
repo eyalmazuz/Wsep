@@ -35,10 +35,7 @@ public class Subscriber implements UserState {
 
     }
 
-    public boolean addProductToStore(Store store, int productId, int ammount) {
-        store.addProduct(productId,ammount);
-        return true;
-    }
+
 
     public String getUsername() {
             return username;
@@ -105,22 +102,9 @@ public class Subscriber implements UserState {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(int store, int productId, int ammount) {
+    public boolean addProductToStore(Store store, int productId, int ammount) {
 
-        Store currStore = hasPermission(store,"Owner");
-
-        if(currStore != null){
-            return currStore.addProduct(productId,ammount);
-        }
-        else{
-            //Adition to usecase 5.1
-            if((hasManagerPermission(store))&&(checkPrivilage(store,"add product"))){
-                currStore = hasPermission(store,"manager");
-                currStore.addProduct(productId,ammount);
-                return true;
-            }
-        }
-        return false;
+            return store.addProduct(productId,ammount);
 
     }
 
@@ -130,7 +114,7 @@ public class Subscriber implements UserState {
      * @param type
      * @return true if the user had the permissions, false otherwise
      */
-    private boolean checkPrivilage(int store_id,String type) {
+    public boolean checkPrivilage(int store_id,String type) {
         for (Permission permission: permissions){
             if ((permission.getStore().getId()==store_id)&&(permission.hasPrivilage(type)))
                 return true;
@@ -144,7 +128,7 @@ public class Subscriber implements UserState {
             return currStore.deleteProduct(productId);
         }
         else{
-            //Adition to usecase 5.1
+            //Adition to usecase 5.1 - ROTA ignore this lines i will fix them tomarrow
             if((hasManagerPermission(store))&&(checkPrivilage(store,"delete product"))){
                 currStore = hasPermission(store,"manager");
                 currStore.deleteProduct(productId);
@@ -161,7 +145,7 @@ public class Subscriber implements UserState {
             return currStore.editProduct(productId,info);
         }
         else{
-            //Adition to usecase 5.1
+            //Adition to usecase 5.1 - ROTA ignore this lines i will fix them tomarrow
             if((hasManagerPermission(store))&&(checkPrivilage(store,"edit product"))){
                 currStore = hasPermission(store,"manager");
                 currStore.editProduct(productId,info);
@@ -329,5 +313,6 @@ public class Subscriber implements UserState {
     public PurchaseHistory getPurchaseHistory() {
         return purchaseHistory;
     }
+
 
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 interface UserState {
 
-     boolean addProductToStore(int storeId, int productId, int ammount);
+     boolean addProductToStore(Store store, int productId, int ammount);
 
      boolean editProductInStore(int currStore, int productId, String newInfo);
 
