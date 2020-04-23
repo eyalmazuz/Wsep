@@ -36,27 +36,10 @@ public class Database {
 
     };
 
-    public static String[][] ProductsFiltered = {
-            {"1", "1", "5"},
-    };
 
-
-
-    public static String[][] Cart0 = {
-            //ID, STORE ID, AMOUNT
-    };
-
-
-    public static String[][] Cart1 = {
-            //ID, STORE ID, AMOUNT
-            {"1", "1", "5"},
-    };
-
-    public static String[][] Cart2 = {
-            //ID, STORE ID, AMOUNT
-            {"1", "1", "5"},
-            {"2", "1", "5"}
-    };
+    public static String Cart = "Basket for store ID: 12\n" +
+            "Product ID: 1, amount: 5\n" +
+            "Product ID: 2, amount: 5\n\n";
 
 
     public static String[][] History = {

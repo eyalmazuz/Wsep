@@ -19,16 +19,16 @@ public class UserTest {
 
 
 
-    @Test
-    public void checkSubscriberOnlyFunctions(){
-        //Test that ensures guest will fail any subscriber functionality
-        //usecase 3.1
-        assertFalse(guest.logout());
-        assertFalse(guest.addProductToStore(0,0,0));
-        assertFalse(guest.editProductInStore(0,0,""));
-        assertFalse(guest.deleteProductFromStore(0,0));
-        assertEquals("No History",guest.getHistory());
-    }
+//    @Test
+//    public void checkSubscriberOnlyFunctions(){
+//        //Test that ensures guest will fail any subscriber functionality
+//        //usecase 3.1
+//        assertFalse(guest.logout());
+//        assertFalse(guest.addProductToStore(0,0,0));
+//        assertFalse(guest.editProductInStore(0,0,""));
+//        assertFalse(guest.deleteProductFromStore(0,0));
+//        assertEquals("No History",guest.getHistory());
+//    }
 
     //Usecase 3.2
     @Test

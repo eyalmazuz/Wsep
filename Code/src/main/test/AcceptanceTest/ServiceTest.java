@@ -62,11 +62,11 @@ public abstract class ServiceTest extends TestCase {
 
     public int openStore(int sessionId){ return bridge.openStore(sessionId); }
 
-    public boolean addProdcut(int sessionId, int productId, int storeId, int amount) { return bridge.addProduct(sessionId, productId, storeId, amount); }
+    public boolean addProdcut(boolean flag, int sessionId, int productId, int storeId, int amount) { return bridge.addProduct(flag, sessionId, productId, storeId, amount); }
 
-    public boolean editProduct(int sessionId, int storeId, int productId, String productInfo) { return bridge.editProduct(sessionId, storeId, productId, productInfo); }
+    public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) { return bridge.editProduct(flag, sessionId, storeId, productId, productInfo); }
 
-    public boolean deleteProduct(int sessionId, int storeId, int productId) { return bridge.deleteProduct(sessionId, storeId, productId); }
+    public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId) { return bridge.deleteProduct(flag, sessionId, storeId, productId); }
 
     public boolean appointManager(int sessionId, int storeId, int userId) { return bridge.appointManager(sessionId, storeId, userId); }
 

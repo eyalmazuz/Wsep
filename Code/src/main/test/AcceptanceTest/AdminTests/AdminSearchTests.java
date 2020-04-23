@@ -18,8 +18,8 @@ public class AdminSearchTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(Database.sessionId, 1, sid_1, 5);
-        addProdcut(Database.sessionId, 2, sid_1, 5);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "123456");
@@ -60,7 +60,7 @@ public class AdminSearchTests extends ServiceTest {
 
     @Test
     public void testSearchStoreHistoryFailure(){
-        assertNull(searchStoreHistory(Database.sessionId, -2));
+        assertEquals("", searchStoreHistory(Database.sessionId, -2));
     }
 
 

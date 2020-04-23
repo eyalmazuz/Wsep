@@ -152,27 +152,27 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean addProduct(int sessionId, int productId, int storeId, int amount){
+    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount){
         if(rb != null){
-            return rb.addProduct(sessionId, productId, storeId, amount);
+            return rb.addProduct(flag, sessionId, productId, storeId, amount);
         }
         else{
             return false;
         }
     }
 
-    public boolean editProduct(int sessionId, int storeId, int productId, String productInfo){
+    public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo){
         if(rb != null){
-            return rb.editProduct(sessionId, storeId, productId, productInfo);
+            return rb.editProduct(flag, sessionId, storeId, productId, productInfo);
         }
         else{
             return false;
         }
     }
 
-    public boolean deleteProduct(int sessionId, int storeId, int productId){
+    public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId){
             if(rb != null){
-                return rb.deleteProduct(sessionId, storeId, productId);
+                return rb.deleteProduct(flag, sessionId, storeId, productId);
             }
             else{
                 return false;

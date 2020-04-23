@@ -10,10 +10,7 @@ public class DomainController {
 
         system = new System();
     }
-
-    public int openStore(int sessionId) {
-        return system.openStroe(sessionId);
-    }
+    
 
     public String getPurchaseHistory(int sessionId) {
         return system.getHistory(sessionId);
@@ -73,11 +70,6 @@ public class DomainController {
         return system.clearCart(sessionId);
     }
 
-    public boolean buyCart(int sessionId) {
-
-        return system.buyCart(sessionId);
-    }
-
     public boolean appointManager(int sessionId, int storeId, int userId) {
         return system.addStoreManager(sessionId, storeId, userId);
     }
@@ -98,18 +90,7 @@ public class DomainController {
         return system.editProductInStore(sessionId, storeId, productId, productInfo);
     }
 
-    public String viewShopHistory(int sessionId, int storeId) {
-        return system.getStoreHistoryAsAdmin(sessionId, storeId);
-    }
 
-    public String viewUserHistory(int sessionId, int userId) {
-        //TODO FIX THIS
-        return system.getUserHistory(sessionId, userId);
-    }
-
-    public String getStoryHistory(int sessionId, int storeId) {
-        return system.getStoreHistory(sessionId, storeId);
-    }
 
     public int startSession() {
         return system.startSession();

@@ -34,11 +34,11 @@ public interface Bridge {
 
     String searchStoreHistory(int sessionId, int storeId);
 
-    boolean addProduct(int sessionId, int productId, int storeId, int amount);
+    boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount);
 
-    boolean editProduct(int sessionId, int storeId, int productId, String productInfo);
+    boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo);
 
-    boolean deleteProduct(int sessionId, int storeId, int productId);
+    boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId);
 
     boolean appointManager(int sessionId, int storeId, int userId);
 

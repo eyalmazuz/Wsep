@@ -8,6 +8,7 @@ public class GuestUserHandler {
 
     public boolean login(int sessionId , String username, String password){
         //check if guest - userHandler
+        if(username == null || password == null || username.equals("") || password.equals("")) return false;
         if(s.isGuest(sessionId)){
             int subId = s.getSubscriber(username,password);
             if(subId != -1){
