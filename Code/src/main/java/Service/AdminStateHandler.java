@@ -22,7 +22,7 @@ public class AdminStateHandler {
     //uscase 6.4.2
     public String getStoreHistory(int storeId){
         if(s.isAdmin(sessionId)){
-            return s.getStoreHistoryAsAdmin(storeId);
+            return s.getStoreHistory(storeId);
         }
         return null;
 

@@ -113,13 +113,31 @@ public class System {
         return u.getHistory();
     }
 
+    //Usecase 5.1
+
+    public boolean isManagerWith(int sessionId, int storeId,String details) {
+        User u = userHandler.getUser(sessionId);
+        Subscriber s = (Subscriber) u.getState();
+        return s.hasManagerPermission(storeId) && s.checkPrivilage(storeId,details);
+    }
 
     // UseCase 4.1.1
-    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
-        //TODO:Add logger call
+
+    public boolean isOwner(int sessionId, int storeId) {
         User u = userHandler.getUser(sessionId);
+        Subscriber s = (Subscriber) u.getState();
+        return s.hasOwnerPermission(storeId);
+
+    }
+    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
+
+        User u = userHandler.getUser(sessionId);
+        logger.info(String.format("UserId %d Add %d of Product %d to Store %d",u.getId(),ammount,productId,storeId));
         if(u!=null) {
-            return u.addProductToStore(storeId, productId, ammount);
+            Store s = getStoreById(storeId);
+            if(s!=null) {
+                return u.addProductToStore(s, productId, ammount);
+            }
         }
         return false;
     }
@@ -129,7 +147,9 @@ public class System {
         //TODO:Add logger call
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
-            return u.editProductInStore(storeId, productId, newInfo);
+            Store s = getStoreById(storeId);
+            if(s!=null)
+                return u.editProductInStore(s, productId, newInfo);
         }
         return false;
     }
@@ -139,7 +159,9 @@ public class System {
         //TODO:Add logger call
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
-            return u.deleteProductFromStore(storeId, productId);
+            Store s = getStoreById(storeId);
+            if(s!=null)
+                return u.deleteProductFromStore(s, productId);
         }
         return false;
     }
@@ -174,13 +196,16 @@ public class System {
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
             return false;
-        for (Store store : stores) {
-            if (store.getId() == storeId) {
-                return u.addOwner(store,newOwner);
+        Store s = getStoreById(storeId);
+        if(s!=null)
+            return u.addOwner(s,newOwner);
 
-            }
-        }
         return false;
+    }
+
+    public boolean subIsOwner(int subId,int storeId) {
+        Subscriber s = userHandler.getSubscriber(subId);
+        return s!=null && s.hasOwnerPermission(storeId);
     }
 
 
@@ -230,13 +255,14 @@ public class System {
     public boolean deleteManager (int sessionId, int storeId, int userId) {
         //TODO:Add logger call
         User u = userHandler.getUser(sessionId);
-        Subscriber managerToDelete = userHandler.getSubscriber(userId);
-        if (managerToDelete == null)
-            return false;
-        for (Store store : stores) {
-            if (store.getId() == storeId) {
-                return u.deleteManager(store,managerToDelete);
+        if(u!= null) {
+            Subscriber managerToDelete = userHandler.getSubscriber(userId);
+            if (managerToDelete != null) {
+                Store s = getStoreById(storeId);
+                if (s != null)
+                    return u.deleteManager(s, managerToDelete);
             }
+            return false;
         }
         return false;
     }
@@ -248,6 +274,12 @@ public class System {
      * @return list of users ID's. If there is no permission, returns null.
      * If there are'nt users - return empty list.
      */
+
+    public boolean subIsManager(int subId, int storeId) {
+        Subscriber s = userHandler.getSubscriber(subId);
+        return s!=null && s.hasManagerPermission(storeId);
+    }
+
     public List <Integer> getManagersOfCurUser(int sessionId, int storeId){
         //TODO:Add logger call
         User u = userHandler.getUser(sessionId);
@@ -283,21 +315,24 @@ public class System {
      */
     public boolean setManagerDetalis(int sessionId, int managerId, int storeId, String details){
         User u = userHandler.getUser(sessionId);
-        Subscriber manager = userHandler.getSubscriber(managerId);
-        if (manager == null)
-            return false;
-        for (Store store : stores) {
-            if (store.getId() == storeId) {
-                return u.getState().editPermission(manager, store, details);
-            }
+        if(u!=null) {
+            Subscriber manager = userHandler.getSubscriber(managerId);
+            if (manager == null)
+                return false;
+            Store store = getStoreById(storeId);
+            return u.getState().editPermission(manager, store, details);
+
         }
         return false;
     }
 
-    public String getStoreHistory(int sessionId, int storeId){
-
-        User u = userHandler.getUser(sessionId);
-        return u.getStoreHistory(storeId);
+    //usecase 4.10,5.1,6.4.2
+    public String getStoreHistory( int storeId){
+        Store s = getStoreById(storeId);
+        if(s!=null){
+            return s.getHistory().toString();
+        }
+        return null;
     }
 
     // usecase 2.8
@@ -456,17 +491,7 @@ public class System {
 
     }
 
-    //usecase 6.4.2
-    public String getStoreHistoryAsAdmin( int storeId){
 
-            for(Store s : stores){
-                if(s.getId() == storeId){
-                    return s.getHistory().toString();
-                }
-            }
-
-        return null;
-    }
 
     private Store getStoreById(int storeId){
         for(Store s: stores){

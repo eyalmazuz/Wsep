@@ -9,11 +9,11 @@ import java.util.Map;
 
 interface UserState {
 
-     boolean addProductToStore(int storeId, int productId, int ammount);
+     boolean addProductToStore(Store store, int productId, int ammount);
 
-     boolean editProductInStore(int currStore, int productId, String newInfo);
+     boolean editProductInStore(Store currStore, int productId, String newInfo);
 
-     boolean deleteProductFromStore(int currStore, int productId);
+     boolean deleteProductFromStore(Store currStore, int productId);
 
      boolean hasOwnerPermission(int storeId);
 
@@ -37,7 +37,7 @@ interface UserState {
 
      boolean editPermission(Subscriber manager, Store store, String details);
 
-     String getStoreHistory(int storeId);
+
 
      void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
 

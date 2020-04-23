@@ -35,10 +35,7 @@ public class Subscriber implements UserState {
 
     }
 
-    public boolean addProductToStore(Store store, int productId, int ammount) {
-        store.addProduct(productId,ammount);
-        return true;
-    }
+
 
     public String getUsername() {
             return username;
@@ -105,22 +102,9 @@ public class Subscriber implements UserState {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(int store, int productId, int ammount) {
+    public boolean addProductToStore(Store store, int productId, int ammount) {
 
-        Store currStore = hasPermission(store,"Owner");
-
-        if(currStore != null){
-            return currStore.addProduct(productId,ammount);
-        }
-        else{
-            //Adition to usecase 5.1
-            if((hasManagerPermission(store))&&(checkPrivilage(store,"add product"))){
-                currStore = hasPermission(store,"manager");
-                currStore.addProduct(productId,ammount);
-                return true;
-            }
-        }
-        return false;
+            return store.addProduct(productId,ammount);
 
     }
 
@@ -130,7 +114,10 @@ public class Subscriber implements UserState {
      * @param type
      * @return true if the user had the permissions, false otherwise
      */
-    private boolean checkPrivilage(int store_id,String type) {
+    public boolean checkPrivilage(int store_id,String type) {
+        if(type.equals("any"))
+            return true;
+        
         for (Permission permission: permissions){
             if ((permission.getStore().getId()==store_id)&&(permission.hasPrivilage(type)))
                 return true;
@@ -138,67 +125,46 @@ public class Subscriber implements UserState {
         return false;
     }
 
-    public boolean deleteProductFromStore(int store, int productId) {
-        Store currStore = hasPermission(store,"Owner");
-        if(currStore != null){
-            return currStore.deleteProduct(productId);
-        }
-        else{
-            //Adition to usecase 5.1
-            if((hasManagerPermission(store))&&(checkPrivilage(store,"delete product"))){
-                currStore = hasPermission(store,"manager");
-                currStore.deleteProduct(productId);
-                return true;
-            }
-        }
-        return false;
+
+    public boolean editProductInStore(Store store, int productId, String info) {
+
+            return store.editProduct(productId,info);
+
+    }
+
+    public boolean deleteProductFromStore(Store store, int productId) {
+
+        return store.deleteProduct(productId);
+
     }
 
 
-    public boolean editProductInStore(int store, int productId, String info) {
-        Store currStore = hasPermission(store,"Owner");
-        if(currStore != null){
-            return currStore.editProduct(productId,info);
-        }
-        else{
-            //Adition to usecase 5.1
-            if((hasManagerPermission(store))&&(checkPrivilage(store,"edit product"))){
-                currStore = hasPermission(store,"manager");
-                currStore.editProduct(productId,info);
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     public boolean addOwner(Store store, Subscriber newOwner) {
-        if(hasPermission(store.getId(),"Owner")!= null){
-            if (!(newOwner.hasOwnerPermission(store.getId()))) {
-                store.addOwner(newOwner);
-               return newOwner.addPermission(store, this, "Owner");
-            }
+        if(newOwner.addPermission(store, this, "Owner")){
+            store.addOwner(newOwner);
+            return true;
         }
+
         return false;
+
     }
 
     public boolean addManager(Store store, Subscriber newManager) {
-        if(hasPermission(store.getId(),"Owner")!= null){
-            if (!(newManager.hasManagerPermission(store.getId()))) {
-                store.addOwner(newManager);
-                return newManager.addPermission(store, this, "Manager");
-            }
+        if(newManager.addPermission(store, this, "Manager")){
+            store.addOwner(newManager);
+            return true;
         }
+
         return false;
     }
 
     public boolean deleteManager(Store store, Subscriber managerToDelete) {
-        if(hasPermission(store.getId(),"Owner")!= null){
-            if (this.equals(managerToDelete.getGrantor("Manager",store))){
-                managerToDelete.removePermission(store,"Manager");
-                return true;
-            }
-        }
-        return false;
+
+        managerToDelete.removePermission(store,"Manager");
+        return true;
+
     }
 
     private void removePermission(Store store, String type) {
@@ -282,25 +248,12 @@ public class Subscriber implements UserState {
 
 
     public boolean editPermission(Subscriber manager, Store store, String details) {
-        if (hasPermission(store.getId(), "Owner") != null) {
-            if (this.equals(manager.getGrantor("Manager",store))){
-                manager.overridePermission("Manager",store,details);
-                return true;
-            }
-        }
-        return false;
+
+        manager.overridePermission("Manager",store,details);
+        return true;
+
     }
 
-    public String getStoreHistory(int storeId) {
-        Store store = hasPermission(storeId, "Owner");
-        if (store == null){
-            store = hasPermission(storeId, "Manager");
-            if (store == null)
-                return null;
-
-        }
-        return store.getHistory().toString();
-    }
 
     @Override
     public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
@@ -329,5 +282,6 @@ public class Subscriber implements UserState {
     public PurchaseHistory getPurchaseHistory() {
         return purchaseHistory;
     }
+
 
 }

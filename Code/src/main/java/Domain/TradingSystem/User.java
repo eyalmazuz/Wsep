@@ -29,19 +29,19 @@ public class User {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(int storeId, int productId, int amount) {
-        return state.addProductToStore(storeId, productId, amount);
+    public boolean addProductToStore(Store store, int productId, int amount) {
+        return state.addProductToStore(store, productId, amount);
 
     }
 
-    public boolean editProductInStore(int storeId, int productId, String newInfo) {
+    public boolean editProductInStore(Store store, int productId, String newInfo) {
 
-        return state.editProductInStore(storeId, productId, newInfo);
+        return state.editProductInStore(store, productId, newInfo);
     }
 
-    public boolean deleteProductFromStore(int storeId, int productId) {
+    public boolean deleteProductFromStore(Store store, int productId) {
 
-        return state.deleteProductFromStore(storeId, productId);
+        return state.deleteProductFromStore(store, productId);
 
     }
 
@@ -173,9 +173,6 @@ public class User {
     }
 
 
-    public String getStoreHistory ( int storeId){
-        return state.getStoreHistory(storeId);
-    }
 
 
     public boolean isAdmin() {
