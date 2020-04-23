@@ -73,8 +73,7 @@ public class DomainController {
         return system.clearCart();
     }
 
-    public boolean buyCart() {
-
+    public double buyCart() {
         return system.buyCart();
     }
 

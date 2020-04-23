@@ -285,6 +285,17 @@ public class System {
         return u.getStoreHistory(storeId);
     }
 
+    // usecase 2.8
+    public boolean confirmPurchase(int sessionId, double totalPrice) {
+        User u = userHandler.getUser(sessionId);
+        return u.confirmPrice(totalPrice);
+    }
+
+    public boolean requestConfirmedPurchase(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u.requestConfirmedPurchase();
+    }
+
 
     // usecase 2.8.3
     public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
@@ -465,21 +476,17 @@ public class System {
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        u.removeProductFromCart(store, productId);
-        return true;
+        return u.removeProductFromCart(store, productId);
     }
 
     public boolean clearCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
-        u.removeAllProductsFromCart();
-        return true;
+        return u.removeAllProductsFromCart();
     }
 
-    //TODO FIX THIS
-    public boolean buyCart(int sessionId) {
+    public double buyCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
-        u.purchaseCart();
-        return true;
+        return u.purchaseCart();
     }
 
     public String getCart(int sessionId) {

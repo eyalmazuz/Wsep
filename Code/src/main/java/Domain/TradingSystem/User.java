@@ -97,31 +97,32 @@ public class User {
      *
      */
 
-    public boolean purchaseCart() {
-        if (shoppingCart == null) return false;
+    public double purchaseCart() {
+        if (shoppingCart == null) return -1;
         return shoppingCart.attemptPurchase();
     }
 
     public boolean confirmPrice(double totalPrice) {
         // TODO: query user to confirm the price
+
         return true;
     }
 
 
     public boolean requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(this.paymentDetails, shoppingCart.getStoreProductsIds())) {
+        if (!system.makePayment(id, this.paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
         state.addPurchase(storePurchaseDetails);
-        boolean supplyAvailable = system.requestSupply(this, shoppingCart.getStoreProductsIds());
+        boolean supplyAvailable = system.requestSupply(id, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
             // TODO: message user with success
 
             return true;
         } else {
-            system.cancelPayment(this, shoppingCart.getStoreProductsIds());
+            system.cancelPayment(id, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
 

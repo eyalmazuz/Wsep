@@ -18,7 +18,7 @@ public class UserTest {
     }
 
     @Test
-    void checkSubscriberOnlyFunctions(){
+    public void checkSubscriberOnlyFunctions(){
         //Test that ensures guest will fail any subscriber functionality
         assertFalse(guest.logout());
         assertFalse(guest.addProductToStore(0,0,0));

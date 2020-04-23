@@ -98,7 +98,6 @@ public class UserHandler {
         subscribers.clear();
     }
 
-
     public void setState(int sessionId, int subId) {
 
     }

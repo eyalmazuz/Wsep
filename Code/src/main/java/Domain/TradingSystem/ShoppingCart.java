@@ -52,7 +52,7 @@ public class ShoppingCart {
     }
 
     // usecase 2.8
-    public boolean attemptPurchase() {
+    public double attemptPurchase() {
         // check if all baskets are empty
         boolean allEmpty = true;
         for (ShoppingBasket basket : shoppingBaskets) {
@@ -61,21 +61,17 @@ public class ShoppingCart {
                 break;
             }
         }
-        if (allEmpty) return false;
+        if (allEmpty) return -1;
 
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
             if (!basket.checkBuyingPolicy(user)) {
-                return false;
+                return -1;
             }
             double basketPrice = basket.getTotalPrice(user);
             totalPrice += basketPrice;
         }
-        if (user.confirmPrice(totalPrice)) {
-            return user.requestConfirmedPurchase();
-        } else {
-            return false;
-        }
+        return totalPrice;
     }
 
     public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {

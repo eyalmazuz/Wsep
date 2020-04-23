@@ -20,4 +20,14 @@ public class GuestUserHandler {
         return false;
 
     }
+
+    public boolean purchaseCart(int sessionId) {
+        double totalPrice = s.buyCart(sessionId);
+        if (totalPrice > -1) {
+            if (s.confirmPurchase(sessionId, totalPrice)) {
+                return s.requestConfirmedPurchase(sessionId);
+            }
+        }
+        return false;
+    }
 }
