@@ -104,7 +104,6 @@ public class UserHandler {
         subscribers.clear();
     }
 
-
     public void setState(int sessionId, int subId) {
         User u = users.get(sessionId);
         if(u!= null){
