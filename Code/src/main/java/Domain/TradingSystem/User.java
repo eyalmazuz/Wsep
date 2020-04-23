@@ -29,19 +29,19 @@ public class User {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(int storeId, int productId, int amount) {
-        return state.addProductToStore(storeId, productId, amount);
+    public boolean addProductToStore(Store store, int productId, int amount) {
+        return state.addProductToStore(store, productId, amount);
 
     }
 
-    public boolean editProductInStore(int storeId, int productId, String newInfo) {
+    public boolean editProductInStore(Store store, int productId, String newInfo) {
 
-        return state.editProductInStore(storeId, productId, newInfo);
+        return state.editProductInStore(store, productId, newInfo);
     }
 
-    public boolean deleteProductFromStore(int storeId, int productId) {
+    public boolean deleteProductFromStore(Store store, int productId) {
 
-        return state.deleteProductFromStore(storeId, productId);
+        return state.deleteProductFromStore(store, productId);
 
     }
 
@@ -53,11 +53,6 @@ public class User {
     public void setState(UserState nState) {
         this.state = nState;
         state.setUser(this);
-    }
-
-
-    public boolean logout() {
-        return state.logout(shoppingCart);
     }
 
 
@@ -97,31 +92,32 @@ public class User {
      *
      */
 
-    public boolean purchaseCart(int sessionId) {
-        if (shoppingCart == null) return false;
-        return shoppingCart.attemptPurchase(sessionId);
+    public double purchaseCart() {
+        if (shoppingCart == null) return -1;
+        return shoppingCart.attemptPurchase();
     }
 
     public boolean confirmPrice(double totalPrice) {
         // TODO: query user to confirm the price
+
         return true;
     }
 
 
-    public boolean requestConfirmedPurchase(int sessionId) { // from payment system
-        if (!system.makePayment(sessionId, this.paymentDetails, shoppingCart.getStoreProductsIds())) {
+    public boolean requestConfirmedPurchase() { // from payment system
+        if (!system.makePayment(id, this.paymentDetails, shoppingCart.getStoreProductsIds())) {
             // TODO: message user with an error
         }
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
         state.addPurchase(storePurchaseDetails);
-        boolean supplyAvailable = system.requestSupply(sessionId, shoppingCart.getStoreProductsIds());
+        boolean supplyAvailable = system.requestSupply(id, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
             // TODO: message user with success
 
             return true;
         } else {
-            system.cancelPayment(sessionId, shoppingCart.getStoreProductsIds());
+            system.cancelPayment(id, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
 
@@ -132,6 +128,18 @@ public class User {
     }
 
 
+
+//Usecase 3.1
+    public boolean logout() {
+        return state.logout();
+    }
+
+    public void saveLatestCart() {
+        if(!isGuest()){
+            Subscriber s = (Subscriber)state;
+            s.saveCart(shoppingCart);
+        }
+    }
 
 
     public Store openStore () {
@@ -165,9 +173,6 @@ public class User {
     }
 
 
-    public String getStoreHistory ( int storeId){
-        return state.getStoreHistory(storeId);
-    }
 
 
     public boolean isAdmin() {
@@ -177,5 +182,7 @@ public class User {
     public int getId(){
         return id;
     }
+
+
 }
 

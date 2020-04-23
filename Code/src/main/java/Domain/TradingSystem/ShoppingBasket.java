@@ -69,4 +69,14 @@ public class ShoppingBasket {
         }
     }
 
+    @Override
+    public String toString() {
+        String output = "";
+        for (Integer productId : products.keySet()) {
+            int amount = products.get(productId);
+            output += "Product ID: " + productId + ", amount: " + amount + "\n";
+        }
+        return output;
+    }
+
 }

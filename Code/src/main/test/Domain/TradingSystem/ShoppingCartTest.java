@@ -1,6 +1,5 @@
 package Domain.TradingSystem;
 
-import AcceptanceTest.Data.Database;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -198,8 +197,8 @@ public class ShoppingCartTest {
     public void attemptPurchase() {
         user.setShoppingCart(shoppingCart);
         System.getInstance().setup("Mock Config", "Mock Config");
-        assertFalse(shoppingCart.attemptPurchase(Database.sessionId)); // cant purchase empty cart
+        assertFalse(shoppingCart.attemptPurchase() > -1); // cant purchase empty cart
         shoppingCart.addProduct(store1, 0, 15);
-        assertTrue(shoppingCart.attemptPurchase(Database.sessionId));
+        assertTrue(shoppingCart.attemptPurchase() > -1);
     }
 }

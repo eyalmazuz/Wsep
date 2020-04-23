@@ -36,6 +36,10 @@ public class UserHandler {
     }
 
     public int register(String username, String hashedPassword) {
+        if(username==null || hashedPassword == null){
+            return -1;
+        }
+
         for (Subscriber sub: subscribers.values())
             if (sub.getUsername().equals(username))
                 return -1;
@@ -65,9 +69,11 @@ public class UserHandler {
      */
     public List <Integer> getAvailableUsersToOwn(List <Subscriber> owners) {
         List <Integer> availableSubs = new LinkedList<Integer>();
-        for (Subscriber user: subscribers.values()){
-            if (!owners.contains(user))
-                availableSubs.add(user.getId());
+        if(owners!=null) {
+            for (Subscriber user : subscribers.values()) {
+                if (!owners.contains(user))
+                    availableSubs.add(user.getId());
+            }
         }
         return availableSubs;
     }
@@ -98,8 +104,14 @@ public class UserHandler {
         subscribers.clear();
     }
 
-
     public void setState(int sessionId, int subId) {
+        User u = users.get(sessionId);
+        if(u!= null){
+            Subscriber s = subscribers.get(subId);
+            if(s!=null){
+                u.setState(s);
+            }
+        }
 
     }
 
