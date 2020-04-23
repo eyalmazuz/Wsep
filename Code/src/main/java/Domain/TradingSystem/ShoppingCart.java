@@ -148,4 +148,14 @@ public class ShoppingCart {
     public ArrayList<ShoppingBasket> getBaskets(){
         return shoppingBaskets;
     }
+
+    @Override
+    public String toString() {
+        String output = "";
+        for (ShoppingBasket basket : shoppingBaskets) {
+            output += "Basket for store ID: " + basket.getStoreId() + "\n";
+            output += basket.toString() + "\n";
+        }
+        return output;
+    }
 }
