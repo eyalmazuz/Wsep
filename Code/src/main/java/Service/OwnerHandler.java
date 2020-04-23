@@ -18,7 +18,7 @@ public class OwnerHandler {
         }
         return false;
     }
-
+    //Usecase 4.1.2
     public boolean editProductToStore(int storeId, int productId, String info){
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.editProductInStore(sessionId,storeId,productId,info);
@@ -26,7 +26,7 @@ public class OwnerHandler {
         return false;
     }
 
-
+    //uscase 4.1.3
     public boolean deleteProductFromStore(int storeId, int productId){
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.deleteProductFromStore(sessionId,storeId,productId);
@@ -34,17 +34,17 @@ public class OwnerHandler {
         return false;
     }
 
-
-    public boolean addStoreOwner(int storeId, int userId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.addStoreOwner(sessionId,storeId,userId);
+    //Usecase 4.3
+    public boolean addStoreOwner(int storeId, int subId){
+        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsOwner(subId,storeId)){
+            return s.addStoreOwner(sessionId,storeId,subId);
         }
         return false;
     }
 
-
+    //Usecase 4.5
     public boolean addStoreManager(int storeId, int userId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsManager(userId,storeId)){
             return s.addStoreManager(sessionId,storeId,userId);
         }
         return false;
@@ -54,12 +54,12 @@ public class OwnerHandler {
     /**
      * Use Case 4.6.1 and 4.6.2
      * @param storeId
-     * @param userId
+     * @param subId
      * @return
      */
-    public boolean editManageOptions(int storeId, int userId, String options){
-        if(s.isManager(userId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.editManagerOptions(storeId,userId,options);
+    public boolean editManageOptions(int storeId, int subId, String options){
+        if(s.subIsManager(subId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+            return s.setManagerDetalis(sessionId,subId,storeId,options);
         }
         return false;
     }
@@ -72,7 +72,7 @@ public class OwnerHandler {
      * @return
      */
     public boolean deleteManager(int storeId, int userId){
-        if(s.isManager(userId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+        if(s.subIsManager(userId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.deleteManager(sessionId,storeId,userId);
         }
         return false;
@@ -83,12 +83,11 @@ public class OwnerHandler {
     /**
      * Use Case 4.10
      * @param storeId
-     * @param userId
      * @return
      */
     public String viewPurchaseHistory(int storeId){
-        if( s.isSubscriber(sessionId) ){
-            return s.getStoreHistory(sessionId,storeId);
+        if( s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) ){
+            return s.getStoreHistory(storeId);
         }
         return "";
     }

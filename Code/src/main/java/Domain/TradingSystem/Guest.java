@@ -14,11 +14,11 @@ public class Guest implements UserState {
         return false;
     }
 
-    public boolean editProductInStore(int currStore, int productId, String newInfo) {
+    public boolean editProductInStore(Store currStore, int productId, String newInfo) {
         return false;
     }
 
-    public boolean deleteProductFromStore(int currStore, int productId) {
+    public boolean deleteProductFromStore(Store currStore, int productId) {
         return false;
     }
 
@@ -62,9 +62,7 @@ public class Guest implements UserState {
         return false;
     }
 
-    public String getStoreHistory(int storeId) {
-        return null;
-    }
+
 
     @Override
     public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
