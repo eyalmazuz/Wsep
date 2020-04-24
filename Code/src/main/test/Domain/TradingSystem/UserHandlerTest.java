@@ -2,14 +2,14 @@ package Domain.TradingSystem;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.TestCase.*;
 
-class UserHandlerTest {
+public class UserHandlerTest {
 
     UserHandler uh = new UserHandler();
 
@@ -56,7 +56,7 @@ class UserHandlerTest {
     }
 
     @Test
-    void register() {
+    public void register() {
         int id1 = uh.register("Bob","123");
         int id2 = uh.register("Moshe","234");
         assertTrue(id1>=0);
@@ -64,7 +64,7 @@ class UserHandlerTest {
     }
 
     @Test
-    void registerBadValues() {
+    public void registerBadValues() {
         assertEquals(-1,uh.register(null,null));
 
         uh.register("bob","123");
@@ -72,37 +72,37 @@ class UserHandlerTest {
     }
 
     @Test
-    void getUser() {
+    public void getUser() {
         int id = uh.createSession();
         assertNotNull(uh.getUser(id));
     }
 
     @Test
-    void getUserBadValues() {
+    public void getUserBadValues() {
         assertNull(uh.getUser(5));
         assertNull(uh.getUser(-6));
     }
 
     @Test
-    void getSubscriber() {
+    public void getSubscriber() {
         int id = uh.register("a","a");
         assertNotNull(uh.getSubscriber(id));
     }
 
     @Test
-    void getSubscriberBadValues() {
+    public void getSubscriberBadValues() {
         assertNull(uh.getSubscriber(5));
         assertNull(uh.getSubscriber(-6));
     }
 
     @Test
-    void getSubscriberUser() {
+    public void getSubscriberUser() {
         registerSubs();
         assertNotNull(uh.getSubscriberUser("test","123"));
     }
 
     @Test
-    void getSubscriberUserBadValues() {
+    public void getSubscriberUserBadValues() {
         registerSubs();
         assertNull(uh.getSubscriberUser(null,null));
         assertNull(uh.getSubscriberUser("test","blabla"));
@@ -111,7 +111,7 @@ class UserHandlerTest {
 
 
     @Test
-    void getAvailableUsersToOwn() {
+    public void getAvailableUsersToOwn() {
 
         List<Subscriber> list = prepareSubsList();
         registerSubs();
@@ -123,18 +123,18 @@ class UserHandlerTest {
     }
 
     @Test
-    void getAvailableUsersToOwnBad() {
+    public void getAvailableUsersToOwnBad() {
     registerSubs();
     List<Integer> list1 = uh.getAvailableUsersToOwn(null);
     List<Integer> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
     assertTrue(list1.isEmpty());
-    assertTrue(list2.isEmpty());
+    assertEquals(uh.subscribers.size(),list2.size());
     }
 
 
 
     @Test
-    void setState() {
+    public void setState() {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test","123");
@@ -146,7 +146,7 @@ class UserHandlerTest {
     }
 
     @Test
-    void createSessionDiffIds() {
+    public void createSessionDiffIds() {
         int id1 = uh.createSession();
         int id2 = uh.createSession();
         assertTrue(id1 != id2);

@@ -5,7 +5,10 @@ import java.util.Map;
 public class PaymentHandler {
     private final String config;
 
-    public PaymentHandler(String config) {
+    public PaymentHandler(String config) throws Exception {
+        if (config.equals("Error")){
+            throw new Exception();
+        }
         this.config = config;
     }
 

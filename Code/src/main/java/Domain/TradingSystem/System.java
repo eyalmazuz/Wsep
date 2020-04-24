@@ -41,12 +41,44 @@ public class System {
         return instance;
     }
 
+    //For Testing Purpose only:
+    public void setSupplyHandler(SupplyHandler supplyHandler) {
+        this.supplyHandler = supplyHandler;
+    }
+
+    public void setPaymentHandler(PaymentHandler paymentHandler) {
+        this.paymentHandler = paymentHandler;
+    }
+
+    public void setUserHandler(UserHandler userHandler) {
+        this.userHandler = userHandler;
+    }
+
+    public void setStores(List<Store> stores) {
+        this.stores = stores;
+    }
+
+    public void setProductNames(Map<Integer, String> productNames) {
+        this.productNames = productNames;
+    }
+
+    public void setProductCategories(Map<Integer, String> productCategories) {
+        this.productCategories = productCategories;
+    }
+
+    public void setProductRatings(Map<Integer, Integer> productRatings) {
+        this.productRatings = productRatings;
+    }
+
+    public void setLogger(SystemLogger log){
+        this.logger = log;
+    }
     //Usecase 1.1
-    private void setSupply(String config){
+    private void setSupply(String config) throws Exception {
         supplyHandler = new SupplyHandler(config);
     }
 
-    private void setPayment(String config){
+    private void setPayment(String config) throws Exception {
        paymentHandler = new PaymentHandler(config);
     }
 
@@ -85,11 +117,14 @@ public class System {
 
     public void saveLatestCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
-        u.saveLatestCart();
+        if(u!= null)
+            u.saveLatestCart();
     }
     public boolean logout(int sessionId){
         User u = userHandler.getUser(sessionId);
-        return u.logout();
+        if(u!=null)
+            return u.logout();
+        return false;
     }
 
     //Usecase 3.2
@@ -99,11 +134,14 @@ public class System {
      */
     public int openStore(int sessionId){
         User u = userHandler.getUser(sessionId);
-        Store newStore  = u.openStore();
-        if (newStore != null){
-            stores.add(newStore);
-            return newStore.getId();
-      }
+        if(u!=null) {
+            Store newStore = u.openStore();
+            if (newStore != null) {
+                stores.add(newStore);
+                return newStore.getId();
+            }
+
+        }
         return -1;
     }
 
@@ -111,15 +149,20 @@ public class System {
     //Usecase 3.7
     public String getHistory(int sessionId){
         User u = userHandler.getUser(sessionId);
-        return u.getHistory();
+        if(u!=null)
+            return u.getHistory();
+        return null;
     }
 
     //Usecase 5.1
 
     public boolean isManagerWith(int sessionId, int storeId,String details) {
         User u = userHandler.getUser(sessionId);
-        Subscriber s = (Subscriber) u.getState();
-        return s.hasManagerPermission(storeId) && s.checkPrivilage(storeId,details);
+        if(u!=null){
+            Subscriber s = (Subscriber) u.getState();
+            return s.hasManagerPermission(storeId) && s.checkPrivilage(storeId,details);
+        }
+        return false;
     }
 
     // UseCase 4.1.1
@@ -493,7 +536,7 @@ public class System {
 
 
 
-    private Store getStoreById(int storeId){
+    public Store getStoreById(int storeId){
         for(Store s: stores){
             if (s.getId() == storeId){
                 return s;
@@ -560,5 +603,11 @@ public class System {
     }
 
 
+    public void deleteStores() {
+        stores.clear();
+    }
 
+    public List<Store> getStores(){
+        return stores;
+    }
 }
