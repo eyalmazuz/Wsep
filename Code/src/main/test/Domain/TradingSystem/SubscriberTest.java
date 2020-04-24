@@ -148,14 +148,24 @@ class SubscriberTest {
 
     @Test
     void hasOwnerPermission() {
+        store = new Store();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addOwner(store,newSubscriber);
+        subscriber.editPermission(newSubscriber,store,"New Owner");
+        Assert.assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
+        Assert.assertFalse(subscriber.hasOwnerPermission(store.getId()));
+        Assert.assertFalse(subscriber.hasOwnerPermission(-1));
+
     }
 
     @Test
     void hasPermission() {
+        ein li koah
     }
 
     @Test
     void addPermission() {
+        ein li koah
     }
 
     @Test
@@ -164,30 +174,53 @@ class SubscriberTest {
 
     @Test
     void hasManagerPermission() {
+        store = new Store();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addManager(store,newSubscriber);
+        subscriber.editPermission(newSubscriber,store,"New Manager");
+        Assert.assertTrue(newSubscriber.hasManagerPermission(store.getId()));
+        Assert.assertFalse(subscriber.hasManagerPermission(store.getId()));
+        Assert.assertFalse(subscriber.hasManagerPermission(-1));
     }
 
     @Test
     void isGrantedBy() {
+        ??
     }
 
     @Test
     void getManagerDetails() {
+        store = new Store();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addManager(store,newSubscriber);
+        subscriber.editPermission(newSubscriber,store,"New Manager");
+        Assert.assertEquals(newSubscriber.getManagerDetails(store.getId()),"New Manager");
+        Assert.assertEquals(newSubscriber.getManagerDetails(-1),null);
+        Assert.assertEquals(subscriber.getManagerDetails(store.getId()),"");
     }
 
     @Test
     void editPermission() {
+        store = new Store ();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addManager(store,newSubscriber);
+        Assert.assertTrue(subscriber.editPermission(newSubscriber,store,"New Manager"));
+        Assert.assertFalse(newSubscriber.editPermission(subscriber,store,""));
     }
 
     @Test
     void addPurchase() {
+        ??
     }
 
     @Test
     void removePurchase() {
+        ??
     }
 
     @Test
     void getHashedPassword() {
+        Assert.assertEquals("1234",subscriber.getHashedPassword());
     }
 
     @Test
