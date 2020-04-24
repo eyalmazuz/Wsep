@@ -101,27 +101,49 @@ class SubscriberTest {
 
     @Test
     void checkPrivilage() {
-
+        ??
     }
 
     @Test
     void editProductInStore() {
+        ???
+
     }
 
     @Test
     void deleteProductFromStore() {
+        store = new Store ();
+        product = new ProductInfo(1);
+        subscriber.addProductToStore(store,1,5);
+        Assert.assertTrue(subscriber.deleteProductFromStore(store,1));
+        Assert.assertFalse(subscriber.deleteProductFromStore(store,2));
+
     }
 
     @Test
     void addOwner() {
+        store = new Store ();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        Assert.assertTrue(subscriber.addOwner(store,newSubscriber));
+        Assert.assertEquals(newSubscriber.getGrantor("Owner",store),subscriber);
     }
 
     @Test
     void addManager() {
+        store = new Store ();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        Assert.assertTrue(subscriber.addManager(store,newSubscriber));
+        Assert.assertEquals(newSubscriber.getGrantor("Manager",store),subscriber);
     }
 
     @Test
     void deleteManager() {
+        store = new Store ();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addManager(store,newSubscriber);
+        Assert.assertFalse(newSubscriber.deleteManager(store,newSubscriber));
+        Assert.assertTrue(subscriber.deleteManager(store,newSubscriber));
+        Assert.assertFalse(newSubscriber.deleteManager(store,subscriber));
     }
 
     @Test
