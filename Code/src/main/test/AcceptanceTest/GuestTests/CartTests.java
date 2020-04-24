@@ -25,6 +25,11 @@ public class CartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+
+        Database.Cart = "Basket for store ID: 12\n" +
+                "Product ID: 1, amount: 5\n" +
+                "Product ID: 2, amount: 5\n\n";
+
     }
 
     @After
