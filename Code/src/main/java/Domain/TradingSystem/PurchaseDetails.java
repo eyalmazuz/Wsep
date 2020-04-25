@@ -8,6 +8,8 @@ public class PurchaseDetails {
     private int id;
     private LocalDateTime dateTime;
     private User user;
+
+    // product id -> amount map
     private Map<Integer, Integer> products;
     private double price;
 

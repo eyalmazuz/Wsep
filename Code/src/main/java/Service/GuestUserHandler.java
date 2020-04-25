@@ -32,6 +32,22 @@ public class GuestUserHandler {
         return -1;
     }
 
+    public boolean addProductToCart(int sessionId, int storeId, int productId, int amount) {
+        return s.addToCart(sessionId, storeId, productId, amount);
+    }
+
+    public boolean editProductInCart(int sessionId, int storeId, int productId, int amount) {
+        return s.updateAmount(sessionId, storeId, productId, amount);
+    }
+
+    public boolean removeProductInCart(int sessionId, int storeId, int productId) {
+        return s.deleteItemInCart(sessionId, storeId, productId);
+    }
+
+    public boolean clearCart(int sessionId) {
+        return s.clearCart(sessionId);
+    }
+
     public boolean purchaseCart(int sessionId) {
         double totalPrice = s.buyCart(sessionId);
         if (totalPrice > -1) {
