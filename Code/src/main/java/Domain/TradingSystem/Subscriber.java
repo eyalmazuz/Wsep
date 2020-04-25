@@ -252,7 +252,7 @@ public class Subscriber implements UserState {
 
     public boolean editPermission(Subscriber manager, Store store, String details) {
 
-        String[] validDetailes = {"any", "add Product", "edit product", "delete product"};
+        String[] validDetailes = {"any", "add product", "edit product", "delete product"};
         if(Arrays.asList(validDetailes).contains(details)) {
             manager.overridePermission("Manager", store, details);
             return true;
