@@ -100,16 +100,19 @@ public class System {
     //Usecase 3.1
 
     public boolean isSubscriber(int sessionId) {
+        logger.info("IsSubscriber: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         return u!=null && !u.isGuest();
     }
 
     public void saveLatestCart(int sessionId) {
+        logger.info("saveLatestCart: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!= null)
             u.saveLatestCart();
     }
     public boolean logout(int sessionId){
+        logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null)
             return u.logout();
@@ -122,6 +125,7 @@ public class System {
      * @return the new store id
      */
     public int openStore(int sessionId){
+        logger.info("openStore: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Store newStore = u.openStore();
@@ -137,6 +141,7 @@ public class System {
 
     //Usecase 3.7
     public String getHistory(int sessionId){
+        logger.info("getUserHistory: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null)
             return u.getHistory();
@@ -146,6 +151,7 @@ public class System {
     //Usecase 5.1
 
     public boolean isManagerWith(int sessionId, int storeId,String details) {
+        logger.info("isManagerWith: sessionId "+sessionId+", storeId: "+storeId+", details: "+details);
         User u = userHandler.getUser(sessionId);
         if(u!=null){
             Subscriber s = (Subscriber) u.getState();
@@ -361,6 +367,7 @@ public class System {
 
     //usecase 4.10,5.1,6.4.2
     public String getStoreHistory( int storeId){
+        logger.info("getStoreHistory: storeId "+storeId);
         Store s = getStoreById(storeId);
         if(s!=null){
             return s.getHistory().toString();
@@ -501,11 +508,12 @@ public class System {
     //usecase 6.4.1
 
     public boolean isAdmin(int sessionId) {
+        logger.info("IsAdmin: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         return u!=null && u.isAdmin();
     }
     public String getUserHistory(int subId){
-
+        logger.info("getUserHistory: SubscriberId "+subId);
             Subscriber subscriber = userHandler.getSubscriber(subId);
             if (subscriber != null)
                 return subscriber.getHistory();
