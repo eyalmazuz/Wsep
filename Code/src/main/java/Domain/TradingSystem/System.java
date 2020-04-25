@@ -633,7 +633,8 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public void addProductInfo(ProductInfo productInfo) {
+    public void addProductInfo(int id, String name, String category) {
+        ProductInfo productInfo = new ProductInfo(id, name, category);
         products.add(productInfo);
     }
 

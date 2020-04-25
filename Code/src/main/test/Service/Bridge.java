@@ -53,4 +53,6 @@ public interface Bridge {
     String getStoreHistory(int sessionId, int storeId);
 
     int startSession();
+
+    void addProductInfo(int sessionId, int id, String name, String category);
 }

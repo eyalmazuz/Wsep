@@ -4,7 +4,7 @@ package Service;
 
 public class RealBridge implements Bridge {
 
-    DomainController dc = new DomainController();
+    SessionHandler dc = new SessionHandler();
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         return dc.setup(supplyConfig, paymentConfig); }
@@ -54,9 +54,9 @@ public class RealBridge implements Bridge {
         return guh.purchaseCart(sessionId);
     }
 
-    //TODO
     public String viewCart(int sessionId){
-        return dc.viewCart(sessionId);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.viewCart(sessionId);
     }
 
     public boolean logout(int sessionId){
@@ -145,6 +145,11 @@ public class RealBridge implements Bridge {
     public String getStoreHistory(int sessionId, int storeId) {
         AdminStateHandler ash = new AdminStateHandler(sessionId);
         return ash.getStoreHistory(storeId);
+    }
+
+    public void addProductInfo(int sessionId, int id, String name, String category){
+        AdminStateHandler ash = new AdminStateHandler(sessionId);
+        ash.addProductInfo(id, name, category);
     }
 
     public int startSession() { return dc.startSession(); }

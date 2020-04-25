@@ -14,6 +14,11 @@ public abstract class ServiceTest extends TestCase {
         this.setupSystem("Mock Config", "Mock Config");
         Database.sessionId = startSession();
         this.setUpUsers();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
     }
 
     private void setUpUsers() {
@@ -103,4 +108,6 @@ public abstract class ServiceTest extends TestCase {
     public boolean setupSystem(String suppyConfig, String paymentConfig) { return bridge.setupSystem(suppyConfig, paymentConfig); }
 
     public int startSession() { return this.bridge.startSession(); }
+
+    public void addProductInfo(int sessionId, int id, String name, String category) { this.bridge.addProductInfo(sessionId, id, name, category);}
 }

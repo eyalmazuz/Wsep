@@ -35,8 +35,8 @@ public class ViewInfoTests extends ServiceTest {
                 "Discount policy: \n" +
                 "Products:\n" +
                 "\n" +
-                "Product ID: 1, amount: 5\n" +
-                "Product ID: 2, amount: 5\n" +
+                "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + ", product ID: 1, amount: 5, info: null\n" +
+                "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + ", product ID: 2, amount: 5, info: null\n" +
                 "\n" +
                 "--------------------------\n" +
                 "Store ID: " + String.valueOf(Database.userToStore.get("hanamaru")) + "\n" +
@@ -44,7 +44,7 @@ public class ViewInfoTests extends ServiceTest {
                 "Discount policy: \n" +
                 "Products:\n" +
                 "\n" +
-                "Product ID: 2, amount: 10\n" +
+                "Store ID: " + String.valueOf(Database.userToStore.get("hanamaru")) + ", product ID: 2, amount: 10, info: null\n" +
                 "\n" +
                 "--------------------------\n";
 
