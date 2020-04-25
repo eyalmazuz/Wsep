@@ -96,13 +96,13 @@ public class System {
     }
 
     public void addStore (){
+        logger.info("AddStore");
         Store store = new Store();
         stores.add(store);
 
     }
 
     //Usecase 3.1
-
     public boolean isSubscriber(int sessionId) {
         logger.info("IsSubscriber: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
@@ -167,6 +167,7 @@ public class System {
     // UseCase 4.1.1
 
     public boolean isOwner(int sessionId, int storeId) {
+        logger.info("isOwner: sessionId "+sessionId+", storeId: "+storeId);
         User u = userHandler.getUser(sessionId);
         Subscriber s = (Subscriber) u.getState();
         return s.hasOwnerPermission(storeId);
@@ -187,7 +188,7 @@ public class System {
 
     //UseCase 4.1.2
     public boolean editProductInStore(int sessionId, int storeId, int productId,String newInfo){
-        //TODO:Add logger call
+        logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Store s = getStoreById(storeId);
@@ -199,7 +200,7 @@ public class System {
 
     //UseCase 4.1.3
     public boolean deleteProductFromStore(int sessionId, int storeId, int productId){
-        //TODO:Add logger call
+        logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Store s = getStoreById(storeId);
@@ -218,7 +219,7 @@ public class System {
      *           if there is no premission returns null.
      */
     public List <Integer> getAvailableUsersToOwn(int sessionId,int storeId) {
-        //TODO:Add logger call
+        logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId );
         User u = userHandler.getUser(sessionId);
         List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
         if (u.getState().hasOwnerPermission(storeId)){
@@ -234,7 +235,7 @@ public class System {
     }
 
     public boolean addStoreOwner (int sessionId, int storeId, int subId) {
-        //TODO:Add logger call
+        logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
@@ -259,7 +260,7 @@ public class System {
      *           if there is no premission returns null.
      */
     public List <Integer> getAvailableUsersToManage(int sessionId, int storeId) {
-        //TODO:Add logger call
+        logger.info("getAvailableUsersToManage: sessionId: "+sessionId+", storeId: "+storeId );
         User u = userHandler.getUser(sessionId);
         List <Subscriber> managers = new LinkedList<Subscriber>(); //update store owners list
         if (u.getState().hasOwnerPermission(storeId)){
@@ -276,7 +277,7 @@ public class System {
 
     public boolean addStoreManager (int sessionId, int storeId, int userId) {
         User u = userHandler.getUser(sessionId);
-        //TODO:Add logger call
+        logger.info("addStoreManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return false;
@@ -296,7 +297,7 @@ public class System {
      * @return
      */
     public boolean deleteManager (int sessionId, int storeId, int userId) {
-        //TODO:Add logger call
+        logger.info("deleteManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         User u = userHandler.getUser(sessionId);
         if(u!= null) {
             Subscriber managerToDelete = userHandler.getSubscriber(userId);
@@ -324,7 +325,7 @@ public class System {
     }
 
     public List <Integer> getManagersOfCurUser(int sessionId, int storeId){
-        //TODO:Add logger call
+        logger.info("getManagersOfCurUser: sessionId: "+sessionId+", storeId: "+storeId);
         User u = userHandler.getUser(sessionId);
         if (u.getState().hasOwnerPermission(storeId)){
             return userHandler.getManagersOfCurUser(storeId,
