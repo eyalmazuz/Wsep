@@ -6,9 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class SystemTest extends TestCase {
     //System Unitesting
@@ -20,6 +18,7 @@ public class SystemTest extends TestCase {
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));
         }});
+        mockHandler.createSession();
         test.setUserHandler(mockHandler);
         test.setLogger(new LoggerMock());
         List<Store> stores = new LinkedList<>();
@@ -175,19 +174,92 @@ public class SystemTest extends TestCase {
 
 
     // Usecase 2.6, 2.7
+    // HERE WE TEST ONLY VALIDITY OF PRODUCT AND STORE EXISTENCE IN SYSTEM
+    // LOGICAL DOMAIN TESTS ARE IN ShoppingCartTest
     @Test
     public void testAddProductToCart() {
-        // TODO: check product id exists, store id exists, amount is valid
+        List<Integer> userSessionIDs = new ArrayList<>();
+        int sessionId = mockHandler.users.keySet().iterator().next();
+        List<Store> stores = test.getStores();
+        List<Integer> storeIds = new ArrayList<>();
+        for (Store s : stores) {
+            storeIds.add(s.getId());
+        }
+        int maxId = Collections.max(storeIds);
+        int badStore = maxId + 1;
+        assertFalse(test.addToCart(sessionId, badStore, 4, 40));
+
+        List<Integer> productIds = new ArrayList<>();
+        List<ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+
+        for (ProductInfo info : products) {
+            productIds.add(info.getId());
+        }
+        maxId = Collections.max(productIds);
+        int badProduct = maxId + 1;
+        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), badProduct, 40));
+
+        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 0));
+        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), -1));
+        assertFalse(test.addToCart(-1, stores.get(0).getId(), products.get(0).getId(), 4));
     }
 
     @Test
     public void testEditProductInCart() {
-        // TODO: check product id exists, store id exists, amount is valid
+        int sessionId = mockHandler.users.keySet().iterator().next();
+        List<Store> stores = test.getStores();
+        List<Integer> storeIds = new ArrayList<>();
+        for (Store s : stores) {
+            storeIds.add(s.getId());
+        }
+        int maxId = Collections.max(storeIds);
+        int badStore = maxId + 1;
+        assertFalse(test.updateAmount(sessionId, badStore, 4, 40));
+
+        List<Integer> productIds = new ArrayList<>();
+        List<ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+
+        for (ProductInfo info : products) {
+            productIds.add(info.getId());
+        }
+        maxId = Collections.max(productIds);
+        int badProduct = maxId + 1;
+        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), badProduct, 40));
+
+        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), 0));
+        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), -1));
+
+        test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 40);
+
+        assertFalse(test.updateAmount(-1, stores.get(0).getId(), products.get(0).getId(), 4));
     }
 
     @Test
     public void testRemoveProductFromCart() {
-        // TODO: check product id exists, store id exists, amount is valid
+        int sessionId = mockHandler.users.keySet().iterator().next();
+        List<Store> stores = test.getStores();
+        List<Integer> storeIds = new ArrayList<>();
+        for (Store s : stores) {
+            storeIds.add(s.getId());
+        }
+        int maxId = Collections.max(storeIds);
+        int badStore = maxId + 1;
+        assertFalse(test.deleteItemInCart(sessionId, badStore, 4));
+
+        List<Integer> productIds = new ArrayList<>();
+        List<ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+
+        for (ProductInfo info : products) {
+            productIds.add(info.getId());
+        }
+        maxId = Collections.max(productIds);
+        int badProduct = maxId + 1;
+        assertFalse(test.deleteItemInCart(sessionId, stores.get(0).getId(), badProduct));
+
+        assertFalse(test.deleteItemInCart(-1, stores.get(0).getId(), products.get(0).getId()));
     }
 }
 

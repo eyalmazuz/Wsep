@@ -40,6 +40,10 @@ public class System {
         return null;
     }
 
+    public List<ProductInfo> getProducts() {
+        return products;
+    }
+
     //For Testing Purpose only:
     public void setSupplyHandler(SupplyHandler supplyHandler) {
         this.supplyHandler = supplyHandler;
@@ -521,8 +525,6 @@ public class System {
 
     }
 
-
-
     public Store getStoreById(int storeId){
         for(Store s: stores){
             if (s.getId() == storeId){
@@ -532,21 +534,47 @@ public class System {
         return null;
     }
 
+    private boolean checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
+        if (userHandler.getUser(sessionId) == null) return false;
+        boolean found = false;
+        for (Store store : stores) {
+            if (store.getId() == storeId) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return false;
+
+        found = false;
+        for (ProductInfo product : products) {
+            if (product.getId() == productId) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return false;
+
+        return amount >= 1;
+    }
+
     public boolean addToCart(int sessionId, int storeId, int productId, int amount){
+        if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
+
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
         return u.addProductToCart(store, productId, amount);
-
-
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+        if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
+
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
         return u.editCartProductAmount(store, productId, amount);
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
+        if (!checkCartModificationDetails(sessionId, storeId, productId, 1)) return false;
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
         return u.removeProductFromCart(store, productId);
