@@ -174,6 +174,21 @@ public class SystemTest extends TestCase {
     }
 
 
+    // Usecase 2.6, 2.7
+    @Test
+    public void testAddProductToCart() {
+        // TODO: check product id exists, store id exists, amount is valid
+    }
+
+    @Test
+    public void testEditProductInCart() {
+        // TODO: check product id exists, store id exists, amount is valid
+    }
+
+    @Test
+    public void testRemoveProductFromCart() {
+        // TODO: check product id exists, store id exists, amount is valid
+    }
 }
 
 

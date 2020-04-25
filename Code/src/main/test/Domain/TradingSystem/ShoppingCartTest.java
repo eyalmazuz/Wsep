@@ -22,9 +22,13 @@ public class ShoppingCartTest extends TestCase {
 
     @Before
     public void setUp() {
+        // mock
         user = new User();
+
         shoppingCart = new ShoppingCart(user);
         otherShoppingCart = new ShoppingCart(user);
+
+        // mocks
         store1 = new Store();
         store2 = new Store();
         store3 = new Store();
@@ -181,8 +185,7 @@ public class ShoppingCartTest extends TestCase {
                 found = true;
                 break;
             }
-        }// FIX for acceptance testing
-        this.shoppingCart = new ShoppingCart(user);
+        }
         assertTrue(found);
     }
 
