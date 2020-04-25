@@ -99,8 +99,6 @@ public abstract class ServiceTest extends TestCase {
 
     public String searchUserHistory(int sessionId, int userId) { return this.bridge.searchUserHistory(sessionId, userId);}
 
-    public String searchStoreHistory(int sessionId, int storeId) { return this.bridge.searchStoreHistory(sessionId, storeId);}
-
     public String getStoreHistory(int sessionId, int storeId) { return this.bridge.getStoreHistory(sessionId, storeId); }
 
     public String viewShopHistory(int sessionId, int storeId){ return bridge.viewShopHistory(sessionId, storeId); }

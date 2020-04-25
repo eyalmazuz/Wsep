@@ -79,11 +79,6 @@ public class RealBridge implements Bridge {
         return ash.getSubscriberHistory(userId);
     }
 
-    //TODO FIX THIS
-    public String searchStoreHistory(int sessionId, int storeId){
-        return "";
-    }
-
     public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);

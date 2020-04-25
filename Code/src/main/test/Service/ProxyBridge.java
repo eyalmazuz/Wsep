@@ -143,14 +143,6 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public String searchStoreHistory(int sessionId, int storeId){
-        if(rb != null){
-            return rb.searchStoreHistory(sessionId, storeId);
-        }
-        else{
-            return null;
-        }
-    }
 
     public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount){
         if(rb != null){

@@ -54,13 +54,14 @@ public class AdminSearchTests extends ServiceTest {
     //USE CASES 6.4.2
     @Test
     public void testSearchStoreHistorySuccessful(){
-        String history = searchStoreHistory(Database.sessionId, Database.userToStore.get("chika"));
+        String history = getStoreHistory(Database.sessionId, Database.userToStore.get("chika"));
         assertNotNull(history);
     }
 
     @Test
     public void testSearchStoreHistoryFailure(){
-        assertEquals("", searchStoreHistory(Database.sessionId, -2));
+        String storeHistory = getStoreHistory(Database.sessionId, -2);
+        assertNull(storeHistory);
     }
 
 
