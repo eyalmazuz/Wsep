@@ -28,7 +28,7 @@ public class User {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(Store store, int productId, int amount) throws Exception {
+    public boolean addProductToStore(Store store, int productId, int amount) {
         return state.addProductToStore(store, productId, amount);
 
     }

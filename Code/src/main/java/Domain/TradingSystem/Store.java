@@ -37,7 +37,7 @@ public class Store {
         return id;
     }
 
-    public boolean addProduct(int productId, int amount) throws Exception {
+    public boolean addProduct(int productId, int amount) {
         if (productId < 0 || amount < 1) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
@@ -48,7 +48,13 @@ public class Store {
         }
 
         if(!found.get()){
-            ProductInStore newProduct = new ProductInStore(productId, amount, this);
+            ProductInStore newProduct = null;
+            try {
+                newProduct = new ProductInStore(productId, amount, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
             products.add(newProduct);
         }
         return true;

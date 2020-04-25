@@ -168,7 +168,7 @@ public class System {
         return s.hasOwnerPermission(storeId);
 
     }
-    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) throws Exception {
+    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) {
 
         User u = userHandler.getUser(sessionId);
         logger.info(String.format("UserId %d Add %d of Product %d to Store %d",u.getId(),ammount,productId,storeId));
