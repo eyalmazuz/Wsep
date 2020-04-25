@@ -15,9 +15,11 @@ public class RealBridge implements Bridge {
     }
 
     public int register(int sessionId, String username, String password) {
-        return dc.register(sessionId, username, password);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.register(sessionId, username, password);
     }
 
+    //TODO
     public String getAllInfo(int sessionId) {
 
         return dc.getAllInfo();
@@ -31,20 +33,23 @@ public class RealBridge implements Bridge {
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
-        return dc.addToCart(sessionId, storeId, productId, amount);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.addProductToCart(sessionId, storeId, productId, amount);
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
-        return dc.updateAmount(sessionId, storeId, productId, amount);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.editProductInCart(sessionId, storeId, productId, amount);
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
-
-        return dc.deleteItemInCart(sessionId, storeId, productId);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.removeProductInCart(sessionId, storeId, productId);
     }
 
     public boolean clearCart(int sessionId) {
-        return dc.clearCart(sessionId);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.clearCart(sessionId);
     }
 
     public boolean buyCart(int sessionId) {
@@ -52,6 +57,7 @@ public class RealBridge implements Bridge {
         return guh.purchaseCart(sessionId);
     }
 
+    //TODO
     public String viewCart(int sessionId){
         return dc.viewCart(sessionId);
     }
