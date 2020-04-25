@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import Domain.Security.Security;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +18,7 @@ public class UserHandlerTest extends TestCase {
 
     @Before
     public void setUp() {
-        uh.register("test","1234");
+
 
     }
 
@@ -102,7 +103,7 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testGetSubscriberUser() {
         registerSubs();
-        assertNotNull(uh.getSubscriberUser("test","123"));
+        assertNotNull(uh.getSubscriberUser("test",Security.getHash("123")));
     }
 
     @Test
@@ -141,7 +142,7 @@ public class UserHandlerTest extends TestCase {
     public void testSetState() {
         int id = uh.createSession();
         registerSubs();
-        Subscriber s = uh.getSubscriberUser("test","123");
+        Subscriber s = uh.getSubscriberUser("test", Security.getHash("123"));
         uh.setState(id,s.getId());
         User u = uh.getUser(id);
         assertTrue(!u.isGuest());
