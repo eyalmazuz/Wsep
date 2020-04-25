@@ -1,6 +1,6 @@
 package Service;
 
-import Domain.TradingSystem.Pair;
+
 import Domain.TradingSystem.Store;
 import Domain.TradingSystem.System;
 
@@ -50,17 +50,12 @@ public class DomainController {
         return system.viewStoreProductInfo();
     }
 
-    public String searchProducts(int sessionId, int id, String category, String keyword, Pair<Integer, Integer> priceRange, Integer productRating, Integer storeRating) {
-        return system.searchProducts(sessionId,"", category, new String[]{keyword}, priceRange, productRating, storeRating);
-    public String searchProducts(int id, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
-        return system.searchProducts(id, productName, categoryName, keywords, priceRange, minItemRating, minStoreRating);
+
+    public String searchProducts(int id, String productName, String categoryName, String[] keywords,  int minItemRating, int minStoreRating) {
+        return system.searchProducts(id, productName, categoryName, keywords, minItemRating, minStoreRating);
     }
 
 
-
-    public boolean addToCart(int storeId, int productId, Integer amount) {
-        return system.addToCart(storeId, productId, amount);
-    }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
         return system.addToCart(sessionId, storeId, productId, amount);
@@ -98,9 +93,7 @@ public class DomainController {
         return system.editProductInStore(sessionId, storeId, productId, productInfo);
     }
 
-    public String viewShopHistory(int storeId) {
-        return system.getStoreHistoryAsAdmin(storeId);
-    }
+
 
     public String viewUserHistory(int userId) {
         //TODO FIX THIS

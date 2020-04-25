@@ -27,7 +27,7 @@ public class GuestUserHandler {
 
     public int register(int sessionId, String username, String password) {
         if (s.isGuest(sessionId)) {
-            return s.register(username, password);
+            return s.register(sessionId,username, password);
         }
         return -1;
     }

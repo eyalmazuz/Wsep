@@ -17,7 +17,7 @@ public class UserHandlerTest extends TestCase {
 
     @Before
     public void setUp() {
-
+        uh.register("test","1234");
 
     }
 

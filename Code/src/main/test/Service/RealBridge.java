@@ -1,7 +1,6 @@
 package Service;
 
 
-import Domain.TradingSystem.Pair;
 
 public class RealBridge implements Bridge {
 
@@ -25,8 +24,10 @@ public class RealBridge implements Bridge {
     }
 
     public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
-        Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
+        /*Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
+
         return dc.searchProducts(sessionId, id, category, keyword, priceRange, productRating, storeRating);
+    */ return "TODO";
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
