@@ -1,6 +1,5 @@
 package Domain.TradingSystem;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class User {
@@ -29,7 +28,7 @@ public class User {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(Store store, int productId, int amount) {
+    public boolean addProductToStore(Store store, int productId, int amount) throws Exception {
         return state.addProductToStore(store, productId, amount);
 
     }

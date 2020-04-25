@@ -1,13 +1,10 @@
 package Domain.TradingSystem;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,26 +16,28 @@ public class System {
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
-    private List<Store> stores = new LinkedList<Store>();
+    private List<Store> stores;
     private SystemLogger logger;
-
-    private Map<Integer, String> productNames = new HashMap<>();
-    private Map<Integer, String> productCategories = new HashMap<>();
-    private Map<Integer, Integer> productRatings = new HashMap<>();
+    private List<ProductInfo> products;
 
     public System(){
         userHandler = new UserHandler();
         stores = new LinkedList<>();
-        productCategories = new HashMap<>();
-        productNames = new HashMap<>();
-        productRatings = new HashMap<>();
         logger = new SystemLogger();
-
+        products = new LinkedList<>();
     }
 
     public static System getInstance(){
         if (instance == null) instance = new System();
         return instance;
+    }
+
+    public ProductInfo getProductInfoById(int id) {
+        for (ProductInfo productInfo: products) {
+            if (productInfo.getId() == id)
+                return productInfo;
+        }
+        return null;
     }
 
     //For Testing Purpose only:
@@ -58,18 +57,6 @@ public class System {
         this.stores = stores;
     }
 
-    public void setProductNames(Map<Integer, String> productNames) {
-        this.productNames = productNames;
-    }
-
-    public void setProductCategories(Map<Integer, String> productCategories) {
-        this.productCategories = productCategories;
-    }
-
-    public void setProductRatings(Map<Integer, Integer> productRatings) {
-        this.productRatings = productRatings;
-    }
-
     public void setLogger(SystemLogger log){
         this.logger = log;
     }
@@ -84,6 +71,8 @@ public class System {
 
 
     public boolean setup(String supplyConfig,String paymentConfig){
+
+        // TODO: INITIALIZE PRODUCT INFOS LIST
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
         try {
@@ -173,7 +162,7 @@ public class System {
         return s.hasOwnerPermission(storeId);
 
     }
-    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount){
+    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) throws Exception {
 
         User u = userHandler.getUser(sessionId);
         logger.info(String.format("UserId %d Add %d of Product %d to Store %d",u.getId(),ammount,productId,storeId));
@@ -467,25 +456,25 @@ public class System {
             if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
 
         for (ProductInStore pis: allProducts) {
+            ProductInfo info = pis.getProductInfo();
             if (productName != null)
-                if (productNames.get(pis.getId()).equals(productName)) {
+                if (info.getName().equals(productName)) {
                     filteredProducts.add(pis);
                     continue;
                 }
             if (categoryName != null)
-                if (productCategories.get(pis.getId()).equals(categoryName)) {
+                if (info.getCategory().equals(categoryName)) {
                     filteredProducts.add(pis);
                     continue;
                 }
             if (minItemRating != -1) {
-                if (productRatings.get(pis.getId()) >= minItemRating) {
+                if (info.getRating()>= minItemRating) {
                     filteredProducts.add(pis);
                 }
             }
 
             if (keywords != null) {
                 for (String keyword: keywords) {
-                    // out.println(pis.toString());
                     if (pis.toString().contains(keyword))
                         filteredProducts.add(pis);
                 }
@@ -607,15 +596,8 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public Map<Integer, String> getProductNames() {
-        return productNames;
+    public void addProductInfo(ProductInfo productInfo) {
+        products.add(productInfo);
     }
 
-    public Map<Integer, String> getProductCategories() {
-        return productCategories;
-    }
-
-    public Map<Integer, Integer> getProductRatings() {
-        return productRatings;
-    }
 }

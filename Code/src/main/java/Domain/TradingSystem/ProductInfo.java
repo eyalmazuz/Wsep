@@ -2,17 +2,34 @@ package Domain.TradingSystem;
 
 public class ProductInfo {
     private int id;
+    private String name;
+    private String category;
+    private double rating;
 
-
-    public ProductInfo(int productId) {
+    public ProductInfo(int productId, String name, String category) {
         this.id = productId;
-
+        this.name = name;
+        this.category = category;
+        this.rating = 2.5;
     }
 
     public int getId() {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public String getCategory() {
+        return category;
+    }
 
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
 }

@@ -9,9 +9,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import static junit.framework.TestCase.*;
 
 public class SystemTest extends TestCase {
     //System Unitesting
@@ -103,26 +100,21 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testSearchProducts() {
+        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
+        bamba.setRating(3);
+        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
+        apple.setRating(2);
+        test.addProductInfo(bamba);
+        test.addProductInfo(apple);
+
         List<Store> stores = test.getStores();
-
-        Map<Integer, String> productNames = new HashMap<>();
-        productNames.put(4, "bamba");
-        productNames.put(5, "apple");
-        test.setProductNames(productNames);
-
-        Map<Integer, String> productCategories = new HashMap<>();
-        productCategories.put(4, "snack");
-        productCategories.put(5, "fruit");
-        test.setProductCategories(productCategories);
-
-        Map<Integer, Integer> productRatings = new HashMap<>();
-        productRatings.put(4, 3);
-        productRatings.put(5, 2);
-        test.setProductRatings(productRatings);
-
-        stores.get(0).addProduct(4, 3);     // bamba
-        stores.get(0).addProduct(5, 1);     // apple
-        stores.get(1).addProduct(4, 3);     // bamba
+        try {       // guaranteed to work
+            stores.get(0).addProduct(4, 10);
+            stores.get(0).addProduct(5, 2);
+            stores.get(1).addProduct(4, 3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         stores.get(0).setRating(3);
         stores.get(1).setRating(4);

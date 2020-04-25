@@ -105,7 +105,7 @@ public class Subscriber implements UserState {
      * Functions For Usecases 4.*
      *
      */
-    public boolean addProductToStore(Store store, int productId, int ammount) {
+    public boolean addProductToStore(Store store, int productId, int ammount) throws Exception {
 
             return store.addProduct(productId,ammount);
 

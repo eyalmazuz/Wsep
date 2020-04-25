@@ -3,7 +3,6 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -38,7 +37,7 @@ public class Store {
         return id;
     }
 
-    public boolean addProduct(int productId, int amount) {
+    public boolean addProduct(int productId, int amount) throws Exception {
         if (productId < 0 || amount < 1) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
@@ -49,7 +48,7 @@ public class Store {
         }
 
         if(!found.get()){
-            ProductInStore newProduct = new ProductInStore(productId,amount, this);
+            ProductInStore newProduct = new ProductInStore(productId, amount, this);
             products.add(newProduct);
         }
         return true;

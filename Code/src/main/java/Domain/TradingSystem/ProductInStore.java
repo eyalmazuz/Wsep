@@ -6,18 +6,15 @@ public class ProductInStore {
     private int amount;
     private String info;
     private Store store;
+    private System system = System.getInstance();
 
-    public ProductInStore(int productId, int amount, Store store) {
-        this.productInfo = new ProductInfo(productId);
+    public ProductInStore(int productId, int amount, Store store) throws Exception {
+        ProductInfo productInfo = system.getProductInfoById(productId);
+        if (productInfo != null)
+            this.productInfo = productInfo;
+        else throw new Exception("No such product in the system");
         this.amount = amount;
         this.store = store;
-    }
-
-
-    public ProductInStore(int productId, int amount) {
-
-         this.productInfo = new ProductInfo(productId);
-         this.amount = amount;
     }
 
     public int getId() {
@@ -45,5 +42,9 @@ public class ProductInStore {
     }
     public void editInfo(String newInfo){
         this.info=newInfo;
+    }
+
+    public ProductInfo getProductInfo() {
+        return productInfo;
     }
 }
