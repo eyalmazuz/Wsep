@@ -25,6 +25,7 @@ public class RealBridge implements Bridge {
         return dc.getAllInfo();
     }
 
+    //TODO
     public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         /*Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
 
