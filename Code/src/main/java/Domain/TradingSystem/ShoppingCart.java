@@ -21,6 +21,8 @@ public class ShoppingCart {
         this.user = user;
     }
 
+
+
     public boolean addProduct(Store store, int productId, int amount) {
         if (store == null || productId < 0 || amount < 1) return false;
         getOrCreateBasket(store).addProduct(productId, amount);
