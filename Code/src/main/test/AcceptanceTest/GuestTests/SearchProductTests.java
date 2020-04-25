@@ -38,14 +38,14 @@ public class SearchProductTests extends ServiceTest {
     //TODO FIX THIS MOTHER FUCKERS
     @Test
     public void testSearchProductSuccessful(){
-        String products = searchProducts(Database.sessionId, "Food", "KB", null, -1, -1, 0, 0);
+        String products = searchProducts(Database.sessionId, "UO", null, null, -1, -1, 0, 0);
         System.out.println(products);
         assertNotNull(products);
     }
 
     @Test
     public void testSearchProductsFilterSuccessful(){
-        assertNotNull(searchProducts(Database.sessionId, "Food", "KB", null, -1, -1, 0, 0));
+        assertNotNull(searchProducts(Database.sessionId, "Famichiki", "Food", null, -1, -1, 0, 0));
 
     }
 

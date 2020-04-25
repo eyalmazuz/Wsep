@@ -28,4 +28,10 @@ public class AdminStateHandler {
 
     }
 
+    public void addProductInfo(int id, String name, String category){
+        if(s.isAdmin(sessionId)){
+            s.addProductInfo(id, name, category);
+        }
+    }
+
 }

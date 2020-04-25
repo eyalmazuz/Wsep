@@ -247,4 +247,13 @@ public class ProxyBridge implements Bridge {
         }
     }
 
+    public void addProductInfo(int sessionId, int id, String name, String category){
+        if(rb != null){
+            rb.addProductInfo(sessionId, id, name, category);
+        }
+        else{
+
+        }
+    }
+
 }

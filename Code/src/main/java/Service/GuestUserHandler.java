@@ -67,4 +67,7 @@ public class GuestUserHandler {
     }
 
 
+    public String viewCart(int sessionId) {
+        return s.getCart(sessionId);
+    }
 }
