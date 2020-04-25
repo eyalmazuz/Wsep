@@ -1,6 +1,7 @@
 package Service;
 
 import Domain.TradingSystem.Pair;
+import Domain.TradingSystem.Store;
 import Domain.TradingSystem.System;
 
 public class DomainController {
@@ -35,13 +36,13 @@ public class DomainController {
         return system.setManagerDetalis(userId,storeId,option);
     }
 
-    public int register(String username, String password) {
-        return system.register(username, password);
-    }
-
-    public boolean login(String username, String password) {
-        return system.login(username, password);
-    }
+//    public int register(String username, String password) {
+//        return system.register(username, password);
+//    }
+//
+//    public boolean login(String username, String password) {
+//        return system.login(username, password);
+//    }
 
     public boolean setup(String supplyConfig, String paymentConfig) {
         system.setup(supplyConfig, paymentConfig);
@@ -49,13 +50,14 @@ public class DomainController {
     }
 
     public String getAllInfo() {
-
         return system.viewStoreProductInfo();
     }
 
-    public String searchProducts(int id, String category, String keyword, Pair<Integer, Integer> priceRange, Integer productRating, Integer storeRating) {
-        return system.searchProducts("", category, new String[]{keyword}, priceRange, productRating, storeRating);
+    public String searchProducts(int id, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
+        return system.searchProducts(id, productName, categoryName, keywords, priceRange, minItemRating, minStoreRating);
     }
+
+
 
     public boolean addToCart(int storeId, int productId, Integer amount) {
         return system.addToCart(storeId, productId, amount);
