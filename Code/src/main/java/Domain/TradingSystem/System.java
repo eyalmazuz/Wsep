@@ -3,7 +3,7 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 
-import Domain.Logger.SystemLogger;
+//import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 
 import java.util.ArrayList;
@@ -433,25 +433,25 @@ public class System {
         return userHandler.register(username, password);
     }
 
-    // Usecase 2.3
-    public boolean login(int sessionId, String username, String password) {
-        User u = userHandler.getUser(sessionId);
-        if (!u.isGuest()) return false;
-        if (username == null || password == null || username.equals("") || password.equals("")) return false;
-
-        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
-
-        if (subToLogin != null) {
-            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
-            if(subscriberCart != null) {
-                subscriberCart.merge(u.getShoppingCart());
-            }
-            u.setState(subToLogin);
-            return true;
-        }
-
-        return false;
-    }
+//    // Usecase 2.3
+//    public boolean login(int sessionId, String username, String password) {
+//        User u = userHandler.getUser(sessionId);
+//        if (!u.isGuest()) return false;
+//        if (username == null || password == null || username.equals("") || password.equals("")) return false;
+//
+//        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
+//
+//        if (subToLogin != null) {
+//            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
+//            if(subscriberCart != null) {
+//                subscriberCart.merge(u.getShoppingCart());
+//            }
+//            u.setState(subToLogin);
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     // Usecase 2.4
     public String viewStoreProductInfo() {
@@ -464,8 +464,7 @@ public class System {
     }
 
     // Usecase 2.5
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
-        User u = userHandler.getUser(sessionId);
+    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
@@ -479,36 +478,29 @@ public class System {
                     continue;
                 }
             if (categoryName != null)
-                if (productCategories.get(pis.getId()).equals(productName)) {
+                if (productCategories.get(pis.getId()).equals(categoryName)) {
                     filteredProducts.add(pis);
                     continue;
                 }
-            if (priceRange != null) {
-                double price = pis.getPrice(u);
-                if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
-                    filteredProducts.add(pis);
-                    continue;
-                }
-            }
             if (minItemRating != -1) {
                 if (productRatings.get(pis.getId()) >= minItemRating) {
                     filteredProducts.add(pis);
                 }
             }
+
+            if (keywords != null) {
+                for (String keyword: keywords) {
+                    // out.println(pis.toString());
+                    if (pis.toString().contains(keyword))
+                        filteredProducts.add(pis);
+                }
+
+            }
         }
 
         String results = "Results:\n\n";
         for (ProductInStore pis: filteredProducts) {
-            String productInfo = pis.toString();
-            if (keywords != null) {
-                for (String keyword : keywords) {
-                    if (productInfo.contains(keyword)) {
-                        results += productInfo + "\n---------------------------------\n";
-                        break;
-                    }
-                }
-            }
-            else results += productInfo + "\n---------------------------------\n";
+            results += pis.toString() + "\n---------------------------------\n";
         }
 
         return results;
