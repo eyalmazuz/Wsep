@@ -34,8 +34,6 @@ public class SearchProductTests extends ServiceTest {
         Database.userToStore.clear();
     }
 
-
-    //TODO FIX THIS MOTHER FUCKERS
     @Test
     public void testSearchProductSuccessful(){
         String products = searchProducts(Database.sessionId, "UO", null, null, -1, -1, 0, 0);
