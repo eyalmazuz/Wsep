@@ -58,5 +58,13 @@ public class GuestUserHandler {
         return false;
     }
 
+    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
+        return s.searchProducts(sessionId, productName, categoryName, keywords, minItemRating, minStoreRating);
+    }
+
+    public String viewStoreProductInfo() {
+        return s.viewStoreProductInfo();
+    }
+
 
 }

@@ -35,21 +35,22 @@ public class SearchProductTests extends ServiceTest {
     }
 
 
+    //TODO FIX THIS MOTHER FUCKERS
     @Test
     public void testSearchProductSuccessful(){
-        String products = searchProducts(Database.sessionId, 1, "KB", null, -1, -1, 0, 0);
+        String products = searchProducts(Database.sessionId, "Food", "KB", null, -1, -1, 0, 0);
         System.out.println(products);
         assertNotNull(products);
     }
 
     @Test
     public void testSearchProductsFilterSuccessful(){
-        assertNotNull(searchProducts(Database.sessionId, 1, "KB", null, -1, -1, 0, 0));
+        assertNotNull(searchProducts(Database.sessionId, "Food", "KB", null, -1, -1, 0, 0));
 
     }
 
     public void testSearchProductsFailure(){
-        assertNull(searchProducts(Database.sessionId, 0, null, null, -1, -1, 2500, 0));
+        assertNull(searchProducts(Database.sessionId, "Food", null, null, -1, -1, 2500, 0));
 
     }
 

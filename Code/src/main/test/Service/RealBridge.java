@@ -15,36 +15,38 @@ public class RealBridge implements Bridge {
     }
 
     public int register(int sessionId, String username, String password) {
-        return dc.register(sessionId, username, password);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.register(sessionId, username, password);
     }
 
     public String getAllInfo(int sessionId) {
-
-        return dc.getAllInfo();
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.viewStoreProductInfo();
     }
 
-    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
-        /*Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
-
-        return dc.searchProducts(sessionId, id, category, keyword, priceRange, productRating, storeRating);
-    */ return "TODO";
+    public String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.searchProducts(sessionId, productName, category, new String[]{keyword}, productRating, storeRating);
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
-        return dc.addToCart(sessionId, storeId, productId, amount);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.addProductToCart(sessionId, storeId, productId, amount);
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
-        return dc.updateAmount(sessionId, storeId, productId, amount);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.editProductInCart(sessionId, storeId, productId, amount);
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
-
-        return dc.deleteItemInCart(sessionId, storeId, productId);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.removeProductInCart(sessionId, storeId, productId);
     }
 
     public boolean clearCart(int sessionId) {
-        return dc.clearCart(sessionId);
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.clearCart(sessionId);
     }
 
     public boolean buyCart(int sessionId) {
@@ -52,6 +54,7 @@ public class RealBridge implements Bridge {
         return guh.purchaseCart(sessionId);
     }
 
+    //TODO
     public String viewCart(int sessionId){
         return dc.viewCart(sessionId);
     }

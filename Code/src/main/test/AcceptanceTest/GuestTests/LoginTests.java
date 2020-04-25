@@ -14,6 +14,7 @@ public class LoginTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
+        logout(Database.sessionId);
     }
 
     @After
