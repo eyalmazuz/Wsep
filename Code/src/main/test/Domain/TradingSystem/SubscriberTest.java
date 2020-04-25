@@ -63,7 +63,9 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void saveCart() {
-        //???
+        //ShoppingCart cart = new ShoppingCart(subscriber.getUser());
+        //assertTrue(subscriber.saveCart(cart));
+
     }
 
     @Test
@@ -74,7 +76,7 @@ public class SubscriberTest extends TestCase {
         int storeId = store.getId();
         products = new HashMap<>();
         products.put(3,2);
-        //productInfo = new ProductInfo(3);
+        productInfo = new ProductInfo(3,"bamba","hatif");
         details = new PurchaseDetails(3,user,products,13.8);
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
@@ -93,8 +95,8 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testAddProductToStore() {
-        store = new Store ();
-
+        store = subscriber.openStore();
+        productInfo = new ProductInfo(1,"bamba","hatif");
         assertTrue(subscriber.addProductToStore(store,1,5));
         assertFalse(subscriber.addProductToStore(store,3,5));//productid does not exist
 
@@ -105,20 +107,26 @@ public class SubscriberTest extends TestCase {
     void checkPrivilage() {
         ??
     }
-
+*/
     @Test
     void editProductInStore() {
-        ???
+        store = subscriber.openStore();
+        productInfo = new ProductInfo(3,"bamba","hatif");
+        assertFalse(subscriber.editProductInStore(store, 3, "contains peanuts"));
+        subscriber.addProductToStore(store,3,3);
+        assertTrue(subscriber.editProductInStore(store, 3, "contains peanuts"));
+        assertFalse(subscriber.editProductInStore(store, -12, "contains peanuts"));
+        store = new Store();
+        assertFalse(subscriber.editProductInStore(store, 3, "contains peanuts"));//
 
     }
-    */
+
 
     @Test
     public void testDeleteProductFromStore() {
-        store = new Store ();
-
+        store = subscriber.openStore();
         subscriber.addProductToStore(store,1,5);
-       assertTrue(subscriber.deleteProductFromStore(store,1));
+        assertTrue(subscriber.deleteProductFromStore(store,1));
         assertFalse(subscriber.deleteProductFromStore(store,2));
 
     }
@@ -137,6 +145,7 @@ public class SubscriberTest extends TestCase {
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         assertTrue(subscriber.addManager(store,newSubscriber));
         assertEquals(newSubscriber.getGrantor("Manager",store),subscriber);
+        assertFalse(subscriber.addManager(store,newSubscriber));//already manager
     }
 
     @Test
@@ -161,22 +170,30 @@ public class SubscriberTest extends TestCase {
 
     }
 
-    /*
+
     @Test
     void hasPermission() {
-        ein li koah
+        store=subscriber.openStore();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        subscriber.addManager(store,newSubscriber);
+        assertEquals(newSubscriber.hasPermission(store.getId(),"Manager"),store);
+        assertEquals(newSubscriber.hasPermission(-3,"Manager"),null);
     }
 
     @Test
     void addPermission() {
-        ein li koah
+        store=subscriber.openStore();
+        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        assertTrue(newSubscriber.addPermission(store,subscriber,"Manager"));
+        store = new Store();
+        assertFalse(newSubscriber.addPermission(store,subscriber,"Manager"));//the grantor is not the store owner
     }
-*/
+
 
 
     @Test
     public void testHasManagerPermission() {
-        store = new Store();
+        store = subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addManager(store,newSubscriber);
         subscriber.editPermission(newSubscriber,store,"New Manager");
@@ -230,7 +247,7 @@ public class SubscriberTest extends TestCase {
         int storeId = store.getId();
         products = new HashMap<>();
         products.put(3,2);
-        //productInfo = new ProductInfo(3);
+        productInfo = new ProductInfo(3,"bamba","hatif");
         details = new PurchaseDetails(3,user,products,13.8);
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
