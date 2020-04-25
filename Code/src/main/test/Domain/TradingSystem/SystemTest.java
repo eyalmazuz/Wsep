@@ -168,6 +168,11 @@ public class SystemTest {
 
     }
 
+    @Test
+    public void viewStoreProductInfo() {
+        assertNotNull(test.viewStoreProductInfo());
+    }
+
 
     @Test
     public void getUserHistory() {
