@@ -81,8 +81,8 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){ return bridge.editManagerOptions(sessionId, storeId, userId, option); }
 
-    public String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo){
-        return this.bridge.searchProducts(sessionId, productName, category, keyword, productRating, storeRating, priceFrom, priceTo); }
+    public String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo){
+        return this.bridge.searchProducts(sessionId, productName, category, keywords, productRating, storeRating, priceFrom, priceTo); }
 
 
     public String viewCart(int sessionId){

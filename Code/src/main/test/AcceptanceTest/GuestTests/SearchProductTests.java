@@ -50,7 +50,8 @@ public class SearchProductTests extends ServiceTest {
     }
 
     public void testSearchProductsFailure(){
-        assertNull(searchProducts(Database.sessionId, "Food", null, null, -1, -1, 2500, 0));
+        String prodcuts = searchProducts(Database.sessionId, "Food", null, null, -1, -1, 2500, 0);
+        assertEquals("Results:\n\n", prodcuts);
 
     }
 

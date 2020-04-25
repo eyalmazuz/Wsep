@@ -12,7 +12,7 @@ public interface Bridge {
 
     String viewCart(int sessionId);
 
-    String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo);
+    String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo);
 
     boolean addToCart(int sessionId, int storeId, int productId, Integer amount);
 

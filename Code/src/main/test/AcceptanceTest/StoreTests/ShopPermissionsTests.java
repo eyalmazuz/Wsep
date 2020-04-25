@@ -41,9 +41,9 @@ public class ShopPermissionsTests extends ServiceTest {
     //USECASES 4.6.1
     @Test
     public void testEditManagerOptionSuccessful(){
-        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can edit prices"));
-        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can change amount"));
-        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"can go fuck himself"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "edit product"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "any"));
+        assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"add Product"));
     }
 
     // TEST HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET

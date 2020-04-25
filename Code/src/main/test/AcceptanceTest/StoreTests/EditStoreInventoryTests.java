@@ -33,8 +33,8 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.1
     @Test
     public void testAddProductSuccessful(){
-        assertTrue(addProdcut(true,Database.sessionId, 3, Database.userToStore.get("chika"),4));
-        assertTrue(addProdcut(true,Database.sessionId, 4, Database.userToStore.get("chika"),6));
+        assertTrue(addProdcut(true,Database.sessionId, 1, Database.userToStore.get("chika"),4));
+        assertTrue(addProdcut(true,Database.sessionId, 2, Database.userToStore.get("chika"),6));
 
     }
 

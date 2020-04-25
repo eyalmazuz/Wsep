@@ -24,9 +24,9 @@ public class RealBridge implements Bridge {
         return guh.viewStoreProductInfo();
     }
 
-    public String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+    public String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.searchProducts(sessionId, productName, category, new String[]{keyword}, productRating, storeRating);
+        return guh.searchProducts(sessionId, productName, category, keywords, productRating, storeRating);
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
