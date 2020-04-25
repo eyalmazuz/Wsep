@@ -6,9 +6,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import static junit.framework.TestCase.*;
 
 public class SystemTest extends TestCase {
     //System Unitesting
@@ -17,9 +20,13 @@ public class SystemTest extends TestCase {
 
     @Before
     public void setUp(){
+        mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
+            put(1, new Subscriber("Yaron", "abc123", false));
+        }});
         test.setUserHandler(mockHandler);
         test.setLogger(new LoggerMock());
         List<Store> stores = new LinkedList<>();
+
         stores.add(new StoreMock(1));
         stores.add(new StoreMock(2));
         test.setStores(stores);
@@ -93,9 +100,78 @@ public class SystemTest extends TestCase {
 
     }
 
+
     @Test
     public void testSearchProducts() {
-        //#TODO:THIS
+        List<Store> stores = test.getStores();
+
+        Map<Integer, String> productNames = new HashMap<>();
+        productNames.put(4, "bamba");
+        productNames.put(5, "apple");
+        test.setProductNames(productNames);
+
+        Map<Integer, String> productCategories = new HashMap<>();
+        productCategories.put(4, "snack");
+        productCategories.put(5, "fruit");
+        test.setProductCategories(productCategories);
+
+        Map<Integer, Integer> productRatings = new HashMap<>();
+        productRatings.put(4, 3);
+        productRatings.put(5, 2);
+        test.setProductRatings(productRatings);
+
+        stores.get(0).addProduct(4, 3);     // bamba
+        stores.get(0).addProduct(5, 1);     // apple
+        stores.get(1).addProduct(4, 3);     // bamba
+
+        stores.get(0).setRating(3);
+        stores.get(1).setRating(4);
+
+        String res1 = test.searchProducts(1, "bamba", null, null, -1 ,-1);
+        assertTrue(res1.contains("product ID: 4"));
+
+        String res15 = test.searchProducts(1, "bamba", null, null, -1 ,3);
+        assertTrue(res15.contains("Store ID: 1"));
+        assertTrue(res15.contains("Store ID: 2"));
+
+        String res16 = test.searchProducts(1, "bamba", null, null, -1 ,4);
+        assertFalse(res16.contains("Store ID: 1"));
+        assertTrue(res16.contains("Store ID: 2"));
+
+        String res2 = test.searchProducts(1, null, "fruit", null, -1 ,-1);
+        assertTrue(res2.contains("product ID: 5"));
+
+        stores.get(0).getProductInStoreById(5).editInfo("very ripe apple");
+        String[] keywords = {"ripe"};
+        String res3 = test.searchProducts(1, null, null, keywords, -1 ,-1);
+        assertTrue(res3.contains("product ID: 5"));
+
+        String res4 = test.searchProducts(1, null, null, null, 2 ,-1);
+        assertTrue(res4.contains("product ID: 5"));
+        assertTrue(res4.contains("product ID: 4"));
+
+        String res5 = test.searchProducts(1, null, null, null, 3 ,-1);
+        assertTrue(res5.contains("product ID: 4"));
+        assertFalse(res5.contains("product ID: 5"));
+
+        String res6 = test.searchProducts(1, null, null, null, -1 ,3);
+        //out.println(res6);
+        assertFalse(res6.contains("product ID: 4"));
+        assertFalse(res6.contains("product ID: 5"));
+
+        String res8 = test.searchProducts(1, "bruh product", null, null, -1 ,-1);
+        assertFalse(res8.contains("product ID: 4"));
+        assertFalse(res8.contains("product ID: 5"));
+
+        String res9 = test.searchProducts(1, null, "bruh category", null, -1 ,-1);
+        assertFalse(res9.contains("product ID: 4"));
+        assertFalse(res9.contains("product ID: 5"));
+
+    }
+
+    @Test
+    public void testViewStoreProductInfo() {
+        assertNotNull(test.viewStoreProductInfo());
     }
 
 
@@ -107,6 +183,7 @@ public class SystemTest extends TestCase {
 
 
 }
+
 
 class StoreMock extends Store{
     int id;
@@ -127,6 +204,9 @@ class StoreMock extends Store{
 }
 
 class userHandlerMock extends UserHandler {
+
+
+
     @Override
     public void setAdmin() {
 

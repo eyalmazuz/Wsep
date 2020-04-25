@@ -459,13 +459,11 @@ public class System {
     }
 
     // Usecase 2.5
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
-        User u = userHandler.getUser(sessionId);
+    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
-
-        for (Store store: stores)
+       for (Store store: stores)
             if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
 
         for (ProductInStore pis: allProducts) {
@@ -475,38 +473,30 @@ public class System {
                     continue;
                 }
             if (categoryName != null)
-                if (productCategories.get(pis.getId()).equals(productName)) {
+                if (productCategories.get(pis.getId()).equals(categoryName)) {
                     filteredProducts.add(pis);
                     continue;
                 }
-            if (priceRange != null) {
-                double price = pis.getPrice(u);
-                if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
-                    filteredProducts.add(pis);
-                    continue;
-                }
-            }
             if (minItemRating != -1) {
                 if (productRatings.get(pis.getId()) >= minItemRating) {
                     filteredProducts.add(pis);
                 }
             }
+
+            if (keywords != null) {
+                for (String keyword: keywords) {
+                    // out.println(pis.toString());
+                    if (pis.toString().contains(keyword))
+                        filteredProducts.add(pis);
+                }
+
+            }
         }
 
         String results = "Results:\n\n";
         for (ProductInStore pis: filteredProducts) {
-            String productInfo = pis.toString();
-            if (keywords != null) {
-                for (String keyword : keywords) {
-                    if (productInfo.contains(keyword)) {
-                        results += productInfo + "\n---------------------------------\n";
-                        break;
-                    }
-                }
-            }
-            else results += productInfo + "\n---------------------------------\n";
+            results += pis.toString() + "\n---------------------------------\n";
         }
-
 
         return results;
     }
@@ -580,13 +570,14 @@ public class System {
         return u.getShoppingCart().toString();
     }
 
-    //New uscase 2.3
+    // Usecase 2.3
     public boolean isGuest(int sessionId) {
         User u = userHandler.getUser(sessionId);
         return u!=null && u.isGuest();
     }
 
     public int getSubscriber(String username, String password) {
+        if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
         if (s == null)
             return -1;
@@ -595,11 +586,12 @@ public class System {
     }
 
     public void setState(int sessionId, int subId) {
-        userHandler.setState(sessionId,subId);
+        userHandler.setState(sessionId, subId);
     }
 
+    // Usecase 2.3
     public void mergeCartWithSubscriber(int sessionId) {
-
+        userHandler.mergeCartWithSubscriber(sessionId);
     }
 
 
@@ -609,5 +601,21 @@ public class System {
 
     public List<Store> getStores(){
         return stores;
+    }
+
+    public User getUser(int sessionId) {
+        return userHandler.getUser(sessionId);
+    }
+
+    public Map<Integer, String> getProductNames() {
+        return productNames;
+    }
+
+    public Map<Integer, String> getProductCategories() {
+        return productCategories;
+    }
+
+    public Map<Integer, Integer> getProductRatings() {
+        return productRatings;
     }
 }

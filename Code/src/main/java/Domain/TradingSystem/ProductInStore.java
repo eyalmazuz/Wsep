@@ -16,8 +16,8 @@ public class ProductInStore {
 
     public ProductInStore(int productId, int amount) {
 
-     this.productInfo = new ProductInfo(productId);
-     this.amount = amount;
+         this.productInfo = new ProductInfo(productId);
+         this.amount = amount;
     }
 
     public int getId() {
@@ -33,7 +33,7 @@ public class ProductInStore {
     }
 
     public String toString() {
-        return "Product ID: " + productInfo.getId() + ", amount: " + amount;
+        return "Store ID: " + store.getId() + ", product ID: " + productInfo.getId() + ", amount: " + amount + ", info: " + info;
     }
 
     public double getPrice(User user) {
@@ -44,6 +44,6 @@ public class ProductInStore {
         return this.info;
     }
     public void editInfo(String newInfo){
-        this.info=info;
+        this.info=newInfo;
     }
 }

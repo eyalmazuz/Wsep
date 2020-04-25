@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static junit.framework.TestCase.*;
 
 
 public class UserHandlerTest extends TestCase {
@@ -66,10 +67,12 @@ public class UserHandlerTest extends TestCase {
 
     @Test
     public void testRegisterBadValues() {
+        assertEquals(-1, uh.register(null, "123"));
+        assertEquals(-1, uh.register("Yaron", null));
         assertEquals(-1,uh.register(null,null));
 
         uh.register("bob","123");
-        assertEquals(-1,uh.register("bob","123"));
+        assertEquals(-1,uh.register("bob","456"));
     }
 
     @Test

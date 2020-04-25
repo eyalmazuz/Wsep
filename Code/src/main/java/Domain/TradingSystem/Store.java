@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -142,6 +143,14 @@ public class Store {
         return 0;
     }
 
+    public ProductInStore getProductInStoreById(int id) {
+        for (ProductInStore pis: products) {
+            if (pis.getId() == id)
+                return pis;
+        }
+        return null;
+    }
+
     public String toString() {
         String info =
                 "Store ID: " + id +
@@ -162,5 +171,13 @@ public class Store {
 
     public double getRating() {
         return rating;
+    }
+
+    public void setProducts(List<ProductInStore> products) {
+        this.products = products;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }
