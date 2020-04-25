@@ -99,21 +99,7 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testSearchProducts() {
-        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
-        bamba.setRating(3);
-        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
-        apple.setRating(2);
-        test.addProductInfo(bamba);
-        test.addProductInfo(apple);
-
         List<Store> stores = test.getStores();
-        try {       // guaranteed to work
-            stores.get(0).addProduct(4, 10);
-            stores.get(0).addProduct(5, 2);
-            stores.get(1).addProduct(4, 3);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         stores.get(0).setRating(3);
         stores.get(1).setRating(4);
@@ -132,7 +118,7 @@ public class SystemTest extends TestCase {
         String res2 = test.searchProducts(1, null, "fruit", null, -1 ,-1);
         assertTrue(res2.contains("product ID: 5"));
 
-        stores.get(0).getProductInStoreById(5).editInfo("very ripe apple");
+        // apple's descrition is "very ripe apple"
         String[] keywords = {"ripe"};
         String res3 = test.searchProducts(1, null, null, keywords, -1 ,-1);
         assertTrue(res3.contains("product ID: 5"));
@@ -157,7 +143,6 @@ public class SystemTest extends TestCase {
         String res9 = test.searchProducts(1, null, "bruh category", null, -1 ,-1);
         assertFalse(res9.contains("product ID: 4"));
         assertFalse(res9.contains("product ID: 5"));
-
     }
 
     @Test
@@ -279,6 +264,25 @@ class StoreMock extends Store{
     @Override
     public String toString() {
         return String.format("%d",id);
+    }
+
+    @Override
+    public List<ProductInStore> getProducts() {
+        List<ProductInStore> products = new ArrayList<>();
+        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
+        bamba.setRating(3);
+        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
+        apple.setRating(2);
+
+        if (id == 1) {
+            ProductInStore appleInStore = new ProductInStore(apple, 2, this);
+            appleInStore.editInfo("very ripe apple");
+            products.add(appleInStore);
+            products.add(new ProductInStore(bamba, 10, this));
+        }
+        else products.add(new ProductInStore(bamba, 3, this));
+
+        return products;
     }
 }
 

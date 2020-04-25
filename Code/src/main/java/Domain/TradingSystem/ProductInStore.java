@@ -15,7 +15,12 @@ public class ProductInStore {
         else throw new Exception("No such product in the system");
         this.amount = amount;
         this.store = store;
+    }
 
+    public ProductInStore(ProductInfo productInfo, int amount, Store store) {
+        this.productInfo = productInfo;
+        this.amount = amount;
+        this.store = store;
     }
 
     public int getId() {
