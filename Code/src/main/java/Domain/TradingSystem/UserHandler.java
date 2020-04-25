@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class UserHandler {
 
-    Map<Integer,Subscriber> subscribers;
-    Map<Integer,User> users;
+    Map<Integer, Subscriber> subscribers;
+    Map<Integer, User> users;
 
     public UserHandler(){
         subscribers = new HashMap<>();
@@ -122,4 +122,11 @@ public class UserHandler {
     }
 
 
+    public void mergeCartWithSubscriber(int sessionId) {
+        User u = users.get(sessionId);
+        if (u!= null){
+            Subscriber s = (Subscriber) u.getState();
+            s.getPurchaseHistory().getLatestCart().merge(u.getShoppingCart());
+        }
+    }
 }

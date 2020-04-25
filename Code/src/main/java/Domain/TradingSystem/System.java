@@ -420,33 +420,38 @@ public class System {
         return supplyHandler.requestSupply(sessionId, storeProductsIds);
     }
 
+//    // Usecase 2.2
+//    public int register(int sessionId, String username, String password) {
+//        // User u = userHandler.getUser(sessionId);
+//        // if (!u.isGuest()) return -1;
+//        if (username == null || password == null) return -1;
+//        return userHandler.register(username, password);
+//    }
+
     // Usecase 2.2
-    public int register(int sessionId,String username, String password) {
-        User u = userHandler.getUser(sessionId);
-        if (!u.isGuest()) return -1;
-        if (username == null || password == null) return -1;
-        return userHandler.register(username, password);
+    public int register(String username, String password) {
+        return userHandler.register(username, Security.getHash(password));
     }
 
     // Usecase 2.3
-    public boolean login(int sessionId, String username, String password) {
-        User u = userHandler.getUser(sessionId);
-        if (!u.isGuest()) return false;
-        if(username == null || password == null || username.equals("") || password.equals("")) return false;
-
-        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
-
-        if (subToLogin != null) {
-            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
-            if(subscriberCart != null) {
-                subscriberCart.merge(u.getShoppingCart());
-            }
-            u.setState(subToLogin);
-            return true;
-        }
-
-        return false;
-    }
+//    public boolean login(int sessionId, String username, String password) {
+//        User u = userHandler.getUser(sessionId);
+//        if (!u.isGuest()) return false;
+//        if(username == null || password == null || username.equals("") || password.equals("")) return false;
+//
+//        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
+//
+//        if (subToLogin != null) {
+//            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
+//            if(subscriberCart != null) {
+//                subscriberCart.merge(u.getShoppingCart());
+//            }
+//            u.setState(subToLogin);
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     // Usecase 2.4
     public String viewStoreProductInfo() {
@@ -458,58 +463,56 @@ public class System {
         return info;
     }
 
-    // Usecase 2.5
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
-        User u = userHandler.getUser(sessionId);
-        List<ProductInStore> allProducts = new ArrayList<>();
-        List<ProductInStore> filteredProducts = new ArrayList<>();
-
-
-        for (Store store: stores)
-            if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
-
-        for (ProductInStore pis: allProducts) {
-            if (productName != null)
-                if (productNames.get(pis.getId()).equals(productName)) {
-                    filteredProducts.add(pis);
-                    continue;
-                }
-            if (categoryName != null)
-                if (productCategories.get(pis.getId()).equals(productName)) {
-                    filteredProducts.add(pis);
-                    continue;
-                }
-            if (priceRange != null) {
-                double price = pis.getPrice(u);
-                if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
-                    filteredProducts.add(pis);
-                    continue;
-                }
-            }
-            if (minItemRating != -1) {
-                if (productRatings.get(pis.getId()) >= minItemRating) {
-                    filteredProducts.add(pis);
-                }
-            }
-        }
-
-        String results = "Results:\n\n";
-        for (ProductInStore pis: filteredProducts) {
-            String productInfo = pis.toString();
-            if (keywords != null) {
-                for (String keyword : keywords) {
-                    if (productInfo.contains(keyword)) {
-                        results += productInfo + "\n---------------------------------\n";
-                        break;
-                    }
-                }
-            }
-            else results += productInfo + "\n---------------------------------\n";
-        }
-
-
-        return results;
-    }
+//    // Usecase 2.5
+//    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, Pair<Integer, Integer> priceRange, int minItemRating, int minStoreRating) {
+//        // User u = userHandler.getUser(sessionId);
+//        List<ProductInStore> allProducts = new ArrayList<>();
+//        List<ProductInStore> filteredProducts = new ArrayList<>();
+//
+//       for (Store store: stores)
+//            if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+//
+//        for (ProductInStore pis: allProducts) {
+//            if (productName != null)
+//                if (productNames.get(pis.getId()).equals(productName)) {
+//                    filteredProducts.add(pis);
+//                    continue;
+//                }
+//            if (categoryName != null)
+//                if (productCategories.get(pis.getId()).equals(productName)) {
+//                    filteredProducts.add(pis);
+//                    continue;
+//                }
+//            if (priceRange != null) {
+//                double price = pis.getPrice(u);
+//                if (price >= priceRange.getFirst() && price <= priceRange.getSecond()) {
+//                    filteredProducts.add(pis);
+//                    continue;
+//                }
+//            }
+//            if (minItemRating != -1) {
+//                if (productRatings.get(pis.getId()) >= minItemRating) {
+//                    filteredProducts.add(pis);
+//                }
+//            }
+//        }
+//
+//        String results = "Results:\n\n";
+//        for (ProductInStore pis: filteredProducts) {
+//            String productInfo = pis.toString();
+//            if (keywords != null) {
+//                for (String keyword : keywords) {
+//                    if (productInfo.contains(keyword)) {
+//                        results += productInfo + "\n---------------------------------\n";
+//                        break;
+//                    }
+//                }
+//            }
+//            else results += productInfo + "\n---------------------------------\n";
+//        }
+//
+//        return results;
+//    }
 
 
 
@@ -580,13 +583,14 @@ public class System {
         return u.getShoppingCart().toString();
     }
 
-    //New uscase 2.3
+    // Usecase 2.3
     public boolean isGuest(int sessionId) {
         User u = userHandler.getUser(sessionId);
         return u!=null && u.isGuest();
     }
 
     public int getSubscriber(String username, String password) {
+        if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
         if (s == null)
             return -1;
@@ -595,11 +599,12 @@ public class System {
     }
 
     public void setState(int sessionId, int subId) {
-        userHandler.setState(sessionId,subId);
+        userHandler.setState(sessionId, subId);
     }
 
+    // Usecase 2.3
     public void mergeCartWithSubscriber(int sessionId) {
-
+        userHandler.mergeCartWithSubscriber(sessionId);
     }
 
 
@@ -609,5 +614,21 @@ public class System {
 
     public List<Store> getStores(){
         return stores;
+    }
+
+    public User getUser(int sessionId) {
+        return userHandler.getUser(sessionId);
+    }
+
+    public Map<Integer, String> getProductNames() {
+        return productNames;
+    }
+
+    public Map<Integer, String> getProductCategories() {
+        return productCategories;
+    }
+
+    public Map<Integer, Integer> getProductRatings() {
+        return productRatings;
     }
 }
