@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import Domain.Logger.SystemLogger;
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,9 +9,8 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static junit.framework.TestCase.*;
 
-public class SystemTest {
+public class SystemTest extends TestCase {
     //System Unitesting
     System test = new System();
     UserHandler mockHandler = new userHandlerMock();
@@ -31,21 +31,21 @@ public class SystemTest {
     }
 
     @Test
-     public void setUpTest(){
+     public void testSetUp(){
       assertFalse(test.setup("Error","Error"));
       assertTrue(test.setup("123","123"));
     }
 
 
     @Test
-    public void addStoreTest() {
+    public void testAddStoreTest() {
         int size = test.getStores().size();
         test.addStore();
         assertEquals(size+1,test.getStores().size());
     }
 
     @Test
-    public void isSubscriberTest() {
+    public void testIsSubscriberTest() {
 
         assertTrue(test.isSubscriber(2));
         assertFalse(test.isSubscriber(-1));
@@ -53,14 +53,14 @@ public class SystemTest {
     }
 
     @Test
-    public void isAdminTest() {
+    public void testIsAdminTest() {
         assertTrue(test.isAdmin(2));
         assertFalse(test.isAdmin(-1));
         assertFalse(test.isAdmin(1));
     }
 
     @Test
-    public void isGuestTest() {
+    public void testIsGuestTest() {
         assertFalse(test.isGuest(2));
         assertFalse(test.isGuest(-1));
         assertTrue(test.isGuest(1));
@@ -69,7 +69,7 @@ public class SystemTest {
 
 
     @Test
-    public void openStoreTest() {
+    public void testOpenStoreTest() {
         int size = test.getStores().size();
         assertEquals(-1,test.openStore(-1));
         assertEquals(-1,test.openStore(1));
@@ -78,14 +78,14 @@ public class SystemTest {
     }
 
     @Test
-    public void getHistoryTest() {
+    public void testGetHistoryTest() {
         assertNull(test.getHistory(-1));
         assertNull(test.getHistory(1));
         assertEquals("Mock History",test.getHistory(2));
     }
 
     @Test
-    public void getStoreByIdTest(){
+    public void testGetStoreByIdTest(){
         Store s1 = test.getStoreById(1);
         Store s2 = test.getStoreById(5);
         assertEquals("1",s1.toString());
@@ -94,13 +94,13 @@ public class SystemTest {
     }
 
     @Test
-    public void searchProducts() {
+    public void testSearchProducts() {
         //#TODO:THIS
     }
 
 
     @Test
-    public void getUserHistory() {
+    public void testGetUserHistory() {
         assertNull(test.getHistory(-1));
         assertNotNull(test.getHistory(3));
     }

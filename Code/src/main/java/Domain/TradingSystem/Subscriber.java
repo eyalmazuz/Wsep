@@ -19,6 +19,7 @@ public class Subscriber implements UserState {
 
     public Subscriber() {
         purchaseHistory = new PurchaseHistory();
+        permissions = new LinkedList<>();
 
 
     }
@@ -84,9 +85,11 @@ public class Subscriber implements UserState {
         return purchaseHistory.toString();
     }
 
+    @Override
     public void setUser(User user) {
         this.user = user;
     }
+
 
 
     public Store openStore() {
@@ -177,7 +180,7 @@ public class Subscriber implements UserState {
     }
 
 
-    private Subscriber getGrantor(String type, Store store) {
+    public Subscriber getGrantor(String type, Store store) {
         for (Permission permission: permissions){
             if (permission.getStore().equals(store) && permission.getType().equals(type)){
                 return permission.getGrantor();
@@ -284,4 +287,7 @@ public class Subscriber implements UserState {
     }
 
 
+    public User getUser() {
+        return user;
+    }
 }

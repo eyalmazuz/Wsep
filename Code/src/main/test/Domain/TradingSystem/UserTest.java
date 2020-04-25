@@ -1,11 +1,12 @@
 package Domain.TradingSystem;
 
+import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserTest {
+public class UserTest extends TestCase {
 
     private User guest;
     private User subscriber;
@@ -20,7 +21,7 @@ public class UserTest {
 
 
     @Test
-    public void checkSubscriberOnlyFunctions(){
+    public void testCheckSubscriberOnlyFunctions(){
         //Test that ensures guest will fail any subscriber functionality
         //usecase 3.1
         assertFalse(guest.logout());
@@ -29,7 +30,7 @@ public class UserTest {
 
     //Usecase 3.2
     @Test
-    public void openStoreTest(){
+    public void testOpenStoreTest(){
         assertNull(guest.openStore());
         assertNotNull(subscriber.openStore());
     }

@@ -1,15 +1,18 @@
 package Domain.TradingSystem;
 
+import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.testng.Assert;
+
+
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.*;
 
-class SubscriberTest {
+
+public class SubscriberTest extends TestCase {
 
     private Subscriber subscriber;
     Map<Integer, PurchaseDetails> storePurchaseDetails ;
@@ -21,48 +24,50 @@ class SubscriberTest {
 
     @Before
     public void setUp() {
+
         subscriber = new Subscriber("hava nagila", "1234", false);
+        subscriber.setUser(new User());
     }
 
     @Test
-    void getUsername() {
-        Assert.assertEquals(subscriber.getUsername(),"hava nagila");
+    public void testGetUsername() {
+        assertEquals(subscriber.getUsername(),"hava nagila");
 
     }
 
     @Test
-    void isAdmin() {
-        Assert.assertFalse(subscriber.isAdmin());
+    public void testIsAdmin() {
+       assertFalse(subscriber.isAdmin());
         subscriber = new Subscriber("hava nagila", "1234", true);
-        Assert.assertTrue(subscriber.isAdmin());
+        assertTrue(subscriber.isAdmin());
 
     }
 
     @Test
-    void setAdmin() {
+    public void testSetAdmin() {
         subscriber.setAdmin();
-        Assert.assertTrue(subscriber.isAdmin());
+        assertTrue(subscriber.isAdmin());
 
     }
 
     @Test
-    void setUserName() {
+    public void testSetUserName() {
         subscriber.setUserName("haha");
-        Assert.assertEquals(subscriber.getUsername(),"haha");
+        assertEquals(subscriber.getUsername(),"haha");
     }
 
     @Test
-    void logout() {
-        Assert.assertTrue(subscriber.logout());
+    public void testLogout() {
+        assertTrue(subscriber.logout());
     }
 
     @Test
-    void saveCart() {
-        ???
+    public void saveCart() {
+        //???
     }
 
     @Test
-    void getHistory() {
+    public void testGetHistory() {
         storePurchaseDetails = new HashMap<>();
         user = subscriber.getUser();
         store = new Store();
@@ -73,32 +78,29 @@ class SubscriberTest {
         details = new PurchaseDetails(3,user,products,13.8);
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
-        Assert.assertTrue(subscriber.getHistory().length()>1);
+        assertTrue(subscriber.getHistory().length()>1);
 
     }
 
     @Test
-    void setUser() {
+    public void testSetUser() {
         user = new User();
         subscriber.setUser(user);
-        Assert.assertEquals(subscriber.getUser(),user);
+        assertEquals(subscriber.getUser(),user);
     }
 
-    @Test
-    void openStore() {
-        subscriber.openStore();
-        subscriber.eichBodkim?
-    }
+
 
     @Test
-    void addProductToStore() {
+    public void testAddProductToStore() {
         store = new Store ();
-        product = new ProductInfo(1);
-        Assert.assertTrue(subscriber.addProductToStore(store,1,5));
-        Assert.assertFalse(subscriber.addProductToStore(store,3,5));//productid does not exist
+        ProductInfo product = new ProductInfo(1);
+        assertTrue(subscriber.addProductToStore(store,1,5));
+        assertFalse(subscriber.addProductToStore(store,3,5));//productid does not exist
 
     }
 
+    /*
     @Test
     void checkPrivilage() {
         ??
@@ -109,55 +111,57 @@ class SubscriberTest {
         ???
 
     }
+    */
 
     @Test
-    void deleteProductFromStore() {
+    public void testDeleteProductFromStore() {
         store = new Store ();
-        product = new ProductInfo(1);
+        ProductInfo product = new ProductInfo(1);
         subscriber.addProductToStore(store,1,5);
-        Assert.assertTrue(subscriber.deleteProductFromStore(store,1));
-        Assert.assertFalse(subscriber.deleteProductFromStore(store,2));
+       assertTrue(subscriber.deleteProductFromStore(store,1));
+        assertFalse(subscriber.deleteProductFromStore(store,2));
 
     }
 
     @Test
-    void addOwner() {
+    public void testAddOwner() {
         store = new Store ();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        Assert.assertTrue(subscriber.addOwner(store,newSubscriber));
-        Assert.assertEquals(newSubscriber.getGrantor("Owner",store),subscriber);
+        assertTrue(subscriber.addOwner(store,newSubscriber));
+        assertEquals(newSubscriber.getGrantor("Owner",store),subscriber);
     }
 
     @Test
-    void addManager() {
+    public void testAddManager() {
         store = new Store ();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        Assert.assertTrue(subscriber.addManager(store,newSubscriber));
-        Assert.assertEquals(newSubscriber.getGrantor("Manager",store),subscriber);
+        assertTrue(subscriber.addManager(store,newSubscriber));
+        assertEquals(newSubscriber.getGrantor("Manager",store),subscriber);
     }
 
     @Test
-    void deleteManager() {
+    public void testDeleteManager() {
         store = new Store ();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addManager(store,newSubscriber);
-        Assert.assertFalse(newSubscriber.deleteManager(store,newSubscriber));
-        Assert.assertTrue(subscriber.deleteManager(store,newSubscriber));
-        Assert.assertFalse(newSubscriber.deleteManager(store,subscriber));
+        assertFalse(newSubscriber.deleteManager(store,newSubscriber));
+        assertTrue(subscriber.deleteManager(store,newSubscriber));
+        assertFalse(newSubscriber.deleteManager(store,subscriber));
     }
 
     @Test
-    void hasOwnerPermission() {
+    public void testHasOwnerPermission() {
         store = new Store();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addOwner(store,newSubscriber);
         subscriber.editPermission(newSubscriber,store,"New Owner");
-        Assert.assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
-        Assert.assertFalse(subscriber.hasOwnerPermission(store.getId()));
-        Assert.assertFalse(subscriber.hasOwnerPermission(-1));
+        assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
+        assertFalse(subscriber.hasOwnerPermission(store.getId()));
+        assertFalse(subscriber.hasOwnerPermission(-1));
 
     }
 
+    /*
     @Test
     void hasPermission() {
         ein li koah
@@ -167,47 +171,42 @@ class SubscriberTest {
     void addPermission() {
         ein li koah
     }
+*/
+
 
     @Test
-    void getId() {
-    }
-
-    @Test
-    void hasManagerPermission() {
+    public void testHasManagerPermission() {
         store = new Store();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addManager(store,newSubscriber);
         subscriber.editPermission(newSubscriber,store,"New Manager");
-        Assert.assertTrue(newSubscriber.hasManagerPermission(store.getId()));
-        Assert.assertFalse(subscriber.hasManagerPermission(store.getId()));
-        Assert.assertFalse(subscriber.hasManagerPermission(-1));
+       assertTrue(newSubscriber.hasManagerPermission(store.getId()));
+        assertFalse(subscriber.hasManagerPermission(store.getId()));
+        assertFalse(subscriber.hasManagerPermission(-1));
     }
 
-    @Test
-    void isGrantedBy() {
-        ??
-    }
 
     @Test
-    void getManagerDetails() {
+    public void testGetManagerDetails() {
         store = new Store();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addManager(store,newSubscriber);
         subscriber.editPermission(newSubscriber,store,"New Manager");
-        Assert.assertEquals(newSubscriber.getManagerDetails(store.getId()),"New Manager");
-        Assert.assertEquals(newSubscriber.getManagerDetails(-1),null);
-        Assert.assertEquals(subscriber.getManagerDetails(store.getId()),"");
+        assertEquals(newSubscriber.getManagerDetails(store.getId()),"New Manager");
+        assertEquals(newSubscriber.getManagerDetails(-1),null);
+        assertEquals(subscriber.getManagerDetails(store.getId()),"");
     }
 
     @Test
-    void editPermission() {
+    public void testEditPermission() {
         store = new Store ();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         subscriber.addManager(store,newSubscriber);
-        Assert.assertTrue(subscriber.editPermission(newSubscriber,store,"New Manager"));
-        Assert.assertFalse(newSubscriber.editPermission(subscriber,store,""));
+        assertTrue(subscriber.editPermission(newSubscriber,store,"New Manager"));
+        assertFalse(newSubscriber.editPermission(subscriber,store,""));
     }
 
+    /*
     @Test
     void addPurchase() {
         ??
@@ -217,14 +216,14 @@ class SubscriberTest {
     void removePurchase() {
         ??
     }
-
+*/
     @Test
-    void getHashedPassword() {
-        Assert.assertEquals("1234",subscriber.getHashedPassword());
+    public void testGetHashedPassword() {
+       assertEquals("1234",subscriber.getHashedPassword());
     }
 
     @Test
-    void getPurchaseHistory() {
+    public void testGetPurchaseHistory() {
         storePurchaseDetails = new HashMap<>();
         user = subscriber.getUser();
         store = new Store();
@@ -236,6 +235,6 @@ class SubscriberTest {
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
         //Assert.assertEquals(subscriber.getPurchaseHistory());
-        Assert.HATSILU ;
+
     }
 }

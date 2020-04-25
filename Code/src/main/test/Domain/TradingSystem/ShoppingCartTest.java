@@ -1,15 +1,19 @@
 package Domain.TradingSystem;
 
+
+import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.*;
 
 
-public class ShoppingCartTest {
+
+public class ShoppingCartTest extends TestCase {
 
     private User user;
     private ShoppingCart shoppingCart;
@@ -27,7 +31,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void addProduct() {
+    public void testAddProduct() {
         assertTrue(shoppingCart.addProduct(store1, 4, 40));
         boolean found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
@@ -87,7 +91,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void editProduct() {
+    public void testEditProduct() {
         assertFalse(shoppingCart.editProduct(store1, 40, 50));
         assertFalse(shoppingCart.editProduct(null, 40, 50));
 
@@ -112,7 +116,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void removeProduct() {
+    public void testRemoveProduct() {
         assertFalse(shoppingCart.removeProductFromCart(store1, 40));
         assertFalse(shoppingCart.removeProductFromCart(null, 40));
 
@@ -128,14 +132,14 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void removeAllProducts() {
+    public void testRemoveAllProducts() {
         shoppingCart.addProduct(store1, 4, 40);
         shoppingCart.removeAllProducts();
         assertEquals(0, shoppingCart.getBaskets().size());
     }
 
     @Test
-    public void merge() {
+    public void testMerge() {
         shoppingCart.addProduct(store1, 4, 50);
         shoppingCart.addProduct(store2, 4, 40);
         shoppingCart.addProduct(store2, 5, 60);
@@ -166,7 +170,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void savePurchase() {
+    public void testSavePurchase() {
         user.setShoppingCart(shoppingCart);
         shoppingCart.addProduct(store1, 0, 15);
         shoppingCart.savePurchase();
@@ -183,7 +187,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void cancelPurchase() {
+    public void testCancelPurchase() {
         user.setShoppingCart(shoppingCart);
         shoppingCart.addProduct(store1, 0, 15);
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase();
@@ -194,7 +198,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void attemptPurchase() {
+    public void testAttemptPurchase() {
         user.setShoppingCart(shoppingCart);
         System.getInstance().setup("Mock Config", "Mock Config");
         assertFalse(shoppingCart.attemptPurchase() > -1); // cant purchase empty cart
