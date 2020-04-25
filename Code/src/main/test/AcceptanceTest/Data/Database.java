@@ -6,6 +6,9 @@ import java.util.Map;
 
 public class Database {
 
+
+    public static int sessionId;
+
     public static String[][] Users = {
             //USERNAME, PASSWORD
             {"hanamaru", "12345"},
@@ -25,48 +28,6 @@ public class Database {
 
     public static String Stores;
 
-    public static String[][] Products = {
-            //ID, STORE ID, AMOUNT
-            {"1", "1", "5"},
-            {"2", "1", "5"},
-            {"2", "2", "10"},
 
-    };
-
-    public static String[][] ProductsFiltered = {
-            {"1", "1", "5"},
-    };
-
-
-
-    public static String[][] Cart0 = {
-            //ID, STORE ID, AMOUNT
-    };
-
-
-    public static String[][] Cart1 = {
-            //ID, STORE ID, AMOUNT
-            {"1", "1", "5"},
-    };
-
-    public static String[][] Cart2 = {
-            //ID, STORE ID, AMOUNT
-            {"1", "1", "5"},
-            {"2", "1", "5"}
-    };
-
-
-    public static String[][] History = {
-            //PRSTORE ID, ODUCT ID, AMOUNT BOUGHT
-            {"1", "1", "5"},
-            {"1", "2", "5"}
-    };
-
-    public static String[][] Managers = {
-            //STORE ID, MANAGER, GRANTOR
-            {"1", "dia", "chika", "manager"},
-            {"1", "ruby", "dia", "manager"},
-            {"1", "kanan", "chika", "owner"}
-    };
-
+    public static String Cart;
 }

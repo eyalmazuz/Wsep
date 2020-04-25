@@ -10,93 +10,139 @@ public class RealBridge implements Bridge {
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         return dc.setup(supplyConfig, paymentConfig); }
 
-    public boolean login(String username, String password) {
-
-        return dc.login(username, password);
+    public boolean login(int sessionId, String username, String password) {
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.login(sessionId, username, password);
     }
 
-    public int register(String username, String password) {
-        return dc.register(username, password);
+    public int register(int sessionId, String username, String password) {
+        return dc.register(sessionId, username, password);
     }
 
-    public String getAllInfo() {
+    public String getAllInfo(int sessionId) {
 
         return dc.getAllInfo();
     }
 
-    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
-        return dc.searchProducts(id, category, keyword, priceRange, productRating, storeRating);
+        return dc.searchProducts(sessionId, id, category, keyword, priceRange, productRating, storeRating);
     }
 
-    public boolean addToCart(int storeId, int productId, Integer amount) {
-        return dc.addToCart(storeId, productId, amount);
+    public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
+        return dc.addToCart(sessionId, storeId, productId, amount);
     }
 
-    public boolean updateAmount(int storeId, int productId, int amount) {
-        return dc.updateAmount(storeId, productId, amount);
+    public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+        return dc.updateAmount(sessionId, storeId, productId, amount);
     }
 
-    public boolean deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
 
-        return dc.deleteItemInCart(storeId, productId);
+        return dc.deleteItemInCart(sessionId, storeId, productId);
     }
 
-    public boolean clearCart() {
-        return dc.clearCart();
+    public boolean clearCart(int sessionId) {
+        return dc.clearCart(sessionId);
     }
 
-    public boolean buyCart() {
-        return dc.buyCart();
+    public boolean buyCart(int sessionId) {
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.purchaseCart(sessionId);
     }
 
-    public String viewCart(){
-        return dc.viewCart();
+    public String viewCart(int sessionId){
+        return dc.viewCart(sessionId);
     }
 
-    public boolean logout(){
-        return dc.logout();
+    public boolean logout(int sessionId){
+        SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
+        return ssh.logout();
     }
 
-    public int openStore() {
-        return dc.openStore();
+    public int openStore(int sessionId) {
+        SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
+        return ssh.openStore();
     }
 
-    public String viewPurchaseHistory(){
-        return dc.getPurchaseHistory();
-    }
-    public String searchUserHistory(int userId){
-        return dc.viewUserHistory(userId);}
-
-    public String searchStoreHistory(int storeId){ return dc.viewShopHistory(storeId);}
-
-    public boolean addProduct(int productId, int storeId, int amount) {
-        return dc.addProduct(productId,storeId,amount) ;
+    public String viewPurchaseHistory(int sessionId){
+        SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
+        return ssh.getHistory();
     }
 
-    public boolean editProduct(int storeId, int productId, String productInfo) {
-        return dc.editProduct(storeId, productId, productInfo) ;
+    public String searchUserHistory(int sessionId, int userId){
+        AdminStateHandler ash = new AdminStateHandler(sessionId);
+        return ash.getSubscriberHistory(userId);
     }
 
-    public boolean deleteProduct(int storeId, int productId) {
-
-        return dc.deleteProduct(storeId,productId) ;
+    //TODO FIX THIS
+    public String searchStoreHistory(int sessionId, int storeId){
+        return "";
     }
 
-    public boolean appointManager(int storeId, int userId) {
-        return dc.appointManager(storeId, userId) ;
+    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
+        if(flag) {
+            OwnerHandler oh = new OwnerHandler(sessionId);
+            return oh.addProductToStore(storeId, productId, amount);
+        }
+        else{
+            ManagerHandler mh = new ManagerHandler(sessionId);
+            return mh.addProductToStore(storeId, productId, amount);
+        }
     }
 
-    public boolean appointOwner(int storeId, int userId) { return dc.appointOwner(storeId, userId);}
-
-    public boolean removeManager(int storeId, int userId) { return dc.removeManager(storeId, userId);}
-
-    public boolean editManagerOptions(int storeId, int userId, String option){
-       return dc.editManagerOptions(storeId,userId,option);
+    public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) {
+        if(flag) {
+            OwnerHandler oh = new OwnerHandler(sessionId);
+            return oh.editProductToStore(storeId, productId, productInfo);
+        }
+        else{
+            ManagerHandler mh = new ManagerHandler(sessionId);
+            return mh.editProductToStore(storeId, productId, productInfo);
+        }
     }
 
-    public String viewShopHistory(int storeId){ return dc.viewShopHistory(storeId); }
+    public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId) {
+        if(flag) {
+            OwnerHandler oh = new OwnerHandler(sessionId);
+            return oh.deleteProductFromStore(storeId, productId);
+        }
+        else{
+            ManagerHandler mh = new ManagerHandler(sessionId);
+            return mh.deleteProductFromStore(storeId, productId);
+        }
+    }
 
-    public String getStoreHistory(int storeId) { return dc.getStoryHistory(storeId); }
+    public boolean appointManager(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.addStoreManager(storeId, userId) ;
+    }
+
+    public boolean appointOwner(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.addStoreOwner(storeId, userId);
+    }
+
+    public boolean removeManager(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.deleteManager(storeId, userId);
+    }
+
+    public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.editManageOptions(storeId, userId, option);
+    }
+
+    public String viewShopHistory(int sessionId, int storeId){
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.viewPurchaseHistory(storeId);
+    }
+
+    public String getStoreHistory(int sessionId, int storeId) {
+        AdminStateHandler ash = new AdminStateHandler(sessionId);
+        return ash.getStoreHistory(storeId);
+    }
+
+    public int startSession() { return dc.startSession(); }
 
 }

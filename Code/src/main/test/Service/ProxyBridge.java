@@ -13,27 +13,27 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean login(String username, String password) {
+    public boolean login(int sessionId, String username, String password) {
         if (rb != null) {
-            return rb.login(username, password);
+            return rb.login(sessionId, username, password);
         }
         else {
             return false;
         }
     }
 
-    public int register(String username, String password) {
+    public int register(int sessionId, String username, String password) {
         if (rb != null) {
-            return rb.register(username, password);
+            return rb.register(sessionId, username, password);
         }
         else {
             return -1;
         }
     }
 
-    public String getAllInfo(){
+    public String getAllInfo(int sessionId){
         if (rb != null) {
-            return rb.getAllInfo();
+            return rb.getAllInfo(sessionId);
         }
         else {
             return null;
@@ -41,9 +41,9 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public String searchProducts(int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         if (rb != null) {
-            return rb.searchProducts(id, category, keyword, productRating, storeRating, priceFrom, priceTo);
+            return rb.searchProducts(sessionId, id, category, keyword, productRating, storeRating, priceFrom, priceTo);
         }
         else {
            return null;
@@ -51,9 +51,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean addToCart(int storeId, int productId, Integer amount) {
+    public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
         if (rb != null) {
-            return rb.addToCart(storeId, productId, amount);
+            return rb.addToCart(sessionId, storeId, productId, amount);
         }
         else {
             return false;
@@ -61,45 +61,45 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean updateAmount(int storeId, int productId, int amount) {
+    public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
         if (rb != null) {
-            return rb.updateAmount(storeId, productId, amount);
+            return rb.updateAmount(sessionId, storeId, productId, amount);
         }
         else {
             return false;
         }
     }
 
-    public boolean deleteItemInCart(int storeId, int productId) {
+    public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
         if (rb != null) {
-            return rb.deleteItemInCart(storeId, productId);
+            return rb.deleteItemInCart(sessionId, storeId, productId);
         }
         else {
             return false;
         }
     }
 
-    public boolean clearCart() {
+    public boolean clearCart(int sessionId) {
         if (rb != null) {
-            return rb.clearCart();
+            return rb.clearCart(sessionId);
         }
         else {
             return false;
         }
     }
 
-    public boolean buyCart() {
+    public boolean buyCart(int sessionId) {
         if (rb != null) {
-            return rb.buyCart();
+            return rb.buyCart(sessionId);
         }
         else {
             return false;
         }
     }
 
-    public String viewCart(){
+    public String viewCart(int sessionId){
         if (rb != null) {
-            return rb.viewCart();
+            return rb.viewCart(sessionId);
         }
         else {
             return null;
@@ -107,108 +107,108 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public boolean logout(){
+    public boolean logout(int sessionId){
         if (rb != null){
-            return rb.logout();
+            return rb.logout(sessionId);
         }
         else{
             return true;
         }
     }
 
-    public int openStore(){
+    public int openStore(int sessionId){
         if (rb != null){
-            return rb.openStore();
+            return rb.openStore(sessionId);
         }
         else{
             return 69;
         }
     }
 
-    public String viewPurchaseHistory(){
+    public String viewPurchaseHistory(int sessionId){
         if(rb != null){
-            return rb.viewPurchaseHistory();
+            return rb.viewPurchaseHistory(sessionId);
         }
         else{
             return null;
         }
     }
 
-    public String searchUserHistory(int userId){
+    public String searchUserHistory(int sessionId, int userId){
         if(rb != null){
-            return rb.searchUserHistory(userId);
+            return rb.searchUserHistory(sessionId, userId);
         }
         else{
             return null;
         }
     }
 
-    public String searchStoreHistory(int storeId){
+    public String searchStoreHistory(int sessionId, int storeId){
         if(rb != null){
-            return rb.searchStoreHistory(storeId);
+            return rb.searchStoreHistory(sessionId, storeId);
         }
         else{
             return null;
         }
     }
 
-    public boolean addProduct(int productId, int storeId, int amount){
+    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount){
         if(rb != null){
-            return rb.addProduct(productId, storeId, amount);
+            return rb.addProduct(flag, sessionId, productId, storeId, amount);
         }
         else{
             return false;
         }
     }
 
-    public boolean editProduct(int storeId, int productId, String productInfo){
+    public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo){
         if(rb != null){
-            return rb.editProduct(storeId, productId, productInfo);
+            return rb.editProduct(flag, sessionId, storeId, productId, productInfo);
         }
         else{
             return false;
         }
     }
 
-    public boolean deleteProduct(int storeId, int productId){
+    public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId){
             if(rb != null){
-                return rb.deleteProduct(storeId, productId);
+                return rb.deleteProduct(flag, sessionId, storeId, productId);
             }
             else{
                 return false;
             }
         }
 
-    public boolean appointManager(int storeId, int userId){
+    public boolean appointManager(int sessionId, int storeId, int userId){
         if(rb != null){
-            return rb.appointManager(storeId, userId);
+            return rb.appointManager(sessionId, storeId, userId);
         }
         else{
             return false;
         }
     }
 
-    public boolean appointOwner(int storeId, int userId){
+    public boolean appointOwner(int sessionId, int storeId, int userId){
         if(rb != null){
-            return rb.appointOwner(storeId, userId);
+            return rb.appointOwner(sessionId, storeId, userId);
         }
         else{
             return false;
         }
     }
 
-    public boolean removeManager(int storeId, int userId){
+    public boolean removeManager(int sessionId, int storeId, int userId){
         if(rb != null){
-            return rb.removeManager(storeId, userId);
+            return rb.removeManager(sessionId, storeId, userId);
         }
         else{
             return false;
         }
     }
 
-    public boolean editManagerOptions(int storeId, int userId, String option){
+    public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){
         if(rb != null){
-            return rb.editManagerOptions(storeId, userId, option);
+            return rb.editManagerOptions(sessionId, storeId, userId, option);
         }
         else{
             return false;
@@ -217,18 +217,18 @@ public class ProxyBridge implements Bridge {
 
 
 
-    public String viewShopHistory(int storeId){
+    public String viewShopHistory(int sessionId, int storeId){
         if(rb != null){
-            return rb.viewShopHistory(storeId);
+            return rb.viewShopHistory(sessionId, storeId);
         }
         else{
             return null;
         }
     }
 
-    public String getStoreHistory(int storeId){
+    public String getStoreHistory(int sessionId, int storeId){
         if(rb != null){
-            return rb.getStoreHistory(storeId);
+            return rb.getStoreHistory(sessionId, storeId);
         }
         else{
             return null;
@@ -237,4 +237,14 @@ public class ProxyBridge implements Bridge {
     public void setRealBridge(RealBridge realBridge) {
         rb = realBridge;
     }
+
+    public int startSession(){
+        if(rb != null){
+            return rb.startSession();
+        }
+        else{
+            return 1;
+        }
+    }
+
 }

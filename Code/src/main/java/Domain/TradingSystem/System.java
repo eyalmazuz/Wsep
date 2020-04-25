@@ -94,6 +94,7 @@ public class System {
             logger.error(e.getMessage());
             return false;
         }
+        instance = this;
         return true;
     }
 
@@ -425,14 +426,13 @@ public class System {
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return -1;
         if (username == null || password == null) return -1;
-        return userHandler.register(username, password);
+        return userHandler.register(username, Security.getHash(password));
     }
 
     // Usecase 2.3
     public boolean login(int sessionId, String username, String password) {
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return false;
-        if(username == null || password == null || username.equals("") || password.equals("")) return false;
 
         Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
