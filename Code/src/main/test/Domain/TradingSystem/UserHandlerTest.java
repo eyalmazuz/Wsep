@@ -65,10 +65,12 @@ public class UserHandlerTest {
 
     @Test
     public void registerBadValues() {
+        assertEquals(-1, uh.register(null, "123"));
+        assertEquals(-1, uh.register("Yaron", null));
         assertEquals(-1,uh.register(null,null));
 
         uh.register("bob","123");
-        assertEquals(-1,uh.register("bob","123"));
+        assertEquals(-1,uh.register("bob","456"));
     }
 
     @Test

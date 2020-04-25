@@ -430,28 +430,28 @@ public class System {
 
     // Usecase 2.2
     public int register(String username, String password) {
-        return userHandler.register(username, Security.getHash(password));
+        return userHandler.register(username, password);
     }
 
     // Usecase 2.3
-//    public boolean login(int sessionId, String username, String password) {
-//        User u = userHandler.getUser(sessionId);
-//        if (!u.isGuest()) return false;
-//        if(username == null || password == null || username.equals("") || password.equals("")) return false;
-//
-//        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
-//
-//        if (subToLogin != null) {
-//            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
-//            if(subscriberCart != null) {
-//                subscriberCart.merge(u.getShoppingCart());
-//            }
-//            u.setState(subToLogin);
-//            return true;
-//        }
-//
-//        return false;
-//    }
+    public boolean login(int sessionId, String username, String password) {
+        User u = userHandler.getUser(sessionId);
+        if (!u.isGuest()) return false;
+        if (username == null || password == null || username.equals("") || password.equals("")) return false;
+
+        Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
+
+        if (subToLogin != null) {
+            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
+            if(subscriberCart != null) {
+                subscriberCart.merge(u.getShoppingCart());
+            }
+            u.setState(subToLogin);
+            return true;
+        }
+
+        return false;
+    }
 
     // Usecase 2.4
     public String viewStoreProductInfo() {

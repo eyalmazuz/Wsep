@@ -35,8 +35,8 @@ public class UserHandler {
         return found;
     }
 
-    public int register(String username, String hashedPassword) {
-        if(username==null || hashedPassword == null){
+    public int register(String username, String password) {
+        if(username==null || password == null){
             return -1;
         }
 
@@ -44,7 +44,7 @@ public class UserHandler {
             if (sub.getUsername().equals(username))
                 return -1;
 
-        Subscriber subscriberState = new Subscriber(username, hashedPassword, false);
+        Subscriber subscriberState = new Subscriber(username, Security.getHash(password), false);
         subscribers.put(subscriberState.getId(),subscriberState);
         return subscriberState.getId();
     }
@@ -128,5 +128,9 @@ public class UserHandler {
             Subscriber s = (Subscriber) u.getState();
             s.getPurchaseHistory().getLatestCart().merge(u.getShoppingCart());
         }
+    }
+
+    public void setSubscribers(Map<Integer, Subscriber> subscribers) {
+        this.subscribers = subscribers;
     }
 }

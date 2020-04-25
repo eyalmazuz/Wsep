@@ -5,8 +5,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.TestCase.*;
 
@@ -17,6 +19,9 @@ public class SystemTest {
 
     @Before
     public void setUp(){
+        mockHandler.setSubscribers(new HashMap<>() {{
+            put(1, new Subscriber("Yaron", "abc123", false));
+        }});
         test.setUserHandler(mockHandler);
         test.setLogger(new LoggerMock());
         List<Store> stores = new LinkedList<>();
@@ -94,6 +99,28 @@ public class SystemTest {
     }
 
     @Test
+    public void login() {
+        // existing identifying details, correct password
+        assertTrue(test.login(1, "Yaron", "abc123"));
+    }
+
+    @Test
+    public void loginBadValues() {
+        // existing identifying details, incorrect password
+        assertFalse(test.login(1, "Yaron", "abc1234"));
+
+
+        // non-existing identifying details, password
+        assertTrue(test.login(1, "Bruh", "abc123"));
+
+
+        // null password, null username, empty username, empty password
+        assertFalse(test.login(1, null, "123"));
+        assertFalse(test.login(1, "Yaron", null));
+
+    }
+
+    @Test
     public void searchProducts() {
         //#TODO:THIS
     }
@@ -127,6 +154,9 @@ class StoreMock extends Store{
 }
 
 class userHandlerMock extends UserHandler {
+
+
+
     @Override
     public void setAdmin() {
 
@@ -148,14 +178,15 @@ class userHandlerMock extends UserHandler {
         return new UserMock("Manager");
     }
 
-
-
     @Override
     public Subscriber getSubscriber(int subId) {
         if(subId>0)
             return new SubscriberMock("Owner");
         return null;
     }
+
+
+
 }
 
 class UserMock extends User{
