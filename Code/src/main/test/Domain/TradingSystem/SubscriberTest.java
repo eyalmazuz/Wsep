@@ -74,7 +74,7 @@ public class SubscriberTest extends TestCase {
         int storeId = store.getId();
         products = new HashMap<>();
         products.put(3,2);
-        productInfo = new ProductInfo(3);
+        //productInfo = new ProductInfo(3);
         details = new PurchaseDetails(3,user,products,13.8);
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
@@ -94,7 +94,7 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testAddProductToStore() {
         store = new Store ();
-        ProductInfo product = new ProductInfo(1);
+
         assertTrue(subscriber.addProductToStore(store,1,5));
         assertFalse(subscriber.addProductToStore(store,3,5));//productid does not exist
 
@@ -116,7 +116,7 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testDeleteProductFromStore() {
         store = new Store ();
-        ProductInfo product = new ProductInfo(1);
+
         subscriber.addProductToStore(store,1,5);
        assertTrue(subscriber.deleteProductFromStore(store,1));
         assertFalse(subscriber.deleteProductFromStore(store,2));
@@ -230,7 +230,7 @@ public class SubscriberTest extends TestCase {
         int storeId = store.getId();
         products = new HashMap<>();
         products.put(3,2);
-        productInfo = new ProductInfo(3);
+        //productInfo = new ProductInfo(3);
         details = new PurchaseDetails(3,user,products,13.8);
         storePurchaseDetails.put(storeId,details);
         subscriber.addPurchase(storePurchaseDetails);
