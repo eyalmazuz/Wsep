@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -251,8 +252,12 @@ public class Subscriber implements UserState {
 
     public boolean editPermission(Subscriber manager, Store store, String details) {
 
-        manager.overridePermission("Manager",store,details);
-        return true;
+        String[] validDetailes = {"any", "add Product", "edit product", "delete product"};
+        if(Arrays.asList(validDetailes).contains(details)) {
+            manager.overridePermission("Manager", store, details);
+            return true;
+        }
+        return false;
 
     }
 
