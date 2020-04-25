@@ -41,9 +41,9 @@ public class ProxyBridge implements Bridge {
 
     }
 
-    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+    public String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
         if (rb != null) {
-            return rb.searchProducts(sessionId, id, category, keyword, productRating, storeRating, priceFrom, priceTo);
+            return rb.searchProducts(sessionId, productName, category, keyword, productRating, storeRating, priceFrom, priceTo);
         }
         else {
            return null;

@@ -19,18 +19,14 @@ public class RealBridge implements Bridge {
         return guh.register(sessionId, username, password);
     }
 
-    //TODO
     public String getAllInfo(int sessionId) {
-
-        return dc.getAllInfo();
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.viewStoreProductInfo();
     }
 
-    //TODO
-    public String searchProducts(int sessionId, int id, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
-        /*Pair<Integer, Integer> priceRange = new Pair<>(priceFrom, priceTo);
-
-        return dc.searchProducts(sessionId, id, category, keyword, priceRange, productRating, storeRating);
-    */ return "TODO";
+    public String searchProducts(int sessionId, String productName, String category, String keyword, int productRating, int storeRating, int priceFrom, int priceTo) {
+        GuestUserHandler guh = new GuestUserHandler();
+        return guh.searchProducts(sessionId, productName, category, new String[]{keyword}, productRating, storeRating);
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {

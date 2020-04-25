@@ -44,7 +44,7 @@ public class UserHandler {
             if (sub.getUsername().equals(username))
                 return -1;
 
-        Subscriber subscriberState = new Subscriber(username, Security.getHash(password), false);
+        Subscriber subscriberState = new Subscriber(username, password, false);
         subscribers.put(subscriberState.getId(),subscriberState);
         return subscriberState.getId();
     }
