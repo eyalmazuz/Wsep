@@ -4,6 +4,7 @@ import java.util.Map;
 
 public class SupplyHandler {
     private final String config;
+    private static System system = System.getInstance();
 
     public SupplyHandler(String config) throws Exception {
         if (config.equals("Error")){
@@ -14,7 +15,15 @@ public class SupplyHandler {
 
     public boolean requestSupply(int user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // communicate with supply system
-        if (config.equals("Mock Config")) return true;
+        if (config.equals("Mock Config")) {
+
+            // perform any additional checks
+
+            for (Integer store : storeProductsIds.keySet()) {
+                system.removeStoreProductSupplies(store, storeProductsIds.get(store));
+            }
+            return true;
+        }
         return false;
     }
 }

@@ -31,6 +31,10 @@ public class ProductInStore {
         return amount;
     }
 
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     public void addAmount(int amount) {
         this.amount += amount;
     }

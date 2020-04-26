@@ -14,12 +14,13 @@ public class PaymentHandler {
 
     // usecase 2.8.3
     // receives external purchase details for user details and a map: (store id -> (product id -> amount))
-    public boolean makePayment(String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        if (paymentDetails.equals("Bad payment details")) return false;
         if (config.equals("Mock Config")) return true;
         return false;
     }
 
-    public boolean cancelPayment(int user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         if (config.equals("Mock Config")) return true;
         return false;
     }

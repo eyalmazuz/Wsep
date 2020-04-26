@@ -57,6 +57,18 @@ public class System {
         this.userHandler = userHandler;
     }
 
+    public SupplyHandler getSupplyHandler() {
+        return supplyHandler;
+    }
+
+    public PaymentHandler getPaymentHandler() {
+        return paymentHandler;
+    }
+
+    public UserHandler getUserHandler() {
+        return userHandler;
+    }
+
     public void setStores(List<Store> stores) {
         this.stores = stores;
     }
@@ -381,20 +393,22 @@ public class System {
     }
 
     // usecase 2.8
-    public boolean confirmPurchase(int sessionId, double totalPrice) {
-        User u = userHandler.getUser(sessionId);
-        return u.confirmPrice(totalPrice);
-    }
-
     public boolean requestConfirmedPurchase(int sessionId) {
         User u = userHandler.getUser(sessionId);
+
+        makePayment(sessionId, u.getPaymentDetails(), u.getShoppingCart().getStoreProductsIds());
+
         return u.requestConfirmedPurchase();
     }
 
+    public boolean setPaymentDetails(int sessionId, String details) {
+        User u = userHandler.getUser(sessionId);
+        return u.setPaymentDetails(details);
+    }
 
     // usecase 2.8.3
     public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.makePayment(paymentDetails, storeProductsIds);
+        return paymentHandler.makePayment(sessionId, paymentDetails, storeProductsIds);
     }
 
     public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
@@ -638,4 +652,10 @@ public class System {
         products.add(productInfo);
     }
 
+    public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
+        Store store = getStoreById(storeId);
+        for (Integer productId : productIdAmountMap.keySet()) {
+            store.removeProductAmount(productId, productIdAmountMap.get(productId));
+        }
+    }
 }

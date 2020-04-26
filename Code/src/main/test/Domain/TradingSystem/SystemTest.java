@@ -246,14 +246,54 @@ public class SystemTest extends TestCase {
 
         assertFalse(test.deleteItemInCart(-1, stores.get(0).getId(), products.get(0).getId()));
     }
+
+    // usecase 2.8.4
+    @Test
+    public void testUpdateStoreProductSupplies() {
+        List<Store> stores = test.getStores();
+        Store store1 = stores.get(0);
+        // this store contains 10 bamba (id 4), 2 apple (id 5)
+        Map<Integer, Integer> productAmounts = new HashMap<>();
+        productAmounts.put(4, 7);
+        productAmounts.put(5, 2);
+        test.removeStoreProductSupplies(store1.getId(), productAmounts);
+
+        boolean problem = false;
+        for (ProductInStore pis : store1.getProducts()) {
+            if (pis.getId() == 4 && pis.getAmount() != 3) {
+                problem = true;
+                break;
+            }
+            if (pis.getId() == 5) {
+                problem = true;
+                break;
+            }
+        }
+        assertFalse(problem);
+    }
+
 }
 
 
 class StoreMock extends Store{
     int id;
 
+    List<ProductInStore> mockProducts = new ArrayList<>();
+
     public StoreMock(int i) {
         id = i;
+        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
+        bamba.setRating(3);
+        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
+        apple.setRating(2);
+
+        if (id == 1) {
+            ProductInStore appleInStore = new ProductInStore(apple, 2, this);
+            appleInStore.editInfo("very ripe apple");
+            mockProducts.add(appleInStore);
+            mockProducts.add(new ProductInStore(bamba, 10, this));
+        }
+        else mockProducts.add(new ProductInStore(bamba, 3, this));
     }
 
     @Override
@@ -268,27 +308,36 @@ class StoreMock extends Store{
 
     @Override
     public List<ProductInStore> getProducts() {
-        List<ProductInStore> products = new ArrayList<>();
-        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
-        bamba.setRating(3);
-        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
-        apple.setRating(2);
+        return mockProducts;
+    }
 
-        if (id == 1) {
-            ProductInStore appleInStore = new ProductInStore(apple, 2, this);
-            appleInStore.editInfo("very ripe apple");
-            products.add(appleInStore);
-            products.add(new ProductInStore(bamba, 10, this));
+    @Override
+    public int getProductAmount(Integer productId) {
+        for (ProductInStore product : getProducts()) {
+            if (productId == product.getId()) {
+                return product.getAmount();
+            }
         }
-        else products.add(new ProductInStore(bamba, 3, this));
+        return 0;
+    }
 
-        return products;
+    @Override
+    public void removeProductAmount(Integer productId, Integer amount) {
+        for (ProductInStore product : getProducts()) {
+            int id = product.getId();
+            if (productId == id) {
+                int newAmount = product.getAmount() - amount;
+                if (newAmount == 0) {
+                    getProducts().remove(product);
+                } else {
+                    product.setAmount(newAmount);
+                }
+            }
+        }
     }
 }
 
 class userHandlerMock extends UserHandler {
-
-
 
     @Override
     public void setAdmin() {
@@ -366,6 +415,8 @@ class UserMock extends User{
     public boolean isAdmin() {
         return type.equals("Admin");
     }
+
+
 }
 
 class LoggerMock extends SystemLogger{
