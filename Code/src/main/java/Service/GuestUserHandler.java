@@ -48,10 +48,19 @@ public class GuestUserHandler {
         return s.clearCart(sessionId);
     }
 
+    public boolean setPaymentDetails(int sessionId, String paymentDetails) {
+        return s.setPaymentDetails(sessionId, paymentDetails);
+    }
+
+    public boolean confirmPurchase(int sessionId, double totalPrice) {
+        // user should confirm the purchase here
+        return true;
+    }
+
     public boolean purchaseCart(int sessionId) {
         double totalPrice = s.buyCart(sessionId);
         if (totalPrice > -1) {
-            if (s.confirmPurchase(sessionId, totalPrice)) {
+            if (confirmPurchase(sessionId, totalPrice)) {
                 return s.requestConfirmedPurchase(sessionId);
             }
         }

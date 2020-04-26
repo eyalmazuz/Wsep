@@ -28,7 +28,7 @@ public class Store {
         // FIX for acceptance tests
         managers = new LinkedList<>();
         products = new LinkedList<>();
-        buyingPolicy = new BuyingPolicy();
+        buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy();
         history = new History();
     }
@@ -184,5 +184,19 @@ public class Store {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public void removeProductAmount(Integer productId, Integer amount) {
+        for (ProductInStore product : products) {
+            int id = product.getId();
+            if (productId == id) {
+                int newAmount = product.getAmount() - amount;
+                if (newAmount == 0) {
+                    products.remove(product);
+                } else {
+                    product.setAmount(newAmount);
+                }
+            }
+        }
     }
 }

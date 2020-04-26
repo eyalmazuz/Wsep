@@ -22,13 +22,11 @@ public class ShoppingCartTest extends TestCase {
 
     @Before
     public void setUp() {
-        // mock
         user = new User();
 
         shoppingCart = new ShoppingCart(user);
         otherShoppingCart = new ShoppingCart(user);
 
-        // mocks
         store1 = new Store();
         store2 = new Store();
         store3 = new Store();
@@ -173,6 +171,9 @@ public class ShoppingCartTest extends TestCase {
         assertTrue(store3Found);
     }
 
+
+    // TESTS FOR USECASE 2.8
+
     @Test
     public void testSavePurchase() {
         user.setShoppingCart(shoppingCart);
@@ -206,6 +207,9 @@ public class ShoppingCartTest extends TestCase {
         System.getInstance().setup("Mock Config", "Mock Config");
         assertFalse(shoppingCart.attemptPurchase() > -1); // cant purchase empty cart
         shoppingCart.addProduct(store1, 0, 15);
+        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
+        assertFalse(shoppingCart.attemptPurchase() > -1);
+        store1.setBuyingPolicy(new BuyingPolicy("None"));
         assertTrue(shoppingCart.attemptPurchase() > -1);
     }
 }

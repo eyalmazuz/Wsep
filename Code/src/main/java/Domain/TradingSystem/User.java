@@ -44,6 +44,14 @@ public class User {
 
     }
 
+    public boolean setPaymentDetails(String details) {
+        this.paymentDetails = details;
+        return true;
+    }
+
+    public String getPaymentDetails() {
+        return paymentDetails;
+    }
 
     public UserState getState() {
         return state;
@@ -96,32 +104,20 @@ public class User {
         return shoppingCart.attemptPurchase();
     }
 
-    public boolean confirmPrice(double totalPrice) {
-        // TODO: query user to confirm the price
-
-        return true;
-    }
-
-
-    public boolean requestConfirmedPurchase() { // from payment system
-        if (!system.makePayment(id, this.paymentDetails, shoppingCart.getStoreProductsIds())) {
-            // TODO: message user with an error
-        }
+    public boolean requestConfirmedPurchase() {
+        // by now we know the shopping cart isnt empty, went through attemptPurchase
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
         state.addPurchase(storePurchaseDetails);
+
+        // important: the supply handler calls the system to remove products from the store if succeeded
         boolean supplyAvailable = system.requestSupply(id, shoppingCart.getStoreProductsIds());
         if (supplyAvailable) {
             shoppingCart.removeAllProducts();
-            // TODO: message user with success
-
             return true;
         } else {
             system.cancelPayment(id, shoppingCart.getStoreProductsIds());
             shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
             state.removePurchase(storePurchaseDetails); // remove from user purchase history
-
-
-            // TODO: message user with fail and refund
             return false;
         }
     }

@@ -1,8 +1,6 @@
 package Domain.TradingSystem;
 
 
-
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -15,6 +13,8 @@ public class UnitTest {
         suite.addTest(new TestSuite(UserHandlerTest.class));
         suite.addTest(new TestSuite(SystemTest.class));
         suite.addTest(new TestSuite(SubscriberTest.class));
+        suite.addTest(new TestSuite(PaymentHandlerTest.class));
+        suite.addTest(new TestSuite(SupplyHandlerTest.class));
         return suite;
     }
 }
