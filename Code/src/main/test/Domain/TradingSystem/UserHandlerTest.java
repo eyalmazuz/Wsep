@@ -59,27 +59,42 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegister() {
+    public void testRegisterSucsess() {
+        int prev = uh.subscribers.size();
+        int id1 = uh.register("Bob","123");
+        assertTrue(id1>=0);
+        assertEquals(prev+1,uh.subscribers.size());
+
+    }
+
+    @Test
+    public void testRegisterDifferentIds() {
+
         int id1 = uh.register("Bob","123");
         int id2 = uh.register("Moshe","234");
-        assertTrue(id1>=0);
         assertTrue(id1 != id2);
     }
+
 
     @Test
     public void testRegisterBadValues() {
         assertEquals(-1, uh.register(null, "123"));
         assertEquals(-1, uh.register("Yaron", null));
         assertEquals(-1,uh.register(null,null));
+    }
 
+    @Test
+    public void testRegisterSameUsername() {
         uh.register("bob","123");
         assertEquals(-1,uh.register("bob","456"));
     }
 
     @Test
     public void testGetUser() {
+        int prev = uh.users.size();
         int id = uh.createSession();
         assertNotNull(uh.getUser(id));
+        assertEquals(prev+1,uh.users.size());
     }
 
     @Test
@@ -145,9 +160,9 @@ public class UserHandlerTest extends TestCase {
         Subscriber s = uh.getSubscriberUser("test", "123");
         uh.setState(id,s.getId());
         User u = uh.getUser(id);
-        assertTrue(!u.isGuest());
+        assertTrue(!u.isGuest());//the state has changed
         Subscriber userState = (Subscriber)u.getState();
-        assertEquals(s.getId(),userState.getId());
+        assertEquals(s.getId(),userState.getId());//the state is the correct one
     }
 
     @Test
@@ -155,5 +170,12 @@ public class UserHandlerTest extends TestCase {
         int id1 = uh.createSession();
         int id2 = uh.createSession();
         assertTrue(id1 != id2);
+    }
+
+    public void testCreateSessionSuccess() {
+        int prev = uh.users.size();
+        int id = uh.createSession();
+        assertTrue(id>=0);
+        assertEquals(prev+1,uh.users.size());
     }
 }
