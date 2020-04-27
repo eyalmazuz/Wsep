@@ -8,7 +8,7 @@ public class SupplyHandler {
 
     public SupplyHandler(String config) throws Exception {
         if (config.equals("Error")){
-            throw new Exception();
+            throw new Exception("Failed To connect Supply Handler");
         }
         this.config = config;
     }
