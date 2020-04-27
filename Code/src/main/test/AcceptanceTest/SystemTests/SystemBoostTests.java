@@ -25,5 +25,17 @@ public class SystemBoostTests extends ServiceTest {
 
     }
 
+    @Test
+    public void testBootSystemFailedSupply() {
+        assertFalse(setupSystem("Error", "Mock Config"));
+
+    }
+
+    @Test
+    public void testBootSystemFailedPayment() {
+        assertFalse(setupSystem("Mock Config", "Error"));
+
+    }
+
 
 }

@@ -22,7 +22,7 @@ public interface Bridge {
 
     boolean clearCart(int sessionId);
 
-    boolean buyCart(int sessionId);
+    boolean buyCart(int sessionId, String paymentDetails);
 
     boolean logout(int sessionId);
 
@@ -53,4 +53,6 @@ public interface Bridge {
     int startSession();
 
     void addProductInfo(int sessionId, int id, String name, String category);
+
+    boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy);
 }
