@@ -16,6 +16,7 @@ public class UnitTest {
         suite.addTest(new TestSuite(SubscriberTest.class));
         suite.addTest(new TestSuite(PaymentHandlerTest.class));
         suite.addTest(new TestSuite(SupplyHandlerTest.class));
+        suite.addTest(new TestSuite(StoreTest.class));
 
         return suite;
     }

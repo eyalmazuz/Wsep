@@ -35,4 +35,18 @@ public class UserTest extends TestCase {
         assertNotNull(subscriber.openStore());
     }
 
+    @Test
+    public void testSetStateNotNull(){
+
+        assertThrows(Exception.class,()->guest.setState(null));
+    }
+
+    @Test
+    public void testSetShoppingCartNotNull(){
+        ShoppingCart sc = new ShoppingCart(guest);
+        guest.setShoppingCart(sc);
+        guest.setShoppingCart(null);
+        assertEquals(sc,guest.getShoppingCart());//setNull not change the cart
+    }
+
 }
