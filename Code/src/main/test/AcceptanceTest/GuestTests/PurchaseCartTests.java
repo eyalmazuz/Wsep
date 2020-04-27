@@ -13,7 +13,35 @@ public class PurchaseCartTests extends ServiceTest {
      * */
     @Before
     public void setUp(){
-        super.setUp();
+//        super.setUp();
+
+
+
+    }
+
+    @After
+    public void tearDown(){
+        Database.userToId.clear();
+        Database.userToStore.clear();
+    }
+
+
+
+    @Test
+    public void testPurchaseSuccessful(){
+
+        setupSystem("Mock Config", "Mock Config");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
 
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
@@ -29,18 +57,6 @@ public class PurchaseCartTests extends ServiceTest {
         logout(Database.sessionId);
 
 
-    }
-
-    @After
-    public void tearDown(){
-        Database.userToId.clear();
-        Database.userToStore.clear();
-    }
-
-
-
-    @Test
-    public void testPurchaseSuccessful(){
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
         assertTrue(buyCart(Database.sessionId));
@@ -49,6 +65,36 @@ public class PurchaseCartTests extends ServiceTest {
     // TESTS HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
     @Test
     public void testPurchaseFailureBadPolicy(){
+
+        setupSystem("Mock Config", "Mock Config");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        //TODO
+        //changePolicy("No one is Allowed")
+        logout(Database.sessionId);
+
+        login(Database.sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(Database.sessionId);
+        Database.userToStore.put("hanamaru", sid_2);
+        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        logout(Database.sessionId);
+
+
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
         assertFalse(buyCart(Database.sessionId));
@@ -65,9 +111,110 @@ public class PurchaseCartTests extends ServiceTest {
 
     @Test
     public void testPurchaseFailureInvalidDetails(){
+
+        setupSystem("Mock Config", "Mock Config");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        logout(Database.sessionId);
+
+        login(Database.sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(Database.sessionId);
+        Database.userToStore.put("hanamaru", sid_2);
+        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        logout(Database.sessionId);
+
+
+        //TODO add payment details to the buyCart method
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
         assertFalse(buyCart(Database.sessionId));
 
     }
+
+    @Test
+    public void testPurchaseFailedPaymentSystem(){
+
+        setupSystem("Bad", "Mock Config");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        logout(Database.sessionId);
+
+        login(Database.sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(Database.sessionId);
+        Database.userToStore.put("hanamaru", sid_2);
+        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        logout(Database.sessionId);
+
+
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId));
+    }
+
+    @Test
+    public void testPurchaseFailedSupplySystem(){
+
+        setupSystem("Mock Config", "Bad");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        logout(Database.sessionId);
+
+        login(Database.sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(Database.sessionId);
+        Database.userToStore.put("hanamaru", sid_2);
+        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        logout(Database.sessionId);
+
+
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId));
+    }
+
+
 }
