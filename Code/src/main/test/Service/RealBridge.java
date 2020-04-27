@@ -53,7 +53,7 @@ public class RealBridge implements Bridge {
 
         //TODO when implementation is changed add the paymentDetails as a parameter you pass
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.purchaseCart(sessionId, "");
+        return guh.purchaseCart(sessionId, paymentDetails);
     }
 
     public String viewCart(int sessionId){
@@ -151,20 +151,16 @@ public class RealBridge implements Bridge {
 
     public int startSession() { return dc.startSession(); }
 
-    public boolean changeBuyingPolicy(int sessionId, boolean flag, String newPolicy){
+    public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy){
 
-        //TODO implement THIS
-//
-//        if(flag) {
-//            OwnerHandler oh = new OwnerHandler(sessionId);
-//            return oh.changeBuyingPolicy(newPolicy);
-//        }
-//        else{
-//            ManagerHandler mh = new ManagerHandler(sessionId);
-//            return mh.changeBuyingPolicy(newPolicy);
-//        }
-        //TODO delete this when above is implemented
-        return false;
+        if(flag) {
+            OwnerHandler oh = new OwnerHandler(sessionId);
+            return oh.changeBuyingPolicy(storeId, newPolicy);
+        }
+        else{
+            ManagerHandler mh = new ManagerHandler(sessionId);
+            return mh.changeBuyingPolicy(storeId, newPolicy);
+        }
     }
 
 }
