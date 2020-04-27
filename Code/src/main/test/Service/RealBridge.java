@@ -49,7 +49,7 @@ public class RealBridge implements Bridge {
         return guh.clearCart(sessionId);
     }
 
-    public boolean buyCart(int sessionId) {
+    public boolean buyCart(int sessionId, String paymentDetails) {
         GuestUserHandler guh = new GuestUserHandler();
         return guh.purchaseCart(sessionId);
     }
@@ -148,5 +148,21 @@ public class RealBridge implements Bridge {
     }
 
     public int startSession() { return dc.startSession(); }
+
+    public boolean changeBuyingPolicy(int sessionId, boolean flag, String newPolicy){
+
+        //TODO implement THIS
+//
+//        if(flag) {
+//            OwnerHandler oh = new OwnerHandler(sessionId);
+//            return oh.changeBuyingPolicy(newPolicy);
+//        }
+//        else{
+//            ManagerHandler mh = new ManagerHandler(sessionId);
+//            return mh.changeBuyingPolicy(newPolicy);
+//        }
+        //TODO delete this when above is implemented
+        return false;
+    }
 
 }

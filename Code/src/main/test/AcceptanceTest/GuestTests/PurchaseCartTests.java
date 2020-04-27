@@ -59,7 +59,7 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertTrue(buyCart(Database.sessionId));
+        assertTrue(buyCart(Database.sessionId, "Good payment details"));
     }
 
     // TESTS HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
@@ -84,8 +84,9 @@ public class PurchaseCartTests extends ServiceTest {
         Database.userToStore.put("chika", sid_1);
         addProdcut(true,Database.sessionId, 1, sid_1, 5);
         addProdcut(true,Database.sessionId, 2, sid_1, 5);
-        //TODO
-        //changePolicy("No one is Allowed")
+
+        //TODO when change policy is implemented, uncomment this
+        //changeBuyingPolicy("No one is Allowed")
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "12345");
@@ -97,7 +98,7 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId));
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
 
     }
 
@@ -105,7 +106,7 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureNotEnoughItemsInStore(){
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 500);
-        assertFalse(buyCart(Database.sessionId));
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
 
     }
 
@@ -142,7 +143,7 @@ public class PurchaseCartTests extends ServiceTest {
         //TODO add payment details to the buyCart method
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
-        assertFalse(buyCart(Database.sessionId));
+        assertFalse(buyCart(Database.sessionId, "Bad payment details"));
 
     }
 
@@ -178,7 +179,7 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId));
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
     }
 
     @Test
@@ -213,7 +214,7 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId));
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
     }
 
 
