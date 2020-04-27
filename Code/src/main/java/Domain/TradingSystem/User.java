@@ -23,26 +23,6 @@ public class User {
         this.shoppingCart = new ShoppingCart(this);
     }
 
-    /**
-     *
-     * Functions For Usecases 4.*
-     *
-     */
-    public boolean addProductToStore(Store store, int productId, int amount) {
-        return state.addProductToStore(store, productId, amount);
-
-    }
-
-    public boolean editProductInStore(Store store, int productId, String newInfo) {
-
-        return state.editProductInStore(store, productId, newInfo);
-    }
-
-    public boolean deleteProductFromStore(Store store, int productId) {
-
-        return state.deleteProductFromStore(store, productId);
-
-    }
 
     public boolean setPaymentDetails(String details) {
         this.paymentDetails = details;

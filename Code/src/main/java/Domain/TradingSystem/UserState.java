@@ -9,12 +9,6 @@ import java.util.Map;
 
 interface UserState {
 
-     boolean addProductToStore(Store store, int productId, int ammount);
-
-     boolean editProductInStore(Store currStore, int productId, String newInfo);
-
-     boolean deleteProductFromStore(Store currStore, int productId);
-
      boolean hasOwnerPermission(int storeId);
 
      boolean addPermission(Store store, Subscriber grantor, String type );

@@ -37,11 +37,11 @@ public class Store {
         return id;
     }
 
-    public boolean addProduct(int productId, int amount) {
-        if (productId < 0 || amount < 1) return false;
+    public boolean addProduct(ProductInfo info, int amount) {
+        if(amount < 1) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
-            if(p.getId() == productId){
+            if(p.getId() == info.getId()){
                 p.addAmount(amount);
                 found.set(true);
             }
@@ -50,7 +50,7 @@ public class Store {
         if(!found.get()){
             ProductInStore newProduct = null;
             try {
-                newProduct = new ProductInStore(productId, amount, this);
+                newProduct = new ProductInStore(info, amount, this);
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

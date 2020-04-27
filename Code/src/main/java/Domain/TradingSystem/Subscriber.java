@@ -101,15 +101,7 @@ public class Subscriber implements UserState {
     }
 
 
-    /**
-     *
-     * Functions For Usecases 4.*
-     *
-     */
-    public boolean addProductToStore(Store store, int productId, int ammount) {
-            return store.addProduct(productId,ammount);
 
-    }
 
     /**
      * goes by the subscriber permissions and check if he can do certein tasks
@@ -127,21 +119,6 @@ public class Subscriber implements UserState {
         }
         return false;
     }
-
-
-    public boolean editProductInStore(Store store, int productId, String info) {
-
-            return store.editProduct(productId,info);
-
-    }
-
-    public boolean deleteProductFromStore(Store store, int productId) {
-
-        return store.deleteProduct(productId);
-
-    }
-
-
 
 
     public boolean addOwner(Store store, Subscriber newOwner) {

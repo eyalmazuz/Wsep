@@ -272,6 +272,59 @@ public class SystemTest extends TestCase {
         assertFalse(problem);
     }
 
+
+    //USE CASES 4.1 tests
+
+    @Test
+    public void testAddProductToStore() {
+        int sessionId = test.startSession();
+        test.register(sessionId, "eyal", "1234");
+        test.login(sessionId, "eyal", "1234");
+        int storeId = test.openStore(sessionId);
+        test.addProductInfo(1,"bamba","hatif");
+        assertTrue(test.addProductToStore(sessionId,storeId, 1, 5));
+        assertFalse(test.addProductToStore(sessionId,storeId, 3, 5));//productid does not exist
+
+    }
+
+    /*
+    @Test
+    void checkPrivilage() {
+        ??
+    }
+*/
+    @Test
+    void editProductInStore() {
+        int sessionId = test.startSession();
+        test.register(sessionId, "eyal", "1234");
+        test.login(sessionId, "eyal", "1234");
+        int storeId = test.openStore(sessionId);
+        test.addProductInfo(1,"bamba","hatif");
+        assertFalse(test.editProductInStore(sessionId, storeId, 1, "contains peanuts"));
+        test.addProductToStore(sessionId,storeId,1, 5);
+        assertTrue(test.editProductInStore(sessionId, storeId, 1, "contains peanuts"));
+        assertFalse(test.editProductInStore(sessionId, storeId, -12, "contains peanuts"));
+//        store = new Store();
+//        assertFalse(subscriber.editProductInStore(store, 3, "contains peanuts"));//
+
+    }
+
+
+    @Test
+    public void testDeleteProductFromStore() {
+        int sessionId = test.startSession();
+        test.register(sessionId, "eyal", "1234");
+        test.login(sessionId, "eyal", "1234");
+        int storeId = test.openStore(sessionId);
+        test.addProductInfo(1,"bamba","hatif");
+        test.addProductToStore(sessionId, storeId, 1, 5);
+        assertTrue(test.deleteProductFromStore(sessionId,storeId, 1));
+        assertFalse(test.deleteProductFromStore(sessionId, storeId, 2));
+
+    }
+
+
+
 }
 
 
