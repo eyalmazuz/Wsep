@@ -50,6 +50,8 @@ public class RealBridge implements Bridge {
     }
 
     public boolean buyCart(int sessionId, String paymentDetails) {
+
+        //TODO when implementation is changed add the paymentDetails as a parameter you pass
         GuestUserHandler guh = new GuestUserHandler();
         return guh.purchaseCart(sessionId);
     }
