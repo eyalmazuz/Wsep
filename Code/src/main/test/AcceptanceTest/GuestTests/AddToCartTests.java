@@ -23,7 +23,6 @@ public class AddToCartTests extends ServiceTest {
         addProdcut(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
-
         login(Database.sessionId, "you", "12345");
 
     }

@@ -59,8 +59,8 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart(sessionId);
     }
 
-    public boolean buyCart(int sessionId){
-        return bridge.buyCart(sessionId);
+    public boolean buyCart(int sessionId, String paymentDetails){
+        return bridge.buyCart(sessionId, paymentDetails);
     }
 
     public boolean logout(int sessionId){ return bridge.logout(sessionId); }
@@ -108,4 +108,6 @@ public abstract class ServiceTest extends TestCase {
     public int startSession() { return this.bridge.startSession(); }
 
     public void addProductInfo(int sessionId, int id, String name, String category) { this.bridge.addProductInfo(sessionId, id, name, category);}
+
+    public boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy) { return this.bridge.changeBuyingPolicy(sessionId, flag, newPolicy); }
 }
