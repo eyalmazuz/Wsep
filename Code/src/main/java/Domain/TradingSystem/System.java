@@ -187,13 +187,14 @@ public class System {
     }
     public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) {
 
-        User u = userHandler.getUser(sessionId);
-        logger.info(String.format("UserId %d Add %d of Product %d to Store %d",u.getId(),ammount,productId,storeId));
-        if(u!=null) {
-            Store s = getStoreById(storeId);
-            if(s!=null) {
-                return u.addProductToStore(s, productId, ammount);
+        logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, ammount, productId, storeId));
+        ProductInfo info = getProdctInfo(productId);
+        if(info != null) {
+            Store store = getStoreById(storeId);
+            if (store != null) {
+                return store.addProduct(info, ammount);
             }
+            return false;
         }
         return false;
     }
@@ -201,11 +202,12 @@ public class System {
     //UseCase 4.1.2
     public boolean editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
-        User u = userHandler.getUser(sessionId);
-        if(u!=null) {
-            Store s = getStoreById(storeId);
-            if(s!=null)
-                return u.editProductInStore(s, productId, newInfo);
+        if(getProdctInfo(productId) != null) {
+            Store store = getStoreById(storeId);
+            if (store != null) {
+                return store.editProduct(productId, newInfo);
+            }
+            return false;
         }
         return false;
     }
@@ -213,11 +215,12 @@ public class System {
     //UseCase 4.1.3
     public boolean deleteProductFromStore(int sessionId, int storeId, int productId){
         logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
-        User u = userHandler.getUser(sessionId);
-        if(u!=null) {
-            Store s = getStoreById(storeId);
-            if(s!=null)
-                return u.deleteProductFromStore(s, productId);
+        if(getProdctInfo(productId) != null) {
+            Store store = getStoreById(storeId);
+            if (store != null) {
+                return store.deleteProduct(productId);
+            }
+            return false;
         }
         return false;
     }
@@ -393,10 +396,10 @@ public class System {
     }
 
     // usecase 2.8
-    public boolean requestConfirmedPurchase(int sessionId) {
+    public boolean requestConfirmedPurchase(int sessionId, String paymentDetails) {
         User u = userHandler.getUser(sessionId);
 
-        makePayment(sessionId, u.getPaymentDetails(), u.getShoppingCart().getStoreProductsIds());
+        makePayment(sessionId, paymentDetails, u.getShoppingCart().getStoreProductsIds());
 
         return u.requestConfirmedPurchase();
     }
@@ -652,10 +655,28 @@ public class System {
         products.add(productInfo);
     }
 
+    private ProductInfo getProdctInfo(int productId){
+        for(ProductInfo productInfo: products){
+            if(productInfo.getId() == productId){
+                return productInfo;
+            }
+        }
+        return null;
+    }
+
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
         Store store = getStoreById(storeId);
         for (Integer productId : productIdAmountMap.keySet()) {
             store.removeProductAmount(productId, productIdAmountMap.get(productId));
         }
+    }
+
+    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+        Store s = getStoreById(storeId);
+        if(s != null){
+            s.setBuyingPolicy(new BuyingPolicy(newPolicy));
+            return true;
+        }
+        return false;
     }
 }

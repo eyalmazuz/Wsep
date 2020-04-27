@@ -8,14 +8,6 @@ public class ProductInStore {
     private Store store;
     private System system = System.getInstance();
 
-    public ProductInStore(int productId, int amount, Store store) throws Exception {
-        ProductInfo productInfo = system.getProductInfoById(productId);
-        if (productInfo != null)
-            this.productInfo = productInfo;
-        else throw new Exception("No such product in the system");
-        this.amount = amount;
-        this.store = store;
-    }
 
     public ProductInStore(ProductInfo productInfo, int amount, Store store) {
         this.productInfo = productInfo;

@@ -57,11 +57,11 @@ public class GuestUserHandler {
         return true;
     }
 
-    public boolean purchaseCart(int sessionId) {
+    public boolean purchaseCart(int sessionId, String paymentDetails) {
         double totalPrice = s.buyCart(sessionId);
         if (totalPrice > -1) {
             if (confirmPurchase(sessionId, totalPrice)) {
-                return s.requestConfirmedPurchase(sessionId);
+                return s.requestConfirmedPurchase(sessionId, paymentDetails);
             }
         }
         return false;

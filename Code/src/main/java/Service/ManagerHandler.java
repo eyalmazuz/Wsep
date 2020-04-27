@@ -38,4 +38,13 @@ public class ManagerHandler {
         }
         return "";
     }
+
+    //Usecase 4.2
+    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId, "any")){
+            return s.changeBuyingPolicy(storeId, newPolicy);
+        }
+        return false;
+    }
+
 }

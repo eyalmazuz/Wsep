@@ -53,7 +53,7 @@ public class RealBridge implements Bridge {
 
         //TODO when implementation is changed add the paymentDetails as a parameter you pass
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.purchaseCart(sessionId);
+        return guh.purchaseCart(sessionId, "");
     }
 
     public String viewCart(int sessionId){

@@ -92,7 +92,13 @@ public class OwnerHandler {
         return "";
     }
 
-
+    //Usecase 4.2
+    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+            return s.changeBuyingPolicy(storeId, newPolicy);
+        }
+        return false;
+    }
 
 
 
