@@ -1,5 +1,7 @@
 package Domain.TradingSystem;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class User {
@@ -11,7 +13,7 @@ public class User {
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
-    private PurchaseHistory purchaseHistory;
+    private UserPurchaseHistory userPurchaseHistory;
     private static int idCounter = 0;
     private int id;
 
@@ -93,37 +95,6 @@ public class User {
         return true;
     }
 
-    /**
-     *
-     * Functions For Usecases 2.8
-     *
-     */
-
-    public double purchaseCart() {
-        if (shoppingCart == null) return -1;
-        return shoppingCart.attemptPurchase();
-    }
-
-    public boolean requestConfirmedPurchase() {
-        // by now we know the shopping cart isnt empty, went through attemptPurchase
-        Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase(); // store purchase history
-        state.addPurchase(storePurchaseDetails);
-
-        // important: the supply handler calls the system to remove products from the store if succeeded
-        boolean supplyAvailable = system.requestSupply(id, shoppingCart.getStoreProductsIds());
-        if (supplyAvailable) {
-            shoppingCart.removeAllProducts();
-            return true;
-        } else {
-            system.cancelPayment(id, shoppingCart.getStoreProductsIds());
-            shoppingCart.cancelPurchase(storePurchaseDetails); // remove from store purchase history
-            state.removePurchase(storePurchaseDetails); // remove from user purchase history
-            return false;
-        }
-    }
-
-
-
 //Usecase 3.1
     public boolean logout() {
         return state.logout();
@@ -179,5 +150,37 @@ public class User {
     }
 
 
+    public boolean isCartEmpty() {
+        return shoppingCart.isEmpty();
+    }
+
+    public boolean checkStoreSupplies() {
+        return shoppingCart.checkStoreSupplies();
+    }
+
+    public double getShoppingCartPrice() {
+        return shoppingCart.getPrice();
+    }
+
+    public void saveCurrentCartAsPurchase() {
+        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
+        state.addPurchase(storePurchaseDetailsMap);
+    }
+
+    public void updateStoreSupplies() {
+        shoppingCart.updateStoreSupplies();
+    }
+
+    public Map<Integer, Map<Integer, Integer>> getPrimitiveCartDetails() {
+        return shoppingCart.getPrimitiveDetails();
+    }
+
+    public void emptyCart() {
+        shoppingCart.removeAllProducts();
+    }
+
+    public void removeLastHistoryItem(List<Store> stores) {
+        state.removeLastHistoryItem(stores);
+    }
 }
 

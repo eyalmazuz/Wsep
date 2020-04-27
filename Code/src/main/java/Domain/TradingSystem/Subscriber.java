@@ -16,10 +16,10 @@ public class Subscriber implements UserState {
     private String username;
     private String hashedPassword;
     private boolean isAdmin;
-    private PurchaseHistory purchaseHistory;
+    private UserPurchaseHistory userPurchaseHistory;
 
     public Subscriber() {
-        purchaseHistory = new PurchaseHistory();
+        userPurchaseHistory = new UserPurchaseHistory();
         permissions = new LinkedList<>();
 
 
@@ -33,7 +33,7 @@ public class Subscriber implements UserState {
         idCounter++;
         permissions = new LinkedList<Permission>();
         // FIX for acceptance tests
-        purchaseHistory = new PurchaseHistory();
+        userPurchaseHistory = new UserPurchaseHistory();
 
     }
 
@@ -78,12 +78,12 @@ public class Subscriber implements UserState {
     }
 
     public void saveCart (ShoppingCart cart){
-        purchaseHistory.setLatestCart(cart);
+        userPurchaseHistory.setLatestCart(cart);
         cart.removeAllProducts();
     }
 
     public String getHistory() {
-        return purchaseHistory.toString();
+        return userPurchaseHistory.toString();
     }
 
     @Override
@@ -263,13 +263,8 @@ public class Subscriber implements UserState {
 
 
     @Override
-    public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
-        purchaseHistory.addPurchase(storePurchaseDetails);
-    }
-
-    @Override
-    public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
-        purchaseHistory.removePurchase(storePurchaseDetails);
+    public void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails) {
+        userPurchaseHistory.addPurchase(storePurchaseDetails);
     }
 
     private void overridePermission(String type, Store store, String details) {
@@ -282,12 +277,16 @@ public class Subscriber implements UserState {
     }
 
 
+    public void removeLastHistoryItem(List<Store> stores) {
+        userPurchaseHistory.removeLastItem(stores);
+    }
+
     public String getHashedPassword() {
         return hashedPassword;
     }
 
-    public PurchaseHistory getPurchaseHistory() {
-        return purchaseHistory;
+    public UserPurchaseHistory getUserPurchaseHistory() {
+        return userPurchaseHistory;
     }
 
 

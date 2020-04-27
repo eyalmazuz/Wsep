@@ -3,10 +3,7 @@ package Domain.TradingSystem;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class System {
 
@@ -19,6 +16,9 @@ public class System {
     private List<Store> stores;
     private SystemLogger logger;
     private List<ProductInfo> products;
+
+    // session id -> (store id -> (product id -> amount))
+    private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases;
 
     public System(){
         userHandler = new UserHandler();
@@ -387,51 +387,42 @@ public class System {
         logger.info("getStoreHistory: storeId "+storeId);
         Store s = getStoreById(storeId);
         if(s!=null){
-            return s.getHistory().toString();
+            return s.getStorePurchaseHistory().toString();
         }
         return null;
     }
 
     // usecase 2.8
-    public boolean requestConfirmedPurchase(int sessionId) {
+    /*public boolean requestConfirmedPurchase(int sessionId) {
         User u = userHandler.getUser(sessionId);
 
         makePayment(sessionId, u.getPaymentDetails(), u.getShoppingCart().getStoreProductsIds());
 
         return u.requestConfirmedPurchase();
     }
-
+*/
     public boolean setPaymentDetails(int sessionId, String details) {
         User u = userHandler.getUser(sessionId);
         return u.setPaymentDetails(details);
     }
 
     // usecase 2.8.3
-    public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.makePayment(sessionId, paymentDetails, storeProductsIds);
+    public boolean makePayment(int sessionId, String paymentDetails) {
+        // retrieve store product ids
+        User u = userHandler.getUser(sessionId);
+        Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
+        return paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
     }
 
     public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.cancelPayment(sessionId, storeProductsIds);
+        return paymentHandler.requestRefund(sessionId, storeProductsIds);
     }
 
     // usecase 2.8.4
-    public boolean requestSupply(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        // check whether the stores have enough of the given products
-        for (Integer storeId : storeProductsIds.keySet()) {
-            for (Store store : stores) {
-                if (store.getId() == storeId) {
-                    Map<Integer, Integer> productAmounts = storeProductsIds.get(storeId);
-                    for (Integer productId : productAmounts.keySet()) {
-                        if (store.getProductAmount(productId) < productAmounts.get(productId)) {
-                            return false;
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
+    public boolean requestSupply(int sessionId) {
+        // retrieve store product ids
+        Map<Integer, Map<Integer, Integer>> storeProductsIds = ongoingPurchases.get(sessionId);
+        if (storeProductsIds  == null) return false;
 
         return supplyHandler.requestSupply(sessionId, storeProductsIds);
     }
@@ -452,7 +443,7 @@ public class System {
         Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
         if (subToLogin != null) {
-            ShoppingCart subscriberCart = subToLogin.getPurchaseHistory().getLatestCart();
+            ShoppingCart subscriberCart = subToLogin.getUserPurchaseHistory().getLatestCart();
             if(subscriberCart != null) {
                 subscriberCart.merge(u.getShoppingCart());
             }
@@ -600,10 +591,10 @@ public class System {
         return u.removeAllProductsFromCart();
     }
 
-    public double buyCart(int sessionId) {
+    /*public double buyCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
         return u.purchaseCart();
-    }
+    }*/
 
     public String getCart(int sessionId) {
         User u = userHandler.getUser(sessionId);
@@ -656,6 +647,91 @@ public class System {
         Store store = getStoreById(storeId);
         for (Integer productId : productIdAmountMap.keySet()) {
             store.removeProductAmount(productId, productIdAmountMap.get(productId));
+        }
+    }
+
+    public boolean checkBuyingPolicy(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u.getShoppingCart().checkBuyingPolicy();
+    }
+
+    public boolean isCartEmpty(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        return u.isCartEmpty();
+    }
+
+    public double checkSuppliesAndGetPrice(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+         return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+    }
+
+    public void savePurchaseHistory(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.saveCurrentCartAsPurchase();
+    }
+
+    public void updateStoreSupplies(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.updateStoreSupplies();
+    }
+
+    public void emptyCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        u.emptyCart();
+    }
+
+    public void saveOngoingPurchaseForUser(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        ongoingPurchases.put(sessionId, u.getPrimitiveCartDetails());
+    }
+
+    public void removeOngoingPurchase(int sessionId) {
+        ongoingPurchases.remove(sessionId);
+    }
+
+    public void requestRefund(int sessionId) {
+        paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
+    }
+
+    public void restoreSupplies(int sessionId) {
+        Map<Integer, Map<Integer, Integer>> details = ongoingPurchases.get(sessionId);
+        for (Integer storeId : details.keySet()) {
+            Map<Integer, Integer> productAmounts = details.get(storeId);
+            Store store = getStoreById(storeId);
+            for (Integer productId : productAmounts.keySet()) {
+                store.setProductAmount(productId, productAmounts.get(productId));
+            }
+        }
+    }
+
+    public void restoreHistories(int sessionId) {
+        // remove the last history item for both the store and the user
+        User u = userHandler.getUser(sessionId);
+
+        // user restore
+        List<Integer> storeIds = new ArrayList<>(ongoingPurchases.get(sessionId).keySet());
+        List<Store> stores = new ArrayList<>();
+        for (Integer storeId : storeIds) {
+            stores.add(getStoreById(storeId));
+        }
+        u.removeLastHistoryItem(stores); // pass the method the list of stores!
+
+        // store restore
+        for (Store store : stores) {
+            store.removeLastHistoryItem();
+        }
+    }
+
+    public void restoreCart(int sessionId) {
+        User u = userHandler.getUser(sessionId);
+        Map<Integer, Map<Integer, Integer>> storeProductAmounts = ongoingPurchases.get(sessionId);
+        for (Integer storeId : storeProductAmounts.keySet()) {
+            Store store = getStoreById(storeId);
+            Map<Integer, Integer> productAmounts = storeProductAmounts.get(storeId);
+            for (Integer productId : productAmounts.keySet()) {
+                int amount = productAmounts.get(productId);
+                u.addProductToCart(store, productId, amount);
+            }
         }
     }
 }

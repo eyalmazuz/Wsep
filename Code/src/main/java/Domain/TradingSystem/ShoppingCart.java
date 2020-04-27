@@ -10,18 +10,18 @@ public class ShoppingCart {
     private User user;
     private ArrayList<ShoppingBasket> shoppingBaskets;
 
-    /**
-     *
-     * Functions For Usecases 2.6, 2.7.*
-     *
-     */
-
     public ShoppingCart(User user) {
         shoppingBaskets = new ArrayList<>();
         this.user = user;
     }
 
 
+
+    /**
+     *
+     * Functions For Usecases 2.6, 2.7.*
+     *
+     */
 
     public boolean addProduct(Store store, int productId, int amount) {
         if (store == null || productId < 0 || amount < 1) return false;
@@ -53,8 +53,8 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    // usecase 2.8
-    public double attemptPurchase() {
+    // usecase 2.8.1, 2.8.2
+    /*public double attemptPurchase() {
         // check if all baskets are empty
         boolean allEmpty = true;
         for (ShoppingBasket basket : shoppingBaskets) {
@@ -74,7 +74,7 @@ public class ShoppingCart {
             totalPrice += basketPrice;
         }
         return totalPrice;
-    }
+    }*/
 
     public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {
         Map<Integer, Map<Integer, Integer>> storeProductsIds = new HashMap<>();
@@ -84,27 +84,6 @@ public class ShoppingCart {
         return storeProductsIds;
     }
 
-    // usecase 2.8
-    public Map<Integer, PurchaseDetails> savePurchase() {
-        Map<Integer, PurchaseDetails> storePurchaseDetails = new HashMap<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
-            PurchaseDetails details = basket.savePurchase(user);
-            storePurchaseDetails.put(basket.getStoreId(), details);
-        }
-        return storePurchaseDetails;
-    }
-
-    // usecase 2.8
-    public void cancelPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
-        for (Integer storeId : storePurchaseDetails.keySet()) {
-            for (ShoppingBasket basket : shoppingBaskets) {
-                if (basket.getStoreId() == storeId) {
-                    basket.cancelPurchase(storePurchaseDetails.get(storeId));
-                    break;
-                }
-            }
-        }
-    }
 
     private ShoppingBasket getBasket(Store store) {
         for (ShoppingBasket basket : shoppingBaskets) {
@@ -159,5 +138,63 @@ public class ShoppingCart {
             output += basket.toString() + "\n";
         }
         return output;
+    }
+
+    public boolean checkBuyingPolicy() {
+        boolean allowed = true;
+        for (ShoppingBasket basket : shoppingBaskets) {
+            if(!basket.checkBuyingPolicy(user)) {
+                allowed = false;
+                break;
+            }
+        }
+        return allowed;
+    }
+
+    public boolean isEmpty() {
+        return shoppingBaskets.isEmpty();
+    }
+
+    public boolean checkStoreSupplies() {
+        boolean missing = false;
+        for (ShoppingBasket basket : shoppingBaskets) {
+            if (!basket.checkStoreSupplies()) {
+                missing = true;
+                break;
+            }
+        }
+        return !missing;
+    }
+
+    public double getPrice() {
+        double totalPrice = 0;
+        for (ShoppingBasket basket : shoppingBaskets) {
+            totalPrice += basket.getTotalPrice(user);
+        }
+        return totalPrice;
+    }
+
+
+    public Map<Store, PurchaseDetails> saveAndGetStorePurchaseDetails() {
+        Map<Store, PurchaseDetails> storePurchaseDetailsMap = new HashMap<>();
+        for (ShoppingBasket basket : shoppingBaskets) {
+            PurchaseDetails details = basket.savePurchase(user);
+            storePurchaseDetailsMap.put(basket.getStore(), details);
+        }
+        return storePurchaseDetailsMap;
+    }
+
+    public void updateStoreSupplies() {
+        for (ShoppingBasket basket : shoppingBaskets) {
+            basket.updateStoreSupplies();
+        }
+    }
+
+    public Map<Integer, Map<Integer, Integer>> getPrimitiveDetails() {
+        Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
+        for (ShoppingBasket basket : shoppingBaskets) {
+            map.put(basket.getStoreId(), basket.getProducts());
+        }
+        return map;
     }
 }

@@ -19,9 +19,6 @@ public class SupplyHandler {
 
             // perform any additional checks
 
-            for (Integer store : storeProductsIds.keySet()) {
-                system.removeStoreProductSupplies(store, storeProductsIds.get(store));
-            }
             return true;
         }
         return false;

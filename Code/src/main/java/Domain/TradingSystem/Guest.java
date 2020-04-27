@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 
+import java.util.List;
 import java.util.Map;
 
 public class Guest implements UserState {
@@ -65,14 +66,14 @@ public class Guest implements UserState {
 
 
     @Override
-    public void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+    public void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails) {
 
     }
 
-    @Override
-    public void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails) {
+    public void removeLastHistoryItem(List<Store> stores) {
 
     }
+
 
     @Override
     public boolean isAdmin() {

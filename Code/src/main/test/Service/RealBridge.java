@@ -51,7 +51,7 @@ public class RealBridge implements Bridge {
 
     public boolean buyCart(int sessionId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.purchaseCart(sessionId);
+        return guh.requestPurchase(sessionId);
     }
 
     public String viewCart(int sessionId){

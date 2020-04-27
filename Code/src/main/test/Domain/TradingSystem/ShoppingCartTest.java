@@ -2,12 +2,10 @@ package Domain.TradingSystem;
 
 
 import junit.framework.TestCase;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -179,10 +177,10 @@ public class ShoppingCartTest extends TestCase {
         user.setShoppingCart(shoppingCart);
         shoppingCart.addProduct(store1, 0, 15);
         shoppingCart.savePurchase();
-        History history = store1.getHistory();
+        StorePurchaseHistory storePurchaseHistory = store1.getStorePurchaseHistory();
         boolean found = false;
-        for (PurchaseDetails details : history.getPurchaseHistory()) {
-            if (details.getProducts().containsKey(0) && details.getProducts().get(0) == 15 && details.getUser().equals(user)) {
+        for (PurchaseDetails details : storePurchaseHistory.getPurchaseHistory()) {
+            if (details.getProductAmounts().containsKey(0) && details.getProductAmounts().get(0) == 15 && details.getUser().equals(user)) {
                 found = true;
                 break;
             }
@@ -197,8 +195,8 @@ public class ShoppingCartTest extends TestCase {
         Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase();
         shoppingCart.cancelPurchase(storePurchaseDetails);
 
-        History history = store1.getHistory();
-        assertTrue(history.getPurchaseHistory().isEmpty());
+        StorePurchaseHistory storePurchaseHistory = store1.getStorePurchaseHistory();
+        assertTrue(storePurchaseHistory.getPurchaseHistory().isEmpty());
     }
 
     @Test

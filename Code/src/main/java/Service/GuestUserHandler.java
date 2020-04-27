@@ -32,6 +32,8 @@ public class GuestUserHandler {
         return -1;
     }
 
+    // 2.6, 2.7
+
     public boolean addProductToCart(int sessionId, int storeId, int productId, int amount) {
         return s.addToCart(sessionId, storeId, productId, amount);
     }
@@ -52,20 +54,37 @@ public class GuestUserHandler {
         return s.setPaymentDetails(sessionId, paymentDetails);
     }
 
-    public boolean confirmPurchase(int sessionId, double totalPrice) {
-        // user should confirm the purchase here
+    // 2.8.1, 2.8.2
+    public boolean requestPurchase(int sessionId) {
+        if (s.isCartEmpty(sessionId)) return false;
+        if (!s.checkBuyingPolicy(sessionId)) return false;
+        double price = s.checkSuppliesAndGetPrice(sessionId);
+        if (price < 0) return false;
+        // pass price to user confirmation
         return true;
     }
 
-    public boolean purchaseCart(int sessionId) {
-        double totalPrice = s.buyCart(sessionId);
-        if (totalPrice > -1) {
-            if (confirmPurchase(sessionId, totalPrice)) {
-                return s.requestConfirmedPurchase(sessionId);
-            }
+    // 2.8.3, 2.8.4
+    public boolean confirmPurchase(int sessionId, String paymentDetails) {
+        if (!s.makePayment(sessionId, paymentDetails)) return false;
+        s.savePurchaseHistory(sessionId);
+        s.updateStoreSupplies(sessionId);
+        s.saveOngoingPurchaseForUser(sessionId);
+        s.emptyCart(sessionId);
+
+        if (!s.requestSupply(sessionId)) {
+            s.requestRefund(sessionId);
+            s.restoreSupplies(sessionId);
+            s.restoreHistories(sessionId);
+            s.restoreCart(sessionId);
+            return false;
         }
-        return false;
+
+        s.removeOngoingPurchase(sessionId);
+
+        return true;
     }
+
 
     public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         return s.searchProducts(sessionId, productName, categoryName, keywords, minItemRating, minStoreRating);
