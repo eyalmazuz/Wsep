@@ -38,6 +38,11 @@ public class User {
     }
 
     public void setState(UserState nState) {
+
+        if(nState == null){
+            throw new NullPointerException();
+        }
+
         this.state = nState;
         state.setUser(this);
     }
@@ -49,7 +54,9 @@ public class User {
      *
      */
     public void setShoppingCart(ShoppingCart cart) {
-        this.shoppingCart = cart;
+        if(cart!=null) {
+            this.shoppingCart = cart;
+        }
     }
 
     public boolean addProductToCart(Store store, int productId, int amount) {

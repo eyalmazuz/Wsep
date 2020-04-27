@@ -92,8 +92,8 @@ public class Store {
     }
 
     public void addOwner(Subscriber newOwner) {
-
-        managers.add(newOwner);
+        if(newOwner != null)
+            managers.add(newOwner);
     }
 
     public List<Subscriber> getManagers() {
@@ -109,11 +109,13 @@ public class Store {
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
-        this.buyingPolicy = policy;
+        if(policy!= null)
+            this.buyingPolicy = policy;
     }
 
     public void setDiscountPolicy(DiscountPolicy policy) {
-        this.discountPolicy = policy;
+        if(policy!= null)
+            this.discountPolicy = policy;
     }
 
     public boolean checkPurchaseValidity(User user, int productId) {
@@ -195,6 +197,17 @@ public class Store {
                     products.remove(product);
                 } else {
                     product.setAmount(newAmount);
+                }
+            }
+        }
+    }
+
+    public void removeManger(Subscriber managerToDelete) {
+        if(managerToDelete!= null && managers.size() > 1){
+            for(Subscriber s : managers){
+                if (s.getId() == managerToDelete.getId()) {
+                    managers.remove(managerToDelete);
+                    break;
                 }
             }
         }
