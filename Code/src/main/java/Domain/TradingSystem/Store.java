@@ -38,7 +38,7 @@ public class Store {
     }
 
     public boolean addProduct(ProductInfo info, int amount) {
-        if(amount < 1) return false;
+        if(amount < 1 || info == null) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
             if(p.getId() == info.getId()){
@@ -61,10 +61,12 @@ public class Store {
     }
 
     public boolean editProduct(int productId, String info) {
-        for (ProductInStore product:products){
-            if (product.getId() == productId){
-                product.editInfo(info);
-                return true;
+        if(info!=null) {
+            for (ProductInStore product : products) {
+                if (product.getId() == productId) {
+                    product.editInfo(info);
+                    return true;
+                }
             }
         }
         return false;
@@ -189,14 +191,19 @@ public class Store {
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
-        for (ProductInStore product : products) {
-            int id = product.getId();
-            if (productId == id) {
-                int newAmount = product.getAmount() - amount;
-                if (newAmount == 0) {
-                    products.remove(product);
-                } else {
-                    product.setAmount(newAmount);
+        if (amount > 0) {
+            for (ProductInStore product : products) {
+                int id = product.getId();
+                if (productId == id) {
+                    int newAmount = product.getAmount() - amount;
+                    if (newAmount>=0) {
+                        if (newAmount == 0) {
+                            products.remove(product);
+                        } else {
+                            product.setAmount(newAmount);
+                        }
+
+                    }
                 }
             }
         }
@@ -211,5 +218,23 @@ public class Store {
                 }
             }
         }
+    }
+
+    //for Testing reasons
+    public void clean() {
+        managers.clear();
+        products.clear();
+    }
+
+    public BuyingPolicy getBuyingPolicy() {
+        return buyingPolicy;
+    }
+
+    public DiscountPolicy getDiscountPolicy() {
+        return discountPolicy;
+    }
+
+    public List<Subscriber> getAllManagers(){
+        return managers;
     }
 }
