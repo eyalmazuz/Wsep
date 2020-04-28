@@ -7,7 +7,7 @@ public class PaymentHandler {
 
     public PaymentHandler(String config) throws Exception {
         if (config.equals("Error")){
-            throw new Exception();
+            throw new Exception("Failed To connect Payment Handler");
         }
         this.config = config;
     }

@@ -88,9 +88,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(int sessionId) {
+    public boolean buyCart(int sessionId, String paymentDetails) {
         if (rb != null) {
-            return rb.buyCart(sessionId);
+            return rb.buyCart(sessionId, paymentDetails);
         }
         else {
             return false;
@@ -246,6 +246,13 @@ public class ProxyBridge implements Bridge {
         else{
 
         }
+    }
+
+    public boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy) {
+        if(rb != null){
+            return rb.changeBuyingPolicy(sessionId, flag, newPolicy);
+        }
+        else return false;
     }
 
 }

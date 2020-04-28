@@ -25,26 +25,6 @@ public class User {
         this.shoppingCart = new ShoppingCart(this);
     }
 
-    /**
-     *
-     * Functions For Usecases 4.*
-     *
-     */
-    public boolean addProductToStore(Store store, int productId, int amount) {
-        return state.addProductToStore(store, productId, amount);
-
-    }
-
-    public boolean editProductInStore(Store store, int productId, String newInfo) {
-
-        return state.editProductInStore(store, productId, newInfo);
-    }
-
-    public boolean deleteProductFromStore(Store store, int productId) {
-
-        return state.deleteProductFromStore(store, productId);
-
-    }
 
     public boolean setPaymentDetails(String details) {
         this.paymentDetails = details;
@@ -60,6 +40,11 @@ public class User {
     }
 
     public void setState(UserState nState) {
+
+        if(nState == null){
+            throw new NullPointerException();
+        }
+
         this.state = nState;
         state.setUser(this);
     }
@@ -71,7 +56,9 @@ public class User {
      *
      */
     public void setShoppingCart(ShoppingCart cart) {
-        this.shoppingCart = cart;
+        if(cart!=null) {
+            this.shoppingCart = cart;
+        }
     }
 
     public boolean addProductToCart(Store store, int productId, int amount) {

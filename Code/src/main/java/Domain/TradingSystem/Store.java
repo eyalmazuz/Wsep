@@ -38,11 +38,11 @@ public class Store {
         return id;
     }
 
-    public boolean addProduct(int productId, int amount) {
-        if (productId < 0 || amount < 1) return false;
+    public boolean addProduct(ProductInfo info, int amount) {
+        if(amount < 1 || info == null) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
-            if(p.getId() == productId){
+            if(p.getId() == info.getId()){
                 p.addAmount(amount);
                 found.set(true);
             }
@@ -51,7 +51,7 @@ public class Store {
         if(!found.get()){
             ProductInStore newProduct = null;
             try {
-                newProduct = new ProductInStore(productId, amount, this);
+                newProduct = new ProductInStore(info, amount, this);
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -62,10 +62,12 @@ public class Store {
     }
 
     public boolean editProduct(int productId, String info) {
-        for (ProductInStore product:products){
-            if (product.getId() == productId){
-                product.editInfo(info);
-                return true;
+        if(info!=null) {
+            for (ProductInStore product : products) {
+                if (product.getId() == productId) {
+                    product.editInfo(info);
+                    return true;
+                }
             }
         }
         return false;
@@ -93,8 +95,8 @@ public class Store {
     }
 
     public void addOwner(Subscriber newOwner) {
-
-        managers.add(newOwner);
+        if(newOwner != null)
+            managers.add(newOwner);
     }
 
     public List<Subscriber> getManagers() {
@@ -110,11 +112,13 @@ public class Store {
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
-        this.buyingPolicy = policy;
+        if(policy!= null)
+            this.buyingPolicy = policy;
     }
 
     public void setDiscountPolicy(DiscountPolicy policy) {
-        this.discountPolicy = policy;
+        if(policy!= null)
+            this.discountPolicy = policy;
     }
 
     public boolean checkPurchaseValidity(User user, Map<Integer, Integer> productAmounts) {
@@ -208,6 +212,7 @@ public class Store {
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
+        if (amount < 0) return;
         for (ProductInStore product : products) {
             int id = product.getId();
             if (productId == id) {

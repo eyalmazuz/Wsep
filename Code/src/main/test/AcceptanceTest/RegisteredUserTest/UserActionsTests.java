@@ -31,7 +31,7 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId);
+        buyCart(Database.sessionId, "Good payment details");
 
     }
 
@@ -83,7 +83,7 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId);
+        buyCart(Database.sessionId, "Good payment details");
         assertNotNull(viewPurchaseHistory(Database.sessionId));
     }
 

@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class SubscriberTest extends TestCase {
@@ -91,45 +92,13 @@ public class SubscriberTest extends TestCase {
         assertEquals(subscriber.getUser(),user);
     }
 
-
-
     @Test
-    public void testAddProductToStore() {
-        store = subscriber.openStore();
-        productInfo = new ProductInfo(1,"bamba","hatif");
-        assertTrue(subscriber.addProductToStore(store,1,5));
-        assertFalse(subscriber.addProductToStore(store,3,5));//productid does not exist
-
-    }
-
-    /*
-    @Test
-    void checkPrivilage() {
-        ??
-    }
-*/
-    @Test
-    void editProductInStore() {
-        store = subscriber.openStore();
-        productInfo = new ProductInfo(3,"bamba","hatif");
-        assertFalse(subscriber.editProductInStore(store, 3, "contains peanuts"));
-        subscriber.addProductToStore(store,3,3);
-        assertTrue(subscriber.editProductInStore(store, 3, "contains peanuts"));
-        assertFalse(subscriber.editProductInStore(store, -12, "contains peanuts"));
-        store = new Store();
-        assertFalse(subscriber.editProductInStore(store, 3, "contains peanuts"));//
+    public void testSetUserNotNull(){
+        assertThrows(Exception.class,()->subscriber.setUser(null));
 
     }
 
 
-    @Test
-    public void testDeleteProductFromStore() {
-        store = subscriber.openStore();
-        subscriber.addProductToStore(store,1,5);
-        assertTrue(subscriber.deleteProductFromStore(store,1));
-        assertFalse(subscriber.deleteProductFromStore(store,2));
-
-    }
 
     @Test
     public void testAddOwner() {
