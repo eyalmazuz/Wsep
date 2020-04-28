@@ -188,7 +188,7 @@ public class System {
     public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) {
 
         logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, ammount, productId, storeId));
-        ProductInfo info = getProdctInfo(productId);
+        ProductInfo info = getProductInfoById(productId);
         if(info != null) {
             Store store = getStoreById(storeId);
             if (store != null) {

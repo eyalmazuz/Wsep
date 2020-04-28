@@ -169,7 +169,7 @@ public class Store {
                     break;
                 }
             }
-            if (!productExists) addProduct(productId, amount);
+            if (!productExists) addProduct(System.getInstance().getProductInfoById(productId), amount);
         }
     }
 
@@ -224,6 +224,35 @@ public class Store {
                 }
             }
         }
+    }
+
+    public void removeManger(Subscriber managerToDelete) {
+        if(managerToDelete!= null && managers.size() > 1){
+            for(Subscriber s : managers){
+                if (s.getId() == managerToDelete.getId()) {
+                    managers.remove(managerToDelete);
+                    break;
+                }
+            }
+        }
+    }
+
+    //for Testing reasons
+    public void clean() {
+        managers.clear();
+        products.clear();
+    }
+
+    public BuyingPolicy getBuyingPolicy() {
+        return buyingPolicy;
+    }
+
+    public DiscountPolicy getDiscountPolicy() {
+        return discountPolicy;
+    }
+
+    public List<Subscriber> getAllManagers(){
+        return managers;
     }
 
     public double getPrice(User user, Map<Integer, Integer> products) {
