@@ -88,6 +88,9 @@ public class Subscriber implements UserState {
 
     @Override
     public void setUser(User user) {
+        if(user == null){
+            throw new NullPointerException();
+        }
         this.user = user;
     }
 
@@ -143,6 +146,7 @@ public class Subscriber implements UserState {
     public boolean deleteManager(Store store, Subscriber managerToDelete) {
 
         managerToDelete.removePermission(store,"Manager");
+        store.removeManger(managerToDelete);
         return true;
 
     }

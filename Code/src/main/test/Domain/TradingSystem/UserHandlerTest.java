@@ -165,6 +165,8 @@ public class UserHandlerTest extends TestCase {
         assertEquals(s.getId(),userState.getId());//the state is the correct one
     }
 
+
+
     @Test
     public void testCreateSessionDiffIds() {
         int id1 = uh.createSession();

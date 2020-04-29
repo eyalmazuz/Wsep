@@ -38,7 +38,7 @@ public class Store {
     }
 
     public boolean addProduct(ProductInfo info, int amount) {
-        if(amount < 1) return false;
+        if(amount < 1 || info == null) return false;
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
             if(p.getId() == info.getId()){
@@ -61,10 +61,12 @@ public class Store {
     }
 
     public boolean editProduct(int productId, String info) {
-        for (ProductInStore product:products){
-            if (product.getId() == productId){
-                product.editInfo(info);
-                return true;
+        if(info!=null) {
+            for (ProductInStore product : products) {
+                if (product.getId() == productId) {
+                    product.editInfo(info);
+                    return true;
+                }
             }
         }
         return false;
@@ -92,8 +94,8 @@ public class Store {
     }
 
     public void addOwner(Subscriber newOwner) {
-
-        managers.add(newOwner);
+        if(newOwner != null)
+            managers.add(newOwner);
     }
 
     public List<Subscriber> getManagers() {
@@ -109,11 +111,13 @@ public class Store {
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
-        this.buyingPolicy = policy;
+        if(policy!= null)
+            this.buyingPolicy = policy;
     }
 
     public void setDiscountPolicy(DiscountPolicy policy) {
-        this.discountPolicy = policy;
+        if(policy!= null)
+            this.discountPolicy = policy;
     }
 
     public boolean checkPurchaseValidity(User user, int productId) {
@@ -187,16 +191,50 @@ public class Store {
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
-        for (ProductInStore product : products) {
-            int id = product.getId();
-            if (productId == id) {
-                int newAmount = product.getAmount() - amount;
-                if (newAmount == 0) {
-                    products.remove(product);
-                } else {
-                    product.setAmount(newAmount);
+        if (amount > 0) {
+            for (ProductInStore product : products) {
+                int id = product.getId();
+                if (productId == id) {
+                    int newAmount = product.getAmount() - amount;
+                    if (newAmount>=0) {
+                        if (newAmount == 0) {
+                            products.remove(product);
+                        } else {
+                            product.setAmount(newAmount);
+                        }
+
+                    }
                 }
             }
         }
+    }
+
+    public void removeManger(Subscriber managerToDelete) {
+        if(managerToDelete!= null && managers.size() > 1){
+            for(Subscriber s : managers){
+                if (s.getId() == managerToDelete.getId()) {
+                    managers.remove(managerToDelete);
+                    break;
+                }
+            }
+        }
+    }
+
+    //for Testing reasons
+    public void clean() {
+        managers.clear();
+        products.clear();
+    }
+
+    public BuyingPolicy getBuyingPolicy() {
+        return buyingPolicy;
+    }
+
+    public DiscountPolicy getDiscountPolicy() {
+        return discountPolicy;
+    }
+
+    public List<Subscriber> getAllManagers(){
+        return managers;
     }
 }

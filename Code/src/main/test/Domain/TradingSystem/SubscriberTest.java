@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class SubscriberTest extends TestCase {
@@ -89,6 +90,12 @@ public class SubscriberTest extends TestCase {
         user = new User();
         subscriber.setUser(user);
         assertEquals(subscriber.getUser(),user);
+    }
+
+    @Test
+    public void testSetUserNotNull(){
+        assertThrows(Exception.class,()->subscriber.setUser(null));
+
     }
 
 
