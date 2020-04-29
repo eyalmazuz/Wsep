@@ -2,11 +2,10 @@ package Domain.TradingSystem;
 
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
+import Domain.Spelling.Spellchecker;
+import Domain.Util.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class System {
 
@@ -481,18 +480,42 @@ public class System {
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
-       for (Store store: stores)
+        List<String> productNames = new ArrayList<>();
+        productNames.add(productName);
+        if (productName != null) {
+            List<String> productSugs = Spellchecker.getSuggestions(productName);
+            if (productSugs != null) productNames.addAll(productSugs);
+        }
+
+        List<String> categoryNames = new ArrayList<>();
+        categoryNames.add(categoryName);
+        if (categoryName != null) {
+            List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
+            if (categorySugs != null) categoryNames.addAll(categorySugs);
+        }
+
+        List<String> keywordsUpdated = new ArrayList<>();
+        if (keywords != null) {
+            keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
+            for (String keyword: keywords) {
+                List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
+                if (keywordSugs != null) keywordsUpdated.addAll(keywordSugs);
+            }
+        }
+
+
+        for (Store store: stores)
             if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
 
         for (ProductInStore pis: allProducts) {
             ProductInfo info = pis.getProductInfo();
             if (productName != null)
-                if (info.getName().equals(productName)) {
+                if (productNames.contains(info.getName())) {
                     filteredProducts.add(pis);
                     continue;
                 }
             if (categoryName != null)
-                if (info.getCategory().equals(categoryName)) {
+                if (categoryNames.contains(info.getCategory())) {
                     filteredProducts.add(pis);
                     continue;
                 }
@@ -503,7 +526,7 @@ public class System {
             }
 
             if (keywords != null) {
-                for (String keyword: keywords) {
+                for (String keyword: keywordsUpdated) {
                     if (pis.toString().contains(keyword))
                         filteredProducts.add(pis);
                 }
