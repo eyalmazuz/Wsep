@@ -3,10 +3,7 @@ package Domain.TradingSystem;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class System {
 
@@ -104,6 +101,7 @@ public class System {
     }
 
     public int startSession(){
+        logger.info("startSession: no arguments");
         return userHandler.createSession();
     }
 
@@ -263,6 +261,7 @@ public class System {
     }
 
     public boolean subIsOwner(int subId,int storeId) {
+        logger.info("subIsOwner: subId " + subId + ", storeId " + storeId);
         Subscriber s = userHandler.getSubscriber(subId);
         return s!=null && s.hasOwnerPermission(storeId);
     }
@@ -335,6 +334,7 @@ public class System {
      */
 
     public boolean subIsManager(int subId, int storeId) {
+        logger.info("subIsManager: subId " + subId + ", storeId " + storeId);
         Subscriber s = userHandler.getSubscriber(subId);
         return s!=null && s.hasManagerPermission(storeId);
     }
@@ -373,6 +373,7 @@ public class System {
      * @return
      */
     public boolean setManagerDetalis(int sessionId, int managerId, int storeId, String details){
+        logger.info("setManagerDetalis: sessionId " + sessionId + ", managerId " + managerId + ", storeId " + storeId + ", details " + details);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Subscriber manager = userHandler.getSubscriber(managerId);
@@ -397,6 +398,7 @@ public class System {
 
     // usecase 2.8
     public boolean requestConfirmedPurchase(int sessionId, String paymentDetails) {
+        logger.info("requestConfirmedPurchase: sessionId " + sessionId + ", paymentDetails " + paymentDetails);
         User u = userHandler.getUser(sessionId);
 
         makePayment(sessionId, paymentDetails, u.getShoppingCart().getStoreProductsIds());
@@ -405,6 +407,7 @@ public class System {
     }
 
     public boolean setPaymentDetails(int sessionId, String details) {
+        logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
         User u = userHandler.getUser(sessionId);
         return u.setPaymentDetails(details);
     }
@@ -440,7 +443,8 @@ public class System {
     }
 
     // Usecase 2.2
-    public int register(int sessionId,String username, String password) {
+    public int register(int sessionId, String username, String password) {
+        logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return -1;
         if (username == null || password == null) return -1;
@@ -468,6 +472,7 @@ public class System {
 
     // Usecase 2.4
     public String viewStoreProductInfo() {
+        logger.info("searchProducts: no arguments");
         String info = "";
         for (Store store: stores) {
             info += store.toString() + "\n--------------------------\n";
@@ -478,6 +483,8 @@ public class System {
 
     // Usecase 2.5
     public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
+        logger.info("searchProducts: sessionId " + sessionId + ", productName " + productName + ", categoryName: "
+                + categoryName + ", keywords " + Arrays.toString(keywords) + ", minItemRating " + minItemRating + ", minStoreRating " + minStoreRating);
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
@@ -576,22 +583,23 @@ public class System {
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, int amount){
+        logger.info("addToCart: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId + ", amount " + amount);
         if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
-
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
         return u.addProductToCart(store, productId, amount);
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+        logger.info("updateAmount: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId + ", amount " + amount);
         if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
-
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
         return u.editCartProductAmount(store, productId, amount);
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
+        logger.info("deleteItemInCart: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId);
         if (!checkCartModificationDetails(sessionId, storeId, productId, 1)) return false;
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
@@ -599,27 +607,32 @@ public class System {
     }
 
     public boolean clearCart(int sessionId) {
+        logger.info("clearCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.removeAllProductsFromCart();
     }
 
     public double buyCart(int sessionId) {
+        logger.info("buyCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.purchaseCart();
     }
 
     public String getCart(int sessionId) {
+        logger.info("getCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.getShoppingCart().toString();
     }
 
     // Usecase 2.3
     public boolean isGuest(int sessionId) {
+        logger.info("isGuest: sessionId "+ sessionId);
         User u = userHandler.getUser(sessionId);
         return u!=null && u.isGuest();
     }
 
     public int getSubscriber(String username, String password) {
+        logger.info("getSubscriber: username " + username + ", password " + password);
         if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
         if (s == null)
@@ -629,11 +642,13 @@ public class System {
     }
 
     public void setState(int sessionId, int subId) {
+        logger.info("setState: sessionId " + sessionId + ", subId " + subId);
         userHandler.setState(sessionId, subId);
     }
 
     // Usecase 2.3
     public void mergeCartWithSubscriber(int sessionId) {
+        logger.info("mergeCartWithSubscriber: sessionId " + sessionId);
         userHandler.mergeCartWithSubscriber(sessionId);
     }
 
@@ -651,6 +666,7 @@ public class System {
     }
 
     public void addProductInfo(int id, String name, String category) {
+        logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category);
         products.add(productInfo);
     }
@@ -672,6 +688,7 @@ public class System {
     }
 
     public boolean changeBuyingPolicy(int storeId, String newPolicy){
+        logger.info("changeBuyingPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
         Store s = getStoreById(storeId);
         if(s != null){
             s.setBuyingPolicy(new BuyingPolicy(newPolicy));
