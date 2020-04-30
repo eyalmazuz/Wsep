@@ -171,9 +171,9 @@ public class PurchaseCartTests extends ServiceTest {
     }
 
     @Test
-    public void testPurchaseFailedPaymentSystem(){
+    public void testPurchaseFailedSupplySystem(){
 
-        setupSystem("Bad", "Mock Config");
+        setupSystem("No supplies", "Mock Config");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "admin", "admin");
@@ -206,9 +206,9 @@ public class PurchaseCartTests extends ServiceTest {
     }
 
     @Test
-    public void testPurchaseFailedSupplySystem(){
+    public void testPurchaseFailedPaymentSystem(){
 
-        setupSystem("Mock Config", "Bad");
+        setupSystem("Mock Config", "No payments");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "admin", "admin");
