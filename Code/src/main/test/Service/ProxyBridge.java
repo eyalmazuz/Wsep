@@ -248,9 +248,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy) {
+    public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy) {
         if(rb != null){
-            return rb.changeBuyingPolicy(sessionId, flag, newPolicy);
+            return rb.changeBuyingPolicy(sessionId, flag, storeId, newPolicy);
         }
         else return false;
     }

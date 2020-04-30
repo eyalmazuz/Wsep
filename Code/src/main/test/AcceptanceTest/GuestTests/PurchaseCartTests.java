@@ -13,7 +13,7 @@ public class PurchaseCartTests extends ServiceTest {
      * */
     @Before
     public void setUp(){
-//        super.setUp();
+        super.setUp();
 
 
 
@@ -86,7 +86,7 @@ public class PurchaseCartTests extends ServiceTest {
         addProdcut(true,Database.sessionId, 2, sid_1, 5);
 
         //TODO when change policy is implemented, uncomment this
-        //changeBuyingPolicy("No one is Allowed")
+        changeBuyingPolicy(Database.sessionId, true, Database.userToStore.get("chika"),"No one is allowed");
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "12345");
@@ -104,6 +104,29 @@ public class PurchaseCartTests extends ServiceTest {
 
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
+
+        setupSystem("Mock Config", "Mock Config");
+        Database.sessionId = startSession();
+
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 1, "UO", "KB");
+        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+        logout(Database.sessionId);
+
+        for(String[] userData : Database.Users){
+            int userId = register(Database.sessionId, userData[0], userData[1]);
+            Database.userToId.put(userData[0], userId);
+        }
+
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
+        Database.userToStore.put("chika", sid_1);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+
+        changeBuyingPolicy(Database.sessionId, true, Database.userToStore.get("chika"),"No one is Allowed");
+        logout(Database.sessionId);
+
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 500);
         assertFalse(buyCart(Database.sessionId, "Good payment details"));
@@ -148,9 +171,9 @@ public class PurchaseCartTests extends ServiceTest {
     }
 
     @Test
-    public void testPurchaseFailedPaymentSystem(){
+    public void testPurchaseFailedSupplySystem(){
 
-        setupSystem("Bad", "Mock Config");
+        setupSystem("No supplies", "Mock Config");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "admin", "admin");
@@ -183,9 +206,9 @@ public class PurchaseCartTests extends ServiceTest {
     }
 
     @Test
-    public void testPurchaseFailedSupplySystem(){
+    public void testPurchaseFailedPaymentSystem(){
 
-        setupSystem("Mock Config", "Bad");
+        setupSystem("Mock Config", "No payments");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "admin", "admin");

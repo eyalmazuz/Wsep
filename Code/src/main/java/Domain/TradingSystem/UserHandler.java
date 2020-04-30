@@ -126,9 +126,9 @@ public class UserHandler {
         User u = users.get(sessionId);
         if (u!= null){
             Subscriber s = (Subscriber) u.getState();
-            ShoppingCart cart = s.getPurchaseHistory().getLatestCart();
+            ShoppingCart cart = s.getUserPurchaseHistory().getLatestCart();
             if(cart==null){
-                s.getPurchaseHistory().setLatestCart(u.getShoppingCart());
+                s.getUserPurchaseHistory().setLatestCart(u.getShoppingCart());
             }
             else{
                 cart.merge(u.getShoppingCart());
