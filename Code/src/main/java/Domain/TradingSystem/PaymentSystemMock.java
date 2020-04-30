@@ -9,6 +9,7 @@ public class PaymentSystemMock {
 
 
     public static boolean attemptPurchase(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductDetails) {
+        if (paymentDetails.equals("Bad payment details")) return false;
         if (succeedPurchase) userPurchases.put(sessionId, storeProductDetails);
         return succeedPurchase;
     }
