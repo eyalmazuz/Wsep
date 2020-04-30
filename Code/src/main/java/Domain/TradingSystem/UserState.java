@@ -23,14 +23,7 @@ interface UserState {
 
      Store openStore();
 
-     boolean addOwner(Store store, Subscriber newOwner);
 
-     boolean addManager(Store store, Subscriber newManager);
-
-     boolean deleteManager(Store store, Subscriber managerToDelete);
-
-
-     boolean editPermission(Subscriber manager, Store store, String details);
 
      void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails);
 

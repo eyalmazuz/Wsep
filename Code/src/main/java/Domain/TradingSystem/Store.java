@@ -217,10 +217,12 @@ public class Store {
             int id = product.getId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
-                if (newAmount == 0) {
-                    products.remove(product);
-                } else {
-                    product.setAmount(newAmount);
+                if (newAmount>=0) {
+                    if (newAmount == 0) {
+                        products.remove(product);
+                    } else {
+                        product.setAmount(newAmount);
+                    }
                 }
             }
         }

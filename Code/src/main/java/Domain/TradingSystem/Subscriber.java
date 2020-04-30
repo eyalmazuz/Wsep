@@ -1,9 +1,6 @@
 package Domain.TradingSystem;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Subscriber implements UserState {
 
@@ -11,7 +8,7 @@ public class Subscriber implements UserState {
     private static int idCounter = 0;
 
     private int id;
-    private List <Permission> permissions;
+    private Map <Integer,Permission> permissions; //StoreId -> Permission
     private User user;
     private String username;
     private String hashedPassword;
@@ -20,7 +17,7 @@ public class Subscriber implements UserState {
 
     public Subscriber() {
         userPurchaseHistory = new UserPurchaseHistory();
-        permissions = new LinkedList<>();
+        permissions = new HashMap<>();
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
@@ -29,7 +26,7 @@ public class Subscriber implements UserState {
         this.isAdmin = isAdmin;
         this.id = idCounter;
         idCounter++;
-        permissions = new LinkedList<Permission>();
+        permissions = new HashMap<>();
         // FIX for acceptance tests
         userPurchaseHistory = new UserPurchaseHistory();
 
@@ -113,86 +110,67 @@ public class Subscriber implements UserState {
     public boolean checkPrivilage(int store_id,String type) {
         if(type.equals("any"))
             return true;
+
+        Permission p = permissions.get(store_id);
+
+        return (p!=null && p.hasPrivilage(type));
         
-        for (Permission permission: permissions){
-            if ((permission.getStore().getId()==store_id)&&(permission.hasPrivilage(type)))
-                return true;
-        }
-        return false;
-    }
-
-
-    public boolean addOwner(Store store, Subscriber newOwner) {
-        if(newOwner.addPermission(store, this, "Owner")){
-            store.addOwner(newOwner);
-            return true;
-        }
-
-        return false;
 
     }
 
-    public boolean addManager(Store store, Subscriber newManager) {
-        if(newManager.addPermission(store, this, "Manager")){
-            store.addOwner(newManager);
-            return true;
+
+
+
+
+    public void removePermission(Store store, String type) {
+
+        Permission permission = permissions.get(store.getId());
+        if(permission!=null && permission.getType().equals(type)){
+            permissions.remove(store.getId());
         }
 
-        return false;
-    }
-
-    public boolean deleteManager(Store store, Subscriber managerToDelete) {
-
-        managerToDelete.removePermission(store,"Manager");
-        store.removeManger(managerToDelete);
-        return true;
-
-    }
-
-    private void removePermission(Store store, String type) {
-        for (Permission permission : permissions) {
-            if (permission.getStore().equals(store) && permission.getType().equals(type)) {
-                permissions.remove(permission);
-                break;
-            }
-        }
     }
 
 
     public Subscriber getGrantor(String type, Store store) {
-        for (Permission permission: permissions){
-            if (permission.getStore().equals(store) && permission.getType().equals(type)){
-                return permission.getGrantor();
-            }
+        Permission permission = permissions.get(store.getId());
+
+        if(permission!= null && permission.getType().equals(type)) {
+            return permission.getGrantor();
         }
+
         return null;
     }
 
 
     public boolean hasOwnerPermission(int storeId) {
-        for (Permission permission: permissions){
-            if (permission.isOwner(storeId))
-                return true;
-        }
-        return false;
+        Permission permission = permissions.get(storeId);
+
+        return permission!=null && permission.isOwner(storeId);
+
       }
 
 
     protected Store hasPermission(int storeId, String type){
-        for (Permission permission: permissions){
-            if (permission.getStore().getId() == storeId &&
-                    permission.getType().equals(type)){
-                return permission.getStore();
-            }
-        }
+
+        Permission permission = permissions.get(storeId);
+
+        if(permission!= null && permission.getType().equals(type))
+            return permission.getStore();
+
         return null;
+
       }
 
     public boolean addPermission(Store store, Subscriber grantor, String type ){
         if(!this.equals(grantor)) {
-            Permission permission = new Permission(this, grantor, type, store);
-            permissions.add(permission);
-            return true;
+            Permission permission = permissions.get(store.getId());
+            if (permission == null || (permission.getType().equals("Manager") && type.equals("Owner"))) {
+//The line above grants permission will be set only once Or upgrade from manager to owner
+                Permission newPermission = new Permission(this, grantor, type, store);
+                permissions.put(store.getId(), newPermission);
+                return true;
+            }
         }
         return false;
     }
@@ -202,43 +180,30 @@ public class Subscriber implements UserState {
     }
 
     public boolean hasManagerPermission(int storeId) {
-        for (Permission permission: permissions){
-            if (permission.isManager(storeId))
-                return true;
-        }
-        return false;
+
+        Permission permission = permissions.get(storeId);
+        return permission!= null && permission.isManager(storeId);
+
     }
 
     public boolean isGrantedBy(int storeId, int grantorId) {
-        for (Permission permission : permissions){
-            if (permission.getType().equals("Manager") &&
-                    permission.getStore().getId() == storeId
-                        && permission.getGrantor().getId()==grantorId){
-                return true;
-            }
-        }
-        return false;
+
+        Permission permission = permissions.get(storeId);
+        return permission!=null && permission.getGrantor().getId() == grantorId;
+
     }
 
     public String getManagerDetails(int storeId) {
-        for (Permission permission : permissions){
-            if (permission.getStore().getId()==storeId)
-                return permission.getDetails();
+
+        Permission permission = permissions.get(storeId);
+        if (permission!=null){
+            return permission.getDetails();
         }
         return null;
     }
 
 
-    public boolean editPermission(Subscriber manager, Store store, String details) {
 
-        String[] validDetailes = {"any", "add product", "edit product", "delete product"};
-        if(Arrays.asList(validDetailes).contains(details)) {
-            manager.overridePermission("Manager", store, details);
-            return true;
-        }
-        return false;
-
-    }
 
 
     @Override
@@ -246,11 +211,11 @@ public class Subscriber implements UserState {
         userPurchaseHistory.addPurchase(storePurchaseDetails);
     }
 
-    private void overridePermission(String type, Store store, String details) {
-        for (Permission permission: permissions){
-            if (permission.getStore().equals(store) &&
-                   permission.getType().equals(type))
-                permission.setDetails(details);
+    public void overridePermission(String type, Store store, String details) {
+
+        Permission permission = permissions.get(store.getId());
+        if(permission!= null && permission.getType().equals(type)){
+            permission.setDetails(details);
         }
 
     }
