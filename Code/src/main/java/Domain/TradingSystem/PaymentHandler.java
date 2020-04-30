@@ -10,6 +10,7 @@ public class PaymentHandler {
             throw new Exception("Failed To connect Payment Handler");
         }
         if (config.equals("No payments")) PaymentSystemMock.succeedPurchase = false;
+        else PaymentSystemMock.succeedPurchase = true;
         this.config = config;
     }
 

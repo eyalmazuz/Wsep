@@ -10,6 +10,7 @@ public class SupplyHandler {
             throw new Exception("Failed To connect Supply Handler");
         }
         if (config.equals("No supplies")) SupplySystemMock.succeedSupply = false;
+        else SupplySystemMock.succeedSupply = true;
         this.config = config;
     }
 
