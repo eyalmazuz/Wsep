@@ -15,7 +15,7 @@ public class SupplyHandlerTest extends TestCase {
     @Test
     public void testRequestSupply() {
         try {
-            handler = new SupplyHandler("bad config");
+            handler = new SupplyHandler("No supplies");
         } catch (Exception e) {
             e.printStackTrace();
         }

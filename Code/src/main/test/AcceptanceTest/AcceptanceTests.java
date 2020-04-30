@@ -9,7 +9,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**An Example of Testsuite**/
-public class AllTests {
+public class AcceptanceTests {
 
     public static Test suite(){
         TestSuite suite = new TestSuite("acceptance integration");

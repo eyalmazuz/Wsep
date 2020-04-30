@@ -13,8 +13,15 @@ public class UserPurchaseHistory {
 
     @Override
     public String toString() {
-        // TODO: tostring
-        return "";
+        String output = "";
+        for (Map.Entry<Store, List<PurchaseDetails>> purchase: storePurchaseLists.entrySet()) {
+            output += "Basket Purchase for store ID: " + purchase.getKey().getId() + "\n";
+            for(PurchaseDetails p: purchase.getValue()){
+                output += p.toString() + "\n";
+            }
+
+        }
+        return output;
     }
 
 

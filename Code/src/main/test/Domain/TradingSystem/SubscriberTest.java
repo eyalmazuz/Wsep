@@ -69,21 +69,7 @@ public class SubscriberTest extends TestCase {
 
     }
 
-    @Test
-    public void testGetHistory() {
-        storePurchaseDetails = new HashMap<>();
-        user = subscriber.getUser();
-        store = new Store();
-        int storeId = store.getId();
-        products = new HashMap<>();
-        productInfo = new ProductInfo(3,"bamba","hatif");
-        products.put(productInfo,2);
-        details = new PurchaseDetails(3,user,store,products,13.8);
-        storePurchaseDetails.put(store,details);
-        subscriber.addPurchase(storePurchaseDetails);
-        assertTrue(subscriber.getHistory().length()>1);
 
-    }
 
     @Test
     public void testSetUser() {

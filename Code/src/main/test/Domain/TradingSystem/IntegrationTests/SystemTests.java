@@ -398,4 +398,41 @@ public class SystemTests extends TestCase {
     }
 
 
+    @Test
+    public void testGetHistory() {
+        int sessionId = test.startSession();
+        test.addStore();
+        Store store1 = test.getStores().get(0);
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 5);
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        u.addProductToCart(store1, 4, 4);
+
+        try {
+            test.setSupplyHandler(new SupplyHandler("Mock Config"));
+            test.setPaymentHandler(new PaymentHandler("Mock Config"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String history = "Basket Purchase for store ID: " + String.valueOf(store1.getId()) + "\n" +
+                "Product: \n" +
+                "id: 4\n" +
+                "name: lambda\n" +
+                "category: snacks\n" +
+                "rating: 2.5\n" +
+                "\n" +
+                "Amount: 4\n" +
+                "Price: 0.0\n" +
+                "\n";
+
+        store1.setBuyingPolicy(new BuyingPolicy("Any"));
+        u.saveCurrentCartAsPurchase();
+
+        assertEquals(history, u.getHistory());
+
+    }
+
+
 }

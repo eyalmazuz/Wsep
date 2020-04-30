@@ -32,4 +32,13 @@ public class ProductInfo {
     public void setRating(double rating) {
         this.rating = rating;
     }
+
+    @Override
+    public String toString() {
+        return "Product: \n" +
+                "id: " + id + "\n" +
+                "name: " + name + '\n' +
+                "category: " + category + '\n' +
+                "rating: " + rating + "\n";
+    }
 }
