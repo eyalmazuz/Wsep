@@ -54,5 +54,5 @@ public interface Bridge {
 
     void addProductInfo(int sessionId, int id, String name, String category);
 
-    boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy);
+    boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy);
 }

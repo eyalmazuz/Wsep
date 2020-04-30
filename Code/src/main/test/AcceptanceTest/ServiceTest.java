@@ -109,5 +109,5 @@ public abstract class ServiceTest extends TestCase {
 
     public void addProductInfo(int sessionId, int id, String name, String category) { this.bridge.addProductInfo(sessionId, id, name, category);}
 
-    public boolean changeBuyingPolicy(int sessionId, boolean flag,  String newPolicy) { return this.bridge.changeBuyingPolicy(sessionId, flag, newPolicy); }
+    public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy) { return this.bridge.changeBuyingPolicy(sessionId, flag, storeId, newPolicy); }
 }

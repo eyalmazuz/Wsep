@@ -437,10 +437,10 @@ public class System {
 
     // Usecase 2.2
     public int register(int sessionId, String username, String password) {
+        if (username == null || password == null) return -1;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return -1;
-        if (username == null || password == null) return -1;
         return userHandler.register(username, Security.getHash(password));
     }
 
