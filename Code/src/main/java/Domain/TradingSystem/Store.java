@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class Store {
     private int id;
     private List<ProductInStore> products;
     private List <Subscriber> managers;
-    private History history;
+    private StorePurchaseHistory storePurchaseHistory;
     private BuyingPolicy buyingPolicy;
     private DiscountPolicy discountPolicy;
     private int nextPurchaseId = 0;
@@ -30,7 +31,7 @@ public class Store {
         products = new LinkedList<>();
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy();
-        history = new History();
+        storePurchaseHistory = new StorePurchaseHistory(this);
     }
 
     public int getId() {
@@ -106,8 +107,8 @@ public class Store {
         }
         return managers_;
     }
-    public History getHistory(){
-        return history;
+    public StorePurchaseHistory getStorePurchaseHistory(){
+        return storePurchaseHistory;
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
@@ -120,27 +121,32 @@ public class Store {
             this.discountPolicy = policy;
     }
 
-    public boolean checkPurchaseValidity(User user, int productId) {
-        return buyingPolicy.isAllowed(user, productId);
+    public boolean checkPurchaseValidity(User user, Map<Integer, Integer> productAmounts) {
+        return buyingPolicy.isAllowed(user, productAmounts);
     }
-
-    public double getProductPrice(User user, int productId, int amount) {
-        return discountPolicy.getProductPrice(user, productId, amount);
-    }
-
 
     public PurchaseDetails savePurchase(User user, Map<Integer, Integer> products) {
-        double totalPrice = 0;
+        double totalPrice = getPrice(user, products);
+
+        Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
+        // get the ProductInfo -> integer map
         for (Integer productId : products.keySet()) {
-            totalPrice += getProductPrice(user, productId, products.get(productId));
+            productInfoIntegerMap.put(getProductInfoByProductId(productId), products.get(productId));
         }
-        PurchaseDetails details = history.addPurchase(nextPurchaseId, user, products, totalPrice);
+        PurchaseDetails details = storePurchaseHistory.addPurchase(nextPurchaseId, user, productInfoIntegerMap, totalPrice);
         nextPurchaseId++;
         return details;
     }
 
+    private ProductInfo getProductInfoByProductId(int productId) {
+        for (ProductInStore pis : products) {
+            if (pis.getId() == productId) return pis.getProductInfo();
+        }
+        return null;
+    }
+
     public void cancelPurchase(PurchaseDetails purchaseDetails) {
-        history.removePurchase(purchaseDetails);
+        storePurchaseHistory.removePurchase(purchaseDetails);
     }
 
     public int getProductAmount(Integer productId) {
@@ -150,6 +156,21 @@ public class Store {
             }
         }
         return 0;
+    }
+
+    public void setProductAmount(Integer productId, int amount) {
+        if (amount == 0) products.removeIf(pis -> pis.getId() == productId);
+        else {
+            boolean productExists = false;
+            for (ProductInStore pis : products) {
+                if (productId == pis.getId()) {
+                    pis.setAmount(amount);
+                    productExists = true;
+                    break;
+                }
+            }
+            if (!productExists) addProduct(System.getInstance().getProductInfoById(productId), amount);
+        }
     }
 
     public ProductInStore getProductInStoreById(int id) {
@@ -191,19 +212,15 @@ public class Store {
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
-        if (amount > 0) {
-            for (ProductInStore product : products) {
-                int id = product.getId();
-                if (productId == id) {
-                    int newAmount = product.getAmount() - amount;
-                    if (newAmount>=0) {
-                        if (newAmount == 0) {
-                            products.remove(product);
-                        } else {
-                            product.setAmount(newAmount);
-                        }
-
-                    }
+        if (amount < 0) return;
+        for (ProductInStore product : products) {
+            int id = product.getId();
+            if (productId == id) {
+                int newAmount = product.getAmount() - amount;
+                if (newAmount == 0) {
+                    products.remove(product);
+                } else {
+                    product.setAmount(newAmount);
                 }
             }
         }
@@ -236,5 +253,13 @@ public class Store {
 
     public List<Subscriber> getAllManagers(){
         return managers;
+    }
+
+    public double getPrice(User user, Map<Integer, Integer> products) {
+        return discountPolicy.getProductPrice(user, products);
+    }
+
+    public void removeLastHistoryItem() {
+        storePurchaseHistory.removeLastItem();
     }
 }

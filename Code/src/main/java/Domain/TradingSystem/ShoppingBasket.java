@@ -12,8 +12,14 @@ public class ShoppingBasket {
         this.store = store;
     }
 
+    // usecases 2.6, 2.7
+
     public void addProduct(int productId, int amount) {
         products.put(productId, products.getOrDefault(productId, 0) + amount);
+    }
+
+    public Store getStore() {
+        return store;
     }
 
     public int getStoreId() {
@@ -34,20 +40,13 @@ public class ShoppingBasket {
         return false;
     }
 
+    // usecase 2.8.1
     public boolean checkBuyingPolicy(User user) {
-        boolean allowed = true;
-        for (Integer productId : products.keySet()) {
-            allowed = allowed && store.checkPurchaseValidity(user, productId);
-        }
-        return allowed;
+        return store.checkPurchaseValidity(user, products);
     }
 
     public double getTotalPrice(User user) {
-        double totalPrice = 0;
-        for (Integer productId : products.keySet()) {
-            totalPrice += store.getProductPrice(user, productId, products.get(productId));
-        }
-        return totalPrice;
+        return store.getPrice(user, products);
     }
 
     public PurchaseDetails savePurchase(User user) {
@@ -79,4 +78,16 @@ public class ShoppingBasket {
         return output;
     }
 
+    public boolean checkStoreSupplies() {
+        for (Integer productId : products.keySet()) {
+            if (store.getProductAmount(productId) < products.get(productId)) return false;
+        }
+        return true;
+    }
+
+    public void updateStoreSupplies() {
+        for (Integer productId : products.keySet()) {
+            store.setProductAmount(productId, store.getProductAmount(productId) - products.get(productId));
+        }
+    }
 }

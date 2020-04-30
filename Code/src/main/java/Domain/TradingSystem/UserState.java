@@ -5,6 +5,7 @@ package Domain.TradingSystem;//    @Test
 //    }
 
 
+import java.util.List;
 import java.util.Map;
 
 interface UserState {
@@ -31,11 +32,11 @@ interface UserState {
 
      boolean editPermission(Subscriber manager, Store store, String details);
 
+     void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails);
 
-
-     void addPurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
-
-     void removePurchase(Map<Integer, PurchaseDetails> storePurchaseDetails);
+     void removeLastHistoryItem(List<Store> stores);
 
      boolean isAdmin();
+
+     UserPurchaseHistory getUserPurchaseHistory();
 }

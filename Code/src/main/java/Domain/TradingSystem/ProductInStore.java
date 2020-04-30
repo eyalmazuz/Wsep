@@ -35,10 +35,6 @@ public class ProductInStore {
         return "Store ID: " + store.getId() + ", product ID: " + productInfo.getId() + ", amount: " + amount + ", info: " + info;
     }
 
-    public double getPrice(User user) {
-        return store.getProductPrice(user, getId(), 1);
-    }
-
     public String getInfo (){
         return this.info;
     }

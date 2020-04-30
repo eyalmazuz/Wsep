@@ -9,19 +9,18 @@ public class PaymentHandler {
         if (config.equals("Error")){
             throw new Exception("Failed To connect Payment Handler");
         }
+        if (config.equals("No payments")) PaymentSystemMock.succeedPurchase = false;
+        else PaymentSystemMock.succeedPurchase = true;
         this.config = config;
     }
 
     // usecase 2.8.3
-    // receives external purchase details for user details and a map: (store id -> (product id -> amount))
+    // receives external purchase details and a map: (store id -> (product id -> amount))
     public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        if (paymentDetails.equals("Bad payment details")) return false;
-        if (config.equals("Mock Config")) return true;
-        return false;
+        return PaymentSystemMock.attemptPurchase(sessionId, paymentDetails, storeProductsIds);
     }
 
-    public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        if (config.equals("Mock Config")) return true;
-        return false;
+    public boolean requestRefund(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+        return PaymentSystemMock.requestRefund(sessionId, storeProductsIds);
     }
 }
