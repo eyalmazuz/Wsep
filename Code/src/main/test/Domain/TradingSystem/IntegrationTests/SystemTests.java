@@ -25,6 +25,7 @@ public class SystemTests extends TestCase {
     @After
     public void tearDown(){
         test.deleteStores();
+        test.deleteUsers();
     }
 
 
@@ -392,8 +393,8 @@ public class SystemTests extends TestCase {
 
         test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
 
-        assertTrue(test.setManagerDetalis(openerSessionId,newOwnerSessionId,storeid,"any"));
-        assertFalse(test.setManagerDetalis(openerSessionId,newOwnerSessionId,storeid,""));
+        assertTrue(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"any"));
+        assertFalse(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,""));
     }
 
 
