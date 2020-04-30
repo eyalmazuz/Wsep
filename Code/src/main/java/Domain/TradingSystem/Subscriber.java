@@ -124,6 +124,7 @@ public class Subscriber implements UserState {
     }
 
 
+    //MOVED TO SYSTEM
     public boolean addOwner(Store store, Subscriber newOwner) {
         if(newOwner.addPermission(store, this, "Owner")){
             store.addOwner(newOwner);
@@ -134,6 +135,7 @@ public class Subscriber implements UserState {
 
     }
 
+    //MOVED TO SYSTEM
     public boolean addManager(Store store, Subscriber newManager) {
         if(newManager.addPermission(store, this, "Manager")){
             store.addOwner(newManager);
@@ -143,6 +145,7 @@ public class Subscriber implements UserState {
         return false;
     }
 
+    //MOVED TO SYSTEM
     public boolean deleteManager(Store store, Subscriber managerToDelete) {
 
         managerToDelete.removePermission(store,"Manager");
@@ -151,7 +154,7 @@ public class Subscriber implements UserState {
 
     }
 
-    private void removePermission(Store store, String type) {
+    public void removePermission(Store store, String type) {
         for (Permission permission : permissions) {
             if (permission.getStore().equals(store) && permission.getType().equals(type)) {
                 permissions.remove(permission);
@@ -231,6 +234,7 @@ public class Subscriber implements UserState {
     }
 
 
+    //MOVED TO SYSTEM
     public boolean editPermission(Subscriber manager, Store store, String details) {
 
         String[] validDetailes = {"any", "add product", "edit product", "delete product"};
@@ -253,7 +257,7 @@ public class Subscriber implements UserState {
         purchaseHistory.removePurchase(storePurchaseDetails);
     }
 
-    private void overridePermission(String type, Store store, String details) {
+    public void overridePermission(String type, Store store, String details) {
         for (Permission permission: permissions){
             if (permission.getStore().equals(store) &&
                    permission.getType().equals(type))

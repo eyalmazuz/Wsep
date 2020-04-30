@@ -128,10 +128,6 @@ public class User {
         return state.openStore();
     }
 
-    public boolean addOwner (Store store, Subscriber newOwner){
-        return state.addOwner(store, newOwner);
-
-    }
 
 
     public boolean isGuest () {
@@ -146,6 +142,14 @@ public class User {
         return state.getHistory();
     }
 
+/*TODO:Fix test to be on system only
+
+    public boolean addOwner (Store store, Subscriber newOwner){
+        return state.addOwner(store, newOwner);
+
+    }
+
+
     public boolean addManager (Store store, Subscriber newManager){
         return state.addManager(store, newManager);
     }
@@ -153,7 +157,7 @@ public class User {
     public boolean deleteManager (Store store, Subscriber managerToDelete){
         return state.deleteManager(store, managerToDelete);
     }
-
+*/
 
 
 

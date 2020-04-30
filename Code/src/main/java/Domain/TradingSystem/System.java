@@ -255,7 +255,14 @@ public class System {
             return false;
         Store s = getStoreById(storeId);
         if(s!=null)
-            return u.addOwner(s,newOwner);
+        {
+            if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
+                s.addOwner(newOwner);
+                return true;
+            }
+
+        }
+
 
         return false;
     }
@@ -295,12 +302,15 @@ public class System {
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return false;
-        for (Store store : stores) {
-            if (store.getId() == storeId) {
-                return u.addManager(store,newManager);
+            Store store = getStoreById(storeId);
+            if (store != null) {
+                if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
+                    store.addOwner(newManager);
+                    return true;
+                }
 
             }
-        }
+
         return false;
     }
 
@@ -316,9 +326,12 @@ public class System {
         if(u!= null) {
             Subscriber managerToDelete = userHandler.getSubscriber(userId);
             if (managerToDelete != null) {
-                Store s = getStoreById(storeId);
-                if (s != null)
-                    return u.deleteManager(s, managerToDelete);
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    managerToDelete.removePermission(store, "Manager");
+                    store.removeManger(managerToDelete);
+                    return true;
+                }
             }
             return false;
         }
@@ -380,7 +393,15 @@ public class System {
             if (manager == null)
                 return false;
             Store store = getStoreById(storeId);
-            return u.getState().editPermission(manager, store, details);
+            if(store!=null) {
+
+                String[] validDetailes = {"any", "add product", "edit product", "delete product"};
+
+                if (Arrays.asList(validDetailes).contains(details)) {
+                    manager.overridePermission("Manager", store, details);
+                    return true;
+                }
+            }
 
         }
         return false;

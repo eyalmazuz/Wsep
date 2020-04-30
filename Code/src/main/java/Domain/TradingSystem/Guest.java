@@ -10,17 +10,7 @@ public class Guest implements UserState {
      *Unused Methods Of subscriber state
      *
      */
-    public boolean addProductToStore(Store store, int productId, int ammount) {
-        return false;
-    }
 
-    public boolean editProductInStore(Store currStore, int productId, String newInfo) {
-        return false;
-    }
-
-    public boolean deleteProductFromStore(Store currStore, int productId) {
-        return false;
-    }
 
     public boolean hasOwnerPermission(int storeId) {
         return false;
@@ -46,13 +36,7 @@ public class Guest implements UserState {
         return null;
     }
 
-    public boolean addOwner(Store store, Subscriber newOwner) {
-        return false;
-    }
 
-    public boolean addManager(Store store, Subscriber newManager) {
-        return false;
-    }
 
     public boolean deleteManager(Store store, Subscriber managerToDelete) {
         return false;
