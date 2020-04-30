@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.crypto.Data;
+
 public class CartTests extends ServiceTest {
 
     /*
@@ -26,7 +28,7 @@ public class CartTests extends ServiceTest {
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
 
-        Database.Cart = "Basket for store ID: 12\n" +
+        Database.Cart = "Basket for store ID: " + String.valueOf(Database.userToStore.get("chika")) +"\n" +
                 "Product ID: 1, amount: 5\n" +
                 "Product ID: 2, amount: 5\n\n";
 

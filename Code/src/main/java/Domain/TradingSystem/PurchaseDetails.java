@@ -46,4 +46,16 @@ public class PurchaseDetails {
     public double getPrice() {
         return price;
     }
+
+    @Override
+    public String toString() {
+        String output = "";
+        for (Map.Entry<ProductInfo, Integer> product : products.entrySet()) {
+            output += product.getKey() + "\n" +
+                    "Amount: " + String.valueOf(product.getValue()) + "\n";
+
+        }
+        output += "Price: " + String.valueOf(price) + "\n";
+        return output;
+    }
 }

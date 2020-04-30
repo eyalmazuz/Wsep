@@ -163,7 +163,6 @@ public class PurchaseCartTests extends ServiceTest {
         logout(Database.sessionId);
 
 
-        //TODO add payment details to the buyCart method
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
         assertFalse(buyCart(Database.sessionId, "Bad payment details"));
