@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class SubscriberTest extends TestCase {
 
     private Subscriber subscriber;
-    Map<Integer, PurchaseDetails> storePurchaseDetails ;
+    Map<Store, PurchaseDetails> storePurchaseDetails ;
     User user ;
     Store store ;
-    Map<Integer,Integer> products ;
+    Map<ProductInfo,Integer> products ;
     ProductInfo productInfo;
     PurchaseDetails details;
 
@@ -76,10 +76,10 @@ public class SubscriberTest extends TestCase {
         store = new Store();
         int storeId = store.getId();
         products = new HashMap<>();
-        products.put(3,2);
         productInfo = new ProductInfo(3,"bamba","hatif");
-        details = new PurchaseDetails(3,user,products,13.8);
-        storePurchaseDetails.put(storeId,details);
+        products.put(productInfo,2);
+        details = new PurchaseDetails(3,user,store,products,13.8);
+        storePurchaseDetails.put(store,details);
         subscriber.addPurchase(storePurchaseDetails);
         assertTrue(subscriber.getHistory().length()>1);
 
@@ -215,10 +215,10 @@ public class SubscriberTest extends TestCase {
         store = new Store();
         int storeId = store.getId();
         products = new HashMap<>();
-        products.put(3,2);
         productInfo = new ProductInfo(3,"bamba","hatif");
-        details = new PurchaseDetails(3,user,products,13.8);
-        storePurchaseDetails.put(storeId,details);
+        products.put(productInfo,2);
+        details = new PurchaseDetails(3,user,store,products,13.8);
+        storePurchaseDetails.put(store,details);
         subscriber.addPurchase(storePurchaseDetails);
         //Assert.assertEquals(subscriber.getPurchaseHistory());
 

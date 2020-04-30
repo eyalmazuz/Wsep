@@ -1,5 +1,7 @@
 package Domain.TradingSystem;
 
+import java.util.Map;
+
 public class BuyingPolicy {
 
     // This class defines a purchase policy for a store
@@ -10,7 +12,7 @@ public class BuyingPolicy {
         this.details = details;
     }
 
-    public boolean isAllowed(User user, int productId) {
+    public boolean isAllowed(User user, Map<Integer, Integer> productAmounts) {
         if (details.equals("No one is allowed")) return false;
         return true;
     }

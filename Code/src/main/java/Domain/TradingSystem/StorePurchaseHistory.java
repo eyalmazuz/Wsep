@@ -4,12 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class History {
+public class StorePurchaseHistory {
 
     private List<PurchaseDetails> purchaseHistory = new ArrayList<>();
 
-    public PurchaseDetails addPurchase(int purchaseId, User user, Map<Integer, Integer> products, double price) {
-        PurchaseDetails details = new PurchaseDetails(purchaseId, user, products, price);
+    private Store store;
+
+    public StorePurchaseHistory(Store store) {
+        this.store = store;
+    }
+
+    public PurchaseDetails addPurchase(int purchaseId, User user, Map<ProductInfo, Integer> products, double price) {
+        PurchaseDetails details = new PurchaseDetails(purchaseId, user, store, products, price);
         purchaseHistory.add(details);
         return details;
     }
@@ -20,5 +26,9 @@ public class History {
 
     public List<PurchaseDetails> getPurchaseHistory() {
         return purchaseHistory;
+    }
+
+    public void removeLastItem() {
+        purchaseHistory.remove(purchaseHistory.size() - 1);
     }
 }

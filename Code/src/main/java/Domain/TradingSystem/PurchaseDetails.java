@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public class PurchaseDetails {
@@ -8,15 +9,16 @@ public class PurchaseDetails {
     private int id;
     private LocalDateTime dateTime;
     private User user;
+    private Store store;
 
-    // product id -> amount map
-    private Map<Integer, Integer> products;
+    private Map<ProductInfo, Integer> products;
     private double price;
 
-    public PurchaseDetails(int id, User user, Map<Integer, Integer> products, double price) {
+    public PurchaseDetails(int id, User user, Store store, Map<ProductInfo, Integer> products, double price) {
         this.dateTime = LocalDateTime.now();
         this.id = id;
         this.user = user;
+        this.store = store;
         this.products = products;
         this.price = price;
     }
@@ -33,8 +35,12 @@ public class PurchaseDetails {
         return user;
     }
 
-    public Map<Integer, Integer> getProducts() {
+    public Map<ProductInfo, Integer> getProducts() {
         return products;
+    }
+
+    public Store getStore() {
+        return store;
     }
 
     public double getPrice() {
