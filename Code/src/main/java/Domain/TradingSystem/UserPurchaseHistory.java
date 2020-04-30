@@ -34,7 +34,6 @@ public class UserPurchaseHistory {
                 detailsList.add(purchaseDetails);
                 storePurchaseLists.put(store, detailsList);
             }
-
         }
     }
 
@@ -47,5 +46,9 @@ public class UserPurchaseHistory {
             List<PurchaseDetails> detailsList = storePurchaseLists.get(store);
             detailsList.remove(detailsList.size() - 1);
         }
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return storePurchaseLists;
     }
 }

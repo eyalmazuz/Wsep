@@ -80,4 +80,9 @@ public class Guest implements UserState {
         return false;
     }
 
+    @Override
+    public UserPurchaseHistory getUserPurchaseHistory() {
+        return null;
+    }
+
 }

@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 
+import java.util.List;
 import java.util.Map;
-
-
+import java.util.Set;
 
 
 public class ShoppingCartTest extends TestCase {
@@ -173,41 +173,42 @@ public class ShoppingCartTest extends TestCase {
     // TESTS FOR USECASE 2.8
 
     @Test
-    public void testSavePurchase() {
-        user.setShoppingCart(shoppingCart);
-        shoppingCart.addProduct(store1, 0, 15);
-        shoppingCart.savePurchase();
-        StorePurchaseHistory storePurchaseHistory = store1.getStorePurchaseHistory();
-        boolean found = false;
-        for (PurchaseDetails details : storePurchaseHistory.getPurchaseHistory()) {
-            if (details.getProductAmounts().containsKey(0) && details.getProductAmounts().get(0) == 15 && details.getUser().equals(user)) {
-                found = true;
-                break;
-            }
-        }
-        assertTrue(found);
+    public void testIsEmpty() {
+        assertTrue(shoppingCart.isEmpty());
+        shoppingCart.addProduct(store1, 4, 4);
+        assertFalse(shoppingCart.isEmpty());
+        shoppingCart.removeAllProducts();
+        assertTrue(shoppingCart.isEmpty());
     }
 
     @Test
-    public void testCancelPurchase() {
-        user.setShoppingCart(shoppingCart);
-        shoppingCart.addProduct(store1, 0, 15);
-        Map<Integer, PurchaseDetails> storePurchaseDetails = shoppingCart.savePurchase();
-        shoppingCart.cancelPurchase(storePurchaseDetails);
-
-        StorePurchaseHistory storePurchaseHistory = store1.getStorePurchaseHistory();
-        assertTrue(storePurchaseHistory.getPurchaseHistory().isEmpty());
-    }
-
-    @Test
-    public void testAttemptPurchase() {
-        user.setShoppingCart(shoppingCart);
-        System.getInstance().setup("Mock Config", "Mock Config");
-        assertFalse(shoppingCart.attemptPurchase() > -1); // cant purchase empty cart
-        shoppingCart.addProduct(store1, 0, 15);
+    public void testCheckBuyingPolicy() {
         store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
-        assertFalse(shoppingCart.attemptPurchase() > -1);
+        shoppingCart.addProduct(store1, 4, 4);
+        assertFalse(shoppingCart.checkBuyingPolicy());
+
         store1.setBuyingPolicy(new BuyingPolicy("None"));
-        assertTrue(shoppingCart.attemptPurchase() > -1);
+        assertTrue(shoppingCart.checkBuyingPolicy());
+    }
+
+    @Test
+    public void testCheckStoreSupplies() {
+        store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 4);
+        shoppingCart.addProduct(store1, 4, 2);
+        assertTrue(shoppingCart.checkStoreSupplies());
+        shoppingCart.addProduct(store1, 5, 50);
+        assertFalse(shoppingCart.checkStoreSupplies());
+    }
+
+    @Test
+    public void testSaveAndGetStorePurchaseDetails() {
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 6);
+        shoppingCart.addProduct(store1, 4, 5);
+        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
+        assertEquals(store1.getStorePurchaseHistory().getPurchaseHistory().size(), 1);
+        assertEquals((int)store1.getStorePurchaseHistory().getPurchaseHistory().get(0).getProducts().get(info), 5);
+        assertNotNull(storePurchaseDetailsMap.get(store1));
+        assertEquals((int)storePurchaseDetailsMap.get(store1).getProducts().get(info), 5);
     }
 }

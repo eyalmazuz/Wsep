@@ -4,7 +4,6 @@ import java.util.Map;
 
 public class SupplyHandler {
     private final String config;
-    private static System system = System.getInstance();
 
     public SupplyHandler(String config) throws Exception {
         if (config.equals("Error")){
@@ -13,14 +12,8 @@ public class SupplyHandler {
         this.config = config;
     }
 
-    public boolean requestSupply(int user, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
+    public boolean requestSupply(int sessionid, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
         // communicate with supply system
-        if (config.equals("Mock Config")) {
-
-            // perform any additional checks
-
-            return true;
-        }
-        return false;
+        return SupplySystemMock.requestSupply(sessionid, storeProductsIds);
     }
 }

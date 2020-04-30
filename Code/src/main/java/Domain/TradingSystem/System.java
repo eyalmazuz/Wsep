@@ -18,7 +18,7 @@ public class System {
     private List<ProductInfo> products;
 
     // session id -> (store id -> (product id -> amount))
-    private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases;
+    private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
     public System(){
         userHandler = new UserHandler();
@@ -419,11 +419,9 @@ public class System {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        return paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
-    }
-
-    public boolean cancelPayment(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentHandler.requestRefund(sessionId, storeProductsIds);
+        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
+        logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
+        return success;
     }
 
     // usecase 2.8.4
@@ -432,7 +430,9 @@ public class System {
         Map<Integer, Map<Integer, Integer>> storeProductsIds = ongoingPurchases.get(sessionId);
         if (storeProductsIds  == null) return false;
 
-        return supplyHandler.requestSupply(sessionId, storeProductsIds);
+        boolean success = supplyHandler.requestSupply(sessionId, storeProductsIds);
+        logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
+        return success;
     }
 
     // Usecase 2.2
@@ -683,60 +683,76 @@ public class System {
     }
 
     public boolean checkBuyingPolicy(int sessionId) {
+        logger.info("checkBuyingPolicy: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.getShoppingCart().checkBuyingPolicy();
     }
 
     public boolean isCartEmpty(int sessionId) {
+        logger.info("isCartEmpty: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.isCartEmpty();
     }
 
     public double checkSuppliesAndGetPrice(int sessionId) {
+        logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-         return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
     }
 
     public void savePurchaseHistory(int sessionId) {
+        logger.info("savePurchaseHistory: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         u.saveCurrentCartAsPurchase();
     }
 
     public void updateStoreSupplies(int sessionId) {
+        logger.info("updateStoreSupplies: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         u.updateStoreSupplies();
     }
 
     public void emptyCart(int sessionId) {
+        logger.info("emptyCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         u.emptyCart();
     }
 
     public void saveOngoingPurchaseForUser(int sessionId) {
+        logger.info("saveOngoingPurchaseForUser: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         ongoingPurchases.put(sessionId, u.getPrimitiveCartDetails());
     }
 
     public void removeOngoingPurchase(int sessionId) {
+        logger.info("removeOngoingPurchase: sessionId " + sessionId);
         ongoingPurchases.remove(sessionId);
     }
 
-    public void requestRefund(int sessionId) {
-        paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
+    public Map<Integer, Map<Integer, Map<Integer, Integer>>> getOngoingPurchases() {
+        return ongoingPurchases;
+    }
+
+    public boolean requestRefund(int sessionId) {
+        logger.info("requestRefund: sessionId " + sessionId);
+        return paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
     }
 
     public void restoreSupplies(int sessionId) {
+        logger.info("restoreSupplies: sessionId " + sessionId);
         Map<Integer, Map<Integer, Integer>> details = ongoingPurchases.get(sessionId);
         for (Integer storeId : details.keySet()) {
             Map<Integer, Integer> productAmounts = details.get(storeId);
             Store store = getStoreById(storeId);
             for (Integer productId : productAmounts.keySet()) {
-                store.setProductAmount(productId, productAmounts.get(productId));
+                store.setProductAmount(productId, productAmounts.get(productId) + store.getProductAmount(productId));
             }
         }
     }
 
     public void restoreHistories(int sessionId) {
+        logger.info("restoreHistories: sessionId " + sessionId);
+
         // remove the last history item for both the store and the user
         User u = userHandler.getUser(sessionId);
 
@@ -755,6 +771,7 @@ public class System {
     }
 
     public void restoreCart(int sessionId) {
+        logger.info("restoreCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeProductAmounts = ongoingPurchases.get(sessionId);
         for (Integer storeId : storeProductAmounts.keySet()) {

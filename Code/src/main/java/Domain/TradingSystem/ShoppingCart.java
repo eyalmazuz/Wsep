@@ -53,28 +53,6 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
-    // usecase 2.8.1, 2.8.2
-    /*public double attemptPurchase() {
-        // check if all baskets are empty
-        boolean allEmpty = true;
-        for (ShoppingBasket basket : shoppingBaskets) {
-            if (!basket.getProducts().isEmpty()) {
-                allEmpty = false;
-                break;
-            }
-        }
-        if (allEmpty) return -1;
-
-        double totalPrice = 0;
-        for (ShoppingBasket basket : shoppingBaskets) {
-            if (!basket.checkBuyingPolicy(user)) {
-                return -1;
-            }
-            double basketPrice = basket.getTotalPrice(user);
-            totalPrice += basketPrice;
-        }
-        return totalPrice;
-    }*/
 
     public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {
         Map<Integer, Map<Integer, Integer>> storeProductsIds = new HashMap<>();
@@ -140,6 +118,13 @@ public class ShoppingCart {
         return output;
     }
 
+
+    public boolean isEmpty() {
+        return shoppingBaskets.isEmpty();
+    }
+
+
+    // 2.8 related
     public boolean checkBuyingPolicy() {
         boolean allowed = true;
         for (ShoppingBasket basket : shoppingBaskets) {
@@ -149,10 +134,6 @@ public class ShoppingCart {
             }
         }
         return allowed;
-    }
-
-    public boolean isEmpty() {
-        return shoppingBaskets.isEmpty();
     }
 
     public boolean checkStoreSupplies() {

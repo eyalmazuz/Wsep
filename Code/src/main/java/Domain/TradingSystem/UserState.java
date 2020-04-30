@@ -37,4 +37,6 @@ interface UserState {
      void removeLastHistoryItem(List<Store> stores);
 
      boolean isAdmin();
+
+     UserPurchaseHistory getUserPurchaseHistory();
 }

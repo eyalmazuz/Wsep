@@ -13,7 +13,6 @@ public class User {
     private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
-    private UserPurchaseHistory userPurchaseHistory;
     private static int idCounter = 0;
     private int id;
 
@@ -152,6 +151,10 @@ public class User {
     public void saveCurrentCartAsPurchase() {
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
         state.addPurchase(storePurchaseDetailsMap);
+    }
+
+    public UserPurchaseHistory getUserPurchaseHistory() {
+        return state.getUserPurchaseHistory();
     }
 
     public void updateStoreSupplies() {

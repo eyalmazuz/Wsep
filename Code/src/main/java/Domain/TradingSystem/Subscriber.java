@@ -21,8 +21,6 @@ public class Subscriber implements UserState {
     public Subscriber() {
         userPurchaseHistory = new UserPurchaseHistory();
         permissions = new LinkedList<>();
-
-
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
@@ -38,7 +36,6 @@ public class Subscriber implements UserState {
     }
 
 
-
     public String getUsername() {
             return username;
         }
@@ -50,6 +47,7 @@ public class Subscriber implements UserState {
     public boolean isAdmin() {
             return isAdmin;
         }
+
 
     public void setAdmin() {
         isAdmin = true;
@@ -266,6 +264,7 @@ public class Subscriber implements UserState {
         return hashedPassword;
     }
 
+    @Override
     public UserPurchaseHistory getUserPurchaseHistory() {
         return userPurchaseHistory;
     }
