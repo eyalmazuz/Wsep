@@ -122,35 +122,8 @@ public class Subscriber implements UserState {
     }
 
 
-    //MOVED TO SYSTEM
-    public boolean addOwner(Store store, Subscriber newOwner) {
-        if(newOwner.addPermission(store, this, "Owner")){
-            store.addOwner(newOwner);
-            return true;
-        }
 
-        return false;
 
-    }
-
-    //MOVED TO SYSTEM
-    public boolean addManager(Store store, Subscriber newManager) {
-        if(newManager.addPermission(store, this, "Manager")){
-            store.addOwner(newManager);
-            return true;
-        }
-
-        return false;
-    }
-
-    //MOVED TO SYSTEM
-    public boolean deleteManager(Store store, Subscriber managerToDelete) {
-
-        managerToDelete.removePermission(store,"Manager");
-        store.removeManger(managerToDelete);
-        return true;
-
-    }
 
     public void removePermission(Store store, String type) {
         for (Permission permission : permissions) {
@@ -233,6 +206,7 @@ public class Subscriber implements UserState {
 
 
     //MOVED TO SYSTEM
+    /*
     public boolean editPermission(Subscriber manager, Store store, String details) {
 
         String[] validDetailes = {"any", "add product", "edit product", "delete product"};
@@ -243,6 +217,7 @@ public class Subscriber implements UserState {
         return false;
 
     }
+    */
 
 
     @Override

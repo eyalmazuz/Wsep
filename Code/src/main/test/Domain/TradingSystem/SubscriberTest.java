@@ -100,39 +100,16 @@ public class SubscriberTest extends TestCase {
 
 
 
-    @Test
-    public void testAddOwner() {
-        store = new Store ();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        assertTrue(subscriber.addOwner(store,newSubscriber));
-        assertEquals(newSubscriber.getGrantor("Owner",store),subscriber);
-    }
 
-    @Test
-    public void testAddManager() {
-        store = new Store ();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        assertTrue(subscriber.addManager(store,newSubscriber));
-        assertEquals(newSubscriber.getGrantor("Manager",store),subscriber);
-        assertFalse(subscriber.addManager(store,newSubscriber));//already manager
-    }
-
-    @Test
-    public void testDeleteManager() {
-        store = new Store ();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addManager(store,newSubscriber);
-        assertFalse(newSubscriber.deleteManager(store,newSubscriber));
-        assertTrue(subscriber.deleteManager(store,newSubscriber));
-        assertFalse(newSubscriber.deleteManager(store,subscriber));
-    }
 
     @Test
     public void testHasOwnerPermission() {
         store = new Store();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addOwner(store,newSubscriber);
-        subscriber.editPermission(newSubscriber,store,"New Owner");
+        //subscriber.addOwner(store,newSubscriber);
+        newSubscriber.addPermission(store,subscriber, "Owner");
+        newSubscriber.overridePermission("Manager",store,"New Owner");
+
         assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
         assertFalse(subscriber.hasOwnerPermission(store.getId()));
         assertFalse(subscriber.hasOwnerPermission(-1));
@@ -144,7 +121,7 @@ public class SubscriberTest extends TestCase {
     void hasPermission() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addManager(store,newSubscriber);
+        newSubscriber.addPermission(store,subscriber,"Manager");
         assertEquals(newSubscriber.hasPermission(store.getId(),"Manager"),store);
         assertEquals(newSubscriber.hasPermission(-3,"Manager"),null);
     }
@@ -164,8 +141,8 @@ public class SubscriberTest extends TestCase {
     public void testHasManagerPermission() {
         store = subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addManager(store,newSubscriber);
-        subscriber.editPermission(newSubscriber,store,"New Manager");
+        newSubscriber.addPermission(store,subscriber,"Manager");
+        newSubscriber.overridePermission("Manager",store,"New Manager");
        assertTrue(newSubscriber.hasManagerPermission(store.getId()));
         assertFalse(subscriber.hasManagerPermission(store.getId()));
         assertFalse(subscriber.hasManagerPermission(-1));
@@ -176,21 +153,14 @@ public class SubscriberTest extends TestCase {
     public void testGetManagerDetails() {
         store = new Store();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addManager(store,newSubscriber);
-        subscriber.editPermission(newSubscriber,store,"New Manager");
-        assertEquals(newSubscriber.getManagerDetails(store.getId()),"New Manager");
+        newSubscriber.addPermission(store,subscriber,"Manager");
+        newSubscriber.overridePermission("Manager",store,"any");
+        assertEquals(newSubscriber.getManagerDetails(store.getId()),"any");
         assertEquals(newSubscriber.getManagerDetails(-1),null);
-        assertEquals(subscriber.getManagerDetails(store.getId()),"");
+        assertEquals(subscriber.getManagerDetails(store.getId()),null);
     }
 
-    @Test
-    public void testEditPermission() {
-        store = new Store ();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        subscriber.addManager(store,newSubscriber);
-        assertTrue(subscriber.editPermission(newSubscriber,store,"New Manager"));
-        assertFalse(newSubscriber.editPermission(subscriber,store,""));
-    }
+
 
     /*
     @Test

@@ -326,17 +326,21 @@ public class System {
     public boolean deleteManager (int sessionId, int storeId, int userId) {
         logger.info("deleteManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         User u = userHandler.getUser(sessionId);
-        if(u!= null) {
-            Subscriber managerToDelete = userHandler.getSubscriber(userId);
-            if (managerToDelete != null) {
-                Store store = getStoreById(storeId);
-                if (store != null) {
-                    managerToDelete.removePermission(store, "Manager");
-                    store.removeManger(managerToDelete);
-                    return true;
+        if(isSubscriber(sessionId)) {
+            Subscriber subscriber = (Subscriber) u.getState();
+
+            if (u != null) {
+                Subscriber managerToDelete = userHandler.getSubscriber(userId);
+                if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
+                    Store store = getStoreById(storeId);
+                    if (store != null) {
+                        managerToDelete.removePermission(store, "Manager");
+                        store.removeManger(managerToDelete);
+                        return true;
+                    }
                 }
+                return false;
             }
-            return false;
         }
         return false;
     }

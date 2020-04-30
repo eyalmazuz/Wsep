@@ -25,12 +25,6 @@ interface UserState {
 
 
 
-
-     boolean deleteManager(Store store, Subscriber managerToDelete);
-
-
-     boolean editPermission(Subscriber manager, Store store, String details);
-
      void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails);
 
      void removeLastHistoryItem(List<Store> stores);

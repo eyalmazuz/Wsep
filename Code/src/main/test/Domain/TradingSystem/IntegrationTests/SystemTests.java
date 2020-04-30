@@ -336,4 +336,65 @@ public class SystemTests extends TestCase {
             (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
     }
 
+    @Test
+    public void testAddOwnerSucess() {
+        int openerSessionId = test.startSession();
+        test.register(openerSessionId,"Amir","1234");
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId);
+
+        int newOwnerSessionId = test.startSession();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+
+        assertTrue(test.addStoreOwner(openerSessionId,storeid,newOwnerSubId));
+
+    }
+
+    @Test
+    public void testAddManager() {
+        int openerSessionId = test.startSession();
+        test.register(openerSessionId,"Amir","1234");
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId);
+
+        int newOwnerSessionId = test.startSession();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+
+        assertTrue(test.addStoreManager(openerSessionId,storeid,newOwnerSubId));
+        assertFalse(test.addStoreManager(openerSessionId,storeid,newOwnerSubId));//already manager
+    }
+
+    @Test
+    public void testDeleteManager() {
+        int openerSessionId = test.startSession();
+        test.register(openerSessionId,"Amir","1234");
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId);
+
+        int newOwnerSessionId = test.startSession();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+
+        test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
+        assertFalse(test.deleteManager(newOwnerSessionId,storeid,newOwnerSubId));
+        assertTrue(test.deleteManager(openerSessionId,storeid,newOwnerSubId));
+
+    }
+
+    @Test
+    public void testSetManagerDetails() {
+        int openerSessionId = test.startSession();
+        test.register(openerSessionId,"Amir","1234");
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId);
+
+        int newOwnerSessionId = test.startSession();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+
+        test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
+
+        assertTrue(test.setManagerDetalis(openerSessionId,newOwnerSessionId,storeid,"any"));
+        assertFalse(test.setManagerDetalis(openerSessionId,newOwnerSessionId,storeid,""));
+    }
+
+
 }
