@@ -65,7 +65,9 @@ public class Store {
         if(info!=null) {
             for (ProductInStore product : products) {
                 if (product.getId() == productId) {
-                    product.editInfo(info);
+                    synchronized (product) {
+                        product.editInfo(info);
+                    }
                     return true;
                 }
             }
@@ -78,7 +80,9 @@ public class Store {
     public boolean deleteProduct(int productId) {
         for (ProductInStore product: products){
             if (product.getId() == productId){
-                products.remove(product);
+                synchronized (product) {
+                    products.remove(product);
+                }
                 return true;
             }
         }
