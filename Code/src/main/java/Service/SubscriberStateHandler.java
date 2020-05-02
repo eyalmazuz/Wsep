@@ -14,7 +14,6 @@ public class SubscriberStateHandler {
     //Usecase 3.1
     public boolean logout(){
         if(s.isSubscriber(sessionId)){
-            s.saveLatestCart(sessionId);
             s.logout(sessionId);
             return true;
         }

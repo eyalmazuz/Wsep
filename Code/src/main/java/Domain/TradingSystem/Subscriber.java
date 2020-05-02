@@ -74,11 +74,6 @@ public class Subscriber implements UserState {
 
     }
 
-    public void saveCart (ShoppingCart cart){
-        userPurchaseHistory.setLatestCart(cart);
-        cart.removeAllProducts();
-    }
-
     public String getHistory() {
         return userPurchaseHistory.toString();
     }
