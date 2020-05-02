@@ -161,8 +161,8 @@ public class User {
         return state.getUserPurchaseHistory();
     }
 
-    public void updateStoreSupplies() {
-        shoppingCart.updateStoreSupplies();
+    public boolean updateStoreSupplies() {
+        return shoppingCart.updateStoreSupplies();
     }
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveCartDetails() {
