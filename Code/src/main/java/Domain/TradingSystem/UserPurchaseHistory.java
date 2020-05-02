@@ -51,7 +51,10 @@ public class UserPurchaseHistory {
     public void removeLastItem(List<Store> stores) {
         for (Store store : stores) {
             List<PurchaseDetails> detailsList = storePurchaseLists.get(store);
-            detailsList.remove(detailsList.size() - 1);
+            if (detailsList != null) {
+                detailsList.remove(detailsList.size() - 1);
+                if (detailsList.isEmpty()) storePurchaseLists.remove(store);
+            }
         }
     }
 
