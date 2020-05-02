@@ -224,8 +224,7 @@ public class SystemTests extends TestCase {
         test.savePurchaseHistory(sessionId); // this saves history, now we wanna see it gone
 
         test.restoreHistories(sessionId);
-        List<PurchaseDetails> detailsAfterRestore = u.getUserPurchaseHistory().getStorePurchaseLists().get(store1);
-        assertTrue(detailsAfterRestore.isEmpty());
+        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
     }
 
     @Test
