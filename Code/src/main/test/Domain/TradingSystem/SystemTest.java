@@ -104,6 +104,17 @@ public class SystemTest extends TestCase {
         stores.get(0).setRating(3);
         stores.get(1).setRating(4);
 
+        String res0 = test.searchProducts(1, "apple", null, null, -1 ,-1);
+        assertTrue(res0.contains("product ID: 5"));
+
+        // spelling checker
+        String resSpeller = test.searchProducts(1, "appple", null, null, -1 ,-1);
+        assertTrue(resSpeller.contains("product ID: 5"));
+
+        // spelling checker
+        String resSpeller2 = test.searchProducts(1, "applee", null, null, -1 ,-1);
+        assertTrue(resSpeller2.contains("product ID: 5"));
+
         String res1 = test.searchProducts(1, "bamba", null, null, -1 ,-1);
         assertTrue(res1.contains("product ID: 4"));
 
