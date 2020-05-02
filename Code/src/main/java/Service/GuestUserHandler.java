@@ -68,15 +68,22 @@ public class GuestUserHandler {
     public boolean confirmPurchase(int sessionId, String paymentDetails) {
         if (!s.makePayment(sessionId, paymentDetails)) return false;
         s.savePurchaseHistory(sessionId);
-        s.updateStoreSupplies(sessionId);
         s.saveOngoingPurchaseForUser(sessionId);
-        s.emptyCart(sessionId);
+        if (s.updateStoreSupplies(sessionId))
+            s.emptyCart(sessionId);
+        else{
+            s.requestRefund(sessionId);
+            s.restoreHistories(sessionId);
+            s.removeOngoingPurchase(sessionId);
+            return false;
+        }
 
         if (!s.requestSupply(sessionId)) {
             s.requestRefund(sessionId);
             s.restoreSupplies(sessionId);
             s.restoreHistories(sessionId);
             s.restoreCart(sessionId);
+            s.removeOngoingPurchase(sessionId);
             return false;
         }
 

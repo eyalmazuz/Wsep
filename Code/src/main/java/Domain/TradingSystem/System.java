@@ -757,10 +757,11 @@ public class System {
         u.saveCurrentCartAsPurchase();
     }
 
-    public void updateStoreSupplies(int sessionId) {
+    public boolean updateStoreSupplies(int sessionId) {
         logger.info("updateStoreSupplies: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        u.updateStoreSupplies();
+        return (u.updateStoreSupplies());
+
     }
 
     public void emptyCart(int sessionId) {

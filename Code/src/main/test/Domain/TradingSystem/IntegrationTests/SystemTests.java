@@ -224,8 +224,7 @@ public class SystemTests extends TestCase {
         test.savePurchaseHistory(sessionId); // this saves history, now we wanna see it gone
 
         test.restoreHistories(sessionId);
-        List<PurchaseDetails> detailsAfterRestore = u.getUserPurchaseHistory().getStorePurchaseLists().get(store1);
-        assertTrue(detailsAfterRestore.isEmpty());
+        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -301,23 +300,34 @@ public class SystemTests extends TestCase {
         assertEquals(price, 0.0);
 
         PaymentSystemMock.succeedPurchase = false;
-        confirmPurchase(sessionId);
-        checkPurchaseProcessNoChanges(u, store1);
+        confirmPurchase(sessionId, false);
+        assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
         PaymentSystemMock.succeedPurchase = true;
         SupplySystemMock.succeedSupply = false;
-        confirmPurchase(sessionId);
-        checkPurchaseProcessNoChanges(u, store1);
+        confirmPurchase(sessionId, false);
+        assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
+        SupplySystemMock.succeedSupply = true;
+        confirmPurchase(sessionId, true);
+        assertTrue(checkPurchaseProcessNoChanges(u, store1));
     }
 
-    private void confirmPurchase(int sessionId) {
+    private void confirmPurchase(int sessionId, boolean syncProblem) {
         if (test.makePayment(sessionId, "details")) {
             test.savePurchaseHistory(sessionId);
-            test.updateStoreSupplies(sessionId);
             test.saveOngoingPurchaseForUser(sessionId);
-            test.emptyCart(sessionId);
 
+            // updateStoreSupplies would fail only if there is a sync problem
+            if(!syncProblem) {
+                test.updateStoreSupplies(sessionId);
+                test.emptyCart(sessionId);
+            } else {
+                test.requestRefund(sessionId);
+                test.restoreHistories(sessionId);
+                test.removeOngoingPurchase(sessionId);
+                return;
+            }
             if (!test.requestSupply(sessionId)) {
                 test.requestRefund(sessionId);
                 test.restoreSupplies(sessionId);

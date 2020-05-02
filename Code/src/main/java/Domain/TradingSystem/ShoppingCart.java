@@ -1,9 +1,6 @@
 package Domain.TradingSystem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ShoppingCart {
 
@@ -165,10 +162,21 @@ public class ShoppingCart {
         return storePurchaseDetailsMap;
     }
 
-    public void updateStoreSupplies() {
+    public boolean updateStoreSupplies() {
+        boolean flag = true;
+        List <ShoppingBasket> baskets = new LinkedList<>();
         for (ShoppingBasket basket : shoppingBaskets) {
-            basket.updateStoreSupplies();
+            flag = basket.updateStoreSupplies();
+            if (flag == false){
+                for (ShoppingBasket restoreBasket : baskets){
+                    restoreBasket.restoreStoreSupplies();
+                }
+                return false;
+            }
+            else
+                baskets.add(basket);
         }
+        return true;
     }
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveDetails() {

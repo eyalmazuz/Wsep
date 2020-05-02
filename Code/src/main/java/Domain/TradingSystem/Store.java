@@ -65,7 +65,9 @@ public class Store {
         if(info!=null) {
             for (ProductInStore product : products) {
                 if (product.getId() == productId) {
-                    product.editInfo(info);
+                    synchronized (product) {
+                        product.editInfo(info);
+                    }
                     return true;
                 }
             }
@@ -78,7 +80,9 @@ public class Store {
     public boolean deleteProduct(int productId) {
         for (ProductInStore product: products){
             if (product.getId() == productId){
-                products.remove(product);
+                synchronized (product) {
+                    products.remove(product);
+                }
                 return true;
             }
         }
@@ -158,19 +162,24 @@ public class Store {
         return 0;
     }
 
-    public void setProductAmount(Integer productId, int amount) {
-        if (amount == 0) products.removeIf(pis -> pis.getId() == productId);
-        else {
-            boolean productExists = false;
-            for (ProductInStore pis : products) {
-                if (productId == pis.getId()) {
-                    pis.setAmount(amount);
-                    productExists = true;
-                    break;
+    public boolean setProductAmount(Integer productId, int amount) {
+        synchronized (products) {
+            if (amount == 0) products.removeIf(pis -> pis.getId() == productId);
+            else if (amount>0) {
+                boolean productExists = false;
+                for (ProductInStore pis : products) {
+                    if (productId == pis.getId()) {
+                        pis.setAmount(amount);
+                        productExists = true;
+                        break;
+                    }
                 }
+                if (!productExists) addProduct(System.getInstance().getProductInfoById(productId), amount);
             }
-            if (!productExists) addProduct(System.getInstance().getProductInfoById(productId), amount);
+            else
+                return false;
         }
+        return true;
     }
 
     public ProductInStore getProductInStoreById(int id) {

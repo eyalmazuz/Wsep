@@ -6,7 +6,6 @@ public class Subscriber implements UserState {
 
     //FIELDS:
     private static int idCounter = 0;
-
     private int id;
     private Map <Integer,Permission> permissions; //StoreId -> Permission
     private User user;
@@ -14,10 +13,12 @@ public class Subscriber implements UserState {
     private String hashedPassword;
     private boolean isAdmin;
     private UserPurchaseHistory userPurchaseHistory;
+    private Object permissionLock;
 
     public Subscriber() {
         userPurchaseHistory = new UserPurchaseHistory();
         permissions = new HashMap<>();
+        permissionLock = new Object();
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
@@ -29,6 +30,7 @@ public class Subscriber implements UserState {
         permissions = new HashMap<>();
         // FIX for acceptance tests
         userPurchaseHistory = new UserPurchaseHistory();
+        permissionLock = new Object();
 
     }
 
@@ -125,8 +127,11 @@ public class Subscriber implements UserState {
     public void removePermission(Store store, String type) {
 
         Permission permission = permissions.get(store.getId());
-        if(permission!=null && permission.getType().equals(type)){
-            permissions.remove(store.getId());
+        synchronized (permissionLock) {
+            permission = permissions.get(store.getId());//in case that another subscriber removes the permission
+            if (permission != null && permission.getType().equals(type)) {
+                permissions.remove(store.getId());
+            }
         }
 
     }
@@ -164,12 +169,15 @@ public class Subscriber implements UserState {
 
     public boolean addPermission(Store store, Subscriber grantor, String type ){
         if(!this.equals(grantor)) {
-            Permission permission = permissions.get(store.getId());
-            if (permission == null || (permission.getType().equals("Manager") && type.equals("Owner"))) {
-//The line above grants permission will be set only once Or upgrade from manager to owner
-                Permission newPermission = new Permission(this, grantor, type, store);
-                permissions.put(store.getId(), newPermission);
-                return true;
+            Permission permission = permissions.get(store.getId()) ;
+            synchronized (permissionLock){
+                permission = permissions.get(store.getId()) ; //in case that another process removes the permission
+                if (permission == null || (permission.getType().equals("Manager") && type.equals("Owner"))) {
+                    //The line above grants permission will be set only once Or upgrade from manager to owner
+                    Permission newPermission = new Permission(this, grantor, type, store);
+                    permissions.put(store.getId(), newPermission);
+                    return true;
+                }
             }
         }
         return false;
@@ -212,12 +220,13 @@ public class Subscriber implements UserState {
     }
 
     public void overridePermission(String type, Store store, String details) {
-
         Permission permission = permissions.get(store.getId());
-        if(permission!= null && permission.getType().equals(type)){
-            permission.setDetails(details);
+        synchronized (permissionLock) {
+            permission = permissions.get(store.getId()); //in case that another process removes the permission
+            if (permission != null && permission.getType().equals(type)) {
+                permission.setDetails(details);
+            }
         }
-
     }
 
 

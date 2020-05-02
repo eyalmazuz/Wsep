@@ -85,9 +85,16 @@ public class ShoppingBasket {
         return true;
     }
 
-    public void updateStoreSupplies() {
+    public boolean updateStoreSupplies() {
         for (Integer productId : products.keySet()) {
-            store.setProductAmount(productId, store.getProductAmount(productId) - products.get(productId));
+            if (! store.setProductAmount(productId, store.getProductAmount(productId) - products.get(productId)))
+                return false;
+        }
+        return true;
+    }
+    public void restoreStoreSupplies() {
+        for (Integer productId : products.keySet()) {
+            store.setProductAmount(productId, store.getProductAmount(productId) + products.get(productId));
         }
     }
 }
