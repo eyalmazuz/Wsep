@@ -124,12 +124,6 @@ public class System {
         return u!=null && !u.isGuest();
     }
 
-    public void saveLatestCart(int sessionId) {
-        logger.info("saveLatestCart: sessionId "+sessionId);
-        User u = userHandler.getUser(sessionId);
-        if(u!= null)
-            u.saveLatestCart();
-    }
     public boolean logout(int sessionId){
         logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
@@ -479,10 +473,7 @@ public class System {
         Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
         if (subToLogin != null) {
-            ShoppingCart subscriberCart = subToLogin.getUserPurchaseHistory().getLatestCart();
-            if(subscriberCart != null) {
-                subscriberCart.merge(u.getShoppingCart());
-            }
+
             u.setState(subToLogin);
             return true;
         }
@@ -692,10 +683,6 @@ public class System {
     }
 
     // Usecase 2.3
-    public void mergeCartWithSubscriber(int sessionId) {
-        logger.info("mergeCartWithSubscriber: sessionId " + sessionId);
-        userHandler.mergeCartWithSubscriber(sessionId);
-    }
 
 
     public void deleteStores() {

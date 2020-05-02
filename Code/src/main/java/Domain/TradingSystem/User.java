@@ -86,13 +86,6 @@ public class User {
         return state.logout();
     }
 
-    public void saveLatestCart() {
-        if(!isGuest()){
-            Subscriber s = (Subscriber)state;
-            s.saveCart(shoppingCart);
-        }
-    }
-
 
     public Store openStore () {
         return state.openStore();

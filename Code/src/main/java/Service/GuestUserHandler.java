@@ -17,7 +17,6 @@ public class GuestUserHandler {
             int subId = s.getSubscriber(username, password);
             if(subId != -1){
                 s.setState(sessionId, subId);
-                s.mergeCartWithSubscriber(sessionId);
                 return true;
             }
             return false;

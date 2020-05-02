@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class UserPurchaseHistory {
 
-    private ShoppingCart latestCart;
+
     private Map<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
 
     @Override
@@ -26,9 +26,6 @@ public class UserPurchaseHistory {
 
 
 
-    public void setLatestCart(ShoppingCart cart) {
-        latestCart = cart;
-    }
 
     public void addPurchase (Map <Store, PurchaseDetails> storePurchaseDetails){
         for (Store store : storePurchaseDetails.keySet()) {
@@ -42,10 +39,6 @@ public class UserPurchaseHistory {
                 storePurchaseLists.put(store, detailsList);
             }
         }
-    }
-
-    public ShoppingCart getLatestCart() {
-        return latestCart;
     }
 
     public void removeLastItem(List<Store> stores) {
