@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.websocket.Session;
 
 @RestController
-public class sessionController {
+public class SessionController {
 
     SessionHandler sessionHandler = new SessionHandler();
 
