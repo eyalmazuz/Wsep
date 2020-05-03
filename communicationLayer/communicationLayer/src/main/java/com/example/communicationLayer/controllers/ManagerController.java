@@ -36,7 +36,7 @@ public class ManagerController {
             return managerHandler.editProductToStore(storeId, productId, info);
     }
 
-    @GetMapping("/deleteProductFromStore")
+    @GetMapping("/ManagerDeleteProductFromStore")
     @ResponseBody
     public boolean deleteProductFromStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,

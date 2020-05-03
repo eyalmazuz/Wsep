@@ -34,7 +34,7 @@ public class OwnerController {
         return ownerHandler.editProductToStore(storeId,productId,info);
     }
 
-    @GetMapping("/deleteProductFromStore")
+    @GetMapping("/OwnerDeleteProductFromStore")
     @ResponseBody
     public boolean deleteProductFromStore(@RequestParam(value = "storeId", defaultValue = "") int storeId,
                                           @RequestParam(value = "productId", defaultValue = "") int productId){
