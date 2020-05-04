@@ -13,6 +13,10 @@ public class ActionResultDTO {
         this.details = details;
     }
 
+    public void setResultCode(ResultCode resultCode) {
+        this.resultCode = resultCode;
+    }
+
     public ResultCode getResultCode() {
         return resultCode;
     }
@@ -24,4 +28,5 @@ public class ActionResultDTO {
     public void setDetails(String details) {
         this.details = details;
     }
+
 }

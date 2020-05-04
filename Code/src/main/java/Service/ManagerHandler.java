@@ -13,31 +13,29 @@ public class ManagerHandler {
     private int sessionId;
     private System s = System.getInstance();
 
-    private ObjectMapper mapper = new ObjectMapper();
-
     public ManagerHandler(int sessionId){
         this.sessionId = sessionId;
     }
 
-    public String addProductToStore(int storeId, int productId, int amount) throws JsonProcessingException {
+    public ActionResultDTO addProductToStore(int storeId, int productId, int amount)  {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
-            return mapper.writeValueAsString(s.addProductToStore(sessionId,storeId,productId,amount));
+            return s.addProductToStore(sessionId,storeId,productId,amount);
         }
-        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores."));
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores.");
     }
 
-    public String editProductToStore(int storeId, int productId, String info) throws JsonProcessingException {
+    public ActionResultDTO editProductToStore(int storeId, int productId, String info)  {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"edit Product")){
-            return mapper.writeValueAsString(s.editProductInStore(sessionId,storeId,productId,info));
+            return s.editProductInStore(sessionId,storeId,productId,info);
         }
-        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can edit products in stores."));
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can edit products in stores.");
     }
 
-    public String deleteProductFromStore(int storeId, int productId) throws JsonProcessingException {
+    public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"delete Product")){
-            return mapper.writeValueAsString(s.deleteProductFromStore(sessionId,storeId,productId));
+            return s.deleteProductFromStore(sessionId,storeId,productId);
         }
-        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores."));
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
     }
 
     public String viewPurchaseHistory(int storeId){
@@ -48,11 +46,11 @@ public class ManagerHandler {
     }
 
     //Usecase 4.2
-    public String changeBuyingPolicy(int storeId, String newPolicy) throws JsonProcessingException {
+    public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId, "any")){
-            return mapper.writeValueAsString(s.changeBuyingPolicy(storeId, newPolicy));
+            return s.changeBuyingPolicy(storeId, newPolicy);
         }
-        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores."));
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
     }
 
 }

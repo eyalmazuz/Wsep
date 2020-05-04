@@ -11,19 +11,17 @@ public class SubscriberStateHandler {
     private int sessionId;
     private System s = System.getInstance();
 
-    private ObjectMapper mapper = new ObjectMapper();
-
     public SubscriberStateHandler(int sessionId){
         this.sessionId = sessionId;
     }
 
     //Usecase 3.1
-    public String logout() throws JsonProcessingException {
+    public ActionResultDTO logout()  {
         if(s.isSubscriber(sessionId)){
             s.logout(sessionId);
-            return mapper.writeValueAsString(new ActionResultDTO(ResultCode.SUCCESS, null));
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
-        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_LOGOUT, "To log out you must be logged in."));
+        return new ActionResultDTO(ResultCode.ERROR_LOGOUT, "To log out you must be logged in.");
     }
 
     //Usecase 3.2
