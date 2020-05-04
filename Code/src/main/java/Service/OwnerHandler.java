@@ -1,53 +1,58 @@
 package Service;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.UserHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OwnerHandler {
     private int sessionId;
     private System s = System.getInstance();
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     public OwnerHandler(int sessionId){
         this.sessionId = sessionId;
     }
 
 //Usecase 4.1.1
-    public boolean addProductToStore(int storeId, int productId,int amount){
+    public String addProductToStore(int storeId, int productId,int amount) throws JsonProcessingException {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.addProductToStore(sessionId,storeId,productId,amount);
+            return mapper.writeValueAsString(s.addProductToStore(sessionId,storeId,productId,amount));
         }
-        return false;
+        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality."));
     }
     //Usecase 4.1.2
-    public boolean editProductToStore(int storeId, int productId, String info){
+    public String editProductToStore(int storeId, int productId, String info) throws JsonProcessingException {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.editProductInStore(sessionId,storeId,productId,info);
+            return mapper.writeValueAsString(s.editProductInStore(sessionId,storeId,productId,info));
         }
-        return false;
+        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality."));
     }
 
     //uscase 4.1.3
-    public boolean deleteProductFromStore(int storeId, int productId){
+    public String deleteProductFromStore(int storeId, int productId) throws JsonProcessingException {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.deleteProductFromStore(sessionId,storeId,productId);
+            return mapper.writeValueAsString(s.deleteProductFromStore(sessionId,storeId,productId));
         }
-        return false;
+        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality."));
     }
 
     //Usecase 4.3
-    public boolean addStoreOwner(int storeId, int subId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsOwner(subId,storeId)){
-            return s.addStoreOwner(sessionId,storeId,subId);
-        }
-        return false;
+    public String addStoreOwner(int storeId, int subId) throws JsonProcessingException {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality."));
+        if (s.subIsOwner(subId, storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner."));
+        return mapper.writeValueAsString(s.addStoreOwner(sessionId,storeId,subId));
     }
 
     //Usecase 4.5
-    public boolean addStoreManager(int storeId, int userId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsManager(userId,storeId)){
-            return s.addStoreManager(sessionId,storeId,userId);
-        }
-        return false;
+    public String addStoreManager(int storeId, int userId) throws JsonProcessingException {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality."));
+        if (s.subIsManager(userId, storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner."));
+
+        return mapper.writeValueAsString(s.addStoreManager(sessionId,storeId,userId));
     }
 
 
@@ -57,11 +62,10 @@ public class OwnerHandler {
      * @param subId
      * @return
      */
-    public boolean editManageOptions(int storeId, int subId, String options){
-        if(s.subIsManager(subId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.setManagerDetalis(sessionId,subId,storeId,options);
-        }
-        return false;
+    public String editManageOptions(int storeId, int subId, String options) throws JsonProcessingException {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality."));
+        if (!s.subIsManager(subId, storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager."));
+        return mapper.writeValueAsString(s.setManagerDetalis(sessionId,subId,storeId,options));
     }
 
 
@@ -71,11 +75,10 @@ public class OwnerHandler {
      * @param userId
      * @return
      */
-    public boolean deleteManager(int storeId, int userId){
-        if(s.subIsManager(userId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.deleteManager(sessionId,storeId,userId);
-        }
-        return false;
+    public String deleteManager(int storeId, int userId) throws JsonProcessingException {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality."));
+        if (!s.subIsManager(userId, storeId)) return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager."));
+        return mapper.writeValueAsString(s.deleteManager(sessionId,storeId,userId));
     }
 
 
@@ -93,11 +96,11 @@ public class OwnerHandler {
     }
 
     //Usecase 4.2
-    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+    public String changeBuyingPolicy(int storeId, String newPolicy) throws JsonProcessingException {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.changeBuyingPolicy(storeId, newPolicy);
+            return mapper.writeValueAsString(s.changeBuyingPolicy(storeId, newPolicy));
         }
-        return false;
+        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only owners can use this functionality."));
     }
 
 

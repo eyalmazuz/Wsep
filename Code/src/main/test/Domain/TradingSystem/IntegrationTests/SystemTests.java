@@ -1,5 +1,6 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.ResultCode;
 import Domain.TradingSystem.*;
 import Domain.TradingSystem.System;
 import junit.framework.TestCase;
@@ -39,8 +40,8 @@ public class SystemTests extends TestCase {
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId);
         test.addProductInfo(1,"bamba","hatif");
-        assertTrue(test.addProductToStore(sessionId,storeId, 1, 5));
-        assertFalse(test.addProductToStore(sessionId,storeId, 3, 5));//productid does not exist
+        assertSame(test.addProductToStore(sessionId,storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addProductToStore(sessionId,storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
 
     }
 
@@ -51,10 +52,10 @@ public class SystemTests extends TestCase {
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId);
         test.addProductInfo(1,"bamba","hatif");
-        assertFalse(test.editProductInStore(sessionId, storeId, 1, "contains peanuts"));
+        assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         test.addProductToStore(sessionId,storeId,1, 5);
-        assertTrue(test.editProductInStore(sessionId, storeId, 1, "contains peanuts"));
-        assertFalse(test.editProductInStore(sessionId, storeId, -12, "contains peanuts"));
+        assertSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.editProductInStore(sessionId, storeId, -12, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
 
     }
 
@@ -67,8 +68,8 @@ public class SystemTests extends TestCase {
         int storeId = test.openStore(sessionId);
         test.addProductInfo(1,"bamba","hatif");
         test.addProductToStore(sessionId, storeId, 1, 5);
-        assertTrue(test.deleteProductFromStore(sessionId,storeId, 1));
-        assertFalse(test.deleteProductFromStore(sessionId, storeId, 2));
+        assertSame(test.deleteProductFromStore(sessionId,storeId, 1).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.deleteProductFromStore(sessionId, storeId, 2).getResultCode(), ResultCode.SUCCESS);
 
     }
 
@@ -105,7 +106,7 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
         PaymentSystemMock.succeedPurchase = false;
-        assertFalse(test.makePayment(sessionId, "details"));
+        assertNotSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
 
         // make sure nothing was changed
         assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
@@ -285,7 +286,7 @@ public class SystemTests extends TestCase {
 
         // the process
         assertFalse(test.isCartEmpty(sessionId));
-        assertFalse(test.checkBuyingPolicy(sessionId));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
@@ -314,7 +315,7 @@ public class SystemTests extends TestCase {
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) {
-        if (test.makePayment(sessionId, "details")) {
+        if (test.makePayment(sessionId, "details").getResultCode() == ResultCode.SUCCESS) {
             test.savePurchaseHistory(sessionId);
             test.saveOngoingPurchaseForUser(sessionId);
 
@@ -357,7 +358,7 @@ public class SystemTests extends TestCase {
         int newOwnerSessionId = test.startSession();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
 
-        assertTrue(test.addStoreOwner(openerSessionId,storeid,newOwnerSubId));
+        assertSame(test.addStoreOwner(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
 
     }
 
@@ -371,8 +372,8 @@ public class SystemTests extends TestCase {
         int newOwnerSessionId = test.startSession();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
 
-        assertTrue(test.addStoreManager(openerSessionId,storeid,newOwnerSubId));
-        assertFalse(test.addStoreManager(openerSessionId,storeid,newOwnerSubId));//already manager
+        assertSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);//already manager
     }
 
     @Test
@@ -386,8 +387,8 @@ public class SystemTests extends TestCase {
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
 
         test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
-        assertFalse(test.deleteManager(newOwnerSessionId,storeid,newOwnerSubId));
-        assertTrue(test.deleteManager(openerSessionId,storeid,newOwnerSubId));
+        assertNotSame(test.deleteManager(newOwnerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.deleteManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
 
     }
 
@@ -403,8 +404,8 @@ public class SystemTests extends TestCase {
 
         test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
 
-        assertTrue(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"any"));
-        assertFalse(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,""));
+        assertSame(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"any").getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"").getResultCode(), ResultCode.SUCCESS);
     }
 
 

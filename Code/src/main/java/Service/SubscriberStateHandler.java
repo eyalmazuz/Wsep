@@ -1,24 +1,30 @@
 package Service;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SubscriberStateHandler {
 
     private int sessionId;
     private System s = System.getInstance();
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     public SubscriberStateHandler(int sessionId){
         this.sessionId = sessionId;
     }
 
     //Usecase 3.1
-    public boolean logout(){
+    public String logout() throws JsonProcessingException {
         if(s.isSubscriber(sessionId)){
             s.saveLatestCart(sessionId);
             s.logout(sessionId);
-            return true;
+            return mapper.writeValueAsString(new ActionResultDTO(ResultCode.SUCCESS, null));
         }
-        return false;
+        return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_LOGOUT, "To log out you must be logged in."));
     }
 
     //Usecase 3.2

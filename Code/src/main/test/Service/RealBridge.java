@@ -1,17 +1,32 @@
 package Service;
 
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.xml.transform.Result;
 
 public class RealBridge implements Bridge {
 
+    ObjectMapper mapper = new ObjectMapper();
+
     SessionHandler dc = new SessionHandler();
+
+    public RealBridge(){}
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         return dc.setup(supplyConfig, paymentConfig); }
 
     public boolean login(int sessionId, String username, String password) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.login(sessionId, username, password);
+        try {
+            return mapper.readValue(guh.login(sessionId, username, password), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public int register(int sessionId, String username, String password) {
@@ -31,28 +46,53 @@ public class RealBridge implements Bridge {
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.addProductToCart(sessionId, storeId, productId, amount);
+        try {
+            return mapper.readValue(guh.addProductToCart(sessionId, storeId, productId, amount), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.editProductInCart(sessionId, storeId, productId, amount);
+        try {
+            return mapper.readValue(guh.editProductInCart(sessionId, storeId, productId, amount), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.removeProductInCart(sessionId, storeId, productId);
+        try {
+            return mapper.readValue(guh.removeProductInCart(sessionId, storeId, productId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean clearCart(int sessionId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.clearCart(sessionId);
+        try {
+            return mapper.readValue(guh.clearCart(sessionId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean buyCart(int sessionId, String paymentDetails) {
         GuestUserHandler guh = new GuestUserHandler();
-        if (guh.requestPurchase(sessionId)) {
-            return guh.confirmPurchase(sessionId, paymentDetails);
+        try {
+            if (mapper.readValue(guh.requestPurchase(sessionId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS) {
+                return mapper.readValue(guh.confirmPurchase(sessionId, paymentDetails), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
         }
         return false;
     }
@@ -64,7 +104,12 @@ public class RealBridge implements Bridge {
 
     public boolean logout(int sessionId){
         SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
-        return ssh.logout();
+        try {
+            return mapper.readValue(ssh.logout(), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public int openStore(int sessionId) {
@@ -85,54 +130,104 @@ public class RealBridge implements Bridge {
     public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.addProductToStore(storeId, productId, amount);
+            try {
+                return mapper.readValue(oh.addProductToStore(storeId, productId, amount), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.addProductToStore(storeId, productId, amount);
+            try {
+                return mapper.readValue(mh.addProductToStore(storeId, productId, amount), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
     public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.editProductToStore(storeId, productId, productInfo);
+            try {
+                return mapper.readValue(oh.editProductToStore(storeId, productId, productInfo), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.editProductToStore(storeId, productId, productInfo);
+            try {
+                return mapper.readValue(mh.editProductToStore(storeId, productId, productInfo), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
     public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.deleteProductFromStore(storeId, productId);
+            try {
+                return mapper.readValue(oh.deleteProductFromStore(storeId, productId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.deleteProductFromStore(storeId, productId);
+            try {
+                return mapper.readValue(mh.deleteProductFromStore(storeId, productId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
     public boolean appointManager(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.addStoreManager(storeId, userId) ;
+        try {
+            return mapper.readValue(oh.addStoreManager(storeId, userId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean appointOwner(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.addStoreOwner(storeId, userId);
+        try {
+            return mapper.readValue(oh.addStoreOwner(storeId, userId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean removeManager(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.deleteManager(storeId, userId);
+        try {
+            return mapper.readValue(oh.deleteManager(storeId, userId), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.editManageOptions(storeId, userId, option);
+        try {
+            return mapper.readValue(oh.editManageOptions(storeId, userId, option), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public String viewShopHistory(int sessionId, int storeId){
@@ -156,11 +251,21 @@ public class RealBridge implements Bridge {
 
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.changeBuyingPolicy(storeId, newPolicy);
+            try {
+                return mapper.readValue(oh.changeBuyingPolicy(storeId, newPolicy), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.changeBuyingPolicy(storeId, newPolicy);
+            try {
+                return mapper.readValue(mh.changeBuyingPolicy(storeId, newPolicy), ActionResultDTO.class).getResultCode() == ResultCode.SUCCESS;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 

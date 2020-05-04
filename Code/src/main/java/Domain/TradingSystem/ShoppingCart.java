@@ -1,5 +1,9 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
+import javax.swing.*;
 import java.util.*;
 
 public class ShoppingCart {
@@ -20,27 +24,34 @@ public class ShoppingCart {
      *
      */
 
-    public boolean addProduct(Store store, int productId, int amount) {
-        if (store == null || productId < 0 || amount < 1) return false;
+    public ActionResultDTO addProduct(Store store, int productId, int amount) {
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
+        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+        if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
         getOrCreateBasket(store).addProduct(productId, amount);
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
-    public boolean editProduct(Store store, int productId, int newAmount) {
-        if (newAmount < 1 || store == null) return false;
+    public ActionResultDTO editProduct(Store store, int productId, int newAmount) {
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
+        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+        if (newAmount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
 
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
             return basket.editProduct(productId, newAmount);
         }
     }
 
-    public boolean removeProductFromCart(Store store, int productId) {
+    public ActionResultDTO removeProductFromCart(Store store, int productId) {
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
+        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
             return basket.removeProduct(productId);
         }
@@ -122,15 +133,14 @@ public class ShoppingCart {
 
 
     // 2.8 related
-    public boolean checkBuyingPolicy() {
+    public ActionResultDTO checkBuyingPolicy() {
         boolean allowed = true;
         for (ShoppingBasket basket : shoppingBaskets) {
             if(!basket.checkBuyingPolicy(user)) {
-                allowed = false;
-                break;
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Store " + basket.getStoreId() + " does not allow this purchase.");
             }
         }
-        return allowed;
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public boolean checkStoreSupplies() {

@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DTOs.ResultCode;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -56,12 +57,12 @@ public class StoreTest extends TestCase {
 
     @Test
     public void testEditNonExistingProduct(){
-        assertFalse(store.editProduct(-1,"blabla"));
+        assertNotSame(store.editProduct(-1,"blabla").getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
     public void testEditNullDescriptionProduct(){
-        assertFalse(store.editProduct(1,null));
+        assertNotSame(store.editProduct(1,null).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -75,7 +76,7 @@ public class StoreTest extends TestCase {
     @Test
     public void testDeleteNonExistProduct(){
         int size = store.getProducts().size();
-        assertFalse(store.deleteProduct(-1));
+        assertNotSame(store.deleteProduct(-1).getResultCode(), ResultCode.SUCCESS);
         assertEquals(size,store.getProducts().size());
 
     }

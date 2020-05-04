@@ -1,5 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,8 +41,9 @@ public class Store {
         return id;
     }
 
-    public boolean addProduct(ProductInfo info, int amount) {
-        if(amount < 1 || info == null) return false;
+    public ActionResultDTO addProduct(ProductInfo info, int amount) {
+        if (info == null) return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Invalid product.");
+        if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Amount must be positive.");
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
             if(p.getId() == info.getId()){
@@ -54,39 +58,39 @@ public class Store {
                 newProduct = new ProductInStore(info, amount, this);
             } catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Error while creating ProductInStore");
             }
             products.add(newProduct);
         }
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
-    public boolean editProduct(int productId, String info) {
+    public ActionResultDTO editProduct(int productId, String info) {
         if(info!=null) {
             for (ProductInStore product : products) {
                 if (product.getId() == productId) {
                     synchronized (product) {
                         product.editInfo(info);
                     }
-                    return true;
+                    return new ActionResultDTO(ResultCode.SUCCESS, null);
                 }
             }
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Invalid product.");
 
     }
 
 
-    public boolean deleteProduct(int productId) {
+    public ActionResultDTO deleteProduct(int productId) {
         for (ProductInStore product: products){
             if (product.getId() == productId){
                 synchronized (product) {
                     products.remove(product);
                 }
-                return true;
+                return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Invalid product.");
     }
 
     public List<Subscriber> getOwners() {
