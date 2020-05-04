@@ -11,9 +11,9 @@ public class ManagerHandler {
         this.sessionId = sessionId;
     }
 
-    public boolean addProductToStore(int storeId, int productId,int ammount){
+    public boolean addProductToStore(int storeId, int productId,int amount){
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
-            return s.addProductToStore(sessionId,storeId,productId,ammount);
+            return s.addProductToStore(sessionId,storeId,productId,amount);
         }
         return false;
     }
