@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 
+import DTOs.ResultCode;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testAddProduct() {
-        assertTrue(shoppingCart.addProduct(store1, 4, 40));
+        assertSame(shoppingCart.addProduct(store1, 4, 40).getResultCode(), ResultCode.SUCCESS);
         boolean found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store1.getId()) {
@@ -42,7 +43,7 @@ public class ShoppingCartTest extends TestCase {
         assertTrue(found);
 
         found = false;
-        assertTrue(shoppingCart.addProduct(store1, 4, 50));
+        assertSame(shoppingCart.addProduct(store1, 4, 50).getResultCode(), ResultCode.SUCCESS);
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store1.getId()) {
                 if (basket.getProducts().containsKey(4) && basket.getProducts().get(4) == 90) found = true;
@@ -51,7 +52,7 @@ public class ShoppingCartTest extends TestCase {
         assertTrue(found);
 
         found = false;
-        assertTrue(shoppingCart.addProduct(store2, 2, 10));
+        assertSame(shoppingCart.addProduct(store2, 2, 10).getResultCode(), ResultCode.SUCCESS);
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store2.getId()) {
                 if (basket.getProducts().containsKey(2) && basket.getProducts().get(2) == 10) found = true;
@@ -60,7 +61,7 @@ public class ShoppingCartTest extends TestCase {
         assertTrue(found);
 
 
-        assertFalse(shoppingCart.addProduct(store2, 40, 0));
+        assertNotSame(shoppingCart.addProduct(store2, 40, 0).getResultCode(), ResultCode.SUCCESS);
         found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store2.getId()) {
@@ -69,7 +70,7 @@ public class ShoppingCartTest extends TestCase {
         }
         assertFalse(found);
 
-        assertFalse(shoppingCart.addProduct(store2, 40, -5));
+        assertNotSame(shoppingCart.addProduct(store2, 40, -5).getResultCode(), ResultCode.SUCCESS);
         found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store2.getId()) {
@@ -78,9 +79,9 @@ public class ShoppingCartTest extends TestCase {
         }
         assertFalse(found);
 
-        assertFalse(shoppingCart.addProduct(null, 0, 40));
+        assertNotSame(shoppingCart.addProduct(null, 0, 40).getResultCode(), ResultCode.SUCCESS);
 
-        assertFalse(shoppingCart.addProduct(store3, -1, 40));
+        assertNotSame(shoppingCart.addProduct(store3, -1, 40).getResultCode(), ResultCode.SUCCESS);
         found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store3.getId()) {
@@ -92,16 +93,16 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testEditProduct() {
-        assertFalse(shoppingCart.editProduct(store1, 40, 50));
-        assertFalse(shoppingCart.editProduct(null, 40, 50));
+        assertNotSame(shoppingCart.editProduct(store1, 40, 50).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(shoppingCart.editProduct(null, 40, 50).getResultCode(), ResultCode.SUCCESS);
 
         boolean found = false;
 
         shoppingCart.addProduct(store1, 40, 50);
-        assertFalse(shoppingCart.editProduct(store1, -1, 50));
-        assertFalse(shoppingCart.editProduct(store1, 40, -1));
-        assertFalse(shoppingCart.editProduct(store1, 40, 0));
-        assertFalse(shoppingCart.editProduct(store1, 40, -5));
+        assertNotSame(shoppingCart.editProduct(store1, -1, 50).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(shoppingCart.editProduct(store1, 40, -1).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(shoppingCart.editProduct(store1, 40, 0).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(shoppingCart.editProduct(store1, 40, -5).getResultCode(), ResultCode.SUCCESS);
 
         shoppingCart.editProduct(store1, 40, 20);
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
@@ -117,11 +118,11 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testRemoveProduct() {
-        assertFalse(shoppingCart.removeProductFromCart(store1, 40));
-        assertFalse(shoppingCart.removeProductFromCart(null, 40));
+        assertNotSame(shoppingCart.removeProductFromCart(store1, 40).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(shoppingCart.removeProductFromCart(null, 40).getResultCode(), ResultCode.SUCCESS);
 
         shoppingCart.addProduct(store1, 0, 40);
-        assertTrue(shoppingCart.removeProductFromCart(store1, 0));
+        assertSame(shoppingCart.removeProductFromCart(store1, 0).getResultCode(), ResultCode.SUCCESS);
         boolean found = false;
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store1.getId()) {
@@ -185,10 +186,10 @@ public class ShoppingCartTest extends TestCase {
     public void testCheckBuyingPolicy() {
         store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
         shoppingCart.addProduct(store1, 4, 4);
-        assertFalse(shoppingCart.checkBuyingPolicy());
+        assertNotSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
-        assertTrue(shoppingCart.checkBuyingPolicy());
+        assertSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test

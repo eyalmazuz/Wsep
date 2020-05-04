@@ -1,5 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,18 +29,16 @@ public class ShoppingBasket {
         return store.getId();
     }
 
-    public boolean editProduct(int productId, int newAmount) {
-        if (!products.containsKey(productId)) return false;
+    public ActionResultDTO editProduct(int productId, int newAmount) {
+        if (!products.containsKey(productId)) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Basket does not have this product.");
         products.put(productId, newAmount);
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
-    public boolean removeProduct(int productId) {
-        if (products.containsKey(productId)) {
-            products.remove(productId);
-            return true;
-        }
-        return false;
+    public ActionResultDTO removeProduct(int productId) {
+        if (!products.containsKey(productId)) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Basket does not have this product.");
+        products.remove(productId);
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     // usecase 2.8.1

@@ -1,17 +1,27 @@
 package Service;
 
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.xml.transform.Result;
 
 public class RealBridge implements Bridge {
 
+    ObjectMapper mapper = new ObjectMapper();
+
     SessionHandler dc = new SessionHandler();
+
+    public RealBridge(){}
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         return dc.setup(supplyConfig, paymentConfig); }
 
     public boolean login(int sessionId, String username, String password) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.login(sessionId, username, password);
+        return guh.login(sessionId, username, password).getResultCode() == ResultCode.SUCCESS;
     }
 
     public int register(int sessionId, String username, String password) {
@@ -31,29 +41,30 @@ public class RealBridge implements Bridge {
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.addProductToCart(sessionId, storeId, productId, amount);
+        return guh.addProductToCart(sessionId, storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.editProductInCart(sessionId, storeId, productId, amount);
+        return guh.editProductInCart(sessionId, storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.removeProductInCart(sessionId, storeId, productId);
+        return guh.removeProductInCart(sessionId, storeId, productId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean clearCart(int sessionId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.clearCart(sessionId);
+        return guh.clearCart(sessionId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean buyCart(int sessionId, String paymentDetails) {
         GuestUserHandler guh = new GuestUserHandler();
-        if (guh.requestPurchase(sessionId)) {
-            return guh.confirmPurchase(sessionId, paymentDetails);
+        if (guh.requestPurchase(sessionId).getResultCode() == ResultCode.SUCCESS) {
+            return guh.confirmPurchase(sessionId, paymentDetails).getResultCode() == ResultCode.SUCCESS;
         }
+
         return false;
     }
 
@@ -64,7 +75,8 @@ public class RealBridge implements Bridge {
 
     public boolean logout(int sessionId){
         SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
-        return ssh.logout();
+        return ssh.logout().getResultCode() == ResultCode.SUCCESS;
+
     }
 
     public int openStore(int sessionId) {
@@ -85,54 +97,54 @@ public class RealBridge implements Bridge {
     public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.addProductToStore(storeId, productId, amount);
+            return oh.addProductToStore(storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.addProductToStore(storeId, productId, amount);
+            return mh.addProductToStore(storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;
         }
     }
 
     public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.editProductToStore(storeId, productId, productInfo);
+            return oh.editProductToStore(storeId, productId, productInfo).getResultCode() == ResultCode.SUCCESS;
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.editProductToStore(storeId, productId, productInfo);
+            return mh.editProductToStore(storeId, productId, productInfo).getResultCode() == ResultCode.SUCCESS;
         }
     }
 
     public boolean deleteProduct(boolean flag, int sessionId, int storeId, int productId) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.deleteProductFromStore(storeId, productId);
+            return oh.deleteProductFromStore(storeId, productId).getResultCode() == ResultCode.SUCCESS;
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.deleteProductFromStore(storeId, productId);
+            return mh.deleteProductFromStore(storeId, productId).getResultCode() == ResultCode.SUCCESS;
         }
     }
 
     public boolean appointManager(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.addStoreManager(storeId, userId) ;
+        return oh.addStoreManager(storeId, userId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean appointOwner(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.addStoreOwner(storeId, userId);
+        return oh.addStoreOwner(storeId, userId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean removeManager(int sessionId, int storeId, int userId) {
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.deleteManager(storeId, userId);
+        return oh.deleteManager(storeId, userId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.editManageOptions(storeId, userId, option);
+        return oh.editManageOptions(storeId, userId, option).getResultCode() == ResultCode.SUCCESS;
     }
 
     public String viewShopHistory(int sessionId, int storeId){
@@ -156,11 +168,11 @@ public class RealBridge implements Bridge {
 
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
-            return oh.changeBuyingPolicy(storeId, newPolicy);
+            return oh.changeBuyingPolicy(storeId, newPolicy).getResultCode() == ResultCode.SUCCESS;
         }
         else{
             ManagerHandler mh = new ManagerHandler(sessionId);
-            return mh.changeBuyingPolicy(storeId, newPolicy);
+            return mh.changeBuyingPolicy(storeId, newPolicy).getResultCode() == ResultCode.SUCCESS;
         }
     }
 
