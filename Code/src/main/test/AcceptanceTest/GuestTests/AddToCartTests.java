@@ -29,8 +29,8 @@ public class AddToCartTests extends ServiceTest {
 
     @After
     public void tearDown(){
-        Database.userToId.clear();
-        Database.userToStore.clear();
+//        Database.userToId.clear();
+//        Database.userToStore.clear();
     }
 
 

@@ -9,16 +9,23 @@ public abstract class ServiceTest extends TestCase {
 
     Bridge bridge;
 
+
     public void setUp(){
         this.bridge = Driver.getBridge();
-        this.setupSystem("Mock Config", "Mock Config");
-        Database.sessionId = startSession();
-        this.setUpUsers();
 
-        login(Database.sessionId, "admin", "admin");
-        addProductInfo(Database.sessionId, 1, "UO", "KB");
-        addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
-        logout(Database.sessionId);
+        Database.sessionId = startSession();
+
+        this.setupSystem("Mock Config", "Mock Config");
+        if(Driver.flag) {
+
+            this.setUpUsers();
+            login(Database.sessionId, "admin", "admin");
+            addProductInfo(Database.sessionId, 1, "UO", "KB");
+            addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+            logout(Database.sessionId);
+            Driver.flag = false;
+        }
+
     }
 
     private void setUpUsers() {

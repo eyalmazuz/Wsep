@@ -103,7 +103,7 @@ public class System {
             logger.error(e.getMessage());
             return false;
         }
-        instance = this;
+//        instance = this;
         return true;
     }
 
