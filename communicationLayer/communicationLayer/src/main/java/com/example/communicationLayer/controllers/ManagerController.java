@@ -17,7 +17,7 @@ public class ManagerController {
     public void ManagerHandler(@RequestParam(value = "sessionId", defaultValue = "") int sessionId){
         managerHandler = new ManagerHandler(sessionId);
     }
-    @GetMapping("/addProductToStore")
+    @GetMapping("/ManagerAddProductToStore")
     @ResponseBody
     public boolean addProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
@@ -27,7 +27,7 @@ public class ManagerController {
     }
 
 
-    @GetMapping("/editProductToStore")
+    @GetMapping("/ManagerEditProductToStoreManager")
     @ResponseBody
     public boolean editProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
@@ -46,13 +46,13 @@ public class ManagerController {
 
     }
 
-    @GetMapping("/viewPurchaseHistory")
+    @GetMapping("/ManagerViewPurchaseHistory")
     @ResponseBody
     public String viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
         return managerHandler.viewPurchaseHistory(storeId);
     }
 
-    @GetMapping("/changeBuyingPolicy")
+    @GetMapping("/ManagerChangeBuyingPolicy")
     @ResponseBody
     public boolean changeBuyingPolicy(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,

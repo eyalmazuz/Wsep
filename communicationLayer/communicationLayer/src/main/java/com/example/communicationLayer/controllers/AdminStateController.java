@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-public class AdmitStateController {
+public class AdminStateController {
 
     AdminStateHandler adminStateHandler ;
 
