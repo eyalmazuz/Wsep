@@ -37,8 +37,8 @@ public class UserActionsTests extends ServiceTest {
 
     @After
     public void tearDown(){
-        Database.userToId.clear();
-        Database.userToStore.clear();
+//        Database.userToId.clear();
+//        Database.userToStore.clear();
     }
 
     //USE CASES 3.1

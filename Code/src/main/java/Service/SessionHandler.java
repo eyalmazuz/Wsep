@@ -5,11 +5,11 @@ import Domain.TradingSystem.Store;
 import Domain.TradingSystem.System;
 
 public class SessionHandler {
-    private Domain.TradingSystem.System system;
+
+    private System system = System.getInstance();
 
     public SessionHandler(){
 
-        system = new System();
     }
 
     public boolean setup(String supplyConfig, String paymentConfig) {

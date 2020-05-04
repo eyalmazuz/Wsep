@@ -1,13 +1,15 @@
 package Service;
 
 
+import Domain.TradingSystem.System;
 
 public class RealBridge implements Bridge {
 
-    SessionHandler dc = new SessionHandler();
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
-        return dc.setup(supplyConfig, paymentConfig); }
+        SessionHandler dc = new SessionHandler();
+        return dc.setup(supplyConfig, paymentConfig);
+    }
 
     public boolean login(int sessionId, String username, String password) {
         GuestUserHandler guh = new GuestUserHandler();
@@ -150,7 +152,10 @@ public class RealBridge implements Bridge {
         ash.addProductInfo(id, name, category);
     }
 
-    public int startSession() { return dc.startSession(); }
+    public int startSession() {
+        SessionHandler dc = new SessionHandler();
+        return dc.startSession();
+    }
 
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy){
 
