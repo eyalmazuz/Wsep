@@ -1,6 +1,12 @@
 package Service;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.xml.transform.Result;
 
 public class ManagerHandler {
     //Usecase 5.1 Handler
@@ -11,25 +17,25 @@ public class ManagerHandler {
         this.sessionId = sessionId;
     }
 
-    public boolean addProductToStore(int storeId, int productId,int ammount){
+    public ActionResultDTO addProductToStore(int storeId, int productId, int amount)  {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
-            return s.addProductToStore(sessionId,storeId,productId,ammount);
+            return s.addProductToStore(sessionId,storeId,productId,amount);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores.");
     }
 
-    public boolean editProductToStore(int storeId, int productId, String info){
+    public ActionResultDTO editProductToStore(int storeId, int productId, String info)  {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"edit Product")){
             return s.editProductInStore(sessionId,storeId,productId,info);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can edit products in stores.");
     }
 
-    public boolean deleteProductFromStore(int storeId, int productId){
+    public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"delete Product")){
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
     }
 
     public String viewPurchaseHistory(int storeId){
@@ -40,11 +46,11 @@ public class ManagerHandler {
     }
 
     //Usecase 4.2
-    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+    public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId, "any")){
             return s.changeBuyingPolicy(storeId, newPolicy);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
     }
 
 }

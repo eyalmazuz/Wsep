@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import javax.xml.crypto.Data;
 
+
 public class ViewInfoTests extends ServiceTest {
     /*
      * USE CASES 2.4

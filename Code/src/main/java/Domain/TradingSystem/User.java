@@ -1,5 +1,9 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,37 +64,30 @@ public class User {
         }
     }
 
-    public boolean addProductToCart(Store store, int productId, int amount) {
-        if (shoppingCart == null) return false;
+    public ActionResultDTO addProductToCart(Store store, int productId, int amount) {
+        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
         return shoppingCart.addProduct(store, productId, amount);
     }
 
-    public boolean editCartProductAmount(Store store, int productId, int newAmount) {
-        if (shoppingCart == null) return false;
+    public ActionResultDTO editCartProductAmount(Store store, int productId, int newAmount) {
+        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
         return shoppingCart.editProduct(store, productId, newAmount);
     }
 
-    public boolean removeProductFromCart(Store store, int productId) {
-        if (shoppingCart == null) return false;
+    public ActionResultDTO removeProductFromCart(Store store, int productId) {
+        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
         return shoppingCart.removeProductFromCart(store, productId);
     }
 
-    public boolean removeAllProductsFromCart() {
-        if (shoppingCart == null) return false;
+    public ActionResultDTO removeAllProductsFromCart() {
+        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
         shoppingCart.removeAllProducts();
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS, "Shopping cart cleared.");
     }
 
 //Usecase 3.1
     public boolean logout() {
         return state.logout();
-    }
-
-    public void saveLatestCart() {
-        if(!isGuest()){
-            Subscriber s = (Subscriber)state;
-            s.saveCart(shoppingCart);
-        }
     }
 
 
@@ -161,8 +158,8 @@ public class User {
         return state.getUserPurchaseHistory();
     }
 
-    public void updateStoreSupplies() {
-        shoppingCart.updateStoreSupplies();
+    public boolean updateStoreSupplies() {
+        return shoppingCart.updateStoreSupplies();
     }
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveCartDetails() {

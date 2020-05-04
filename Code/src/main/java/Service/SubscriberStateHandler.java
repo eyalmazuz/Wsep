@@ -1,6 +1,10 @@
 package Service;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SubscriberStateHandler {
 
@@ -12,13 +16,12 @@ public class SubscriberStateHandler {
     }
 
     //Usecase 3.1
-    public boolean logout(){
+    public ActionResultDTO logout()  {
         if(s.isSubscriber(sessionId)){
-            s.saveLatestCart(sessionId);
             s.logout(sessionId);
-            return true;
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_LOGOUT, "To log out you must be logged in.");
     }
 
     //Usecase 3.2

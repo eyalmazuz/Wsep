@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DTOs.ResultCode;
 import Domain.Logger.SystemLogger;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -104,6 +105,17 @@ public class SystemTest extends TestCase {
         stores.get(0).setRating(3);
         stores.get(1).setRating(4);
 
+        String res0 = test.searchProducts(1, "apple", null, null, -1 ,-1);
+        assertTrue(res0.contains("product ID: 5"));
+
+        // spelling checker
+        String resSpeller = test.searchProducts(1, "appple", null, null, -1 ,-1);
+        assertTrue(resSpeller.contains("product ID: 5"));
+
+        // spelling checker
+        String resSpeller2 = test.searchProducts(1, "applee", null, null, -1 ,-1);
+        assertTrue(resSpeller2.contains("product ID: 5"));
+
         String res1 = test.searchProducts(1, "bamba", null, null, -1 ,-1);
         assertTrue(res1.contains("product ID: 4"));
 
@@ -172,7 +184,7 @@ public class SystemTest extends TestCase {
         }
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
-        assertFalse(test.addToCart(sessionId, badStore, 4, 40));
+        assertNotSame(test.addToCart(sessionId, badStore, 4, 40).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
         List<ProductInfo> products = test.getProducts();
@@ -183,11 +195,11 @@ public class SystemTest extends TestCase {
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), badProduct, 40));
+        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
-        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 0));
-        assertFalse(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), -1));
-        assertFalse(test.addToCart(-1, stores.get(0).getId(), products.get(0).getId(), 4));
+        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 0).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), -1).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(-1, stores.get(0).getId(), products.get(0).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -200,7 +212,7 @@ public class SystemTest extends TestCase {
         }
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
-        assertFalse(test.updateAmount(sessionId, badStore, 4, 40));
+        assertNotSame(test.updateAmount(sessionId, badStore, 4, 40).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
         List<ProductInfo> products = test.getProducts();
@@ -211,14 +223,14 @@ public class SystemTest extends TestCase {
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), badProduct, 40));
+        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
-        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), 0));
-        assertFalse(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), -1));
+        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), 0).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), -1).getResultCode(), ResultCode.SUCCESS);
 
         test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 40);
 
-        assertFalse(test.updateAmount(-1, stores.get(0).getId(), products.get(0).getId(), 4));
+        assertNotSame(test.updateAmount(-1, stores.get(0).getId(), products.get(0).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -231,7 +243,7 @@ public class SystemTest extends TestCase {
         }
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
-        assertFalse(test.deleteItemInCart(sessionId, badStore, 4));
+        assertNotSame(test.deleteItemInCart(sessionId, badStore, 4).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
         List<ProductInfo> products = test.getProducts();
@@ -242,9 +254,9 @@ public class SystemTest extends TestCase {
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertFalse(test.deleteItemInCart(sessionId, stores.get(0).getId(), badProduct));
+        assertNotSame(test.deleteItemInCart(sessionId, stores.get(0).getId(), badProduct).getResultCode(), ResultCode.SUCCESS);
 
-        assertFalse(test.deleteItemInCart(-1, stores.get(0).getId(), products.get(0).getId()));
+        assertNotSame(test.deleteItemInCart(-1, stores.get(0).getId(), products.get(0).getId()).getResultCode(), ResultCode.SUCCESS);
     }
 
     // usecase 2.8.4

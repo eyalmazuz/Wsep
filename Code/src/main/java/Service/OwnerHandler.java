@@ -1,7 +1,11 @@
 package Service;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.UserHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OwnerHandler {
     private int sessionId;
@@ -12,42 +16,41 @@ public class OwnerHandler {
     }
 
 //Usecase 4.1.1
-    public boolean addProductToStore(int storeId, int productId,int amount){
+    public ActionResultDTO addProductToStore(int storeId, int productId,int amount) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.addProductToStore(sessionId,storeId,productId,amount);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
     //Usecase 4.1.2
-    public boolean editProductToStore(int storeId, int productId, String info){
+    public ActionResultDTO editProductToStore(int storeId, int productId, String info) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.editProductInStore(sessionId,storeId,productId,info);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
 
     //uscase 4.1.3
-    public boolean deleteProductFromStore(int storeId, int productId){
+    public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
 
     //Usecase 4.3
-    public boolean addStoreOwner(int storeId, int subId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsOwner(subId,storeId)){
-            return s.addStoreOwner(sessionId,storeId,subId);
-        }
-        return false;
+    public ActionResultDTO addStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        return s.addStoreOwner(sessionId,storeId,subId);
     }
 
     //Usecase 4.5
-    public boolean addStoreManager(int storeId, int userId){
-        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) && !s.subIsManager(userId,storeId)){
-            return s.addStoreManager(sessionId,storeId,userId);
-        }
-        return false;
+    public ActionResultDTO addStoreManager(int storeId, int userId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        if (s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+
+        return s.addStoreManager(sessionId,storeId,userId);
     }
 
 
@@ -57,11 +60,10 @@ public class OwnerHandler {
      * @param subId
      * @return
      */
-    public boolean editManageOptions(int storeId, int subId, String options){
-        if(s.subIsManager(subId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.setManagerDetalis(sessionId,subId,storeId,options);
-        }
-        return false;
+    public ActionResultDTO editManageOptions(int storeId, int subId, String options) {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
+        if (!s.subIsManager(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        return s.setManagerDetalis(sessionId,subId,storeId,options);
     }
 
 
@@ -71,11 +73,10 @@ public class OwnerHandler {
      * @param userId
      * @return
      */
-    public boolean deleteManager(int storeId, int userId){
-        if(s.subIsManager(userId,storeId) && s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            return s.deleteManager(sessionId,storeId,userId);
-        }
-        return false;
+    public ActionResultDTO deleteManager(int storeId, int userId) {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
+        if (!s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        return s.deleteManager(sessionId,storeId,userId);
     }
 
 
@@ -93,11 +94,11 @@ public class OwnerHandler {
     }
 
     //Usecase 4.2
-    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+    public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.changeBuyingPolicy(storeId, newPolicy);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only owners can use this functionality.");
     }
 
 

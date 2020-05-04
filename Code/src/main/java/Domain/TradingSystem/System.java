@@ -1,7 +1,11 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
+import Domain.Spelling.Spellchecker;
+import Domain.Util.Pair;
 
 import java.util.*;
 
@@ -122,12 +126,6 @@ public class System {
         return u!=null && !u.isGuest();
     }
 
-    public void saveLatestCart(int sessionId) {
-        logger.info("saveLatestCart: sessionId "+sessionId);
-        User u = userHandler.getUser(sessionId);
-        if(u!= null)
-            u.saveLatestCart();
-    }
     public boolean logout(int sessionId){
         logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
@@ -186,7 +184,7 @@ public class System {
         return s.hasOwnerPermission(storeId);
 
     }
-    public boolean addProductToStore(int sessionId,int storeId, int productId,int ammount) {
+    public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int ammount) {
 
         logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, ammount, productId, storeId));
         ProductInfo info = getProductInfoById(productId);
@@ -195,35 +193,35 @@ public class System {
             if (store != null) {
                 return store.addProduct(info, ammount);
             }
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
     }
 
     //UseCase 4.1.2
-    public boolean editProductInStore(int sessionId, int storeId, int productId,String newInfo){
+    public ActionResultDTO editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
         if(getProductInfoById(productId) != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
                 return store.editProduct(productId, newInfo);
             }
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
     }
 
     //UseCase 4.1.3
-    public boolean deleteProductFromStore(int sessionId, int storeId, int productId){
+    public ActionResultDTO deleteProductFromStore(int sessionId, int storeId, int productId){
         logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
         if(getProductInfoById(productId) != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
                 return store.deleteProduct(productId);
             }
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
     }
 
     // UseCase 4.3
@@ -250,24 +248,24 @@ public class System {
             return null;
     }
 
-    public boolean addStoreOwner (int sessionId, int storeId, int subId) {
+    public ActionResultDTO addStoreOwner (int sessionId, int storeId, int subId) {
         logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
         Store s = getStoreById(storeId);
         if(s!=null)
         {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
-                return true;
+                return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
 
         }
 
 
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
     public boolean subIsOwner(int subId,int storeId) {
@@ -299,22 +297,21 @@ public class System {
             return null;
     }
 
-    public boolean addStoreManager (int sessionId, int storeId, int userId) {
+    public ActionResultDTO addStoreManager (int sessionId, int storeId, int userId) {
         User u = userHandler.getUser(sessionId);
         logger.info("addStoreManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
-            return false;
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
-                    store.addOwner(newManager);
-                    return true;
-                }
-
+            return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified user is invalid.");
+        Store store = getStoreById(storeId);
+        if (store != null) {
+            if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
+                store.addOwner(newManager);
+                return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
+        }
 
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified store is invalid.");
     }
 
     /**
@@ -323,7 +320,7 @@ public class System {
      * @param userId
      * @return
      */
-    public boolean deleteManager (int sessionId, int storeId, int userId) {
+    public ActionResultDTO deleteManager (int sessionId, int storeId, int userId) {
         logger.info("deleteManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         User u = userHandler.getUser(sessionId);
         if(isSubscriber(sessionId)) {
@@ -336,13 +333,13 @@ public class System {
                     if (store != null) {
                         managerToDelete.removePermission(store, "Manager");
                         store.removeManger(managerToDelete);
-                        return true;
+                        return new ActionResultDTO(ResultCode.SUCCESS, null);
                     }
                 }
-                return false;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
             }
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
     }
 
     /**
@@ -392,13 +389,13 @@ public class System {
      * @param details
      * @return
      */
-    public boolean setManagerDetalis(int sessionId, int managerId, int storeId, String details){
+    public ActionResultDTO setManagerDetalis(int sessionId, int managerId, int storeId, String details){
         logger.info("setManagerDetalis: sessionId " + sessionId + ", managerId " + managerId + ", storeId " + storeId + ", details " + details);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Subscriber manager = userHandler.getSubscriber(managerId);
             if (manager == null)
-                return false;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager does not exist.");
             Store store = getStoreById(storeId);
             if(store!=null) {
 
@@ -406,12 +403,12 @@ public class System {
 
                 if (Arrays.asList(validDetailes).contains(details)) {
                     manager.overridePermission("Manager", store, details);
-                    return true;
+                    return new ActionResultDTO(ResultCode.SUCCESS, null);
                 }
             }
 
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
     }
 
     //usecase 4.10,5.1,6.4.2
@@ -440,13 +437,14 @@ public class System {
     }
 
     // usecase 2.8.3
-    public boolean makePayment(int sessionId, String paymentDetails) {
+    public ActionResultDTO makePayment(int sessionId, String paymentDetails) {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
         boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
         logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
-        return success;
+        return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
+
     }
 
     // usecase 2.8.4
@@ -477,10 +475,7 @@ public class System {
         Subscriber subToLogin = userHandler.getSubscriberUser(username, Security.getHash(password));
 
         if (subToLogin != null) {
-            ShoppingCart subscriberCart = subToLogin.getUserPurchaseHistory().getLatestCart();
-            if(subscriberCart != null) {
-                subscriberCart.merge(u.getShoppingCart());
-            }
+
             u.setState(subToLogin);
             return true;
         }
@@ -506,18 +501,42 @@ public class System {
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
 
-       for (Store store: stores)
+        List<String> productNames = new ArrayList<>();
+        productNames.add(productName);
+        if (productName != null) {
+            List<String> productSugs = Spellchecker.getSuggestions(productName);
+            if (productSugs != null) productNames.addAll(productSugs);
+        }
+
+        List<String> categoryNames = new ArrayList<>();
+        categoryNames.add(categoryName);
+        if (categoryName != null) {
+            List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
+            if (categorySugs != null) categoryNames.addAll(categorySugs);
+        }
+
+        List<String> keywordsUpdated = new ArrayList<>();
+        if (keywords != null) {
+            keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
+            for (String keyword: keywords) {
+                List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
+                if (keywordSugs != null) keywordsUpdated.addAll(keywordSugs);
+            }
+        }
+
+
+        for (Store store: stores)
             if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
 
         for (ProductInStore pis: allProducts) {
             ProductInfo info = pis.getProductInfo();
             if (productName != null)
-                if (info.getName().equals(productName)) {
+                if (productNames.contains(info.getName())) {
                     filteredProducts.add(pis);
                     continue;
                 }
             if (categoryName != null)
-                if (info.getCategory().equals(categoryName)) {
+                if (categoryNames.contains(info.getCategory())) {
                     filteredProducts.add(pis);
                     continue;
                 }
@@ -528,7 +547,7 @@ public class System {
             }
 
             if (keywords != null) {
-                for (String keyword: keywords) {
+                for (String keyword: keywordsUpdated) {
                     if (pis.toString().contains(keyword))
                         filteredProducts.add(pis);
                 }
@@ -577,8 +596,8 @@ public class System {
         return null;
     }
 
-    private boolean checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
-        if (userHandler.getUser(sessionId) == null) return false;
+    private ActionResultDTO checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
+        if (userHandler.getUser(sessionId) == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "User does not exist.");
         boolean found = false;
         for (Store store : stores) {
             if (store.getId() == storeId) {
@@ -586,7 +605,7 @@ public class System {
                 break;
             }
         }
-        if (!found) return false;
+        if (!found) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Store " + storeId + " does not exist.");
 
         found = false;
         for (ProductInfo product : products) {
@@ -595,38 +614,49 @@ public class System {
                 break;
             }
         }
-        if (!found) return false;
+        if (!found) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Product " + productId + " does not exist.");
 
-        return amount >= 1;
+        if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
-    public boolean addToCart(int sessionId, int storeId, int productId, int amount){
+    public ActionResultDTO addToCart(int sessionId, int storeId, int productId, int amount){
         logger.info("addToCart: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId + ", amount " + amount);
-        if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
+        ActionResultDTO result = checkCartModificationDetails(sessionId, storeId, productId, amount);
+        if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
 
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        return u.addProductToCart(store, productId, amount);
+        result = u.addProductToCart(store, productId, amount);
+        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Added " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        return result;
     }
 
-    public boolean updateAmount(int sessionId, int storeId, int productId, int amount) {
+    public ActionResultDTO updateAmount(int sessionId, int storeId, int productId, int amount) {
         logger.info("updateAmount: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId + ", amount " + amount);
-        if (!checkCartModificationDetails(sessionId, storeId, productId, amount)) return false;
+        ActionResultDTO result = checkCartModificationDetails(sessionId, storeId, productId, amount);
+        if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
 
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        return u.editCartProductAmount(store, productId, amount);
+        result = u.editCartProductAmount(store, productId, amount);
+        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("There are now " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        return result;
     }
 
-    public boolean deleteItemInCart(int sessionId, int storeId, int productId) {
+    public ActionResultDTO deleteItemInCart(int sessionId, int storeId, int productId) {
         logger.info("deleteItemInCart: sessionId " + sessionId + ", storeId " + storeId + ", productId " + productId);
-        if (!checkCartModificationDetails(sessionId, storeId, productId, 1)) return false;
+        ActionResultDTO result = checkCartModificationDetails(sessionId, storeId, productId, 5);
+        if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
+
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        return u.removeProductFromCart(store, productId);
+        result = u.removeProductFromCart(store, productId);
+        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Deleted product " + getProductInfoById(productId) + " from basket of store " + storeId);
+        return result;
     }
 
-    public boolean clearCart(int sessionId) {
+    public ActionResultDTO clearCart(int sessionId) {
         logger.info("clearCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.removeAllProductsFromCart();
@@ -666,10 +696,6 @@ public class System {
     }
 
     // Usecase 2.3
-    public void mergeCartWithSubscriber(int sessionId) {
-        logger.info("mergeCartWithSubscriber: sessionId " + sessionId);
-        userHandler.mergeCartWithSubscriber(sessionId);
-    }
 
 
     public void deleteStores() {
@@ -697,17 +723,17 @@ public class System {
         }
     }
 
-    public boolean changeBuyingPolicy(int storeId, String newPolicy){
+    public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy){
         logger.info("changeBuyingPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
         Store s = getStoreById(storeId);
         if(s != null){
             s.setBuyingPolicy(new BuyingPolicy(newPolicy));
-            return true;
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
-        return false;
+        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "The specified store does not exist.");
     }
 
-    public boolean checkBuyingPolicy(int sessionId) {
+    public ActionResultDTO checkBuyingPolicy(int sessionId) {
         logger.info("checkBuyingPolicy: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         return u.getShoppingCart().checkBuyingPolicy();
@@ -731,10 +757,11 @@ public class System {
         u.saveCurrentCartAsPurchase();
     }
 
-    public void updateStoreSupplies(int sessionId) {
+    public boolean updateStoreSupplies(int sessionId) {
         logger.info("updateStoreSupplies: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        u.updateStoreSupplies();
+        return u.updateStoreSupplies();
+
     }
 
     public void emptyCart(int sessionId) {
