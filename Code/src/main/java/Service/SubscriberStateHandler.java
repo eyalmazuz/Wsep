@@ -20,7 +20,6 @@ public class SubscriberStateHandler {
     //Usecase 3.1
     public String logout() throws JsonProcessingException {
         if(s.isSubscriber(sessionId)){
-            s.saveLatestCart(sessionId);
             s.logout(sessionId);
             return mapper.writeValueAsString(new ActionResultDTO(ResultCode.SUCCESS, null));
         }

@@ -18,7 +18,6 @@ public class GuestUserHandler {
             int subId = s.getSubscriber(username, password);
             if(subId != -1){
                 s.setState(sessionId, subId);
-                s.mergeCartWithSubscriber(sessionId);
                 return mapper.writeValueAsString(new ActionResultDTO(ResultCode.SUCCESS, "Login successful."));
             }
             return mapper.writeValueAsString(new ActionResultDTO(ResultCode.ERROR_LOGIN, "No such username."));

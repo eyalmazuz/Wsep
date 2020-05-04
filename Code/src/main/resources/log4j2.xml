@@ -6,7 +6,7 @@
         </Console>
 
         <RollingFile name="system-logger" fileName="logs/systemLog.log"
-                     filePattern="${log-path}/commons-%d{yyyy-MM-dd}.log">
+                     filePattern="logs/systemLogHistory-%d{yyyy-MM-dd}.log">
             <!-- log pattern -->
             <PatternLayout>
                 <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} %c{1} - %msg%n</pattern>
@@ -20,7 +20,7 @@
         </RollingFile>
 
         <RollingFile name="error-logger" fileName="logs/errorLog.log"
-                     filePattern="${log-path}/commons-%d{yyyy-MM-dd}.log">
+                     filePattern="$logs/ErrorLogHistory-%d{yyyy-MM-dd}.log">
             <!-- log pattern -->
             <PatternLayout>
                 <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} %c{1} - %msg%n</pattern>

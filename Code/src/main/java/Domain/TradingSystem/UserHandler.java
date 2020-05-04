@@ -122,21 +122,6 @@ public class UserHandler {
     }
 
 
-    public void mergeCartWithSubscriber(int sessionId) {
-        User u = users.get(sessionId);
-        if (u!= null){
-            Subscriber s = (Subscriber) u.getState();
-            ShoppingCart cart = s.getUserPurchaseHistory().getLatestCart();
-            if(cart==null){
-                s.getUserPurchaseHistory().setLatestCart(u.getShoppingCart());
-            }
-            else{
-                cart.merge(u.getShoppingCart());
-            }
-
-        }
-    }
-
     public void setSubscribers(Map<Integer, Subscriber> subscribers) {
         this.subscribers = subscribers;
     }
