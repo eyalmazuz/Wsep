@@ -3,9 +3,7 @@ package Service;
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
-import Domain.TradingSystem.UserHandler;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class OwnerHandler {
     private int sessionId;

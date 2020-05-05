@@ -1,11 +1,11 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
-import Domain.Util.Pair;
 
 import java.util.*;
 
@@ -90,7 +90,7 @@ public class System {
     }
 
 
-    public boolean setup(String supplyConfig,String paymentConfig){
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig){
 
         // TODO: INITIALIZE PRODUCT INFOS LIST
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
@@ -101,15 +101,15 @@ public class System {
         }
         catch(Exception e){
             logger.error(e.getMessage());
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_SETUP,"e.getMessage");
         }
 //        instance = this;
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
     }
 
-    public int startSession(){
+    public IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
-        return userHandler.createSession();
+        return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
     }
 
     public void addStore (){
@@ -459,12 +459,18 @@ public class System {
     }
 
     // Usecase 2.2
-    public int register(int sessionId, String username, String password) {
-        if (username == null || password == null) return -1;
+    public IntActionResultDto register(int sessionId, String username, String password) {
+        if (username == null || password == null|| username.equals("") || password.equals("")) return new IntActionResultDto(ResultCode.ERROR_REGISTER,"invalid username/password",-1);;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-        if (!u.isGuest()) return -1;
-        return userHandler.register(username, Security.getHash(password));
+        if (u!=null) {
+            int subId = userHandler.register(username, Security.getHash(password));
+            if (subId == -1) {
+                return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
+            }
+            return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
+        }
+       return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
     }
 
     // Usecase 2.3

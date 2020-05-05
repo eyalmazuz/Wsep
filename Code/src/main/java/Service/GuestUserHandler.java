@@ -1,10 +1,10 @@
 package Service;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class GuestUserHandler {
 
@@ -23,11 +23,11 @@ public class GuestUserHandler {
         return new ActionResultDTO(ResultCode.ERROR_LOGIN, "User already logged in.");
     }
 
-    public int register(int sessionId, String username, String password) {
+    public IntActionResultDto register(int sessionId, String username, String password) {
         if (s.isGuest(sessionId)) {
             return s.register(sessionId,username, password);
         }
-        return -1;
+         return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Only Guest can register",-1);
     }
 
     // 2.6, 2.7

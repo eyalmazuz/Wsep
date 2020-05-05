@@ -12,7 +12,7 @@ public class RealBridge implements Bridge {
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         SessionHandler dc = new SessionHandler();
-        return dc.setup(supplyConfig, paymentConfig);
+        return dc.setup(supplyConfig, paymentConfig).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean login(int sessionId, String username, String password) {
@@ -22,7 +22,7 @@ public class RealBridge implements Bridge {
 
     public int register(int sessionId, String username, String password) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.register(sessionId, username, password);
+        return guh.register(sessionId, username, password).getId();
     }
 
     public String getAllInfo(int sessionId) {
@@ -160,7 +160,7 @@ public class RealBridge implements Bridge {
 
     public int startSession() {
         SessionHandler dc = new SessionHandler();
-        return dc.startSession();
+        return dc.startSession().getId();
     }
 
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy){
