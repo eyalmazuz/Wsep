@@ -1,6 +1,7 @@
 package com.example.communicationLayer.controllers;
 
 
+import DTOs.ActionResultDTO;
 import Service.SubscriberStateHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,13 +14,13 @@ public class SubscriberStateController {
     SubscriberStateHandler subscriberStateHandler ;
 
     @GetMapping("/SubscriberStateHandler")
-    public void SubscriberStateHandler(@RequestParam(value = "sessionId", defaultValue = "") int sessionId){
+    public void SubscriberStateHandler(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId){
         subscriberStateHandler = new SubscriberStateHandler(sessionId);
     }
 
     @GetMapping("/logout")
     @ResponseBody
-    public boolean logout(){
+    public ActionResultDTO logout(){
         return subscriberStateHandler.logout();
     }
 

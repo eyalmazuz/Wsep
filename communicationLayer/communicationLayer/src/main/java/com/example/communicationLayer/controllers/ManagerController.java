@@ -1,6 +1,7 @@
 package com.example.communicationLayer.controllers;
 
 
+import DTOs.ActionResultDTO;
 import Service.ManagerHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +20,7 @@ public class ManagerController {
     }
     @GetMapping("/ManagerAddProductToStore")
     @ResponseBody
-    public boolean addProductToStore(
+    public ActionResultDTO addProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
             @RequestParam(value = "amount", defaultValue = "") int amount){
@@ -29,7 +30,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerEditProductToStoreManager")
     @ResponseBody
-    public boolean editProductToStore(
+    public ActionResultDTO editProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
             @RequestParam(value = "info", defaultValue = "") String info){
@@ -38,7 +39,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerDeleteProductFromStore")
     @ResponseBody
-    public boolean deleteProductFromStore(
+    public ActionResultDTO deleteProductFromStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId
             ){
@@ -54,7 +55,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerChangeBuyingPolicy")
     @ResponseBody
-    public boolean changeBuyingPolicy(
+    public ActionResultDTO changeBuyingPolicy(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
         return managerHandler.changeBuyingPolicy(storeId,newPolicy);

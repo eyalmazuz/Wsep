@@ -1,5 +1,7 @@
 package com.example.communicationLayer.controllers;
 
+import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import Service.GuestUserHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +15,7 @@ public class GuestUserController {
 
     @GetMapping("/login")
     @ResponseBody
-    public boolean login(
+    public ActionResultDTO login(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "username", defaultValue = "") String username,
             @RequestParam(value = "password", defaultValue = "") String password) {
@@ -22,7 +24,7 @@ public class GuestUserController {
 
     @GetMapping("/register")
     @ResponseBody
-    public int register(
+    public IntActionResultDto register(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "username", defaultValue = "") String username,
             @RequestParam(value = "password", defaultValue = "") String password) {
@@ -32,7 +34,7 @@ public class GuestUserController {
 
     @GetMapping("/addProductToCart")
     @ResponseBody
-    public boolean addProductToCart(
+    public ActionResultDTO addProductToCart(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
@@ -43,7 +45,7 @@ public class GuestUserController {
 
     @GetMapping("/editProductInCart")
     @ResponseBody
-    public boolean editProductInCart(
+    public ActionResultDTO editProductInCart(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
@@ -53,36 +55,38 @@ public class GuestUserController {
 
     @GetMapping("/removeProductInCart")
     @ResponseBody
-    public boolean removeProductInCart(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
-                                       @RequestParam(value = "storeId", defaultValue = "") int storeId,
-                                       @RequestParam(value = "productId", defaultValue = "") int productId) {
+    public ActionResultDTO removeProductInCart(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                               @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                               @RequestParam(value = "productId", defaultValue = "") int productId) {
         return guestUserHandler.removeProductInCart(sessionId, storeId, productId);
     }
 
     @GetMapping("/clearCart")
     @ResponseBody
-    public boolean clearCart(@RequestParam(value = "sessionId", defaultValue = "") int sessionId) {
+    public ActionResultDTO clearCart(@RequestParam(value = "sessionId", defaultValue = "") int sessionId) {
         return guestUserHandler.clearCart(sessionId);
     }
 
+    /*
     @GetMapping("/setPaymentDetails")
     @ResponseBody
     public boolean setPaymentDetails(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
                                      @RequestParam(value = "paymentDetails", defaultValue = "") String paymentDetails) {
         return guestUserHandler.setPaymentDetails(sessionId, paymentDetails);
     }
+    */
 
 
     @GetMapping("/requestPurchase")
     @ResponseBody
-    public boolean requestPurchase(@RequestParam(value = "sessionId", defaultValue = "") int sessionId) {
+    public ActionResultDTO requestPurchase(@RequestParam(value = "sessionId", defaultValue = "") int sessionId) {
         return guestUserHandler.requestPurchase(sessionId);
     }
 
     @GetMapping("/confirmPurchase")
     @ResponseBody
-    public boolean confirmPurchase(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
-                                   @RequestParam(value = "paymentDetails", defaultValue = "") String paymentDetails) {
+    public ActionResultDTO confirmPurchase(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                           @RequestParam(value = "paymentDetails", defaultValue = "") String paymentDetails) {
        return guestUserHandler.confirmPurchase(sessionId,paymentDetails);
         }
 
