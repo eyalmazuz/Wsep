@@ -3,10 +3,10 @@ package com.example.communicationLayer.controllers;
 import DTOs.StorePurchaseHistoryDTO;
 import DTOs.UserPurchaseHistoryDTO;
 import Service.AdminStateHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin()
+@RestController
 public class AdminStateController {
 
     AdminStateHandler adminStateHandler ;
