@@ -155,7 +155,7 @@ public class StoreTest extends TestCase {
         assertEquals(size-1,store.getAllManagers().size());
 
     }
-
+    //change rules
     @Test
 
     public void testFail(){
