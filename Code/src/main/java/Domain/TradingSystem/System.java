@@ -1,11 +1,10 @@
 package Domain.TradingSystem;
 
-import DTOs.ActionResultDTO;
-import DTOs.ResultCode;
+import DTOs.*;
+import DTOs.SimpleDTOS.*;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
-import Domain.Util.Pair;
 
 import java.util.*;
 
@@ -90,7 +89,7 @@ public class System {
     }
 
 
-    public boolean setup(String supplyConfig,String paymentConfig){
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig){
 
         // TODO: INITIALIZE PRODUCT INFOS LIST
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
@@ -101,15 +100,15 @@ public class System {
         }
         catch(Exception e){
             logger.error(e.getMessage());
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_SETUP,"e.getMessage");
         }
 //        instance = this;
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
     }
 
-    public int startSession(){
+    public IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
-        return userHandler.createSession();
+        return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
     }
 
     public void addStore (){
@@ -139,28 +138,33 @@ public class System {
      * open new store
      * @return the new store id
      */
-    public int openStore(int sessionId){
+    public IntActionResultDto openStore(int sessionId){
         logger.info("openStore: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Store newStore = u.openStore();
             if (newStore != null) {
                 stores.add(newStore);
-                return newStore.getId();
+                return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
 
         }
-        return -1;
+        return new IntActionResultDto(ResultCode.ERROR_SESSIONID,"cannot find sessionId",-1);
     }
 
 
     //Usecase 3.7
-    public String getHistory(int sessionId){
+    public UserPurchaseHistoryDTO getHistory(int sessionId){
         logger.info("getUserHistory: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
-        if(u!=null)
-            return u.getHistory();
-        return null;
+        if(u!=null) {
+            UserPurchaseHistory history = u.getHistory();
+            if(history!=null) {
+                return new UserPurchaseHistoryDTO(ResultCode.SUCCESS, "got User History", getHistoryMap(history));
+            }
+            return  new UserPurchaseHistoryDTO(ResultCode.ERROR_HISTORY,"Cannot get Guest history",null);
+        }
+        return new UserPurchaseHistoryDTO(ResultCode.ERROR_SESSIONID,"Illegal SessionId",null);
     }
 
     //Usecase 5.1
@@ -412,13 +416,15 @@ public class System {
     }
 
     //usecase 4.10,5.1,6.4.2
-    public String getStoreHistory( int storeId){
+    public StorePurchaseHistoryDTO getStoreHistory(int storeId){
         logger.info("getStoreHistory: storeId "+storeId);
         Store s = getStoreById(storeId);
         if(s!=null){
-            return s.getStorePurchaseHistory().toString();
+            StorePurchaseHistory history =  s.getStorePurchaseHistory();
+            return new StorePurchaseHistoryDTO(ResultCode.SUCCESS,"Got store history",s.getId(),
+                    getPurchasesDto(history.getPurchaseHistory()));
         }
-        return null;
+        return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
     // usecase 2.8
@@ -459,12 +465,18 @@ public class System {
     }
 
     // Usecase 2.2
-    public int register(int sessionId, String username, String password) {
-        if (username == null || password == null) return -1;
+    public IntActionResultDto register(int sessionId, String username, String password) {
+        if (username == null || password == null|| username.equals("") || password.equals("")) return new IntActionResultDto(ResultCode.ERROR_REGISTER,"invalid username/password",-1);;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-        if (!u.isGuest()) return -1;
-        return userHandler.register(username, Security.getHash(password));
+        if (u!=null) {
+            int subId = userHandler.register(username, Security.getHash(password));
+            if (subId == -1) {
+                return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
+            }
+            return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
+        }
+       return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
     }
 
     // Usecase 2.3
@@ -484,18 +496,34 @@ public class System {
     }
 
     // Usecase 2.4
-    public String viewStoreProductInfo() {
+    public StoreActionResultDTO viewStoreProductInfo() {
         logger.info("searchProducts: no arguments");
+        List<StoreDTO> result = new ArrayList<>();
         String info = "";
         for (Store store: stores) {
-            info += store.toString() + "\n--------------------------\n";
+            result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
+                    store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
         }
 
-        return info;
+        return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
+    }
+
+    private List<ProductInStoreDTO> getProductDTOlist(List<ProductInStore> products) {
+        List<ProductInStoreDTO> result = new ArrayList<>();
+        for (ProductInStore pis: products) {
+            result.add(new ProductInStoreDTO(pis.getId(),
+                    pis.getProductInfo().getName(),
+                    pis.getProductInfo().getCategory(),
+                    pis.getAmount(),
+                    pis.getInfo(),
+                    pis.getStore().getId()));
+        }
+        return result;
+
     }
 
     // Usecase 2.5
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
+    public ProductsActionResultDTO searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         logger.info("searchProducts: sessionId " + sessionId + ", productName " + productName + ", categoryName: "
                 + categoryName + ", keywords " + Arrays.toString(keywords) + ", minItemRating " + minItemRating + ", minStoreRating " + minStoreRating);
         List<ProductInStore> allProducts = new ArrayList<>();
@@ -555,12 +583,9 @@ public class System {
             }
         }
 
-        String results = "Results:\n\n";
-        for (ProductInStore pis: filteredProducts) {
-            results += pis.toString() + "\n---------------------------------\n";
-        }
 
-        return results;
+
+        return new ProductsActionResultDTO(ResultCode.SUCCESS,"List of filterd products",getProductDTOlist(filteredProducts));
     }
 
 
@@ -578,14 +603,45 @@ public class System {
         User u = userHandler.getUser(sessionId);
         return u!=null && u.isAdmin();
     }
-    public String getUserHistory(int subId){
+    public UserPurchaseHistoryDTO getUserHistory(int subId){
         logger.info("getUserHistory: SubscriberId "+subId);
             Subscriber subscriber = userHandler.getSubscriber(subId);
-            if (subscriber != null)
-                return subscriber.getHistory();
-            return null;
+            if (subscriber != null) {
+                UserPurchaseHistory history = subscriber.getHistory();
+                return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history",getHistoryMap(history));
+
+            }
+            return new UserPurchaseHistoryDTO(ResultCode.ERROR_SUBID,"Invalid subscriber Id",null);
 
     }
+
+    //Functions that turns Objects Into DTO's
+    private Map<Integer,List<PurchaseDetailsDTO>> getHistoryMap(UserPurchaseHistory history){
+
+        Map<Integer,List<PurchaseDetailsDTO>> historyMap = new HashMap<>();
+        for(Store store : history.getStorePurchaseLists().keySet()) {
+            List<PurchaseDetails> details = history.getStorePurchaseLists().get(store);
+
+            historyMap.put(store.getId(),getPurchasesDto(details));
+        }
+        return historyMap;
+
+    }
+    private List<PurchaseDetailsDTO> getPurchasesDto(List<PurchaseDetails> details){
+        List<PurchaseDetailsDTO> detailsDTOS = new ArrayList<>();
+        for(PurchaseDetails purchaseDetails:details){
+            Map<ProductInfoDTO,Integer> mapping = new HashMap<>();
+            for(ProductInfo pi : purchaseDetails.getProducts().keySet()){
+                ProductInfoDTO pidto = new ProductInfoDTO(pi.getId(),pi.getName(),pi.getCategory(),pi.getRating());
+                mapping.put(pidto,purchaseDetails.getProducts().get(pi));
+            }
+
+            detailsDTOS.add(new PurchaseDetailsDTO(purchaseDetails.getId(),mapping,purchaseDetails.getPrice()));
+        }
+        return detailsDTOS;
+
+    }
+
 
     public Store getStoreById(int storeId){
         for(Store s: stores){
@@ -667,10 +723,25 @@ public class System {
         return u.purchaseCart();
     }*/
 
-    public String getCart(int sessionId) {
+    public ShoppingCartDTO getCart(int sessionId) {
         logger.info("getCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.getShoppingCart().toString();
+        if (u!=null) {
+            List<ShoppingBasketDTO> cart = new LinkedList<>();
+            ShoppingCart userCart = u.getShoppingCart();
+            for(ShoppingBasket basket: userCart.getBaskets()){
+                Map<Integer,Integer> productMapping = basket.getProducts();
+                Map<String,Integer> dtoProductMapping = new HashMap<>();
+                for(Integer pid: productMapping.keySet()){
+                    dtoProductMapping.put(getProductInfoById(pid).getName(),productMapping.get(pid));
+                }
+                cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
+
+            }
+
+            return new ShoppingCartDTO(ResultCode.SUCCESS,"View cart sucsess",cart);
+        }
+        return new ShoppingCartDTO(ResultCode.ERROR_SESSIONID,"Cant find SessionId",null);
     }
 
     // Usecase 2.3

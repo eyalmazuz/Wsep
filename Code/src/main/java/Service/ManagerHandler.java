@@ -2,11 +2,8 @@ package Service;
 
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
+import DTOs.StorePurchaseHistoryDTO;
 import Domain.TradingSystem.System;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.xml.transform.Result;
 
 public class ManagerHandler {
     //Usecase 5.1 Handler
@@ -38,11 +35,11 @@ public class ManagerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
     }
 
-    public String viewPurchaseHistory(int storeId){
+    public StorePurchaseHistoryDTO viewPurchaseHistory(int storeId){
         if( s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"any") ){
             return s.getStoreHistory(storeId);
         }
-        return "";
+        return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"User Is not manager",-1,null);
     }
 
     //Usecase 4.2

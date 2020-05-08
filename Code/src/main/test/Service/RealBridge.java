@@ -3,16 +3,20 @@ package Service;
 
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
+import DTOs.SimpleDTOS.ProductInStoreDTO;
+import DTOs.StorePurchaseHistoryDTO;
+import DTOs.UserPurchaseHistoryDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.xml.transform.Result;
+import java.util.List;
 
 public class RealBridge implements Bridge {
 
     public boolean setupSystem(String supplyConfig, String paymentConfig) {
         SessionHandler dc = new SessionHandler();
-        return dc.setup(supplyConfig, paymentConfig);
+        return dc.setup(supplyConfig, paymentConfig).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean login(int sessionId, String username, String password) {
@@ -22,17 +26,19 @@ public class RealBridge implements Bridge {
 
     public int register(int sessionId, String username, String password) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.register(sessionId, username, password);
+        return guh.register(sessionId, username, password).getId();
     }
 
     public String getAllInfo(int sessionId) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.viewStoreProductInfo();
+        return guh.viewStoreProductInfo().toString();
     }
 
     public String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.searchProducts(sessionId, productName, category, keywords, productRating, storeRating);
+        return guh.searchProducts(sessionId, productName, category, keywords, productRating, storeRating).toString();
+
+
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
@@ -66,7 +72,7 @@ public class RealBridge implements Bridge {
 
     public String viewCart(int sessionId){
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.viewCart(sessionId);
+        return guh.viewCart(sessionId).toString();
     }
 
     public boolean logout(int sessionId){
@@ -77,17 +83,21 @@ public class RealBridge implements Bridge {
 
     public int openStore(int sessionId) {
         SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
-        return ssh.openStore();
+        return ssh.openStore().getId();
     }
 
     public String viewPurchaseHistory(int sessionId){
         SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
-        return ssh.getHistory();
+        return ssh.getHistory().toString();
     }
 
     public String searchUserHistory(int sessionId, int userId){
         AdminStateHandler ash = new AdminStateHandler(sessionId);
-        return ash.getSubscriberHistory(userId);
+        UserPurchaseHistoryDTO history = ash.getSubscriberHistory(userId);
+        if(history.getResultCode().equals(ResultCode.SUCCESS))
+            return ash.getSubscriberHistory(userId).toString();
+        else
+            return null;
     }
 
     public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
@@ -145,12 +155,16 @@ public class RealBridge implements Bridge {
 
     public String viewShopHistory(int sessionId, int storeId){
         OwnerHandler oh = new OwnerHandler(sessionId);
-        return oh.viewPurchaseHistory(storeId);
+        return oh.viewPurchaseHistory(storeId).toString();
     }
 
     public String getStoreHistory(int sessionId, int storeId) {
         AdminStateHandler ash = new AdminStateHandler(sessionId);
-        return ash.getStoreHistory(storeId);
+        StorePurchaseHistoryDTO historyDTO = ash.getStoreHistory(storeId);
+        if(historyDTO.getResultCode().equals(ResultCode.SUCCESS)){
+            return historyDTO.toString();
+        }
+        return null;
     }
 
     public void addProductInfo(int sessionId, int id, String name, String category){
@@ -160,7 +174,7 @@ public class RealBridge implements Bridge {
 
     public int startSession() {
         SessionHandler dc = new SessionHandler();
-        return dc.startSession();
+        return dc.startSession().getId();
     }
 
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy){

@@ -1,12 +1,12 @@
 package com.example.communicationLayer.controllers;
 
 
+import DTOs.ActionResultDTO;
+import DTOs.StorePurchaseHistoryDTO;
 import Service.ManagerHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin()
 @RestController
 public class ManagerController {
 
@@ -19,7 +19,7 @@ public class ManagerController {
     }
     @GetMapping("/ManagerAddProductToStore")
     @ResponseBody
-    public boolean addProductToStore(
+    public ActionResultDTO addProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
             @RequestParam(value = "amount", defaultValue = "") int amount){
@@ -29,7 +29,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerEditProductToStoreManager")
     @ResponseBody
-    public boolean editProductToStore(
+    public ActionResultDTO editProductToStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId,
             @RequestParam(value = "info", defaultValue = "") String info){
@@ -38,7 +38,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerDeleteProductFromStore")
     @ResponseBody
-    public boolean deleteProductFromStore(
+    public ActionResultDTO deleteProductFromStore(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "productId", defaultValue = "") int productId
             ){
@@ -48,13 +48,13 @@ public class ManagerController {
 
     @GetMapping("/ManagerViewPurchaseHistory")
     @ResponseBody
-    public String viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
+    public StorePurchaseHistoryDTO viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
         return managerHandler.viewPurchaseHistory(storeId);
     }
 
     @GetMapping("/ManagerChangeBuyingPolicy")
     @ResponseBody
-    public boolean changeBuyingPolicy(
+    public ActionResultDTO changeBuyingPolicy(
             @RequestParam(value = "storeId", defaultValue = "") int storeId,
             @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
         return managerHandler.changeBuyingPolicy(storeId,newPolicy);

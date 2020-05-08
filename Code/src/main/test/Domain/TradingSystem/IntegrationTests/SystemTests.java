@@ -35,10 +35,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testAddProductToStore() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         assertSame(test.addProductToStore(sessionId,storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addProductToStore(sessionId,storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
@@ -47,10 +47,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testEditProductInStore() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         test.addProductToStore(sessionId,storeId,1, 5);
@@ -62,10 +62,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testDeleteProductFromStore() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.deleteProductFromStore(sessionId,storeId, 1).getResultCode(), ResultCode.SUCCESS);
@@ -78,7 +78,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testCheckSuppliesAndGetPrice() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 5);
         User u = test.getUser(sessionId);
@@ -93,7 +93,7 @@ public class SystemTests extends TestCase {
     public void testMakePaymentFail() {
         // keep track of the original cart, history, store supplies
 
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 5);
         User u = test.getUser(sessionId);
@@ -118,7 +118,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testSavePurchaseHistory() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
@@ -142,7 +142,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testUpdateStoreSupplies() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
@@ -157,7 +157,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testSaveOngoingPurchaseForUser() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
@@ -174,7 +174,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testRequestSupply() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
@@ -196,7 +196,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testRestoreSupplies() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -212,7 +212,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testRestoreHistories() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -230,7 +230,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testRestoreCart() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -250,7 +250,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testRemoveOngoingPurchase() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -266,7 +266,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testEntirePurchaseProcessFailure() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -350,13 +350,13 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testAddOwnerSucess() {
-        int openerSessionId = test.startSession();
+        int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
-        int newOwnerSessionId = test.startSession();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+        int newOwnerSessionId = test.startSession().getId();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
 
         assertSame(test.addStoreOwner(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
 
@@ -364,13 +364,13 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testAddManager() {
-        int openerSessionId = test.startSession();
+        int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
-        int newOwnerSessionId = test.startSession();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+        int newOwnerSessionId = test.startSession().getId();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
 
         assertSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);//already manager
@@ -378,13 +378,13 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testDeleteManager() {
-        int openerSessionId = test.startSession();
+        int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
-        int newOwnerSessionId = test.startSession();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+        int newOwnerSessionId = test.startSession().getId();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
 
         test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
         assertNotSame(test.deleteManager(newOwnerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
@@ -394,13 +394,13 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testSetManagerDetails() {
-        int openerSessionId = test.startSession();
+        int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
-        int newOwnerSessionId = test.startSession();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234");
+        int newOwnerSessionId = test.startSession().getId();
+        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
 
         test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
 
@@ -411,7 +411,7 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testGetHistory() {
-        int sessionId = test.startSession();
+        int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
@@ -427,21 +427,12 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        String history = "Basket Purchase for store ID: " + String.valueOf(store1.getId()) + "\n" +
-                "Product: \n" +
-                "id: 4\n" +
-                "name: lambda\n" +
-                "category: snacks\n" +
-                "rating: 2.5\n" +
-                "\n" +
-                "Amount: 4\n" +
-                "Price: 0.0\n" +
-                "\n";
+        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 0.0\n\n";
 
         store1.setBuyingPolicy(new BuyingPolicy("Any"));
         u.saveCurrentCartAsPurchase();
 
-        assertEquals(history, u.getHistory());
+        assertEquals(history, u.getHistory().toString());
 
     }
 

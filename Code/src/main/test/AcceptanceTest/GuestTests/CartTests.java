@@ -29,8 +29,8 @@ public class CartTests extends ServiceTest {
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
 
         Database.Cart = "Basket for store ID: " + String.valueOf(Database.userToStore.get("chika")) +"\n" +
-                "Product ID: 1, amount: 5\n" +
-                "Product ID: 2, amount: 5\n\n";
+                "Product Name: UO, amount: 5\n" +
+                "Product Name: Famichiki, amount: 5\n\n";
 
     }
 

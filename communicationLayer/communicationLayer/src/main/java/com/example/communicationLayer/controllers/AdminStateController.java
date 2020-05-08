@@ -1,10 +1,12 @@
 package com.example.communicationLayer.controllers;
 
+import DTOs.StorePurchaseHistoryDTO;
+import DTOs.UserPurchaseHistoryDTO;
 import Service.AdminStateHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin()
+@RestController
 public class AdminStateController {
 
     AdminStateHandler adminStateHandler ;
@@ -17,13 +19,13 @@ public class AdminStateController {
 
     @GetMapping("/getSubscriberHistory")
     @ResponseBody
-    public String getSubscriberHistory(@RequestParam(value = "subId", defaultValue = "") int subId){
+    public UserPurchaseHistoryDTO getSubscriberHistory(@RequestParam(value = "subId", defaultValue = "") int subId){
         return adminStateHandler.getSubscriberHistory(subId);
     }
 
     @GetMapping("/getStoreHistory")
     @ResponseBody
-    public String getStoreHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
+    public StorePurchaseHistoryDTO getStoreHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
         return adminStateHandler.getStoreHistory(storeId);
     }
     @GetMapping("/addProductInfo")

@@ -74,8 +74,8 @@ public class Subscriber implements UserState {
 
     }
 
-    public String getHistory() {
-        return userPurchaseHistory.toString();
+    public UserPurchaseHistory getHistory() {
+        return userPurchaseHistory;
     }
 
     @Override

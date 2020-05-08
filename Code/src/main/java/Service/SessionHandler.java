@@ -1,7 +1,8 @@
 package Service;
 
 
-import Domain.TradingSystem.Store;
+import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import Domain.TradingSystem.System;
 
 public class SessionHandler {
@@ -12,11 +13,11 @@ public class SessionHandler {
 
     }
 
-    public boolean setup(String supplyConfig, String paymentConfig) {
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig) {
         return system.setup(supplyConfig, paymentConfig);
     }
 
-    public int startSession() {
+    public IntActionResultDto startSession() {
         return system.startSession();
     }
 }

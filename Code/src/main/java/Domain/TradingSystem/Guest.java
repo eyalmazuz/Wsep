@@ -25,8 +25,8 @@ public class Guest implements UserState {
         return false;
     }
 
-    public String getHistory() {
-        return "No History";
+    public UserPurchaseHistory getHistory() {
+        return null;
     }
 
     public void setUser(User user) {
