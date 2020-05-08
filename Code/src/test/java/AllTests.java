@@ -5,6 +5,7 @@ import Domain.TradingSystem.UnitTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+//test
 public class AllTests {
 
     public static Test suite(){
