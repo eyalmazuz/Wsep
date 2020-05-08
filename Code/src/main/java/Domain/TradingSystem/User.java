@@ -14,7 +14,6 @@ public class User {
 
 
     private String paymentDetails;
-    private Permission permissions;
     private UserState state;
     private ShoppingCart shoppingCart;
     private static int idCounter = 0;

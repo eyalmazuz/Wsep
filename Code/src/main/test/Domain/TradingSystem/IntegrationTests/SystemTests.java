@@ -38,7 +38,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         assertSame(test.addProductToStore(sessionId,storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addProductToStore(sessionId,storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
@@ -50,7 +50,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         test.addProductToStore(sessionId,storeId,1, 5);
@@ -65,7 +65,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
-        int storeId = test.openStore(sessionId);
+        int storeId = test.openStore(sessionId).getId();
         test.addProductInfo(1,"bamba","hatif");
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.deleteProductFromStore(sessionId,storeId, 1).getResultCode(), ResultCode.SUCCESS);
@@ -353,7 +353,7 @@ public class SystemTests extends TestCase {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
@@ -367,7 +367,7 @@ public class SystemTests extends TestCase {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
@@ -381,7 +381,7 @@ public class SystemTests extends TestCase {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
@@ -397,7 +397,7 @@ public class SystemTests extends TestCase {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
-        int storeid = test.openStore(openerSessionId);
+        int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
         int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();

@@ -1,9 +1,10 @@
 package Service;
 
-import DTOs.ActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.ResultCode;
+import DTOs.*;
+
 import Domain.TradingSystem.System;
+
+
 
 
 public class GuestUserHandler {
@@ -90,7 +91,7 @@ public class GuestUserHandler {
     }
 
 
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
+    public ProductsActionResultDTO searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         return s.searchProducts(sessionId, productName, categoryName, keywords, minItemRating, minStoreRating);
     }
 
@@ -99,7 +100,21 @@ public class GuestUserHandler {
     }
 
 
-    public String viewCart(int sessionId) {
+    public ShoppingCartDTO viewCart(int sessionId) {
         return s.getCart(sessionId);
     }
+/*
+    public ShoppingCartDTO getDemoCart() {
+        Map<String,Integer > demo  = new HashMap<>();
+        demo.put("Banana",5);
+        demo.put("Carrot",3);
+        ShoppingBasketDTO basketDemo = new ShoppingBasketDTO(5,demo);
+        ShoppingBasketDTO basketDemo2 = new ShoppingBasketDTO(6,demo);
+        List<ShoppingBasketDTO> lst = new LinkedList<>();
+        lst.add(basketDemo);
+        lst.add(basketDemo2);
+        return new ShoppingCartDTO(ResultCode.SUCCESS,"test",lst);
+        }
+*/
 }
+

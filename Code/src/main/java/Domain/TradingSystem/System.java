@@ -1,8 +1,8 @@
 package Domain.TradingSystem;
 
-import DTOs.ActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.ResultCode;
+import DTOs.*;
+import DTOs.SimpleDTOS.ProductInStoreDTO;
+import DTOs.SimpleDTOS.ShoppingBasketDTO;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
@@ -139,18 +139,18 @@ public class System {
      * open new store
      * @return the new store id
      */
-    public int openStore(int sessionId){
+    public IntActionResultDto openStore(int sessionId){
         logger.info("openStore: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
             Store newStore = u.openStore();
             if (newStore != null) {
                 stores.add(newStore);
-                return newStore.getId();
+                return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
 
         }
-        return -1;
+        return new IntActionResultDto(ResultCode.ERROR_SESSIONID,"cannot find sessionId",-1);
     }
 
 
@@ -501,11 +501,12 @@ public class System {
     }
 
     // Usecase 2.5
-    public String searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
+    public ProductsActionResultDTO searchProducts(int sessionId, String productName, String categoryName, String[] keywords, int minItemRating, int minStoreRating) {
         logger.info("searchProducts: sessionId " + sessionId + ", productName " + productName + ", categoryName: "
                 + categoryName + ", keywords " + Arrays.toString(keywords) + ", minItemRating " + minItemRating + ", minStoreRating " + minStoreRating);
         List<ProductInStore> allProducts = new ArrayList<>();
         List<ProductInStore> filteredProducts = new ArrayList<>();
+        List<ProductInStoreDTO> result = new ArrayList<>();
 
         List<String> productNames = new ArrayList<>();
         productNames.add(productName);
@@ -561,12 +562,17 @@ public class System {
             }
         }
 
-        String results = "Results:\n\n";
+
         for (ProductInStore pis: filteredProducts) {
-            results += pis.toString() + "\n---------------------------------\n";
+            result.add(new ProductInStoreDTO(pis.getId(),
+                                            pis.getProductInfo().getName(),
+                                            pis.getProductInfo().getCategory(),
+                                            pis.getAmount(),
+                                            pis.getInfo(),
+                                            pis.getStore().getId()));
         }
 
-        return results;
+        return new ProductsActionResultDTO(ResultCode.SUCCESS,"List of filterd products",result);
     }
 
 
@@ -673,10 +679,25 @@ public class System {
         return u.purchaseCart();
     }*/
 
-    public String getCart(int sessionId) {
+    public ShoppingCartDTO getCart(int sessionId) {
         logger.info("getCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.getShoppingCart().toString();
+        if (u!=null) {
+            List<ShoppingBasketDTO> cart = new LinkedList<>();
+            ShoppingCart userCart = u.getShoppingCart();
+            for(ShoppingBasket basket: userCart.getBaskets()){
+                Map<Integer,Integer> productMapping = basket.getProducts();
+                Map<String,Integer> dtoProductMapping = new HashMap<>();
+                for(Integer pid: productMapping.keySet()){
+                    dtoProductMapping.put(getProductInfoById(pid).getName(),productMapping.get(pid));
+                }
+                cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
+
+            }
+
+            return new ShoppingCartDTO(ResultCode.SUCCESS,"View cart sucsess",cart);
+        }
+        return new ShoppingCartDTO(ResultCode.ERROR_SESSIONID,"Cant find SessionId",null);
     }
 
     // Usecase 2.3

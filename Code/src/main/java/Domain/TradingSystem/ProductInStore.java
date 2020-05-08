@@ -6,7 +6,7 @@ public class ProductInStore {
     private int amount;
     private String info;
     private Store store;
-    private System system = System.getInstance();
+
 
 
     public ProductInStore(ProductInfo productInfo, int amount, Store store) {
@@ -44,5 +44,9 @@ public class ProductInStore {
 
     public ProductInfo getProductInfo() {
         return productInfo;
+    }
+
+    public Store getStore() {
+        return store;
     }
 }

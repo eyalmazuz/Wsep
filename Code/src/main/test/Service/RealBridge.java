@@ -3,10 +3,12 @@ package Service;
 
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
+import DTOs.SimpleDTOS.ProductInStoreDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.xml.transform.Result;
+import java.util.List;
 
 public class RealBridge implements Bridge {
 
@@ -32,7 +34,9 @@ public class RealBridge implements Bridge {
 
     public String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo) {
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.searchProducts(sessionId, productName, category, keywords, productRating, storeRating);
+        return guh.searchProducts(sessionId, productName, category, keywords, productRating, storeRating).toString();
+
+
     }
 
     public boolean addToCart(int sessionId, int storeId, int productId, Integer amount) {
@@ -66,7 +70,8 @@ public class RealBridge implements Bridge {
 
     public String viewCart(int sessionId){
         GuestUserHandler guh = new GuestUserHandler();
-        return guh.viewCart(sessionId);
+        //TODO:ADD REAL TOSTRING FOR BRIDGE
+        return guh.viewCart(sessionId).getDetails();
     }
 
     public boolean logout(int sessionId){
@@ -77,7 +82,7 @@ public class RealBridge implements Bridge {
 
     public int openStore(int sessionId) {
         SubscriberStateHandler ssh = new SubscriberStateHandler(sessionId);
-        return ssh.openStore();
+        return ssh.openStore().getId();
     }
 
     public String viewPurchaseHistory(int sessionId){

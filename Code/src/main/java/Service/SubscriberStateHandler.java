@@ -1,10 +1,9 @@
 package Service;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SubscriberStateHandler {
 
@@ -25,11 +24,11 @@ public class SubscriberStateHandler {
     }
 
     //Usecase 3.2
-    public int openStore(){
+    public IntActionResultDto openStore(){
         if(s.isSubscriber(sessionId)){
             return s.openStore(sessionId);
         }
-        return -1;
+        return new IntActionResultDto(ResultCode.ERROR_OPENSTORE,"user is not subscriber",-1);
     }
 
     //usecase 3.7
