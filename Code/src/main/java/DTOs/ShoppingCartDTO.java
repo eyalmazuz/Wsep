@@ -1,6 +1,7 @@
 package DTOs;
 
 import DTOs.SimpleDTOS.ShoppingBasketDTO;
+import Domain.TradingSystem.ShoppingBasket;
 
 import java.util.List;
 
@@ -37,5 +38,15 @@ public class ShoppingCartDTO {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    @Override
+    public String toString() {
+        String output = "";
+        for (ShoppingBasketDTO basket : baskets) {
+            output += "Basket for store ID: " + basket.getStoreId() + "\n";
+            output += basket.toString() + "\n";
+        }
+        return output;
     }
 }

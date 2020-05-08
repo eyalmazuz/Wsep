@@ -3,6 +3,7 @@ package com.example.communicationLayer.controllers;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.UserPurchaseHistoryDTO;
 import Service.SubscriberStateHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,7 +34,7 @@ public class SubscriberStateController {
 
     @GetMapping("/getHistory")
     @ResponseBody
-    public String getHistory(){
+    public UserPurchaseHistoryDTO getHistory(){
         return subscriberStateHandler.getHistory();
     }
 }

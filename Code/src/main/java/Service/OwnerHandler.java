@@ -2,6 +2,7 @@ package Service;
 
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
+import DTOs.StorePurchaseHistoryDTO;
 import Domain.TradingSystem.System;
 
 
@@ -84,12 +85,11 @@ public class OwnerHandler {
      * @param storeId
      * @return
      */
-    public String viewPurchaseHistory(int storeId){
+    public StorePurchaseHistoryDTO viewPurchaseHistory(int storeId){
         if( s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId) ){
             return s.getStoreHistory(storeId);
         }
-        return "";
-    }
+        return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"User Is not Owner",-1,null);    }
 
     //Usecase 4.2
     public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy) {

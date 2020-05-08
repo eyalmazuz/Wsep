@@ -81,12 +81,6 @@ public class SystemTest extends TestCase {
         assertEquals(size+1,test.getStores().size());
     }
 
-    @Test
-    public void testGetHistoryTest() {
-        assertNull(test.getHistory(-1));
-        assertNull(test.getHistory(1));
-        assertEquals("Mock History",test.getHistory(2));
-    }
 
     @Test
     public void testGetStoreByIdTest(){
@@ -165,7 +159,7 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testGetUserHistory() {
-        assertNull(test.getHistory(-1));
+        assertEquals(ResultCode.ERROR_SESSIONID,test.getHistory(-1).getResultCode());
         assertNotNull(test.getHistory(3));
     }
 
@@ -418,10 +412,10 @@ class UserMock extends User{
     }
 
     @Override
-    public String getHistory() {
+    public UserPurchaseHistory getHistory() {
         if (type.equals("Guest"))
             return null;
-        return "Mock History";
+        return new UserPurchaseHistory();
     }
 
     @Override
@@ -467,8 +461,8 @@ class SubscriberMock extends Subscriber{
     }
 
     @Override
-    public String getHistory() {
-        return "Mock";
+    public UserPurchaseHistory getHistory() {
+        return new UserPurchaseHistory();
     }
 }
 

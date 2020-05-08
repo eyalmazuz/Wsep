@@ -95,7 +95,7 @@ public class GuestUserHandler {
         return s.searchProducts(sessionId, productName, categoryName, keywords, minItemRating, minStoreRating);
     }
 
-    public String viewStoreProductInfo() {
+    public StoreActionResultDTO viewStoreProductInfo() {
         return s.viewStoreProductInfo();
     }
 

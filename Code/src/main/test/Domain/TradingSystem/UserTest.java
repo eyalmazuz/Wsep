@@ -25,7 +25,7 @@ public class UserTest extends TestCase {
         //Test that ensures guest will fail any subscriber functionality
         //usecase 3.1
         assertFalse(guest.logout());
-        assertEquals("No History",guest.getHistory());
+        assertNull(guest.getHistory());
     }
 
     //Usecase 3.2

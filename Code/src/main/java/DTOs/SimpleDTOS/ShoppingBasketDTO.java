@@ -29,4 +29,16 @@ public class ShoppingBasketDTO {
     }
 
 
+        @Override
+    public String toString() {
+        String output = "";
+        for (String productId : productsAndAmounts.keySet()) {
+            int amount = productsAndAmounts.get(productId);
+            output += "Product Name: " + productId + ", amount: " + amount + "\n";
+        }
+        return output;
+    }
+
+
+
 }

@@ -3,6 +3,7 @@ package Service;
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
+import DTOs.UserPurchaseHistoryDTO;
 import Domain.TradingSystem.System;
 
 public class SubscriberStateHandler {
@@ -32,7 +33,7 @@ public class SubscriberStateHandler {
     }
 
     //usecase 3.7
-    public String getHistory(){
+    public UserPurchaseHistoryDTO getHistory(){
         if(s.isSubscriber(sessionId)){
             return s.getHistory(sessionId);
         }

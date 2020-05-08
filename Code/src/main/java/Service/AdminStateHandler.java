@@ -1,5 +1,8 @@
 package Service;
 
+import DTOs.ResultCode;
+import DTOs.StorePurchaseHistoryDTO;
+import DTOs.UserPurchaseHistoryDTO;
 import Domain.TradingSystem.System;
 
 public class AdminStateHandler {
@@ -12,19 +15,19 @@ public class AdminStateHandler {
     }
 
     //uscase 6.4.1
-    public String getSubscriberHistory(int subId){
+    public UserPurchaseHistoryDTO getSubscriberHistory(int subId){
         if(s.isAdmin(sessionId)){
             return s.getUserHistory(subId);
         }
-        return null;
+        return new UserPurchaseHistoryDTO(ResultCode.ERROR_HISTORY,"User is not Admin",null);
     }
 
     //uscase 6.4.2
-    public String getStoreHistory(int storeId){
+    public StorePurchaseHistoryDTO getStoreHistory(int storeId){
         if(s.isAdmin(sessionId)){
             return s.getStoreHistory(storeId);
         }
-        return null;
+        return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"User Is not admin",-1,null);
 
     }
 

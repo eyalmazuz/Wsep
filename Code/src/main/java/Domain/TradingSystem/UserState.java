@@ -17,7 +17,7 @@ interface UserState {
 
      boolean logout();
 
-     String getHistory();
+     UserPurchaseHistory getHistory();
 
      void setUser(User user);
 

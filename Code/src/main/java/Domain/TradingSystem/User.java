@@ -3,8 +3,6 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
 
-import javax.swing.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +102,7 @@ public class User {
         return shoppingCart;
     }
 
-    public String getHistory () {
+    public UserPurchaseHistory getHistory () {
         return state.getHistory();
     }
 

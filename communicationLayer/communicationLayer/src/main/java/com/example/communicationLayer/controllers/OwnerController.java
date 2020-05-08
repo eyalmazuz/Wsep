@@ -2,6 +2,7 @@ package com.example.communicationLayer.controllers;
 
 
 import DTOs.ActionResultDTO;
+import DTOs.StorePurchaseHistoryDTO;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -76,7 +77,7 @@ public class OwnerController {
 
     @GetMapping("/viewPurchaseHistory")
     @ResponseBody
-    public String viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
+    public StorePurchaseHistoryDTO viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
         return ownerHandler.viewPurchaseHistory(storeId);
     }
 

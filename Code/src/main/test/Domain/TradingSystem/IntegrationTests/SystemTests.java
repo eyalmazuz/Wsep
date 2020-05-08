@@ -427,21 +427,12 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        String history = "Basket Purchase for store ID: " + String.valueOf(store1.getId()) + "\n" +
-                "Product: \n" +
-                "id: 4\n" +
-                "name: lambda\n" +
-                "category: snacks\n" +
-                "rating: 2.5\n" +
-                "\n" +
-                "Amount: 4\n" +
-                "Price: 0.0\n" +
-                "\n";
+        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 0.0\n\n";
 
         store1.setBuyingPolicy(new BuyingPolicy("Any"));
         u.saveCurrentCartAsPurchase();
 
-        assertEquals(history, u.getHistory());
+        assertEquals(history, u.getHistory().toString());
 
     }
 

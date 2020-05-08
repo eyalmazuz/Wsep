@@ -51,7 +51,7 @@ public class PurchaseDetails {
     public String toString() {
         String output = "";
         for (Map.Entry<ProductInfo, Integer> product : products.entrySet()) {
-            output += product.getKey() + "\n" +
+            output += product.getKey().getName() + "\n" +
                     "Amount: " + String.valueOf(product.getValue()) + "\n";
 
         }
