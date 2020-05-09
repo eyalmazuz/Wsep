@@ -156,10 +156,4 @@ public class StoreTest extends TestCase {
 
     }
 
-    @Test
-
-    public void testFail(){
-        assertFalse(true);
-    }
-
 }
