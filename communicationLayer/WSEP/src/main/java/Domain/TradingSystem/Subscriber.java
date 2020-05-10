@@ -244,4 +244,5 @@ public class Subscriber implements UserState {
     public User getUser() {
         return user;
     }
+
 }

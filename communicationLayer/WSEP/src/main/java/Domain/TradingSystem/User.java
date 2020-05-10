@@ -170,5 +170,9 @@ public class User {
     public void removeLastHistoryItem(List<Store> stores) {
         state.removeLastHistoryItem(stores);
     }
+
+    public List<Integer> getStoresInCart() {
+        return shoppingCart.getStores();
+    }
 }
 

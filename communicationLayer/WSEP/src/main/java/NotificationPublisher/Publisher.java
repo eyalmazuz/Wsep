@@ -17,7 +17,7 @@ public class Publisher {
         storeId2ManagersMap = new HashMap<>();
     }
 
-    private void addManager(int storeId, int subId){
+    public void addManager(int storeId, int subId){
         List<Integer> managers = storeId2ManagersMap.computeIfAbsent(storeId, k -> new ArrayList());
 
         if(!managers.contains(subId)){
@@ -26,14 +26,14 @@ public class Publisher {
 
     }
 
-    private void deleteManager(int storeId,Integer subId){
+    public void deleteManager(int storeId,Integer subId){
         List<Integer> managers = storeId2ManagersMap.get(storeId);
         if(managers!= null && managers.contains(subId)){
             managers.remove(subId);
         }
     }
 
-    private void notifyStore(int storeId)
+    public void notifyStore(int storeId)
     {
         List<Integer> managers = storeId2ManagersMap.get(storeId);
         if(managers!=null){

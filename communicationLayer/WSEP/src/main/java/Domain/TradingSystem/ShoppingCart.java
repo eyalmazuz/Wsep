@@ -196,4 +196,12 @@ public class ShoppingCart {
         }
         return map;
     }
+
+    public List<Integer> getStores() {
+        List<Integer> storeIds = new ArrayList<>();
+        for(ShoppingBasket basket:shoppingBaskets){
+            storeIds.add(basket.getStoreId());
+        }
+        return storeIds;
+    }
 }

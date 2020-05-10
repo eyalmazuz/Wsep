@@ -64,8 +64,10 @@ public class GuestUserHandler {
         s.savePurchaseHistory(sessionId);
         s.saveOngoingPurchaseForUser(sessionId);
 
-        if (s.updateStoreSupplies(sessionId))
+        if (s.updateStoreSupplies(sessionId)) {
+
             s.emptyCart(sessionId);
+        }
         else {
             s.requestRefund(sessionId);
             s.restoreHistories(sessionId);

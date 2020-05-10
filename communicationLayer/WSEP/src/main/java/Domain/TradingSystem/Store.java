@@ -61,6 +61,7 @@ public class Store {
             }
             products.add(newProduct);
         }
+
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 

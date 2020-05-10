@@ -12,6 +12,7 @@ public class NotificationHandler {
 
 
     public void sendStoreUpdate(int sessionId, int storeId){
+        if(messagingTemplate!=null)
         messagingTemplate.convertAndSend("/storeUpdate/"+sessionId,"Store "+storeId+" Has been updated");
     }
 

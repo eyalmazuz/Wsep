@@ -5,6 +5,7 @@ import DTOs.SimpleDTOS.*;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
+import NotificationPublisher.Publisher;
 
 import java.util.*;
 
@@ -20,6 +21,8 @@ public class System {
     private SystemLogger logger;
     private List<ProductInfo> products;
 
+    private Publisher publisher;
+
     // session id -> (store id -> (product id -> amount))
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
@@ -28,6 +31,7 @@ public class System {
         stores = new LinkedList<>();
         logger = new SystemLogger();
         products = new LinkedList<>();
+        publisher = new Publisher();
     }
 
     public static System getInstance(){
@@ -145,6 +149,9 @@ public class System {
             Store newStore = u.openStore();
             if (newStore != null) {
                 stores.add(newStore);
+                //Publisher update
+                publisher.addManager(newStore.getId(), ((Subscriber)u.getState()).getId());
+                //
                 return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
 
@@ -195,7 +202,12 @@ public class System {
         if(info != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-                return store.addProduct(info, ammount);
+                ActionResultDTO result = store.addProduct(info, ammount);
+                //Publisher Update
+                if(result.getResultCode()==ResultCode.SUCCESS){
+                    publisher.notifyStore(storeId);
+                }
+                return result;
             }
             return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
@@ -208,7 +220,12 @@ public class System {
         if(getProductInfoById(productId) != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-                return store.editProduct(productId, newInfo);
+                ActionResultDTO result =  store.editProduct(productId, newInfo);
+                //Publisher Update
+                if(result.getResultCode()==ResultCode.SUCCESS){
+                    publisher.notifyStore(storeId);
+                }
+                return result;
             }
             return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
@@ -221,7 +238,12 @@ public class System {
         if(getProductInfoById(productId) != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-                return store.deleteProduct(productId);
+               ActionResultDTO result =  store.deleteProduct(productId);
+                //Publisher Update
+                if(result.getResultCode()==ResultCode.SUCCESS){
+                    publisher.notifyStore(storeId);
+                }
+                return result;
             }
             return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
         }
@@ -263,6 +285,9 @@ public class System {
         {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
+                //Publisher addition
+                publisher.addManager(s.getId(),((Subscriber)u.getState()).getId());
+                //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
 
@@ -311,6 +336,9 @@ public class System {
         if (store != null) {
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
+                //Publisher Update
+                publisher.addManager(store.getId(),newManager.getId());
+                //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
         }
@@ -337,6 +365,9 @@ public class System {
                     if (store != null) {
                         managerToDelete.removePermission(store, "Manager");
                         store.removeManger(managerToDelete);
+                        //Publisher update
+                        publisher.deleteManager(store.getId(),managerToDelete.getId());
+                        //
                         return new ActionResultDTO(ResultCode.SUCCESS, null);
                     }
                 }
@@ -831,8 +862,18 @@ public class System {
     public boolean updateStoreSupplies(int sessionId) {
         logger.info("updateStoreSupplies: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.updateStoreSupplies();
+        boolean result =  u.updateStoreSupplies();
+        if(result){
+            notifyStoreOwners(u.getStoresInCart());
+        }
+        return result;
 
+    }
+
+    private void notifyStoreOwners(List<Integer> storesInCart) {
+        for(int storeId:storesInCart){
+            publisher.notifyStore(storeId);
+        }
     }
 
     public void emptyCart(int sessionId) {
