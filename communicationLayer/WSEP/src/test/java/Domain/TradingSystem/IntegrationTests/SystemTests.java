@@ -434,5 +434,47 @@ public class SystemTests extends TestCase {
 
     }
 
+    @Test
+    public void testBuyingPolicies() {
+        int sessionId = test.startSession().getId();
+        test.addStore();
+        Store store1 = test.getStores().get(0);
+        test.openStore(sessionId);
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 10);
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        u.addProductToCart(store1, 4, 4);
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+
+        // bad
+        policy.setConstraint(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 5));
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // good
+        policy.setConstraint(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 2));
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // bad
+        policy.setConstraint(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 3));
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // good
+        policy.setConstraint(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 4));
+        store1.setBuyingPolicy(policy);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // bad
+        policy.setConstraint(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
+        u.addProductToCart(store1, 4, 39);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // good
+        u.editCartProductAmount(store1, 4, 39);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
 }

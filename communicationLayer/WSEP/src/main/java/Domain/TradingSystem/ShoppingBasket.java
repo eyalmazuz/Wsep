@@ -43,7 +43,7 @@ public class ShoppingBasket {
 
     // usecase 2.8.1
     public boolean checkBuyingPolicy(User user) {
-        return store.checkPurchaseValidity(user, products);
+        return store.checkPurchaseValidity(user);
     }
 
     public double getTotalPrice(User user) {

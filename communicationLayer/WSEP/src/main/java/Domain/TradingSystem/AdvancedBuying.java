@@ -24,11 +24,11 @@ public class AdvancedBuying extends SimpleBuying {
         }
 
         @Override
-        public boolean canBuy() {
+        public boolean canBuy(User user, int storeId) {
             boolean[] canBuys = new boolean[buyingConstraints.size()];
             int i=0;
             for (BuyingType constraint: buyingConstraints) {
-                canBuys[i] = constraint.canBuy();
+                canBuys[i] = constraint.canBuy(user, storeId);
                 i++;
             }
             Stream<Boolean> stream = IntStream.range(9, canBuys.length).mapToObj(idx -> canBuys[idx]);

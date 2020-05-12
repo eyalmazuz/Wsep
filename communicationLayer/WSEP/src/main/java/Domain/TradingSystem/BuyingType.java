@@ -2,5 +2,5 @@ package Domain.TradingSystem;
 
 public interface BuyingType {
 
-    boolean canBuy();
+    boolean canBuy(User user, int storeId);
 }

@@ -13,22 +13,21 @@ public class BuyingPolicy {
     public BuyingPolicy(String details) {
         this.details = details;
     }
-    private List<BuyingType> buyingConstraints = new ArrayList<>();
+    private BuyingType constraint;
 
-    public boolean isAllowed(User user, Map<Integer, Integer> productAmounts) {
+    public boolean isAllowed(User user, int storeId) {
         if (details.equals("No one is allowed")) return false;
-        return true;
+        if (constraint == null) return true;
+        return constraint.canBuy(user, storeId);
     }
 
     @Override
     public String toString() {
         return "";
-
     }
 
-    public boolean canBuy() {
-        for (BuyingType constraint: buyingConstraints)
-            if (!constraint.canBuy()) return false;
-        return true;
+    public void setConstraint(BuyingType constraint) {
+        this.constraint = constraint;
     }
+
 }
