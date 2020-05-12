@@ -1,4 +1,6 @@
 package Domain.TradingSystem;
 
-public class BuyingType {
+public interface BuyingType {
+
+    boolean canBuy();
 }
