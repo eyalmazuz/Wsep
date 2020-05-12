@@ -13,12 +13,14 @@ public class BuyingPolicy {
     public BuyingPolicy(String details) {
         this.details = details;
     }
-    private BuyingType constraint;
+    private List<BuyingType> buyingTypes = new ArrayList<>();
 
-    public boolean isAllowed(User user, int storeId) {
+    public boolean isAllowed(User user, ShoppingBasket basket) {
         if (details.equals("No one is allowed")) return false;
-        if (constraint == null) return true;
-        return constraint.canBuy(user, storeId);
+        for (BuyingType type : buyingTypes) {
+            if (!type.canBuy(user, basket)) return false;
+        }
+        return true;
     }
 
     @Override
@@ -26,8 +28,11 @@ public class BuyingPolicy {
         return "";
     }
 
-    public void setConstraint(BuyingType constraint) {
-        this.constraint = constraint;
+    public void addBuyingType(BuyingType type) {
+        buyingTypes.add(type);
     }
 
+    public void clearBuyingTypes() {
+        buyingTypes.clear();
+    }
 }

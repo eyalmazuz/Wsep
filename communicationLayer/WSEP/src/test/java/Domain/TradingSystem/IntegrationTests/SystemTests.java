@@ -449,29 +449,34 @@ public class SystemTests extends TestCase {
         BuyingPolicy policy = new BuyingPolicy("blah");
 
         // bad
-        policy.setConstraint(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 5));
+        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 5));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+        policy.clearBuyingTypes();
         // good
-        policy.setConstraint(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 2));
+        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 2));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+        policy.clearBuyingTypes();
         // bad
-        policy.setConstraint(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 3));
+        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 3));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+        policy.clearBuyingTypes();
         // good
-        policy.setConstraint(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 4));
+        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 4));
         store1.setBuyingPolicy(policy);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+        policy.clearBuyingTypes();
         // bad
-        policy.setConstraint(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
+        policy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
         u.addProductToCart(store1, 4, 39);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+        policy.clearBuyingTypes();
         // good
         u.editCartProductAmount(store1, 4, 39);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);

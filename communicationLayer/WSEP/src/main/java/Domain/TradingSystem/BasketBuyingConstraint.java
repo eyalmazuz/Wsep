@@ -4,10 +4,6 @@ import java.util.Map;
 
 public class BasketBuyingConstraint extends SimpleBuying {
 
-    public void addConstraint(BasketBuyingConstraint c) {
-        super.basketConstraints.add(c);
-    }
-
     public boolean canBuy(ShoppingBasket basket) {
         return true;
     }
@@ -20,7 +16,6 @@ public class BasketBuyingConstraint extends SimpleBuying {
         public MaxAmountForProductConstraint(int productId, int maxAmount) {
             this.productId = productId;
             this.maxAmount = maxAmount;
-            super.addConstraint(this);
         }
 
         public boolean canBuy(ShoppingBasket basket) {
@@ -36,7 +31,6 @@ public class BasketBuyingConstraint extends SimpleBuying {
         public MinAmountForProductConstraint(int productId, int minAmount) {
             this.productId = productId;
             this.minAmount = minAmount;
-            super.addConstraint(this);
         }
 
         public boolean canBuy(ShoppingBasket basket) {
@@ -50,7 +44,6 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
         public MaxProductAmountConstraint(int maxAmount) {
             this.maxAmount = maxAmount;
-            super.addConstraint(this);
         }
 
         public boolean canBuy(ShoppingBasket basket) {

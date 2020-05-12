@@ -130,7 +130,15 @@ public class Store {
     }
 
     public boolean checkPurchaseValidity(User user) {
-        return buyingPolicy.isAllowed(user, id);
+        ShoppingBasket basket = null;
+        for (ShoppingBasket b : user.getShoppingCart().getBaskets()) {
+            if (b.getStoreId() == id) {
+                basket = b;
+                break;
+            }
+        }
+        if (basket == null) return false;
+        return buyingPolicy.isAllowed(user, basket);
     }
 
     public PurchaseDetails savePurchase(User user, Map<Integer, Integer> products) {
