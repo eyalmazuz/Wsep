@@ -180,16 +180,6 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testCheckBuyingPolicy() {
-        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
-        shoppingCart.addProduct(store1, 4, 4);
-        assertNotSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
-
-        store1.setBuyingPolicy(new BuyingPolicy("None"));
-        assertSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
-    }
-
-    @Test
     public void testCheckStoreSupplies() {
         store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 4);
         shoppingCart.addProduct(store1, 4, 2);

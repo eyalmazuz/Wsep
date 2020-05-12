@@ -35,4 +35,8 @@ public class BuyingPolicy {
     public void clearBuyingTypes() {
         buyingTypes.clear();
     }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
 }

@@ -447,7 +447,14 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
         u.addProductToCart(store1, 4, 4);
 
-        BuyingPolicy policy = new BuyingPolicy("blah");
+        // bad
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // good
+        policy.setDetails("blah");
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         // bad
         policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(4, 5));
@@ -505,4 +512,18 @@ public class SystemTests extends TestCase {
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 
+    @Test
+    public void testBuyingPoliciesComplex() {
+        int sessionId = test.startSession().getId();
+        test.addStore();
+        Store store1 = test.getStores().get(0);
+        test.openStore(sessionId);
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 10);
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        u.addProductToCart(store1, 4, 4);
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+    }
 }
