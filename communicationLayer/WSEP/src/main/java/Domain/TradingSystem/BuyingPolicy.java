@@ -1,5 +1,7 @@
 package Domain.TradingSystem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class BuyingPolicy {
@@ -11,6 +13,7 @@ public class BuyingPolicy {
     public BuyingPolicy(String details) {
         this.details = details;
     }
+    private List<BuyingType> buyingConstraints = new ArrayList<>();
 
     public boolean isAllowed(User user, Map<Integer, Integer> productAmounts) {
         if (details.equals("No one is allowed")) return false;
@@ -21,5 +24,11 @@ public class BuyingPolicy {
     public String toString() {
         return "";
 
+    }
+
+    public boolean canBuy() {
+        for (BuyingType constraint: buyingConstraints)
+            if (!constraint.canBuy()) return false;
+        return true;
     }
 }
