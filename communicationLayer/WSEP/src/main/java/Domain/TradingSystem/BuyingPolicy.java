@@ -32,6 +32,10 @@ public class BuyingPolicy {
         buyingTypes.add(type);
     }
 
+    public List<BuyingType> getBuyingTypes() {
+        return buyingTypes;
+    }
+
     public void clearBuyingTypes() {
         buyingTypes.clear();
     }

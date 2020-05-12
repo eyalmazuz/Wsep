@@ -1,20 +1,25 @@
 package Domain.TradingSystem;
 
+import sun.rmi.runtime.Log;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-enum LogicalOperation {
-    OR,
-    AND,
-    XOR
-}
+public class AdvancedBuying implements BuyingType {
 
-public class AdvancedBuying extends SimpleBuying {
+    public enum LogicalOperation {
+        OR,
+        AND,
+        XOR
+    }
 
-    private List<BuyingType> buyingConstraints;
+    public boolean canBuy(User user, ShoppingBasket basket) {
+        return true;
+    }
 
-    public class LogicalBuying extends AdvancedBuying {
+    public static class LogicalBuying extends AdvancedBuying {
         private List<BuyingType> buyingConstraints;
         private LogicalOperation type;
 
@@ -31,9 +36,9 @@ public class AdvancedBuying extends SimpleBuying {
                 canBuys[i] = constraint.canBuy(user, basket);
                 i++;
             }
-            Stream<Boolean> stream = IntStream.range(9, canBuys.length).mapToObj(idx -> canBuys[idx]);
+            Stream<Boolean> stream = IntStream.range(0, canBuys.length).mapToObj(idx -> canBuys[idx]);
             if (type == LogicalOperation.OR) {
-                return stream.reduce(true, (a,b) -> a||b);
+                return stream.reduce(false, (a,b) -> a||b);
             }
             else if (type == LogicalOperation.AND) {
                 return stream.reduce(true, (a,b) -> a&&b);
