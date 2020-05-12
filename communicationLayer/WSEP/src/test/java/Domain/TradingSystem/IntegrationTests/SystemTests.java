@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -435,7 +436,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testBuyingPolicies() {
+    public void testBuyingPoliciesSimple() {
         int sessionId = test.startSession().getId();
         test.addStore();
         Store store1 = test.getStores().get(0);
@@ -479,6 +480,28 @@ public class SystemTests extends TestCase {
         policy.clearBuyingTypes();
         // good
         u.editCartProductAmount(store1, 4, 39);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+         // good
+        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        policy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
+        u.setCountry("Brazil");
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        u.setCountry("Israel");
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 

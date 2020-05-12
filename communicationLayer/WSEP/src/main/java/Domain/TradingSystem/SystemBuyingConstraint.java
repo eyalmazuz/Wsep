@@ -4,7 +4,11 @@ import java.util.Calendar;
 
 public class SystemBuyingConstraint extends SimpleBuying {
 
-    public class NotOnDayConstraint extends SystemBuyingConstraint {
+    public boolean canBuy() {
+        return true;
+    }
+
+    public static class NotOnDayConstraint extends SystemBuyingConstraint {
 
         private int forbiddenDay;
 

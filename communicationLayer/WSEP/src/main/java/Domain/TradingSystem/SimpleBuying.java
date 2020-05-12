@@ -1,8 +1,5 @@
 package Domain.TradingSystem;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SimpleBuying implements BuyingType {
 
 
@@ -14,6 +11,14 @@ public class SimpleBuying implements BuyingType {
         if (this instanceof BasketBuyingConstraint) {
             BasketBuyingConstraint c = (BasketBuyingConstraint) this;
             return c.canBuy(basket);
+        }
+        if (this instanceof SystemBuyingConstraint) {
+            SystemBuyingConstraint c = (SystemBuyingConstraint) this;
+            return c.canBuy();
+        }
+        if (this instanceof UserBuyingConstraint) {
+            UserBuyingConstraint c = (UserBuyingConstraint) this;
+            return c.canBuy(user.getCountry());
         }
         return true;
     }

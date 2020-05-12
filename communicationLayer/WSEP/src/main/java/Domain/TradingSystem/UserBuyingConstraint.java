@@ -2,7 +2,11 @@ package Domain.TradingSystem;
 
 public class UserBuyingConstraint extends SimpleBuying {
 
-    public class NotOutsideCountryConstraint extends UserBuyingConstraint {
+    public boolean canBuy(String country) {
+        return true;
+    }
+
+    public static class NotOutsideCountryConstraint extends UserBuyingConstraint {
 
         private String validCountry;
 
