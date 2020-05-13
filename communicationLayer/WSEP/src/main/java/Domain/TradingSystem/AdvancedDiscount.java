@@ -1,11 +1,6 @@
 package Domain.TradingSystem;
 
-import Domain.Util.Pair;
-
 import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class AdvancedDiscount implements DiscountType {
 
@@ -50,10 +45,10 @@ public class AdvancedDiscount implements DiscountType {
             }
 
             else if (type == LogicalOperation.AND) {
-                DiscountBasket curDiscountBasket = null;
+                DiscountBasket curDiscountBasket = discountBasket;
 
                 for (DiscountType discount: discounts) {
-                    curDiscountBasket = discount.getDiscountedBasket(user, discountBasket);
+                    curDiscountBasket = discount.getDiscountedBasket(user, curDiscountBasket);
                 }
                 return curDiscountBasket;
             }

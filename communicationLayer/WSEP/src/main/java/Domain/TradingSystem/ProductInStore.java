@@ -50,4 +50,8 @@ public class ProductInStore {
     public Store getStore() {
         return store;
     }
+
+    public double getPrice() {
+        return price;
+    }
 }

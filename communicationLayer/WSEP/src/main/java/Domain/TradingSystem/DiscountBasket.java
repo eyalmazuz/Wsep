@@ -7,9 +7,13 @@ import java.util.Map;
 
 public class DiscountBasket {
 
-    private List<DiscountProduct> discountBasket;
+    private List<DiscountProduct> discountProducts;
 
-    public class DiscountProduct {
+    public DiscountBasket(List<DiscountProduct> discountProducts) {
+        this.discountProducts = discountProducts;
+    }
+
+    public static class DiscountProduct {
         private int productId;
         private int amount;
         private double price;
@@ -27,7 +31,7 @@ public class DiscountBasket {
 
     public double getTotalPrice() {
         double total = 0;
-        for (DiscountProduct discountProduct: discountBasket) {
+        for (DiscountProduct discountProduct: discountProducts) {
             total += discountProduct.getPrice();
         }
         return total;

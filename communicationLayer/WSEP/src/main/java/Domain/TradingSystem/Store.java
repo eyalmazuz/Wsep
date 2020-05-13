@@ -271,10 +271,13 @@ public class Store {
     }
 
     public double getPrice(User user, Map<Integer, Integer> products) {
-        return discountPolicy.getProductPrice(user, products);
+        ShoppingBasket basket = new ShoppingBasket(this);
+        basket.setProducts(products);
+        return discountPolicy.getBasketDiscountedPrice(user, basket);
     }
 
     public void removeLastHistoryItem() {
         storePurchaseHistory.removeLastItem();
     }
+
 }

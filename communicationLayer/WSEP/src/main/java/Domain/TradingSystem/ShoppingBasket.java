@@ -98,4 +98,13 @@ public class ShoppingBasket {
             store.setProductAmount(productId, store.getProductAmount(productId) + products.get(productId));
         }
     }
+
+
+    public double getProductPrice(int productId) {
+        return store.getProductInStoreById(productId).getPrice();
+    }
+
+    public void setProducts(Map<Integer, Integer> products) {
+        this.products = products;
+    }
 }
