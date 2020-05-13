@@ -37,4 +37,8 @@ public class DiscountPolicy {
         return "";
 
     }
+
+    public void addDiscount(DiscountType discount) {
+        discounts.add(discount);
+    }
 }

@@ -14,18 +14,30 @@ public class DiscountBasket {
     }
 
     public static class DiscountProduct {
-        private int productId;
+        private ProductInfo productInfo;
         private int amount;
         private double price;
 
         public DiscountProduct(int productId, int amount, double price) {
-            this.productId = productId;
+            this.productInfo = System.getProductInfoById(productId);
             this.amount = amount;
             this.price = price;
         }
 
         public double getPrice() {
             return price;
+        }
+
+        public ProductInfo getProductInfo() {
+            return productInfo;
+        }
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
         }
     }
 
@@ -35,6 +47,10 @@ public class DiscountBasket {
             total += discountProduct.getPrice();
         }
         return total;
+    }
+
+    public List<DiscountProduct> getDiscountProducts() {
+        return discountProducts;
     }
 
 }

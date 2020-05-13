@@ -19,7 +19,8 @@ public class System {
     private UserHandler userHandler;
     private List<Store> stores;
     private SystemLogger logger;
-    private List<ProductInfo> products;
+    private static List<ProductInfo> products;
+
 
     private Publisher publisher;
 
@@ -31,6 +32,9 @@ public class System {
         stores = new LinkedList<>();
         logger = new SystemLogger();
         products = new LinkedList<>();
+
+        products.add(new ProductInfo(-1, "", ""));
+
         publisher = new Publisher();
     }
 
@@ -39,7 +43,7 @@ public class System {
         return instance;
     }
 
-    public ProductInfo getProductInfoById(int id) {
+    public static ProductInfo getProductInfoById(int id) {
         for (ProductInfo productInfo: products) {
             if (productInfo.getId() == id)
                 return productInfo;
