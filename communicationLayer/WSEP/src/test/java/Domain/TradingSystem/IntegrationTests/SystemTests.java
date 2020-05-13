@@ -549,26 +549,23 @@ public class SystemTests extends TestCase {
         u.editCartProductAmount(store1, 4, 7);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        // if its not today, can only buy 20 of product 4 = not today OR max 20 for product 4
+        // if its not today, can only buy 20 of product 4
         policy.clearBuyingTypes();
         buyingConstraints.clear();
-        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 20));
         buyingConstraints.add(new SystemBuyingConstraint.NotOnDayConstraint(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
-        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.OR));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 20));
+        //policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.OR));
+        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.IMPLIES));
 
-        // its today and user wants more than 20 - bad!
+        // its today and user wants more than 20 - ok
         u.editCartProductAmount(store1, 4, 30);
-        java.lang.System.out.println("TEST");
-        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
-
-        // its today and user wants 20 - ok
-        u.editCartProductAmount(store1, 4, 20);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        // its not today (huh?) and user wants more than 20 - ok
-        u.editCartProductAmount(store1, 4, 30);
-        buyingConstraints.remove(0);
+        // its not today (huh?) and user wants more than 20 - bad!
+
+        buyingConstraints.clear();
         buyingConstraints.add(new SystemBuyingConstraint.NotOnDayConstraint(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 1));
-        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(4, 20));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 }

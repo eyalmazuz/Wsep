@@ -12,7 +12,8 @@ public class AdvancedBuying implements BuyingType {
     public enum LogicalOperation {
         OR,
         AND,
-        XOR
+        XOR,
+        IMPLIES
     }
 
     public boolean canBuy(User user, ShoppingBasket basket) {
@@ -45,6 +46,8 @@ public class AdvancedBuying implements BuyingType {
             }
             else if (type == LogicalOperation.XOR) {
                 return stream.reduce(true, (a,b) -> a^b);
+            } else if (type == LogicalOperation.IMPLIES) { // a -> b = (not a) or b
+                return !canBuys[0] || canBuys[1];
             }
             return false;
         }

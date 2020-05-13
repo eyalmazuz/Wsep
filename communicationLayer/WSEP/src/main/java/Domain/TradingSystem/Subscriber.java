@@ -54,10 +54,6 @@ public class Subscriber implements UserState {
         isAdmin = true;
     }
 
-
-
-
-
     public void setUserName(String userName) {
             this.username = userName;
         }
