@@ -1,4 +1,6 @@
 package Domain.TradingSystem;
 
-public class DiscountType {
+public interface  DiscountType {
+
+    boolean isEligible();
 }
