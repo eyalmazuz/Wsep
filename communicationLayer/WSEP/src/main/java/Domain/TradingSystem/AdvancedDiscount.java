@@ -16,7 +16,7 @@ public class AdvancedDiscount implements DiscountType {
     }
 
     @Override
-    public Pair<Map<Integer, Integer>, Integer> getDiscountedBasket(User user, ShoppingBasket basket) {
+    public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
         return null;
     }
 
@@ -30,19 +30,55 @@ public class AdvancedDiscount implements DiscountType {
         }
 
         @Override
-        public Pair<Map<Integer, Integer>, Integer> getDiscountedBasket(User user, ShoppingBasket basket) {
+        public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
             if (type == LogicalOperation.OR) {
-                if (!discounts.isEmpty()) return discounts.get(0).getDiscountedBasket(user, basket);
+                // return the best one for the customer
+                double minPrice = Double.MAX_VALUE;
+                DiscountBasket minimumBasket = null;
+
+                for (DiscountType discount: discounts) {
+                    DiscountBasket updatedDiscountBasket = discount.getDiscountedBasket(user, discountBasket);
+
+                    if (updatedDiscountBasket != null) {
+                        if (updatedDiscountBasket.getTotalPrice() < minPrice) {
+                            minPrice = updatedDiscountBasket.getTotalPrice();
+                            minimumBasket = updatedDiscountBasket;
+                        }
+                    }
+                }
+                return minimumBasket;
             }
+
             else if (type == LogicalOperation.AND) {
-                //TODO: IMPLEMENT
-                return null;
+                DiscountBasket curDiscountBasket = null;
+
+                for (DiscountType discount: discounts) {
+                    curDiscountBasket = discount.getDiscountedBasket(user, discountBasket);
+                }
+                return curDiscountBasket;
             }
+
             else if (type == LogicalOperation.XOR) {
-                if (!discounts.isEmpty()) return discounts.get(0).getDiscountedBasket(user, basket);
+                // return the best one for the customer
+                double maxPrice = Double.MIN_VALUE;
+                DiscountBasket maximumBasket = null;
+
+                for (DiscountType discount: discounts) {
+                    DiscountBasket updatedDiscountBasket = discount.getDiscountedBasket(user, discountBasket);
+
+                    if (updatedDiscountBasket != null) {
+                        if (updatedDiscountBasket.getTotalPrice() > maxPrice) {
+                            maxPrice = updatedDiscountBasket.getTotalPrice();
+                            maximumBasket = updatedDiscountBasket;
+                        }
+                    }
+                }
+                return maximumBasket;
             }
+
             return null;
         }
     }
+
 
 }

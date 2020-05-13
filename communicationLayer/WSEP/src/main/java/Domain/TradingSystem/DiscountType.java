@@ -2,9 +2,10 @@ package Domain.TradingSystem;
 
 import Domain.Util.Pair;
 
+import java.util.List;
 import java.util.Map;
 
-public interface  DiscountType {
+public interface DiscountType {
 
-    Pair<Map<Integer, Integer>, Integer> getDiscountedBasket(User user, ShoppingBasket basket);
+    DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket);
 }
