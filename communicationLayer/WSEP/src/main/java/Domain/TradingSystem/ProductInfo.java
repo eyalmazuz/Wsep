@@ -12,7 +12,7 @@ public class ProductInfo {
         this.name = name;
         this.category = category;
         this.rating = 2.5;
-        this.defaultPrice = 5;
+        this.defaultPrice = 0;
     }
 
     public int getId() {
