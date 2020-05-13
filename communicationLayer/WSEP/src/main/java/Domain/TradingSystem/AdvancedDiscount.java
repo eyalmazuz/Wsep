@@ -1,6 +1,9 @@
 package Domain.TradingSystem;
 
+import Domain.Util.Pair;
+
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -13,8 +16,8 @@ public class AdvancedDiscount implements DiscountType {
     }
 
     @Override
-    public boolean isEligible() {
-        return true;
+    public Pair<Map<Integer, Integer>, Integer> getDiscountedBasket(User user, ShoppingBasket basket) {
+        return null;
     }
 
     public static class LogicalDiscount extends AdvancedDiscount {
@@ -27,24 +30,18 @@ public class AdvancedDiscount implements DiscountType {
         }
 
         @Override
-        public boolean isEligible() {
-            boolean[] isEligibles = new boolean[discounts.size()];
-            int i=0;
-            for (DiscountType discount: discounts) {
-                isEligibles[i] = discount.isEligible();
-                i++;
-            }
-            Stream<Boolean> stream = IntStream.range(0, isEligibles.length).mapToObj(idx -> isEligibles[idx]);
+        public Pair<Map<Integer, Integer>, Integer> getDiscountedBasket(User user, ShoppingBasket basket) {
             if (type == LogicalOperation.OR) {
-                return stream.reduce(false, (a,b) -> a||b);
+                if (!discounts.isEmpty()) return discounts.get(0).getDiscountedBasket(user, basket);
             }
             else if (type == LogicalOperation.AND) {
-                return stream.reduce(true, (a,b) -> a&&b);
+                //TODO: IMPLEMENT
+                return null;
             }
             else if (type == LogicalOperation.XOR) {
-                return stream.reduce(true, (a,b) -> a^b);
+                if (!discounts.isEmpty()) return discounts.get(0).getDiscountedBasket(user, basket);
             }
-            return false;
+            return null;
         }
     }
 
