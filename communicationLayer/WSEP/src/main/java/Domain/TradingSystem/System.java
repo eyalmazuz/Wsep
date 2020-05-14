@@ -296,7 +296,7 @@ public class System {
         {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
-                //Publisher addition
+                //Publisher update
                 publisher.addManager(s.getId(),((Subscriber)u.getState()).getId());
                 //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
@@ -850,6 +850,7 @@ public class System {
         User u = userHandler.getUser(sessionId);
         boolean result =  u.updateStoreSupplies();
         if(result){
+            //publisher update
             notifyStoreOwners(u.getStoresInCart());
         }
         return result;
