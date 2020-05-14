@@ -658,13 +658,14 @@ public class System {
     private List<PurchaseDetailsDTO> getPurchasesDto(List<PurchaseDetails> details){
         List<PurchaseDetailsDTO> detailsDTOS = new ArrayList<>();
         for(PurchaseDetails purchaseDetails:details){
-            Map<ProductInfoDTO,Integer> mapping = new HashMap<>();
+            List<ProductAmountDTO> productAmountDTOS = new ArrayList<>();
             for(ProductInfo pi : purchaseDetails.getProducts().keySet()){
                 ProductInfoDTO pidto = new ProductInfoDTO(pi.getId(),pi.getName(),pi.getCategory(),pi.getRating());
-                mapping.put(pidto,purchaseDetails.getProducts().get(pi));
+                ProductAmountDTO paDTO = new ProductAmountDTO(pidto,purchaseDetails.getProducts().get(pi));
+                productAmountDTOS.add(paDTO);
             }
 
-            detailsDTOS.add(new PurchaseDetailsDTO(purchaseDetails.getId(),mapping,purchaseDetails.getPrice()));
+            detailsDTOS.add(new PurchaseDetailsDTO(purchaseDetails.getId(),productAmountDTOS,purchaseDetails.getPrice()));
         }
         return detailsDTOS;
 
@@ -742,9 +743,10 @@ public class System {
             ShoppingCart userCart = u.getShoppingCart();
             for(ShoppingBasket basket: userCart.getBaskets()){
                 Map<Integer,Integer> productMapping = basket.getProducts();
-                Map<Pair<Integer,String>,Integer> dtoProductMapping = new HashMap<>();
-                for(Integer pid: productMapping.keySet()){
-                    dtoProductMapping.put(new Pair<>(pid, getProductInfoById(pid).getName()),productMapping.get(pid));
+                List<SimpProductAmountDTO> dtoProductMapping = new ArrayList<>();
+                for(Integer pid: productMapping.keySet()) {
+                    SimpProductAmountDTO simpProductAmountDTO = new SimpProductAmountDTO(pid, getProductInfoById(pid).getName(), productMapping.get(pid));
+                    dtoProductMapping.add(simpProductAmountDTO);
                 }
                 cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
 
