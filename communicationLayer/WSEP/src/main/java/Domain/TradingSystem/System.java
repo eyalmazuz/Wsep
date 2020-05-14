@@ -5,6 +5,7 @@ import DTOs.SimpleDTOS.*;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
+import Domain.Util.Pair;
 import NotificationPublisher.Publisher;
 
 import java.util.*;
@@ -741,9 +742,9 @@ public class System {
             ShoppingCart userCart = u.getShoppingCart();
             for(ShoppingBasket basket: userCart.getBaskets()){
                 Map<Integer,Integer> productMapping = basket.getProducts();
-                Map<String,Integer> dtoProductMapping = new HashMap<>();
+                Map<Pair<Integer,String>,Integer> dtoProductMapping = new HashMap<>();
                 for(Integer pid: productMapping.keySet()){
-                    dtoProductMapping.put(getProductInfoById(pid).getName(),productMapping.get(pid));
+                    dtoProductMapping.put(new Pair<>(pid, getProductInfoById(pid).getName()),productMapping.get(pid));
                 }
                 cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
 
