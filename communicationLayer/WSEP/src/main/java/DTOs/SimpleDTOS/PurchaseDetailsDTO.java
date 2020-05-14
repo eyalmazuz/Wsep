@@ -1,10 +1,10 @@
 package DTOs.SimpleDTOS;
 
-import java.util.Map;
+import java.util.List;
 
 public class PurchaseDetailsDTO {
     private int id;
-    private Map<ProductInfoDTO,Integer> mapProductsAmount;
+    private List<ProductAmountDTO> mapProductsAmount;
     private double price;
 
     public int getId() {
@@ -25,26 +25,26 @@ public class PurchaseDetailsDTO {
         this.price = price;
     }
 
-    public Map<ProductInfoDTO, Integer> getMapProductsAmount() {
-        return mapProductsAmount;
-    }
-
-    public void setMapProductsAmount(Map<ProductInfoDTO, Integer> mapProductsAmount) {
-        this.mapProductsAmount = mapProductsAmount;
-    }
-
-    public PurchaseDetailsDTO(int id, Map<ProductInfoDTO, Integer> mapProductsAmount, double price) {
+    public PurchaseDetailsDTO(int id, List<ProductAmountDTO> mapProductsAmount, double price) {
         this.id = id;
         this.mapProductsAmount = mapProductsAmount;
         this.price = price;
     }
 
+    public List<ProductAmountDTO> getMapProductsAmount() {
+        return mapProductsAmount;
+    }
+
+    public void setMapProductsAmount(List<ProductAmountDTO> mapProductsAmount) {
+        this.mapProductsAmount = mapProductsAmount;
+    }
+
     @Override
     public String toString() {
         String output = "";
-        for (ProductInfoDTO pname : mapProductsAmount.keySet()) {
-            output += pname.toString() + "\n" +
-                    "Amount: " + String.valueOf(mapProductsAmount.get(pname)) + "\n";
+        for (ProductAmountDTO pname : mapProductsAmount) {
+            output += pname.getProductInfo().toString() + "\n" +
+                    "Amount: " + String.valueOf(pname.getAmount()) + "\n";
 
         }
         output += "Price: " + String.valueOf(price) + "\n";

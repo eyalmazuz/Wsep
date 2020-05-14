@@ -1,12 +1,15 @@
 package DTOs.SimpleDTOS;
 
-import java.util.Map;
+
+
+import java.util.List;
+
 
 public class ShoppingBasketDTO {
     private int storeId;
-    private Map<String,Integer> productsAndAmounts;
+    private List<SimpProductAmountDTO> productsAndAmounts;
 
-    public ShoppingBasketDTO( int storeId, Map<String, Integer> productsAndAmounts) {
+    public ShoppingBasketDTO(int storeId, List<SimpProductAmountDTO> productsAndAmounts) {
 
         this.storeId = storeId;
         this.productsAndAmounts = productsAndAmounts;
@@ -20,21 +23,20 @@ public class ShoppingBasketDTO {
         this.storeId = storeId;
     }
 
-    public Map<String, Integer> getProductsAndAmounts() {
+    public List<SimpProductAmountDTO> getProductsAndAmounts() {
         return productsAndAmounts;
     }
 
-    public void setProductsAndAmounts(Map<String, Integer> productsAndAmounts) {
+    public void setProductsAndAmounts(List<SimpProductAmountDTO> productsAndAmounts) {
         this.productsAndAmounts = productsAndAmounts;
     }
 
-
-        @Override
+    @Override
     public String toString() {
         String output = "";
-        for (String productId : productsAndAmounts.keySet()) {
-            int amount = productsAndAmounts.get(productId);
-            output += "Product Name: " + productId + ", amount: " + amount + "\n";
+        for (SimpProductAmountDTO productId : productsAndAmounts) {
+            int amount = productId.getAmount();
+            output = "Product Name: " + productId.getName() + ", amount: " + amount + "\n"+output;
         }
         return output;
     }

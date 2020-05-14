@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemTest extends TestCase {
     //System Unitesting
@@ -22,10 +23,10 @@ public class SystemTest extends TestCase {
         mockHandler.createSession();
         test.setUserHandler(mockHandler);
         test.setLogger(new LoggerMock());
-        List<Store> stores = new LinkedList<>();
+        Map<Integer, Store> stores = new ConcurrentHashMap<>();
 
-        stores.add(new StoreMock(1));
-        stores.add(new StoreMock(2));
+        stores.put(1,new StoreMock(1));
+        stores.put(2,new StoreMock(2));
         test.setStores(stores);
     }
 
@@ -94,10 +95,10 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testSearchProducts() {
-        List<Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStores();
 
-        stores.get(0).setRating(3);
-        stores.get(1).setRating(4);
+        stores.get(1).setRating(3);
+        stores.get(2).setRating(4);
 
         String res0 = test.searchProducts(1, "apple", null, null, -1 ,-1).toString();
         assertTrue(res0.contains("product ID: 5"));
@@ -171,93 +172,88 @@ public class SystemTest extends TestCase {
     public void testAddProductToCart() {
         List<Integer> userSessionIDs = new ArrayList<>();
         int sessionId = mockHandler.users.keySet().iterator().next();
-        List<Store> stores = test.getStores();
-        List<Integer> storeIds = new ArrayList<>();
-        for (Store s : stores) {
-            storeIds.add(s.getId());
-        }
+        Map<Integer, Store> stores = test.getStores();
+        Set<Integer> storeIds = stores.keySet();
+
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
         assertNotSame(test.addToCart(sessionId, badStore, 4, 40).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
-        List<ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+        Map<Integer, ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
 
-        for (ProductInfo info : products) {
+        for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
-        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 0).getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), -1).getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.addToCart(-1, stores.get(0).getId(), products.get(0).getId(), 4).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), 0).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), -1).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addToCart(-1, stores.get(1).getId(), products.get(1).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
     public void testEditProductInCart() {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        List<Store> stores = test.getStores();
-        List<Integer> storeIds = new ArrayList<>();
-        for (Store s : stores) {
-            storeIds.add(s.getId());
-        }
+        Map<Integer, Store> stores = test.getStores();
+        Set<Integer> storeIds = stores.keySet();
+
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
         assertNotSame(test.updateAmount(sessionId, badStore, 4, 40).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
-        List<ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+        Map<Integer, ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
 
-        for (ProductInfo info : products) {
+        for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.updateAmount(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
-        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), 0).getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.updateAmount(sessionId, stores.get(0).getId(), products.get(0).getId(), -1).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.updateAmount(sessionId, stores.get(1).getId(), products.get(1).getId(), 0).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.updateAmount(sessionId, stores.get(1).getId(), products.get(1).getId(), -1).getResultCode(), ResultCode.SUCCESS);
 
-        test.addToCart(sessionId, stores.get(0).getId(), products.get(0).getId(), 40);
+        test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), 40);
 
-        assertNotSame(test.updateAmount(-1, stores.get(0).getId(), products.get(0).getId(), 4).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.updateAmount(-1, stores.get(1).getId(), products.get(1).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
     public void testRemoveProductFromCart() {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        List<Store> stores = test.getStores();
-        List<Integer> storeIds = new ArrayList<>();
-        for (Store s : stores) {
-            storeIds.add(s.getId());
-        }
+        Map<Integer, Store> stores = test.getStores();
+        Set<Integer> storeIds = stores.keySet();
+
         int maxId = Collections.max(storeIds);
         int badStore = maxId + 1;
         assertNotSame(test.deleteItemInCart(sessionId, badStore, 4).getResultCode(), ResultCode.SUCCESS);
 
         List<Integer> productIds = new ArrayList<>();
-        List<ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.add(new ProductInfo(1, "gloves", "hygiene"));
+        Map<Integer, ProductInfo> products = test.getProducts();
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
 
-        for (ProductInfo info : products) {
+        for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertNotSame(test.deleteItemInCart(sessionId, stores.get(0).getId(), badProduct).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.deleteItemInCart(sessionId, stores.get(1).getId(), badProduct).getResultCode(), ResultCode.SUCCESS);
 
-        assertNotSame(test.deleteItemInCart(-1, stores.get(0).getId(), products.get(0).getId()).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.deleteItemInCart(-1, stores.get(1).getId(), products.get(1).getId()).getResultCode(), ResultCode.SUCCESS);
     }
 
     // usecase 2.8.4
     @Test
     public void testUpdateStoreProductSupplies() {
-        List<Store> stores = test.getStores();
-        Store store1 = stores.get(0);
+        Map<Integer, Store> stores = test.getStores();
+
+        Store store1 = stores.get(1);
         // this store contains 10 bamba (id 4), 2 apple (id 5)
         Map<Integer, Integer> productAmounts = new HashMap<>();
         productAmounts.put(4, 7);

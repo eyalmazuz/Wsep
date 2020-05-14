@@ -1,6 +1,8 @@
 package com.example.communicationLayer.controllers;
 
+import DTOs.ActionResultDTO;
 import DTOs.StorePurchaseHistoryDTO;
+import DTOs.SubscriberActionResultDTO;
 import DTOs.UserPurchaseHistoryDTO;
 import Service.AdminStateHandler;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +33,10 @@ public class AdminStateController {
         return new AdminStateHandler(sessionId).getStoreHistory(storeId);
     }
     @GetMapping("/addProductInfo")
-    public void addProductInfo(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
-                                @RequestParam(value = "id", defaultValue = "") int id,
-                               @RequestParam(value = "name", defaultValue = "") String name,
-                                @RequestParam(value = "category", defaultValue = "") String category){
-        new AdminStateHandler(sessionId).addProductInfo(id,name,category);
+    public ActionResultDTO addProductInfo(@RequestParam(value = "id", defaultValue = "") int id,
+                                          @RequestParam(value = "name", defaultValue = "") String name,
+                                          @RequestParam(value = "category", defaultValue = "") String category){
+         return adminStateHandler.addProductInfo(id,name,category);
 
    }
 
