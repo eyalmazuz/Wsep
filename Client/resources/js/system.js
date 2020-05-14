@@ -33,6 +33,9 @@ async function startSystem(){
     if(!('isAdmin' in localStorage)){
         localStorage['isAdmin'] = false
     }
+    if(localStorage['loggedin'] === 'true'){
+        connect()
+    }
 }
 
 async function getSessionId(){
@@ -43,4 +46,15 @@ async function getSessionId(){
     console.log("session id: " + localStorage['sessionId'])
 
 
+}
+
+function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+            alert(message.body)
+        });
+    });
 }

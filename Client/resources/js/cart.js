@@ -8,6 +8,9 @@ headers = {
 async function loadpage(){
     viewCart()
     getHisotry();
+    if(localStorage['loggedin'] === 'true'){
+        connect()
+    }
 }
 
 async function viewCart(){
@@ -205,7 +208,7 @@ async function getHisotry(){
     if(localStorage['loggedin'] === 'true'){
         historyURL = "https://localhost:8443/getHistory?"
         
-        historyURl += 'sessionId=' + localStorage['sessionId']
+        historyURL += 'sessionId=' + localStorage['sessionId']
         var result;
         await fetch(historyURL, headers).then(response => response.json()).then(response => result = response);
         console.log(result)
@@ -262,4 +265,16 @@ async function getHisotry(){
 
     }
 
+}
+
+
+function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+            alert(message.body)
+        });
+    });
 }

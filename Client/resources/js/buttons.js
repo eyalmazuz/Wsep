@@ -79,8 +79,8 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (greeting) {
-            showGreeting(JSON.parse(greeting.body).content);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+            alert(message.body)
         });
     });
 }
@@ -184,7 +184,7 @@ async function addProduct(){
         var productId = document.getElementById('idText').value
 
         addProductURL += 'sessionId=' + localStorage['sessionId']
-        addProductURL += 'id=' + productId
+        addProductURL += '&id=' + productId
         addProductURL += '&name=' + name
         addProductURL += '&category=' + category
         console.log(addProductURL)

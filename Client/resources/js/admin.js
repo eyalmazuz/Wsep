@@ -208,3 +208,19 @@ async function getShopHistory(){
     
 }
 
+async function loadAdminPage(){
+    if(localStorage['loggedin'] === 'true'){
+        connect()
+    }
+}
+
+function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+            alert(message.body)
+        });
+    });
+}

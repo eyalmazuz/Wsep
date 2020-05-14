@@ -8,9 +8,31 @@ headers = {
 
 async function viewStore(){
 
+    if(localStorage['loggedin'] === 'true'){
+        connect()
+    }
+
+    var type = '';
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        console.log(manager)
+        if(localStorage['username'] === manager['username']){
+            type = manager['type']
+        }
+    }
+
+
 
     console.log(typeof(storeId))
     var storeURL = "https://localhost:8443/getStore?"
@@ -56,6 +78,36 @@ async function viewStore(){
             DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             
         }
+
+    }
+    if(type != ''){
+        document.getElementById('optionTitle').style.visibility = '';
+        document.getElementById('addProduct').style.visibility = '';
+        document.getElementById('addManager').style.visibility = '';
+        document.getElementById('addOwner').style.visibility = '';
+        document.getElementById('getHistory').style.visibility = '';
+        document.getElementById('editProduct').style.visibility = '';
+        document.getElementById('editManager').style.visibility = '';
+        document.getElementById('deleteManager').style.visibility = '';
+        document.getElementById('changeBuyingPolicy').style.visibility = '';
+        document.getElementById('storeHistory').style.visibility = '';
+        document.getElementById('deleteProductButton').style.visibility = '';
+
+
+    }
+
+    else{
+        document.getElementById('optionTitle').style.visibility = 'hidden';
+        document.getElementById('addProduct').style.visibility = 'hidden';
+        document.getElementById('addManager').style.visibility = 'hidden';
+        document.getElementById('addOwner').style.visibility = 'hidden';
+        document.getElementById('getHistory').style.visibility = 'hidden';
+        document.getElementById('editProduct').style.visibility = 'hidden';
+        document.getElementById('editManager').style.visibility = 'hidden';
+        document.getElementById('deleteManager').style.visibility = 'hidden';
+        document.getElementById('changeBuyingPolicy').style.visibility = 'hidden';
+        document.getElementById('storeHistory').style.visibility = 'hidden';
+        document.getElementById('deleteProductButton').style.visibility = 'hidden';
 
     }
     
@@ -436,7 +488,7 @@ async function addOwnerToStore(){
         addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
 
 
-        addManagerToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addOwnerToStoreURL += 'sessionId=' + localStorage['sessionId']
         addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
         var user = document.getElementById('ownerSelect').value.split(' ')
         console.log(user)
@@ -638,4 +690,16 @@ async function viewStoreHistory(){
     }
 
 
+}
+
+
+function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+            alert(message.body)
+        });
+    });
 }
