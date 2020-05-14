@@ -48,7 +48,7 @@ async function viewStore(){
             productName.innerHTML = product['name']
             productCategory.innerHTML = product['category']
             productInfo.innerHTML = product['info']
-            productAmount.innerHTML = "<input id='cartAmount' type='number' min='1' value='" + product['amount'] + "'>"
+            productAmount.innerHTML = product['amount']
             DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             
         }
@@ -103,12 +103,18 @@ async function deleteProduct(idx){
         else{
             console.log('fail')
         }
-        document.reload()
+        location.reload()
     }
     else{
         alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
     }
 
+}
+
+async function showEditProduct(){
+
+    
+    document.getElementById('editProductToStoreForm').style.display='block'
 }
 
 
@@ -144,19 +150,21 @@ async function editProduct(idx){
         
         var products = document.getElementById('storeProducts')
 
-        var productId = products.rows[idx].cells[0].innerHTML
+        var productId = document.getElementById('productIdText').value
 
-        var productInfo = document.getElementById('productInfoText');
+        var productInfo = document.getElementById('productInfoText').value;
 
         editProductURL += "storeId=" + storeId;
-        editProductURL += "&productId=" + idx;
+        editProductURL += "&productId=" + productId;
         editProductURL += "&info=" + productInfo;
-
+        console.log(editProductURL)
         var result;
         await fetch(editProductURL, headers).then(response => response.json()).then(response => result = response)
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             console.log('success')
+            alert("successfully edited product")
+            location.reload()
         }
         else{
             console.log('fail')
@@ -217,7 +225,7 @@ async function addProduct(){
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             alert('successfully added proudct ${productId}')
-            document.reload()
+            location.reload()
         }
         console.log(addProductToStoreURL)
     }
@@ -247,8 +255,6 @@ async function showAddManager(){
     }
 
     document.getElementById('addManagerToStoreForm').style.display='block'
-
-
 }
 
 async function showAddOwner(){
@@ -273,6 +279,51 @@ async function showAddOwner(){
 
 }
 
+async function showRemoveManager(){
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+    var possibleManagers;
+    possibleManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
+    console.log(possibleManagers)
+    for(managerIdx in possibleManagers['subscribers']){
+        manager = possibleManagers['subscribers'][managerIdx]
+        console.log(manager)
+        if(manager['type'] === 'Manager'){
+            var x = document.getElementById("employeeSelect");
+            var option = document.createElement("option");
+            option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
+            x.add(option);
+        } 
+    }
+
+    document.getElementById('removeManagerForm').style.display='block'
+}
+
+async function showEditManager(){
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+    var possibleManagers;
+    possibleManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
+    console.log(possibleManagers)
+    for(managerIdx in possibleManagers['subscribers']){
+        manager = possibleManagers['subscribers'][managerIdx]
+        console.log(manager)
+        if(manager['type'] === 'Manager'){
+            var x = document.getElementById("editManagerSelect");
+            var option = document.createElement("option");
+            option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
+            x.add(option);
+        } 
+    }
+
+    document.getElementById('editManagerForm').style.display='block'
+}
 
 
 
@@ -313,7 +364,7 @@ async function addManagerToStore(){
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             alert('successfully added ${user[3]} to the Manager ranks')
-            document.reload()
+            location.reload()
         }
     }
     else{
@@ -360,10 +411,180 @@ async function addOwnerToStore(){
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             alert('successfully added ${user[3]} to the Owners ranks')
-            document.reload()
+            location.reload()
         }
     }
     else{
         alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
     }
+}
+
+
+async function removeManagerFromStore(){
+    var managers;
+    var type = '';
+    var addManagerToStoreURL;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+
+    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        console.log(manager)
+        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+            type = manager['type']
+        }
+    }
+
+
+    if(type != ''){
+
+        removeManagerURL = 'https://localhost:8443/deleteManager?'
+
+
+        removeManagerURL += "storeId=" + storeId;
+        var user = document.getElementById('employeeSelect').value.split(' ')
+        console.log(user)
+        removeManagerURL += "&userId=" + user[1];
+
+        var result;
+        await fetch(removeManagerURL, headers).then(response => response.json()).then(response => result = response)
+        
+        console.log(result)
+        if(result['resultCode'] === 'SUCCESS'){
+            alert('successfully fired ${user[3]} that piece of shit')
+            location.reload()
+        }
+    }
+    else{
+        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
+    }
+}
+
+
+async function editManager(){
+    var managers;
+    var type = '';
+    var addManagerToStoreURL;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+
+    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+            type = manager['type']
+        }
+    }
+
+
+    if(type != ''){
+
+        editManagerURL = 'https://localhost:8443/editManageOptions?'
+
+
+        editManagerURL += "storeId=" + storeId;
+
+        var user = document.getElementById('editManagerSelect').value.split(' ')
+        editManagerURL += "&userId=" + user[1];
+        console.log(user[1])
+        var option = document.getElementById('editOptionsSelect').value
+        editManagerURL += "&options=" + option;
+
+        var result;
+        await fetch(editManagerURL, headers).then(response => response.json()).then(response => result = response)
+        
+        console.log(result)
+        if(result['resultCode'] === 'SUCCESS'){
+            alert('successfully edited ${user[3]} options')
+            location.reload()
+        }
+    }
+    else{
+        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
+    }
+}
+
+async function viewStoreHistory(){
+
+    var managers;
+    var type = '';
+    var addManagerToStoreURL;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+
+    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+            type = manager['type']
+        }
+    }
+
+
+    if(type != ''){
+
+        var historyURL = 'https://localhost:8443/viewPurchaseHistory?'
+
+
+        historyURL += "storeId=" + storeId;
+
+        var result;
+        await fetch(historyURL, headers).then(response => response.json()).then(response => result = response)
+        
+        if(result['resultCode'] === 'SUCCESS'){
+            histroyTable = document.getElementById('storePruchaseHistory')
+            ridx = 1;
+            purchases = result['purchases']
+            for (purchaseIdx in purchases){
+                purchase = purchases[purchaseIdx]
+                console.log(purchase)
+                for(itemIdx in purchase['mapProductsAmount']){
+                    item = purchase['mapProductsAmount'][itemIdx]
+                    console.log(item)
+                    var row = histroyTable.insertRow(ridx);
+                    var purchaseId = row.insertCell(0);
+                    var productId = row.insertCell(1);
+                    var productName = row.insertCell(2);
+                    var productAmount = row.insertCell(3);
+                    row.insertCell(4);
+
+                    purchaseId.innerHTML = purchaseIdx
+
+                    productId.innerHTML = item['productInfo']['id']
+                    productName.innerHTML = item['productInfo']['name']
+                    productAmount.innerHTML = item['amount']
+
+                    ridx++;
+                }                        
+
+                var row = histroyTable.insertRow(ridx);
+                row.insertCell(0);
+                row.insertCell(1);
+                row.insertCell(2);
+                row.insertCell(3);
+                var basketPrice = row.insertCell(4);
+                basketPrice.innerHTML = purchase['price']
+                ridx++;
+                }
+
+            }
+        }
+    else{
+        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
+    }
+
+
 }

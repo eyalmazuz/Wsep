@@ -173,3 +173,19 @@ async function addProduct(){
 
 
 }
+
+
+async function moveToAdminPage(){
+    if(localStorage['isAdmin'] === 'true'){
+        location.href = 'admin.html'
+    }
+    else{
+        alert("admins only")
+    }
+}
+
+
+async function logoutAdmin(){
+    await logout()
+    location.href = 'index.html'
+}

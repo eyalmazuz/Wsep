@@ -76,7 +76,29 @@
             <button type="button" id='addProduct' class='nav' onclick="showAddProduct()" >Add Prodcut to Store</button>
             <button type="button" id='addManager' class='nav' onclick="showAddManager()">Add Manager to Store</button>
             <button type="button" id='addOwner' class='nav' onclick="showAddOwner()">Add Owner to Store</button>
-            <button type="button" id='getHistory' class='nav' >view Purchase Hisotry</button>
+            <button type="button" id='getHistory' class='nav' onclick="viewStoreHistory()">view Purchase Hisotry</button>
+            <br>
+            <br>
+            <button type="button" id='editProduct' class='nav' onclick="showEditProduct()" >Edit Product Info</button>
+            <button type="button" id='editManager' class='nav' onclick="showEditManager()">Edit Manager Options</button>
+            <button type="button" id='deleteManager' class='nav' onclick="showRemoveManager()">Fire Employee</button>
+            <button type="button" id='changeBuyingPolicy' class='nav' >Change Buying Policy</button>
+        </div>
+
+        <br>
+        <br>
+        <div id='storeHistory'>
+
+            <table id='storePruchaseHistory' border="1">
+                <tr>
+                    <th>Purchase ID</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                </tr>
+            </table>
+
         </div>
 
         <!-- The Register Model -->
@@ -183,7 +205,7 @@
         </div> 
 
 
-                <!-- The add Owner Model -->
+        <!-- The add Owner Model -->
         <div id="addOwnerToStoreForm" class="modal">
             <span onclick="document.getElementById('addOwnerToStoreForm').style.display='none'"
             class="close" title="Close Modal">&times;</span>
@@ -205,7 +227,90 @@
                 <button type="button" onclick="document.getElementById('addOwnerToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
                 </div>
             </form>
+        </div>
+        
+        <!-- The edit product Model -->
+        <div id="editProductToStoreForm" class="modal">
+            <span onclick="document.getElementById('editProductToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='productIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+                    <label for="info"><b>Product Info</b></label>
+                    <input id='productInfoText' type="Text" placeholder="Info" name="productInfo" required>
+
+                    <button type="button" onclick="editProduct()">Edit</button>
+                    <label id='productEditResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('editProductToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
         </div> 
+
+        <!-- The remove Owner Model -->
+        <div id="removeManagerForm" class="modal">
+            <span onclick="document.getElementById('removeManagerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='employeeSelect'>
+
+                    </select>
+                    <button type="button" onclick="removeManagerFromStore()">YOU ARE FIRED</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('removeManagerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+
+        <!-- The Edit Manager Model -->
+        <div id="editManagerForm" class="modal">
+            <span onclick="document.getElementById('editManagerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='editManagerSelect'>
+
+                    </select>
+
+                    <select id='editOptionsSelect'>
+                        <option>any</option>
+                        <option>add product</option>
+                        <option>edit product</option>
+                        <option>delete product</option>
+                    </select>
+                    <button type="button" onclick="editManager()">Edit</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('editManagerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+        
 
     </body>
 

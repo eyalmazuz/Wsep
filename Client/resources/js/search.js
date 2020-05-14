@@ -105,6 +105,7 @@ async function addToCart(idx) {
     console.log(result)
     if(result['resultCode'] === 'SUCCESS'){
         console.log('success')
+        alert('successfully added product to cart')
     }
     else{
         console.log('fail')

@@ -39,25 +39,22 @@ async function createCartTable(productList){
     for (basketIdx in products) {
         basket = products[basketIdx]    
         
-        for(product in basket['productsAndAmounts']){
+        for(productIdx in basket['productsAndAmounts']){
             
-            console.log(basket['productsAndAmounts'][product])
+            var product = basket['productsAndAmounts'][productIdx]
+            console.log(product)
             var row = productTable.insertRow(ridx);
             var storeId = row.insertCell(0);
             var productId = row.insertCell(1);
             var productName = row.insertCell(2);
-            var productCategory = row.insertCell(3);
-            var productInfo = row.insertCell(4);
-            var productAmount = row.insertCell(5);
-            var updateButton = row.insertCell(6);
-            var deleteButton = row.insertCell(7);
+            var productAmount = row.insertCell(3);
+            var updateButton = row.insertCell(4);
+            var deleteButton = row.insertCell(5);
 
             storeId.innerHTML = "<a href='store.html'>" + basket['storeId'] + "</a>"
-            productId.innerHTML = product['productId'] 
-            productName.innerHTML = product;
-            productCategory.innerHTML = product['category'];
-            productInfo.innerHTML = product['info'];
-            productAmount.innerHTML = "<input id='cartAmount' type='number' min='1' value='" + basket['productsAndAmounts'][product] + "'>"
+            productId.innerHTML = product['pid'] 
+            productName.innerHTML = product['name'];
+            productAmount.innerHTML = "<input id='cartAmount' type='number' min='1' value='" + product['amount'] + "'>"
             updateButton.innerHTML = "<button type='button' id='editProductButton' onclick='editProduct(" + ridx + ")'>Update Amount</button>";
             deleteButton.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             ridx += 1;
@@ -95,7 +92,7 @@ async function deleteProduct(idx){
     }
 
     products.deleteRow(idx)
-    document.reload()
+    location.reload()
 
 }
 
@@ -109,7 +106,7 @@ async function editProduct(idx){
     var sessionId = localStorage['sessionId']
     var storeId = products.rows[parseInt(idx)].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx)].cells[1].innerHTML
-    var amount = products.rows[parseInt(idx)].cells[5].children[0].value
+    var amount = products.rows[parseInt(idx)].cells[3].children[0].value
     console.log(storeId)
     console.log(productId)
     console.log(amount)
@@ -153,7 +150,7 @@ async function clearCart(){
         products.deleteRow(i);
     }
     
-    document.reload()
+    location.reload()
 }
 
 
@@ -234,24 +231,12 @@ async function getHisotry(){
                         storeId.innerHTML = storeIdx
                         purchaseId.innerHTML = basket['id']
 
-                        var amount = basket['mapProductsAmount'][productIdx]
-                        var productInfo = productIdx.split('\n')
-                        productInfo.shift()
-                        
-                        for (info in productInfo){
-                            data = productInfo[info].split(': ')
-                            if(data[0] === 'id'){
-                                productId.innerHTML = data[1]
-                            }
-                            else if(data[0] === 'name'){
-                                productName.innerHTML = data[1]
-                            }
-                            else if(data[0] === 'category'){
-                                productCategory.innerHTML = data[1]
-                            }
-                        }
+                        var product = basket['mapProductsAmount'][productIdx]
+                        productId.innerHTML = product['productInfo']['id']
+                        productName.innerHTML = product['productInfo']['name']
+                        productCategory.innerHTML = product['productInfo']['category']
 
-                        productAmount.innerHTML = amount
+                        productAmount.innerHTML = product['amount']
                         ridx++;
                         
                     }
