@@ -53,6 +53,8 @@ async function login(){
             
             localStorage['loggedin'] = true
             localStorage['username'] = username
+            localStorage['subId'] = result['id']
+            connect()
             if(username === 'admin' && password === "admin"){
                 localStorage['isAdmin'] = true
             }
@@ -71,6 +73,31 @@ async function login(){
     
 }
 
+
+function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (greeting) {
+            showGreeting(JSON.parse(greeting.body).content);
+        });
+    });
+}
+
+function disconnect() {
+    if (stompClient !== null) {
+        stompClient.disconnect();
+    }
+    setConnected(false);
+    console.log("Disconnected");
+}
+
+
+function showGreeting(message) {
+    console.log(message)
+}
+
 async function logout(){
 
     if(localStorage['loggedin'] === 'false'){
@@ -78,7 +105,9 @@ async function logout(){
         alert("Can't logout when not logged in");
     }
     else{
-        var logoutURL = "https://localhost:8443/logout"
+        var logoutURL = "https://localhost:8443/logout?"
+
+        logoutURL += 'sessionId=' + localStorage['sessionId']
 
         if(localStorage['isAdmin'] === 'true'){
             localStorage['isAdmin'] = false
@@ -124,7 +153,9 @@ async function openStore(){
         alert("To open a store you need to be logged in")
     }
     else{
-        openStoreURL = "https://localhost:8443/openStore"
+        openStoreURL = "https://localhost:8443/openStore?"
+        
+        openStoreURL += 'sessionId=' + localStorage['sessionId']
         await fetch(openStoreURL, headers).then(response => response.json()).then(response => result = response)
         alert("successfully openned store")
         location.reload()
@@ -152,12 +183,12 @@ async function addProduct(){
         var category = document.getElementById("categoryText").value
         var productId = document.getElementById('idText').value
 
+        addProductURL += 'sessionId=' + localStorage['sessionId']
         addProductURL += 'id=' + productId
         addProductURL += '&name=' + name
         addProductURL += '&category=' + category
         console.log(addProductURL)
         var result;
-        // await fetch(addProductURL, headers)
         await fetch(addProductURL, headers).then(response => response.json()).then(response => result = response)
         
         if(result['resultCode'] === 'SUCCESS'){

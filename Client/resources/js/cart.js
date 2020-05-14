@@ -203,7 +203,9 @@ async function getHisotry(){
 
 
     if(localStorage['loggedin'] === 'true'){
-        historyURL = "https://localhost:8443/getHistory/"
+        historyURL = "https://localhost:8443/getHistory?"
+        
+        historyURl += 'sessionId=' + localStorage['sessionId']
         var result;
         await fetch(historyURL, headers).then(response => response.json()).then(response => result = response);
         console.log(result)

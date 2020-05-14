@@ -13,7 +13,11 @@ async function viewStore(){
     var storeId = urlParams.get('storeId');
 
     console.log(typeof(storeId))
-    var storeURL = "https://localhost:8443/getStore?storeId=" + parseInt(storeId)
+    var storeURL = "https://localhost:8443/getStore?"
+    
+    storeURL += 'sessionId=' + localStorage['sessionId']
+
+    storeURL += "&storeId=" + parseInt(storeId)
 
     var result
     await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
@@ -67,7 +71,11 @@ async function deleteProduct(idx){
     var storeId = urlParams.get('storeId');
     var editProductURL;
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -91,7 +99,8 @@ async function deleteProduct(idx){
 
         var productId = products.rows[idx].cells[0].innerHTML
 
-        editProductURL += "storeId=" + storeId;
+        editProductURL += 'sessionId=' + localStorage['sessionId']
+        editProductURL += "&storeId=" + storeId;
         editProductURL += "&productId=" + idx;
 
         var result;
@@ -128,7 +137,10 @@ async function editProduct(idx){
     var storeId = urlParams.get('storeId');
     var editProductURL;
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -154,7 +166,8 @@ async function editProduct(idx){
 
         var productInfo = document.getElementById('productInfoText').value;
 
-        editProductURL += "storeId=" + storeId;
+        editProductURL += 'sessionId=' + localStorage['sessionId']
+        editProductURL += "&storeId=" + storeId;
         editProductURL += "&productId=" + productId;
         editProductURL += "&info=" + productInfo;
         console.log(editProductURL)
@@ -191,7 +204,10 @@ async function addProduct(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -215,7 +231,8 @@ async function addProduct(){
             addProductToStoreURL = 'https://localhost:8443/ManagerAddProductToStore?'
         }
 
-        addProductToStoreURL += "storeId=" + storeId;
+        addProductToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addProductToStoreURL += "&storeId=" + storeId;
         addProductToStoreURL += "&productId=" + productId;
         addProductToStoreURL += "&amount=" + amount;
 
@@ -242,7 +259,11 @@ async function showAddManager(){
     var storeId = urlParams.get('storeId');
 
     var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?storeId=' + storeId
+    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
+    
+    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += '&storeId=' + storeId
+
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
@@ -263,7 +284,10 @@ async function showAddOwner(){
     var storeId = urlParams.get('storeId');
 
     var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?storeId=' + storeId
+    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
+    
+    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
@@ -285,7 +309,10 @@ async function showRemoveManager(){
     var storeId = urlParams.get('storeId');
 
     var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    possibleManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
@@ -308,7 +335,10 @@ async function showEditManager(){
     var storeId = urlParams.get('storeId');
 
     var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    possibleManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
@@ -336,7 +366,10 @@ async function addManagerToStore(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -353,7 +386,8 @@ async function addManagerToStore(){
         addManagerToStoreURL = 'https://localhost:8443/addStoreManager?'
 
 
-        addManagerToStoreURL += "storeId=" + storeId;
+        addManagerToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addManagerToStoreURL += "&storeId=" + storeId;
         var user = document.getElementById('managerSelect').value.split(' ')
         console.log(user)
         addManagerToStoreURL += "&userId=" + user[1];
@@ -382,7 +416,10 @@ async function addOwnerToStore(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -399,7 +436,8 @@ async function addOwnerToStore(){
         addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
 
 
-        addOwnerToStoreURL += "storeId=" + parseInt(storeId);
+        addManagerToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
         var user = document.getElementById('ownerSelect').value.split(' ')
         console.log(user)
         addOwnerToStoreURL += "&subId=" +parseInt(user[1]);
@@ -429,7 +467,11 @@ async function removeManagerFromStore(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -446,7 +488,8 @@ async function removeManagerFromStore(){
         removeManagerURL = 'https://localhost:8443/deleteManager?'
 
 
-        removeManagerURL += "storeId=" + storeId;
+        removeManagerURL += 'sessionId=' + localStorage['sessionId']
+        removeManagerURL += "&storeId=" + storeId;
         var user = document.getElementById('employeeSelect').value.split(' ')
         console.log(user)
         removeManagerURL += "&userId=" + user[1];
@@ -475,7 +518,10 @@ async function editManager(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -491,7 +537,8 @@ async function editManager(){
         editManagerURL = 'https://localhost:8443/editManageOptions?'
 
 
-        editManagerURL += "storeId=" + storeId;
+        editManagerURL += 'sessionId=' + localStorage['sessionId']
+        editManagerURL += "&storeId=" + storeId;
 
         var user = document.getElementById('editManagerSelect').value.split(' ')
         editManagerURL += "&userId=" + user[1];
@@ -523,7 +570,10 @@ async function viewStoreHistory(){
     var storeId = urlParams.get('storeId');
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?storeId=' + storeId
+    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    
+    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
@@ -539,7 +589,8 @@ async function viewStoreHistory(){
         var historyURL = 'https://localhost:8443/viewPurchaseHistory?'
 
 
-        historyURL += "storeId=" + storeId;
+        historyURL += 'sessionId=' + localStorage['sessionId']
+        historyURL += "&storeId=" + storeId;
 
         var result;
         await fetch(historyURL, headers).then(response => response.json()).then(response => result = response)

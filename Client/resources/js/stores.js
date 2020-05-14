@@ -15,6 +15,20 @@ async function viewStores(){
     if (stores['resultCode'] === 'SUCCESS'){
         buildStoresTable(stores)
     }
+    if(localStorage['loggedin'] === 'true'){
+        await connect()
+    }
+}
+
+async function connect() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (greeting) {
+            showGreeting(JSON.parse(greeting.body).content);
+        });
+    });
 }
 
 function buildStoresTable(stores){

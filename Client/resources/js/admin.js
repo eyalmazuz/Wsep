@@ -13,7 +13,9 @@ async function showViewUserHistory(){
     var storeId = urlParams.get('storeId');
 
     var result;
-    subscribersURL = 'https://localhost:8443/getAllSubscribers'
+    subscribersURL = 'https://localhost:8443/getAllSubscribers?'
+    
+    subscribersURL += 'sessionId=' + localStorage['sessionId']
     
     await fetch(subscribersURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result);
@@ -41,6 +43,7 @@ async function getUserHistory(){
 
     userHistoryURL = 'https://localhost:8443/getSubscriberHistory?'
 
+    userHistoryURL += 'sessionId=' + localStorage['sessionId']
 
     var user = document.getElementById('userHistorySelect').value.split(' ')
     console.log(user)
@@ -116,7 +119,9 @@ async function showViewShopHistory(){
     var storeId = urlParams.get('storeId');
 
     var result;
-    subscribersURL = 'https://localhost:8443/viewStoreProductInfo'
+    subscribersURL = 'https://localhost:8443/viewStoreProductInfo?'
+
+    subscribersURL += 'sessionId=' + localStorage['sessionId']
     
     await fetch(subscribersURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result);
@@ -145,6 +150,7 @@ async function getShopHistory(){
 
     userHistoryURL = 'https://localhost:8443/getStoreHistory?'
 
+    userHistoryURL += 'sessionId=' + localStorage['sessionId']
 
     var store = document.getElementById('shopHistorySelect').value.split(' ')
     console.log(store)

@@ -21,8 +21,8 @@ async function startSystem(){
     if(!('sessionId' in localStorage)){
         getSessionId()
     }
-    await startControllers()
-    if(!('loggedin' in localStorage)){
+    await fetch("https://localhost:8443/setup?supplyConfig=supplyConfig&paymentConfig=paymentConfig")
+        if(!('loggedin' in localStorage)){
         localStorage['loggedin'] = false
     }
 
@@ -33,14 +33,6 @@ async function startSystem(){
     if(!('isAdmin' in localStorage)){
         localStorage['isAdmin'] = false
     }
-}
-
-async function startControllers(){
-    await fetch("https://localhost:8443/setup?supplyConfig=supplyConfig&paymentConfig=paymentConfig")
-    await fetch("https://localhost:8443/AdminStateHandler?sessionId=" + localStorage['sessionId'])
-    await fetch("https://localhost:8443/ManagerHandler?sessionId=" + localStorage['sessionId'])
-    await fetch("https://localhost:8443/OwnerHandler?sessionId=" + localStorage['sessionId'])
-    await fetch("https://localhost:8443/SubscriberStateHandler?sessionId=" + localStorage['sessionId'])
 }
 
 async function getSessionId(){
