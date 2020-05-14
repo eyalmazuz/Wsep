@@ -23,6 +23,7 @@ async function register(){
             document.getElementById('registerForm').style.display='none'
             document.getElementById("registerUserText").value = ''
             document.getElementById("registerPasswordText").value = ''
+            alert("successfully register")
         }
         else if(result['resultCode'] === 'ERROR_REGISTER'){
             console.log('in else if')
@@ -58,6 +59,7 @@ async function login(){
             document.getElementById('loginForm').style.display = 'none'
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
+            alert("successfully logged in")
         
         }
         
@@ -86,7 +88,7 @@ async function logout(){
         await fetch(logoutURL).then(response => response.json()).then(response => result = response)
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
-            console.log("successfully logged out")
+            alert("successfully logged out")
             localStorage['loggedin'] = false
             localStorage['username'] = ''
 
@@ -124,6 +126,7 @@ async function openStore(){
     else{
         openStoreURL = "https://localhost:8443/openStore"
         await fetch(openStoreURL, headers).then(response => response.json()).then(response => result = response)
+        alert("successfully openned store")
         location.reload()
 
     }  
@@ -158,7 +161,7 @@ async function addProduct(){
         await fetch(addProductURL, headers).then(response => response.json()).then(response => result = response)
         
         if(result['resultCode'] === 'SUCCESS'){
-            console.log("successfully added proudct")            
+            alert("successfully added proudct")            
             document.getElementById('addProductForm').style.display='none'
             document.getElementById("nameText").value = ''
             document.getElementById("categoryText").value = ''
