@@ -148,7 +148,8 @@ public class System {
             if (newStore != null) {
                 stores.put(newStore.getId(),newStore);
                 //Publisher update
-                publisher.addManager(newStore.getId(), ((Subscriber)u.getState()).getId());
+                if(publisher != null)
+                    publisher.addManager(newStore.getId(), ((Subscriber)u.getState()).getId());
                 //
                 return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
@@ -203,8 +204,8 @@ public class System {
                 ActionResultDTO result = store.addProduct(info, ammount);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
-
-                    publisher.notifyStore(storeId);
+                    if(publisher != null)
+                        publisher.notifyStore(storeId);
                 }
                 return result;
             }
@@ -222,7 +223,8 @@ public class System {
                 ActionResultDTO result =  store.editProduct(productId, newInfo);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
-                    publisher.notifyStore(storeId);
+                    if(publisher != null)
+                        publisher.notifyStore(storeId);
                 }
                 return result;
             }
@@ -240,7 +242,8 @@ public class System {
                ActionResultDTO result =  store.deleteProduct(productId);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
-                    publisher.notifyStore(storeId);
+                    if(publisher != null)
+                        publisher.notifyStore(storeId);
                 }
                 return result;
             }
@@ -297,7 +300,8 @@ public class System {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
                 //Publisher update
-                publisher.addManager(s.getId(), subId);
+                if(publisher != null)
+                    publisher.addManager(s.getId(), subId);
                 //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
@@ -334,7 +338,8 @@ public class System {
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
                 //Publisher Update
-                publisher.addManager(store.getId(), userId);
+                if(publisher != null)
+                    publisher.addManager(store.getId(), userId);
                 //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
@@ -363,7 +368,8 @@ public class System {
                         managerToDelete.removePermission(store, "Manager");
                         store.removeManger(managerToDelete);
                         //Publisher update
-                        publisher.deleteManager(store.getId(),managerToDelete.getId());
+                        if(publisher != null)
+                            publisher.deleteManager(store.getId(),managerToDelete.getId());
                         //
                         return new ActionResultDTO(ResultCode.SUCCESS, null);
                     }
@@ -851,7 +857,8 @@ public class System {
         boolean result =  u.updateStoreSupplies();
         if(result){
             //publisher update
-            notifyStoreOwners(u.getStoresInCart());
+            if(publisher != null)
+                notifyStoreOwners(u.getStoresInCart());
         }
         return result;
 
