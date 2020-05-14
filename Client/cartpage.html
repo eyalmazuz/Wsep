@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="resources/css/main.css">
+
+        <meta charset="utf-8">
+        <title>My Website</title>
+
+        <script type='text/javascript' src="resources/js/buttons.js"></script>
+        <script type='text/javascript' src="resources/js/system.js"></script>
+        <script type='text/javascript' src="resources/js/cart.js"></script>
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+        
+    </head>
+
+    <body onload="loadpage()">
+           
+        <div>
+            <button onclick="logout()" class='nav' id='logoutButton'>Logout</button>
+
+            <!-- "Button to open the modal register form -->
+            <button onclick="showRegister()" class='nav' id='registerButton'>Register</button>
+        
+            <!-- Button to open the modal login form -->
+            <button onclick="showLogin()" class='nav' id='loginButton'>Login</button>
+    
+            <button onclick="location.href='stores.html'" class='nav' id='storesButton'>Stores</button>
+        
+             <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
+
+             <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
+
+        </div>
+
+    </div>
+    <!-- The Register Model -->
+    <div id="registerForm" class="modal">
+        <span onclick="document.getElementById('registerForm').style.display='none'"
+        class="close" title="Close Modal">&times;</span>
+
+        <!-- Modal Content -->
+        <form class="modal-content animate">
+
+            <div class="container">
+            <label for="uname"><b>Username</b></label>
+            <input id='registerUserText' type="text" placeholder="Enter Username" name="username" required>
+
+            <label for="psw"><b>Password</b></label>
+            <input id='registerPasswordText' type="password" placeholder="Enter Password" name="password" required>
+
+            <button type="button" onclick="register()">Register</button>
+            <label id='registerPasswordText'></label>
+            </div>
+
+            <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('registerForm').style.display='none'" class="cancelbtn">Cancel</button>
+            </div>
+        </form>
+    </div> 
+
+
+     <!-- The Login Model -->
+     <div id="loginForm" class="modal">
+        <span onclick="document.getElementById('loginForm').style.display='none'"
+        class="close" title="Close Modal">&times;</span>
+
+        <!-- Modal Content -->
+        <form class="modal-content animate">
+
+            <div class="container">
+            <label for="uname"><b>Username</b></label>
+            <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
+
+            <label for="psw"><b>Password</b></label>
+            <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
+
+            <button type="button" onclick="login()">Login</button>
+            <label id='loginResult'></label>
+            </div>
+
+            <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
+            </div>
+        </form>
+    </div> 
+
+        <div>
+            <h1>CART</h1>
+        </div>
+
+        <div>
+            <table id='cartTable' border="1">
+                <tr>
+                    <th>Store Id</th>
+                    <th>Product Id</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </table>
+        </div>
+        
+        <div>
+            <button type="button" id='clearCartButton' onclick="clearCart()">Clear Cart</button>
+        
+
+        </div>
+        
+        <div>
+            <button type="button" id='buyCartButton' onclick="purchaseCart()">Buy Cart</button>
+            <input type="text" id="paymentDetailsBox" placeholder="Payment details" required>
+
+        </div>
+        
+        <div>
+            <br>
+            <br>
+            <h1><b>Purchase History</b></h1>
+            <table id='historyTable' border="1">
+                <tr>
+                    <th>Store Id</th>
+                    <th>Purchase Id</th>
+                    <th>Product Id</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                </tr>
+            </table>
+        </div>
+        
+    </body>
+
+</html>

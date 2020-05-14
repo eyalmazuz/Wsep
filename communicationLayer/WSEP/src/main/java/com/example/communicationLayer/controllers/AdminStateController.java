@@ -19,28 +19,25 @@ public class AdminStateController {
         adminStateHandler = new AdminStateHandler(sessionId);
     }
 
-    @GetMapping("/getAllSubscribers")
-    @ResponseBody
-    public SubscriberActionResultDTO getAllSubscribers(){
-       return adminStateHandler.getAllSubscribers();
-    }
-
     @GetMapping("/getSubscriberHistory")
     @ResponseBody
-    public UserPurchaseHistoryDTO getSubscriberHistory(@RequestParam(value = "subId", defaultValue = "-1") int subId){
-        return adminStateHandler.getSubscriberHistory(subId);
+    public UserPurchaseHistoryDTO getSubscriberHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                       @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new AdminStateHandler(sessionId).getSubscriberHistory(subId);
     }
 
     @GetMapping("/getStoreHistory")
     @ResponseBody
-    public StorePurchaseHistoryDTO getStoreHistory(@RequestParam(value = "storeId", defaultValue = "-1") int storeId){
-        return adminStateHandler.getStoreHistory(storeId);
+    public StorePurchaseHistoryDTO getStoreHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                    @RequestParam(value = "storeId", defaultValue = "") int storeId){
+        return new AdminStateHandler(sessionId).getStoreHistory(storeId);
     }
     @GetMapping("/addProductInfo")
-    public ActionResultDTO addProductInfo(@RequestParam(value = "id", defaultValue = "-1") int id,
+    public ActionResultDTO addProductInfo(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                          @RequestParam(value = "id", defaultValue = "") int id,
                                           @RequestParam(value = "name", defaultValue = "") String name,
                                           @RequestParam(value = "category", defaultValue = "") String category){
-        return adminStateHandler.addProductInfo(id,name,category);
+         return new AdminStateHandler(sessionId).addProductInfo(id,name,category);
 
    }
 

@@ -11,7 +11,7 @@ public class GuestUserController {
 
     @GetMapping("/login")
     @ResponseBody
-    public ActionResultDTO login(
+    public IntActionResultDto login(
             @RequestParam(value = "sessionId", defaultValue = "-1") int sessionId,
             @RequestParam(value = "username", defaultValue = "") String username,
             @RequestParam(value = "password", defaultValue = "") String password) {

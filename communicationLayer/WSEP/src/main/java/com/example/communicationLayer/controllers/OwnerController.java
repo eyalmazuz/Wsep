@@ -20,77 +20,87 @@ public class OwnerController {
 
     @GetMapping("/addProductToStore")
     @ResponseBody
-    public ActionResultDTO addProductToStore(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO addProductToStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                              @RequestParam(value = "productId", defaultValue = "") int productId,
                                              @RequestParam(value = "amount", defaultValue = "") int amount){
-        return ownerHandler.addProductToStore(storeId,productId,amount);
+        return new OwnerHandler(sessionId).addProductToStore(storeId,productId,amount);
     }
 
 
     @GetMapping("/editProductToStore")
     @ResponseBody
-    public ActionResultDTO editProductToStore(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO editProductToStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                              @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                               @RequestParam(value = "productId", defaultValue = "") int productId,
                                               @RequestParam(value = "info", defaultValue = "") String info){
-        return ownerHandler.editProductToStore(storeId,productId,info);
+        return new OwnerHandler(sessionId).editProductToStore(storeId,productId,info);
     }
 
     @GetMapping("/OwnerDeleteProductFromStore")
     @ResponseBody
-    public ActionResultDTO deleteProductFromStore(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO deleteProductFromStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                  @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                                   @RequestParam(value = "productId", defaultValue = "") int productId){
-        return ownerHandler.deleteProductFromStore(storeId,productId);
+        return new OwnerHandler(sessionId).deleteProductFromStore(storeId,productId);
     }
 
     @GetMapping("/addStoreOwner")
     @ResponseBody
-    public ActionResultDTO addStoreOwner(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO addStoreOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                          @RequestParam(value = "subId", defaultValue = "") int subId){
-        return ownerHandler.addStoreOwner(storeId,subId);
+        return new OwnerHandler(sessionId).addStoreOwner(storeId,subId);
     }
 
     @GetMapping("/addStoreManager")
     @ResponseBody
-    public ActionResultDTO addStoreManager(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO addStoreManager(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                           @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                            @RequestParam(value = "userId", defaultValue = "") int userId){
-        return ownerHandler.addStoreManager(storeId,userId);
+        return new OwnerHandler(sessionId).addStoreManager(storeId,userId);
     }
 
 
     @GetMapping("/editManageOptions")
     @ResponseBody
-    public ActionResultDTO editManageOptions(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO editManageOptions(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                              @RequestParam(value = "userId", defaultValue = "") int userId,
                                              @RequestParam(value = "options", defaultValue = "") String options){
-        return ownerHandler.editManageOptions(storeId,userId,options);
+        return new OwnerHandler(sessionId).editManageOptions(storeId,userId,options);
     }
 
 
     @GetMapping("/deleteManager")
     @ResponseBody
-    public ActionResultDTO deleteManager(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO deleteManager(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                          @RequestParam(value = "userId", defaultValue = "") int userId){
-        return ownerHandler.deleteManager(storeId,userId);
+        return new OwnerHandler(sessionId).deleteManager(storeId,userId);
     }
 
 
     @GetMapping("/viewPurchaseHistory")
     @ResponseBody
-    public StorePurchaseHistoryDTO viewPurchaseHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
-        return ownerHandler.viewPurchaseHistory(storeId);
+    public StorePurchaseHistoryDTO viewPurchaseHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                       @RequestParam(value = "storeId", defaultValue = "") int storeId){
+        return new OwnerHandler(sessionId).viewPurchaseHistory(storeId);
     }
 
     @GetMapping("/changeBuyingPolicy")
     @ResponseBody
-    public ActionResultDTO changeBuyingPolicy(@RequestParam(value = "storeId", defaultValue = "") int storeId,
+    public ActionResultDTO changeBuyingPolicy(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                              @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                               @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
-        return ownerHandler.changeBuyingPolicy(storeId, newPolicy);
+        return new OwnerHandler(sessionId).changeBuyingPolicy(storeId, newPolicy);
     }
 
     @GetMapping("/getOptionalManagers")
     @ResponseBody
-    public SubscriberActionResultDTO getOptionalManagers(@RequestParam(value = "storeId" , defaultValue = "-1")int storeId){
-        return ownerHandler.getPossibleManagers(storeId);
+    public SubscriberActionResultDTO getOptionalManagers(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                         @RequestParam(value = "storeId" , defaultValue = "-1")int storeId){
+        return new OwnerHandler(sessionId).getPossibleManagers(storeId);
     }
 
 }

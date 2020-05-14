@@ -8,17 +8,17 @@ public class GuestUserHandler {
 
     System s = System.getInstance();
 
-    public ActionResultDTO login(int sessionId , String username, String password) {
+    public IntActionResultDto login(int sessionId , String username, String password) {
         //check if guest - userHandler
         if (s.isGuest(sessionId)){
             int subId = s.getSubscriber(username, password);
             if(subId != -1){
                 s.setState(sessionId, subId);
-                return new ActionResultDTO(ResultCode.SUCCESS, "Login successful.");
+                return new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId);
             }
-            return new ActionResultDTO(ResultCode.ERROR_LOGIN, "No such username.");
+            return new IntActionResultDto(ResultCode.ERROR_LOGIN, "No such username.",-1);
         }
-        return new ActionResultDTO(ResultCode.ERROR_LOGIN, "User already logged in.");
+        return new IntActionResultDto(ResultCode.ERROR_LOGIN, "User already logged in.",-1);
     }
 
     public IntActionResultDto register(int sessionId, String username, String password) {
