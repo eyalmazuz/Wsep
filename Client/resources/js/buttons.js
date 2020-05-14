@@ -51,6 +51,7 @@ async function login(){
         if (result['resultCode'] === 'SUCCESS'){
             
             localStorage['loggedin'] = true
+            localStorage['username'] = username
             if(username === 'admin' && password === "admin"){
                 localStorage['isAdmin'] = true
             }
@@ -87,6 +88,7 @@ async function logout(){
         if(result['resultCode'] === 'SUCCESS'){
             console.log("successfully logged out")
             localStorage['loggedin'] = false
+            localStorage['username'] = ''
 
         }
     }
@@ -152,22 +154,22 @@ async function addProduct(){
         addProductURL += '&category=' + category
         console.log(addProductURL)
         var result;
-        await fetch(addProductURL, headers)
-        // await fetch(addProductURL, headers).then(response => response.json()).then(response => reuslt = response)
+        // await fetch(addProductURL, headers)
+        await fetch(addProductURL, headers).then(response => response.json()).then(response => result = response)
         
-        // if(result['resultCode'] === 'SUCCESS'){
-        //     console.log("successfully added proudct")            
-        //     document.getElementById('addProductForm').style.display='none'
-        //     document.getElementById("nameText").value = ''
-        //     document.getElementById("categoryText").value = ''
+        if(result['resultCode'] === 'SUCCESS'){
+            console.log("successfully added proudct")            
+            document.getElementById('addProductForm').style.display='none'
+            document.getElementById("nameText").value = ''
+            document.getElementById("categoryText").value = ''
 
-        // }
-        // else{
-        //     document.getElementById("productAddResult").innerHTML = result['details']
-        //     document.getElementById("nameText").value = ''
-        //     document.getElementById("categoryText").value = ''
-        // 
-        // }
+        }
+        else{
+            alert(result['details'])
+            document.getElementById("nameText").value = ''
+            document.getElementById("categoryText").value = ''
+        
+        }
 
 
 }

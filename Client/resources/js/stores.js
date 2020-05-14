@@ -41,7 +41,7 @@ function buildStoresTable(stores){
         row.insertCell(5);
         row.insertCell(6);
         row.insertCell(7);
-        storeId.innerHTML = "<a href='store.html'>" + store['storeId'] + "</a>"
+        storeId.innerHTML = "<a href='store.html?storeId=" + store['storeId'] + "'>" + store['storeId'] + "</a>"
         buyingPolicy.innerHTML = store['buyingPolicy']
         discountPolicy.innerHTML = store['discountPolicy'];
 

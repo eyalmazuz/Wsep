@@ -60,7 +60,6 @@ async function createCartTable(productList){
             productAmount.innerHTML = "<input id='cartAmount' type='number' min='1' value='" + basket['productsAndAmounts'][product] + "'>"
             updateButton.innerHTML = "<button type='button' id='editProductButton' onclick='editProduct(" + ridx + ")'>Update Amount</button>";
             deleteButton.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
-            console.log(ridx)
             ridx += 1;
         }
     }

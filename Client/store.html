@@ -10,11 +10,10 @@
     </head>
 
 
-    <body>
-
-
+    <body onload='viewStore()'>
             
-        <div>
+        <div class="buttons">
+            
             <button onclick="logout()" class='nav' id='logoutButton'>Logout</button>
 
             <!-- "Button to open the modal register form -->
@@ -22,19 +21,64 @@
         
             <!-- Button to open the modal login form -->
             <button onclick="showLogin()" class='nav' id='loginButton'>Login</button>
-    
+
             <button onclick="location.href='stores.html'" class='nav' id='storesButton'>Stores</button>
-        
-             <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
 
-             <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
+            <button type="button" class='nav' id="cartButton" onclick="location.href='cartpage.html'">Cart</button>
+
+            <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
+
+            <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
+
+        </div>
+
+        <br>
+        <br>
+        <br>
+
+        <div name='policies'>
+            <table id='storePolicies' border="1">
+                <tr>
+                    <th>Buying Policy</th>
+                    <th>Discount Policy</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+            </table>
 
         </div>
 
+        <br>
+        <br>
+        <br>
 
-
-
+        <div name='product'>
+            <table id='storeProducts' border="1">
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Product Category</th>
+                    <th>Product Info</th>
+                    <th>Product Amount</th>
+                    <th>Delete</th>
+                </tr>
+            </table>
         </div>
+
+        <br>
+        <br>
+        <br>
+        <div>
+            <h1>Store OPTIONS</h1>
+            <button type="button" id='addProduct' class='nav' onclick="showAddProduct()" >Add Prodcut to Store</button>
+            <button type="button" id='addManager' class='nav' onclick="showAddManager()">Add Manager to Store</button>
+            <button type="button" id='addOwner' class='nav' onclick="showAddOwner()">Add Owner to Store</button>
+            <button type="button" id='getHistory' class='nav' >view Purchase Hisotry</button>
+        </div>
+
         <!-- The Register Model -->
         <div id="registerForm" class="modal">
             <span onclick="document.getElementById('registerForm').style.display='none'"
@@ -70,18 +114,95 @@
             <form class="modal-content animate">
     
                 <div class="container">
-                <label for="uname"><b>Username</b></label>
-                <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
-    
-                <label for="psw"><b>Password</b></label>
-                <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
-    
-                <button type="button" onclick="login()">Login</button>
-                <label id='loginResult'></label>
+                    <label for="uname"><b>Username</b></label>
+                    <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
+        
+                    <label for="psw"><b>Password</b></label>
+                    <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
+        
+                    <button type="button" onclick="login()">Login</button>
+                    <label id='loginResult'></label>
+                    </div>
+        
+                    <div class="container" style="background-color:#f1f1f1">
+                    <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
                 </div>
-    
+            </form>
+        </div> 
+
+
+        <!-- The add product Model -->
+        <div id="addProductToStoreForm" class="modal">
+            <span onclick="document.getElementById('addProductToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+                    <label for="amount"><b>Product Amount</b></label>
+                    <input id='amountText' type="Number" placeholder="Amount" name="productAmount" required>
+
+                    <button type="button" onclick="addProduct()">Add</button>
+                    <label id='productAddResult'></label>
+                </div>
+
                 <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
+                <button type="button" onclick="document.getElementById('addProductToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+        <!-- The add Manager Model -->
+        <div id="addManagerToStoreForm" class="modal">
+            <span onclick="document.getElementById('addManagerToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='managerSelect'>
+
+                    </select>
+                    <button type="button" onclick="addManagerToStore()">Add Manager</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('addManagerToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+                <!-- The add Owner Model -->
+        <div id="addOwnerToStoreForm" class="modal">
+            <span onclick="document.getElementById('addOwnerToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='ownerSelect'>
+
+                    </select>
+                    <button type="button" onclick="addOwnerToStore()">Add Owner</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('addOwnerToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
                 </div>
             </form>
         </div> 
