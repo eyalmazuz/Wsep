@@ -33,7 +33,6 @@ public class System {
         stores = new ConcurrentHashMap<>();
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
-        publisher = new Publisher();
     }
 
     public static System getInstance(){
@@ -204,6 +203,7 @@ public class System {
                 ActionResultDTO result = store.addProduct(info, ammount);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
+
                     publisher.notifyStore(storeId);
                 }
                 return result;
@@ -297,7 +297,7 @@ public class System {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
                 //Publisher update
-                publisher.addManager(s.getId(),((Subscriber)u.getState()).getId());
+                publisher.addManager(s.getId(), subId);
                 //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
@@ -334,7 +334,7 @@ public class System {
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
                 //Publisher Update
-                publisher.addManager(store.getId(),newManager.getId());
+                publisher.addManager(store.getId(), userId);
                 //
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
@@ -968,5 +968,10 @@ public class System {
         List<Subscriber> subscribers = userHandler.getSubscribers();
         return new SubscriberActionResultDTO(ResultCode.SUCCESS,"got subscribers List",getSubsDtos(subscribers));
 
+    }
+
+    public void setPublisher(Publisher publisher) {
+
+        this.publisher = publisher;
     }
 }
