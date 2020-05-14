@@ -3,6 +3,7 @@ package com.example.communicationLayer.controllers;
 
 import DTOs.ActionResultDTO;
 import DTOs.StorePurchaseHistoryDTO;
+import DTOs.SubscriberActionResultDTO;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,6 +85,12 @@ public class OwnerController {
     public ActionResultDTO changeBuyingPolicy(@RequestParam(value = "storeId", defaultValue = "") int storeId,
                                               @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
         return ownerHandler.changeBuyingPolicy(storeId, newPolicy);
+    }
+
+    @GetMapping("/getOptionalManagers")
+    @ResponseBody
+    public SubscriberActionResultDTO getOptionalManagers(@RequestParam(value = "storeId" , defaultValue = "-1")int storeId){
+        return ownerHandler.getPossibleManagers(storeId);
     }
 
 }

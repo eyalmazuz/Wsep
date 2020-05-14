@@ -1,9 +1,6 @@
 package Service;
 
-import DTOs.ActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.ResultCode;
-import DTOs.UserPurchaseHistoryDTO;
+import DTOs.*;
 import Domain.TradingSystem.System;
 
 public class SubscriberStateHandler {
@@ -39,4 +36,12 @@ public class SubscriberStateHandler {
         }
         return null;
     }
+
+    public SubscriberActionResultDTO getAllManagers(int storeId){
+        if(s.isAdmin(sessionId) || (s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId))){
+            return s.getAllManagers(storeId);
+        }
+        return new SubscriberActionResultDTO(ResultCode.ERROR_GUESTUSERS,"Only owner/admin can get managers info",null);
+    }
+
 }

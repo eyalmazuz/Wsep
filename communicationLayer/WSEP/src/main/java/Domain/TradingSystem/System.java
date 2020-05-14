@@ -5,9 +5,11 @@ import DTOs.SimpleDTOS.*;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
+import Domain.Util.Pair;
 import NotificationPublisher.Publisher;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class System {
 
@@ -17,9 +19,9 @@ public class System {
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
-    private List<Store> stores;
+    private Map<Integer,Store> stores;
     private SystemLogger logger;
-    private List<ProductInfo> products;
+    private Map<Integer,ProductInfo> products;
 
     private Publisher publisher;
 
@@ -28,9 +30,9 @@ public class System {
 
     public System(){
         userHandler = new UserHandler();
-        stores = new LinkedList<>();
+        stores = new ConcurrentHashMap<>();
         logger = new SystemLogger();
-        products = new LinkedList<>();
+        products = new ConcurrentHashMap<>();
         publisher = new Publisher();
     }
 
@@ -40,14 +42,10 @@ public class System {
     }
 
     public ProductInfo getProductInfoById(int id) {
-        for (ProductInfo productInfo: products) {
-            if (productInfo.getId() == id)
-                return productInfo;
-        }
-        return null;
+        return products.get(id);
     }
 
-    public List<ProductInfo> getProducts() {
+    public Map<Integer, ProductInfo> getProducts() {
         return products;
     }
 
@@ -76,7 +74,7 @@ public class System {
         return userHandler;
     }
 
-    public void setStores(List<Store> stores) {
+    public void setStores(Map<Integer, Store> stores) {
         this.stores = stores;
     }
 
@@ -115,10 +113,11 @@ public class System {
         return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
     }
 
-    public void addStore (){
+    public int addStore (){
         logger.info("AddStore");
         Store store = new Store();
-        stores.add(store);
+        stores.put(store.getId(),store);
+        return store.getId();
 
     }
 
@@ -148,7 +147,7 @@ public class System {
         if(u!=null) {
             Store newStore = u.openStore();
             if (newStore != null) {
-                stores.add(newStore);
+                stores.put(newStore.getId(),newStore);
                 //Publisher update
                 publisher.addManager(newStore.getId(), ((Subscriber)u.getState()).getId());
                 //
@@ -258,21 +257,33 @@ public class System {
      * @return - list of available user id's
      *           if there is no premission returns null.
      */
-    public List <Integer> getAvailableUsersToOwn(int sessionId,int storeId) {
-        logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId );
-        User u = userHandler.getUser(sessionId);
-        List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
-        if (u.getState().hasOwnerPermission(storeId)){
-            for (Store store: stores) {
-                if (store.getId()==storeId)
-                    owners = store.getOwners();
-            }
+    public SubscriberActionResultDTO getAvailableUsersToOwn(int storeId) {
+        logger.info("getAvailableUsersToOwn:  storeId: "+storeId );
 
-            return userHandler.getAvailableUsersToOwn(owners); // return only available subs
+        List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
+
+           Store store = getStoreById(storeId);
+           if (store!=null) {
+               owners = store.getAllManagers();
+               List<Subscriber> filterd = userHandler.getAvailableUsersToOwn(owners); // return only available subs
+
+               return new SubscriberActionResultDTO(ResultCode.SUCCESS, "List of optional managers", getSubsDtos(filterd));
+           }
+           return  new SubscriberActionResultDTO(ResultCode.ERROR_STOREID,"Store Id doesn't exist",null);
+
+
         }
-        else
-            return null;
-    }
+
+        private List<SubscriberDTO> getSubsDtos(List<Subscriber> lst){
+            List<SubscriberDTO> subscriberDTOS = new ArrayList<>();
+            for (Subscriber subscriber : lst) {
+                SubscriberDTO subscriberDTO = new SubscriberDTO(subscriber.getId(), subscriber.getUsername());
+                subscriberDTOS.add(subscriberDTO);
+            }
+            return subscriberDTOS;
+        }
+
+
 
     public ActionResultDTO addStoreOwner (int sessionId, int storeId, int subId) {
         logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
@@ -310,21 +321,7 @@ public class System {
      * @return - list of available user id's
      *           if there is no premission returns null.
      */
-    public List <Integer> getAvailableUsersToManage(int sessionId, int storeId) {
-        logger.info("getAvailableUsersToManage: sessionId: "+sessionId+", storeId: "+storeId );
-        User u = userHandler.getUser(sessionId);
-        List <Subscriber> managers = new LinkedList<Subscriber>(); //update store owners list
-        if (u.getState().hasOwnerPermission(storeId)){
-            for (Store store: stores) {
-                if (store.getId()==storeId)
-                    managers = store.getManagers();
-            }
 
-            return userHandler.getAvailableUsersToOwn(managers); // return only available subs
-        }
-        else
-            return null;
-    }
 
     public ActionResultDTO addStoreManager (int sessionId, int storeId, int userId) {
         User u = userHandler.getUser(sessionId);
@@ -531,7 +528,7 @@ public class System {
         logger.info("searchProducts: no arguments");
         List<StoreDTO> result = new ArrayList<>();
         String info = "";
-        for (Store store: stores) {
+        for (Store store: stores.values()) {
             result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
                     store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
         }
@@ -584,7 +581,7 @@ public class System {
         }
 
 
-        for (Store store: stores)
+        for (Store store: stores.values())
             if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
 
         for (ProductInStore pis: allProducts) {
@@ -675,33 +672,16 @@ public class System {
 
 
     public Store getStoreById(int storeId){
-        for(Store s: stores){
-            if (s.getId() == storeId){
-                return s;
-            }
-        }
-        return null;
+       return stores.get(storeId);
     }
 
     private ActionResultDTO checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
         if (userHandler.getUser(sessionId) == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "User does not exist.");
-        boolean found = false;
-        for (Store store : stores) {
-            if (store.getId() == storeId) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Store " + storeId + " does not exist.");
+        Store store = getStoreById(storeId);
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Store " + storeId + " does not exist.");
 
-        found = false;
-        for (ProductInfo product : products) {
-            if (product.getId() == productId) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Product " + productId + " does not exist.");
+        ProductInfo productInfo = getProductInfoById(productId);
+        if (productInfo == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Product " + productId + " does not exist.");
 
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
         return new ActionResultDTO(ResultCode.SUCCESS, null);
@@ -762,9 +742,9 @@ public class System {
             ShoppingCart userCart = u.getShoppingCart();
             for(ShoppingBasket basket: userCart.getBaskets()){
                 Map<Integer,Integer> productMapping = basket.getProducts();
-                Map<String,Integer> dtoProductMapping = new HashMap<>();
+                Map<Pair<Integer,String>,Integer> dtoProductMapping = new HashMap<>();
                 for(Integer pid: productMapping.keySet()){
-                    dtoProductMapping.put(getProductInfoById(pid).getName(),productMapping.get(pid));
+                    dtoProductMapping.put(new Pair<>(pid, getProductInfoById(pid).getName()),productMapping.get(pid));
                 }
                 cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
 
@@ -804,7 +784,7 @@ public class System {
         stores.clear();
     }
 
-    public List<Store> getStores(){
+    public Map<Integer, Store> getStores(){
         return stores;
     }
 
@@ -812,10 +792,14 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public void addProductInfo(int id, String name, String category) {
+    public ActionResultDTO addProductInfo(int id, String name, String category) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category);
-        products.add(productInfo);
+        if (products.get(id) != null){
+            return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
+        }
+        products.put(id,productInfo);
+        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to store");
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
@@ -946,5 +930,40 @@ public class System {
                 u.addProductToCart(store, productId, amount);
             }
         }
+    }
+
+    public StoreActionResultDTO getStoreInfo(int storeId) {
+        Store store = getStoreById(storeId);
+        if(store == null){
+            return new StoreActionResultDTO(ResultCode.ERROR_STOREID,"Store "+storeId+" Does not exists.",null);
+        }
+
+        List<StoreDTO> result = new ArrayList<>();
+        result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
+                store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
+
+        return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
+
+    }
+
+    public SubscriberActionResultDTO getAllManagers(int storeId) {
+        Store store = getStoreById(storeId);
+        if(store==null)
+            return new SubscriberActionResultDTO(ResultCode.ERROR_STOREID,"StoreId not exist",null);
+        else{
+            List<Subscriber> managers = store.getAllManagers();
+            List<SubscriberDTO> mangersDTO = new ArrayList<>();
+            for(Subscriber manager : managers){
+                ManagerDTO managerDto = new ManagerDTO(manager.getId(),manager.getUsername(),manager.getPermissionType(storeId));
+                mangersDTO.add(managerDto);
+            }
+            return new SubscriberActionResultDTO(ResultCode.SUCCESS,"got All Managers",mangersDTO);
+        }
+    }
+
+    public SubscriberActionResultDTO getAllSubscribers() {
+        List<Subscriber> subscribers = userHandler.getSubscribers();
+        return new SubscriberActionResultDTO(ResultCode.SUCCESS,"got subscribers List",getSubsDtos(subscribers));
+
     }
 }

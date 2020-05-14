@@ -105,6 +105,12 @@ public class GuestUserController {
         return guestUserHandler.viewStoreProductInfo();
     }
 
+    @GetMapping("/getStore")
+    @ResponseBody
+    public StoreActionResultDTO viewStoreProductInfo(@RequestParam(value = "storeId", defaultValue = "-1") int storeId) {
+        return guestUserHandler.getStore(storeId);
+    }
+
     @GetMapping("/viewCart")
     @ResponseBody
     public ShoppingCartDTO viewCart(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId) {
