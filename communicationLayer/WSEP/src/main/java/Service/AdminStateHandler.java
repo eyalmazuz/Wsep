@@ -1,8 +1,6 @@
 package Service;
 
-import DTOs.ResultCode;
-import DTOs.StorePurchaseHistoryDTO;
-import DTOs.UserPurchaseHistoryDTO;
+import DTOs.*;
 import Domain.TradingSystem.System;
 
 public class AdminStateHandler {
@@ -31,10 +29,17 @@ public class AdminStateHandler {
 
     }
 
-    public void addProductInfo(int id, String name, String category){
+    public ActionResultDTO addProductInfo(int id, String name, String category){
         if(s.isAdmin(sessionId)){
-            s.addProductInfo(id, name, category);
+            return s.addProductInfo(id, name, category);
         }
+        return new ActionResultDTO(ResultCode.ERROR_ADMIN,"User is not admin");
     }
 
+    public SubscriberActionResultDTO getAllSubscribers() {
+        if(s.isAdmin(sessionId)){
+            return s.getAllSubscribers();
+        }
+        return new SubscriberActionResultDTO(ResultCode.ERROR_ADMIN,"User is not admin",null);
+    }
 }
