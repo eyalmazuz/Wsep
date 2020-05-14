@@ -2,10 +2,8 @@ package Domain.TradingSystem;
 
 import Domain.Security.Security;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class UserHandler {
@@ -67,12 +65,14 @@ public class UserHandler {
      * @param owners - the users to exclude
      * @return a list of the remaining user id's
      */
-    public List <Integer> getAvailableUsersToOwn(List <Subscriber> owners) {
-        List <Integer> availableSubs = new LinkedList<Integer>();
+    public List<Subscriber> getAvailableUsersToOwn(List <Subscriber> owners) {
+
+        List <Subscriber> availableSubs = new LinkedList<>();
         if(owners!=null) {
+            List<Integer> ids = owners.stream().map(Subscriber::getId).collect(Collectors.toList());
             for (Subscriber user : subscribers.values()) {
-                if (!owners.contains(user))
-                    availableSubs.add(user.getId());
+                if (!ids.contains(user.getId()))
+                    availableSubs.add(user);
             }
         }
         return availableSubs;
@@ -124,5 +124,9 @@ public class UserHandler {
 
     public void setSubscribers(Map<Integer, Subscriber> subscribers) {
         this.subscribers = subscribers;
+    }
+
+    public List<Subscriber> getSubscribers() {
+        return new ArrayList<>(subscribers.values());
     }
 }

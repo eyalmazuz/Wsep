@@ -245,4 +245,11 @@ public class Subscriber implements UserState {
         return user;
     }
 
+    public String getPermissionType(int storeId) {
+        Permission permission = permissions.get(storeId);
+        if(permission!=null){
+            return permission.getType();
+        }
+        return "No Permissions";
+    }
 }

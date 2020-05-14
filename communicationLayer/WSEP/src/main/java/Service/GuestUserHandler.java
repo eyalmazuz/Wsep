@@ -98,22 +98,15 @@ public class GuestUserHandler {
         return s.viewStoreProductInfo();
     }
 
+    public StoreActionResultDTO getStore(int storeId){
+        return  s.getStoreInfo(storeId);
+    }
+
 
     public ShoppingCartDTO viewCart(int sessionId) {
         return s.getCart(sessionId);
     }
-/*
-    public ShoppingCartDTO getDemoCart() {
-        Map<String,Integer > demo  = new HashMap<>();
-        demo.put("Banana",5);
-        demo.put("Carrot",3);
-        ShoppingBasketDTO basketDemo = new ShoppingBasketDTO(5,demo);
-        ShoppingBasketDTO basketDemo2 = new ShoppingBasketDTO(6,demo);
-        List<ShoppingBasketDTO> lst = new LinkedList<>();
-        lst.add(basketDemo);
-        lst.add(basketDemo2);
-        return new ShoppingCartDTO(ResultCode.SUCCESS,"test",lst);
-        }
-*/
+
+
 }
 

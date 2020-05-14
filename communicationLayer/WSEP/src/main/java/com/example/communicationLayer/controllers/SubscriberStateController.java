@@ -3,6 +3,7 @@ package com.example.communicationLayer.controllers;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.SubscriberActionResultDTO;
 import DTOs.UserPurchaseHistoryDTO;
 import Service.SubscriberStateHandler;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +35,11 @@ public class SubscriberStateController {
     @ResponseBody
     public UserPurchaseHistoryDTO getHistory(){
         return subscriberStateHandler.getHistory();
+    }
+
+    @GetMapping("/getAllManagers")
+    @ResponseBody
+    public SubscriberActionResultDTO getManagers(@RequestParam(value = "storeId",defaultValue = "-1") int storeId){
+        return subscriberStateHandler.getAllManagers(storeId);
     }
 }

@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class UserHandlerTest extends TestCase {
@@ -132,9 +133,10 @@ public class UserHandlerTest extends TestCase {
 
         List<Subscriber> list = prepareSubsList();
         registerSubs();
-        List<Integer> result = uh.getAvailableUsersToOwn(list);
+        List<Subscriber> result = uh.getAvailableUsersToOwn(list);
+        List<Integer> ids = result.stream().map(Subscriber::getId).collect(Collectors.toList());
         for(Subscriber s : list){
-            assertTrue(!result.contains(s.getId()));
+            assertFalse(ids.contains(s.getId()));
         }
 
     }
@@ -142,8 +144,8 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testGetAvailableUsersToOwnBad() {
     registerSubs();
-    List<Integer> list1 = uh.getAvailableUsersToOwn(null);
-    List<Integer> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
+    List<Subscriber> list1 = uh.getAvailableUsersToOwn(null);
+    List<Subscriber> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
     assertTrue(list1.isEmpty());
     assertEquals(uh.subscribers.size(),list2.size());
     }
