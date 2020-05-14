@@ -33,10 +33,11 @@ public class AdminStateController {
         return new AdminStateHandler(sessionId).getStoreHistory(storeId);
     }
     @GetMapping("/addProductInfo")
-    public ActionResultDTO addProductInfo(@RequestParam(value = "id", defaultValue = "") int id,
+    public ActionResultDTO addProductInfo(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                          @RequestParam(value = "id", defaultValue = "") int id,
                                           @RequestParam(value = "name", defaultValue = "") String name,
                                           @RequestParam(value = "category", defaultValue = "") String category){
-         return adminStateHandler.addProductInfo(id,name,category);
+         return new AdminStateHandler(sessionId).addProductInfo(id,name,category);
 
    }
 
