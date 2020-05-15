@@ -82,10 +82,10 @@ public class SystemTests extends TestCase {
         store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, 4, 4);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), 0.0);
+        assertEquals(test.checkSuppliesAndGetPrice(sessionId).getPrice(), 0.0);
 
         u.addProductToCart(store1, 4, 10);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), -1.0);
+        assertEquals(test.checkSuppliesAndGetPrice(sessionId).getPrice(), -1.0);
     }
 
     @Test
