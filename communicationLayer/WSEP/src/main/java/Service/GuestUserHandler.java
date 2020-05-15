@@ -51,7 +51,7 @@ public class GuestUserHandler {
         if (s.isCartEmpty(sessionId)) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cart is empty.");
         ActionResultDTO result = s.checkBuyingPolicy(sessionId);
         if (result.getResultCode() != ResultCode.SUCCESS) return result;
-        double price = s.checkSuppliesAndGetPrice(sessionId).getPrice();
+        double price = s.checkSuppliesAndGetPrice(sessionId);
         if (price < 0) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Missing supplies.");
         // pass price to user confirmation
         return new ActionResultDTO(ResultCode.SUCCESS, "Request approved. Please confirm the price: " + price);

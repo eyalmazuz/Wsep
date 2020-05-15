@@ -853,15 +853,11 @@ public class System {
         return u.isCartEmpty();
     }
 
-    public DoubleActionResultDTO checkSuppliesAndGetPrice(int sessionId) {
+    public double checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
 
-        DoubleActionResultDTO res = u.getShoppingCartPrice();
-        if (!u.checkStoreSupplies())
-            res.setPrice(-1.0);
-
-        return u.getShoppingCartPrice();
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice().getPrice() : -1.0;
     }
 
     public void savePurchaseHistory(int sessionId) {
