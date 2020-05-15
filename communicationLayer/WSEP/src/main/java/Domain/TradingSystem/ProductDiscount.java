@@ -7,7 +7,7 @@ public class ProductDiscount extends SimpleDiscount {
 
     @Override
     public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
-        return null;
+        return discountBasket;
     }
 
     public static class ProductSaleDiscount extends ProductDiscount {

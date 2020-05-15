@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 
 import java.util.HashMap;
@@ -125,7 +126,7 @@ public class Store {
     }
 
     public void setDiscountPolicy(DiscountPolicy policy) {
-        if(policy!= null)
+        if (policy != null)
             this.discountPolicy = policy;
     }
 
@@ -134,7 +135,7 @@ public class Store {
     }
 
     public PurchaseDetails savePurchase(User user, Map<Integer, Integer> products) {
-        double totalPrice = getPrice(user, products);
+        double totalPrice = getPrice(user, products).getPrice();
 
         Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
         // get the ProductInfo -> integer map
@@ -270,10 +271,12 @@ public class Store {
         return managers;
     }
 
-    public double getPrice(User user, Map<Integer, Integer> products) {
+    public DoubleActionResultDTO getPrice(User user, Map<Integer, Integer> products) {
         ShoppingBasket basket = new ShoppingBasket(this);
         basket.setProducts(products);
-        return discountPolicy.getBasketDiscountedPrice(user, basket);
+
+        return new DoubleActionResultDTO(ResultCode.SUCCESS, "get price", discountPolicy.getBasketDiscountedPrice(user, basket));
+
     }
 
     public void removeLastHistoryItem() {

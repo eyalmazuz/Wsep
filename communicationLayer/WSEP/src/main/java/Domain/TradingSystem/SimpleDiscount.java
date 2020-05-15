@@ -13,6 +13,6 @@ public class SimpleDiscount implements DiscountType {
             return pd.getDiscountedBasket(user, discountBasket);
         }
 
-        return null;
+        return discountBasket;
     }
 }

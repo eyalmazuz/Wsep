@@ -853,10 +853,10 @@ public class System {
         return u.isCartEmpty();
     }
 
-    public double checkSuppliesAndGetPrice(int sessionId) {
+    public DoubleActionResultDTO checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : null;
     }
 
     public void savePurchaseHistory(int sessionId) {

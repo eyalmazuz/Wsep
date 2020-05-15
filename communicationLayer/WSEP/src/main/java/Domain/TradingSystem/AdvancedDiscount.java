@@ -13,7 +13,7 @@ public class AdvancedDiscount implements DiscountType {
 
     @Override
     public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
-        return null;
+        return discountBasket;
     }
 
     public static class LogicalDiscount extends AdvancedDiscount {
@@ -75,7 +75,7 @@ public class AdvancedDiscount implements DiscountType {
                 return maximumBasket;
             }
 
-            return null;
+            return discountBasket;
         }
     }
 

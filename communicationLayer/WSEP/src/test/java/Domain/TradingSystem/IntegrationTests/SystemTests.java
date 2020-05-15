@@ -291,12 +291,12 @@ public class SystemTests extends TestCase {
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
         u.editCartProductAmount(store1, 4, 6);
-        double price = test.checkSuppliesAndGetPrice(sessionId);
+        double price = test.checkSuppliesAndGetPrice(sessionId).getPrice();
         assertEquals(price, -1.0);
         u.editCartProductAmount(store1, 4, 4);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
-        price = test.checkSuppliesAndGetPrice(sessionId);
+        price = test.checkSuppliesAndGetPrice(sessionId).getPrice();
         assertEquals(price, 0.0);
 
         PaymentSystemMock.succeedPurchase = false;
@@ -458,8 +458,14 @@ public class SystemTests extends TestCase {
         store1.setDiscountPolicy(policy);
         Map<Integer, Integer> productsAmount = new HashMap<>();
         productsAmount.put(4, 1);
-        assertEquals(5.0, store1.getPrice(u, productsAmount));
+        assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
+
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        assertEquals(5 * 10.0, store1.getPrice(u, productsAmount).getPrice());
+
 
 
         policy = new DiscountPolicy();
@@ -467,7 +473,7 @@ public class SystemTests extends TestCase {
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(4, 5);
-        assertEquals(5 * 5.0, store1.getPrice(u, productsAmount));
+        assertEquals(5 * 5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -477,7 +483,7 @@ public class SystemTests extends TestCase {
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(4, 1);
-        assertEquals(5.0, store1.getPrice(u, productsAmount));
+        assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -490,7 +496,7 @@ public class SystemTests extends TestCase {
         productsAmount.put(4, 5);
         productsAmount.put(5, 10);
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount));
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -502,7 +508,7 @@ public class SystemTests extends TestCase {
         productsAmount = new HashMap<>();
         productsAmount.put(5, 10);
 
-        assertEquals(0.75*10*20, store1.getPrice(u, productsAmount));
+        assertEquals(0.75*10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -514,7 +520,7 @@ public class SystemTests extends TestCase {
         productsAmount = new HashMap<>();
         productsAmount.put(4, 5);
         productsAmount.put(5, 10);
-        assertEquals(5*10 + 0.75*10*20, store1.getPrice(u, productsAmount));
+        assertEquals(5*10 + 0.75*10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -529,10 +535,8 @@ public class SystemTests extends TestCase {
         productsAmount.put(4, 5);
         productsAmount.put(5, 10);
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20 * 0.5, store1.getPrice(u, productsAmount));
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20 * 0.5, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
-
-
 
     }
 
@@ -569,7 +573,7 @@ public class SystemTests extends TestCase {
         productsAmount.put(5, 10);
 
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount));
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -585,7 +589,7 @@ public class SystemTests extends TestCase {
         productsAmount.put(5, 10);
 
 
-        assertEquals(5*10 + 0.75*20*10, store1.getPrice(u, productsAmount));
+        assertEquals(5*10 + 0.75*20*10, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
 
@@ -600,7 +604,7 @@ public class SystemTests extends TestCase {
         productsAmount.put(5, 10);
 
 
-        assertEquals(0.5*5*10 + 10*20, store1.getPrice(u, productsAmount));
+        assertEquals(0.5*5*10 + 10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
 
     }
