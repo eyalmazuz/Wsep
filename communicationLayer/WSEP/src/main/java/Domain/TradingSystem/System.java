@@ -856,7 +856,12 @@ public class System {
     public DoubleActionResultDTO checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : null;
+
+        DoubleActionResultDTO res = u.getShoppingCartPrice();
+        if (!u.checkStoreSupplies())
+            res.setPrice(-1.0);
+
+        return u.getShoppingCartPrice();
     }
 
     public void savePurchaseHistory(int sessionId) {
