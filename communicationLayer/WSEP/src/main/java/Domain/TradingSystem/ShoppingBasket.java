@@ -101,7 +101,7 @@ public class ShoppingBasket {
 
 
     public double getProductPrice(int productId) {
-        return store.getProductInStoreById(productId).getPrice();
+        return store.getProductPrice(productId);
     }
 
     public void setProducts(Map<Integer, Integer> products) {

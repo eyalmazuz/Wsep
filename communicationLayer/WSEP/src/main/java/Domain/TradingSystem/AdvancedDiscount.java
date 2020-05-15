@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdvancedDiscount implements DiscountType {
@@ -38,6 +39,7 @@ public class AdvancedDiscount implements DiscountType {
                         if (updatedDiscountBasket.getTotalPrice() < minPrice) {
                             minPrice = updatedDiscountBasket.getTotalPrice();
                             minimumBasket = updatedDiscountBasket;
+
                         }
                     }
                 }
@@ -45,16 +47,18 @@ public class AdvancedDiscount implements DiscountType {
             }
 
             else if (type == LogicalOperation.AND) {
+
                 DiscountBasket curDiscountBasket = discountBasket;
 
                 for (DiscountType discount: discounts) {
                     curDiscountBasket = discount.getDiscountedBasket(user, curDiscountBasket);
+
                 }
                 return curDiscountBasket;
             }
 
             else if (type == LogicalOperation.XOR) {
-                // return the best one for the customer
+                // return the best one for the store
                 double maxPrice = Double.MIN_VALUE;
                 DiscountBasket maximumBasket = null;
 

@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,16 +19,15 @@ public class SystemTests extends TestCase {
     System test;
 
     @Before
-    public void setUp(){
-       test = new System();
+    public void setUp() {
+        test = new System();
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
     }
-
 
 
     //USE CASES 4.1 tests
@@ -37,9 +38,9 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1,"bamba","hatif");
-        assertSame(test.addProductToStore(sessionId,storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.addProductToStore(sessionId,storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
+        test.addProductInfo(1, "bamba", "hatif");
+        assertSame(test.addProductToStore(sessionId, storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addProductToStore(sessionId, storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
 
     }
 
@@ -49,9 +50,9 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1,"bamba","hatif");
+        test.addProductInfo(1, "bamba", "hatif");
         assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
-        test.addProductToStore(sessionId,storeId,1, 5);
+        test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.editProductInStore(sessionId, storeId, -12, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
 
@@ -64,9 +65,9 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1,"bamba","hatif");
+        test.addProductInfo(1, "bamba", "hatif");
         test.addProductToStore(sessionId, storeId, 1, 5);
-        assertSame(test.deleteProductFromStore(sessionId,storeId, 1).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.deleteProductFromStore(sessionId, storeId, 1).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.deleteProductFromStore(sessionId, storeId, 2).getResultCode(), ResultCode.SUCCESS);
 
     }
@@ -129,12 +130,12 @@ public class SystemTests extends TestCase {
         assertNotNull(map.get(store1));
         assertEquals(map.get(store1).size(), 1);
         PurchaseDetails details = map.get(store1).get(0);
-        assertEquals((int)details.getProducts().get(info), 4);
+        assertEquals((int) details.getProducts().get(info), 4);
 
         List<PurchaseDetails> storeHistory = store1.getStorePurchaseHistory().getPurchaseHistory();
         assertEquals(storeHistory.size(), 1);
         details = storeHistory.get(0);
-        assertEquals((int)details.getProducts().get(info), 4);
+        assertEquals((int) details.getProducts().get(info), 4);
         assertEquals(details.getUser(), u);
     }
 
@@ -167,7 +168,7 @@ public class SystemTests extends TestCase {
         assertNotNull(storeProductIds);
         Map<Integer, Integer> productAmounts = storeProductIds.get(store1.getId());
         assertNotNull(productAmounts);
-        assertEquals((int)productAmounts.get(4), 4);
+        assertEquals((int) productAmounts.get(4), 4);
     }
 
     @Test
@@ -243,7 +244,7 @@ public class SystemTests extends TestCase {
         test.restoreCart(sessionId);
         Map<Integer, Integer> productAmounts = u.getShoppingCart().getStoreProductsIds().get(store1.getId());
         assertNotNull(productAmounts);
-        assertEquals((int)productAmounts.get(4), 4);
+        assertEquals((int) productAmounts.get(4), 4);
     }
 
     @Test
@@ -318,7 +319,7 @@ public class SystemTests extends TestCase {
             test.saveOngoingPurchaseForUser(sessionId);
 
             // updateStoreSupplies would fail only if there is a sync problem
-            if(!syncProblem) {
+            if (!syncProblem) {
                 test.updateStoreSupplies(sessionId);
                 test.emptyCart(sessionId);
             } else {
@@ -340,70 +341,70 @@ public class SystemTests extends TestCase {
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
         return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
-            store.getStorePurchaseHistory().getPurchaseHistory().isEmpty() &&
-            store.getProductAmount(4) == 5 &&
-            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
-            (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
+                store.getStorePurchaseHistory().getPurchaseHistory().isEmpty() &&
+                store.getProductAmount(4) == 5 &&
+                u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
+                (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
     }
 
     @Test
     public void testAddOwnerSucess() {
         int openerSessionId = test.startSession().getId();
-        test.register(openerSessionId,"Amir","1234");
-        test.login(openerSessionId,"Amir","1234");
+        test.register(openerSessionId, "Amir", "1234");
+        test.login(openerSessionId, "Amir", "1234");
         int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
+        int newOwnerSubId = test.register(newOwnerSessionId, "Bob", "1234").getId();
 
-        assertSame(test.addStoreOwner(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.addStoreOwner(openerSessionId, storeid, newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
 
     }
 
     @Test
     public void testAddManager() {
         int openerSessionId = test.startSession().getId();
-        test.register(openerSessionId,"Amir","1234");
-        test.login(openerSessionId,"Amir","1234");
+        test.register(openerSessionId, "Amir", "1234");
+        test.login(openerSessionId, "Amir", "1234");
         int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
+        int newOwnerSubId = test.register(newOwnerSessionId, "Bob", "1234").getId();
 
-        assertSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.addStoreManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);//already manager
+        assertSame(test.addStoreManager(openerSessionId, storeid, newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.addStoreManager(openerSessionId, storeid, newOwnerSubId).getResultCode(), ResultCode.SUCCESS);//already manager
     }
 
     @Test
     public void testDeleteManager() {
         int openerSessionId = test.startSession().getId();
-        test.register(openerSessionId,"Amir","1234");
-        test.login(openerSessionId,"Amir","1234");
+        test.register(openerSessionId, "Amir", "1234");
+        test.login(openerSessionId, "Amir", "1234");
         int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
+        int newOwnerSubId = test.register(newOwnerSessionId, "Bob", "1234").getId();
 
-        test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
-        assertNotSame(test.deleteManager(newOwnerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
-        assertSame(test.deleteManager(openerSessionId,storeid,newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        test.addStoreManager(openerSessionId, storeid, newOwnerSubId);
+        assertNotSame(test.deleteManager(newOwnerSessionId, storeid, newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.deleteManager(openerSessionId, storeid, newOwnerSubId).getResultCode(), ResultCode.SUCCESS);
 
     }
 
     @Test
     public void testSetManagerDetails() {
         int openerSessionId = test.startSession().getId();
-        test.register(openerSessionId,"Amir","1234");
-        test.login(openerSessionId,"Amir","1234");
+        test.register(openerSessionId, "Amir", "1234");
+        test.login(openerSessionId, "Amir", "1234");
         int storeid = test.openStore(openerSessionId).getId();
 
         int newOwnerSessionId = test.startSession().getId();
-        int newOwnerSubId = test.register(newOwnerSessionId,"Bob","1234").getId();
+        int newOwnerSubId = test.register(newOwnerSessionId, "Bob", "1234").getId();
 
-        test.addStoreManager(openerSessionId,storeid,newOwnerSubId);
+        test.addStoreManager(openerSessionId, storeid, newOwnerSubId);
 
-        assertSame(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"any").getResultCode(), ResultCode.SUCCESS);
-        assertNotSame(test.setManagerDetalis(openerSessionId,newOwnerSubId,storeid,"").getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.setManagerDetalis(openerSessionId, newOwnerSubId, storeid, "any").getResultCode(), ResultCode.SUCCESS);
+        assertNotSame(test.setManagerDetalis(openerSessionId, newOwnerSubId, storeid, "").getResultCode(), ResultCode.SUCCESS);
     }
 
 
@@ -425,7 +426,7 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 0.0\n\n";
+        String history = "Basket Purchase for store ID: " + store1.getId() + "\nlambda\nAmount: 4\nPrice: 0.0\n\n";
 
         store1.setBuyingPolicy(new BuyingPolicy("Any"));
         u.saveCurrentCartAsPurchase();
@@ -434,5 +435,173 @@ public class SystemTests extends TestCase {
 
     }
 
+    @Test
+    public void testDiscountPoliciesSimple() {
+        int sessionId = test.startSession().getId();
+        test.addStore();
+        Store store1 = test.getStores().get(0);
+        test.openStore(sessionId);
 
+        ProductInfo infoBamba = test.addProductInfo(4, "bamba", "snacks");
+        ProductInfo infoApple = test.addProductInfo(5, "apple", "fruits");
+
+        store1.addProduct(infoBamba, 10);
+        store1.setProductPrice(4, 10);
+        store1.addProduct(infoApple, 5);
+        store1.setProductPrice(5, 20);
+
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+
+        DiscountPolicy policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        store1.setDiscountPolicy(policy);
+        Map<Integer, Integer> productsAmount = new HashMap<>();
+        productsAmount.put(4, 1);
+        assertEquals(5.0, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        store1.setDiscountPolicy(policy);
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        assertEquals(5 * 5.0, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        store1.setDiscountPolicy(policy);
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 1);
+        assertEquals(5.0, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        store1.setDiscountPolicy(policy);
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+
+        store1.setDiscountPolicy(policy);
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(5, 10);
+
+        assertEquals(0.75*10*20, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+
+        store1.setDiscountPolicy(policy);
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+        assertEquals(5*10 + 0.75*10*20, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
+
+        store1.setDiscountPolicy(policy);
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20 * 0.5, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+
+    }
+
+    @Test
+    public void testDiscountPoliciesComplex() {
+        int sessionId = test.startSession().getId();
+        test.addStore();
+        Store store1 = test.getStores().get(0);
+        test.openStore(sessionId);
+
+        ProductInfo infoBamba = test.addProductInfo(4, "bamba", "snacks");
+        ProductInfo infoApple = test.addProductInfo(5, "apple", "fruits");
+
+        store1.addProduct(infoBamba, 10);
+        store1.setProductPrice(4, 10);
+        store1.addProduct(infoApple, 30);
+        store1.setProductPrice(5, 20);
+
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+
+
+        DiscountPolicy policy = new DiscountPolicy();
+
+        List<DiscountType> discounts = new ArrayList<>();
+        discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+
+
+        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
+        store1.setDiscountPolicy(policy);
+        Map<Integer, Integer> productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+
+
+        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        discounts = new ArrayList<>();
+        discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+
+        policy = new DiscountPolicy();
+        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+        store1.setDiscountPolicy(policy);
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+
+
+        assertEquals(5*10 + 0.75*20*10, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+
+        discounts = new ArrayList<>();
+        discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy = new DiscountPolicy();
+        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR));
+        store1.setDiscountPolicy(policy);
+        productsAmount = new HashMap<>();
+        productsAmount.put(4, 5);
+        productsAmount.put(5, 10);
+
+
+        assertEquals(0.5*5*10 + 10*20, store1.getPrice(u, productsAmount));
+        policy.clearDiscounts();
+
+    }
 }

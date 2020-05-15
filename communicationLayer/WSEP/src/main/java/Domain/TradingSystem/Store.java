@@ -280,4 +280,21 @@ public class Store {
         storePurchaseHistory.removeLastItem();
     }
 
+    public void setProductPrice(int id, int price) {
+        for (ProductInStore productInStore: products) {
+            if (productInStore.getProductInfo().getId() == id) {
+                productInStore.setPrice(price);
+                return;
+            }
+        }
+    }
+
+    public double getProductPrice(int productId) {
+        for (ProductInStore productInStore: products) {
+            if (productInStore.getProductInfo().getId() == productId) {
+                return productInStore.getPrice();
+            }
+        }
+        return -1;
+    }
 }

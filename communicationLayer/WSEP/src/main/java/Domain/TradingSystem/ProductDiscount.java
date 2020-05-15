@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDiscount extends SimpleDiscount {
@@ -20,15 +21,23 @@ public class ProductDiscount extends SimpleDiscount {
         }
 
         public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
+
             List<DiscountBasket.DiscountProduct> discountProducts = discountBasket.getDiscountProducts();
+            List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductInfo().getId(), discountProduct.getAmount(), discountProduct.getPrice()));
+            }
+
+            DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
+
+            for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getProductInfo().getId() == productId) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);
                 }
             }
-            return discountBasket;
+            return resBasket;
         }
     }
 
@@ -43,15 +52,23 @@ public class ProductDiscount extends SimpleDiscount {
         }
 
         public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
+
             List<DiscountBasket.DiscountProduct> discountProducts = discountBasket.getDiscountProducts();
+            List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductInfo().getId(), discountProduct.getAmount(), discountProduct.getPrice()));
+            }
+
+            DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
+
+            for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getProductInfo().getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);
                 }
             }
-            return discountBasket;
+            return resBasket;
         }
     }
 

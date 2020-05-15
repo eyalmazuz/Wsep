@@ -54,4 +54,8 @@ public class ProductInStore {
     public double getPrice() {
         return price;
     }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
 }

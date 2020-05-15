@@ -816,10 +816,12 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public void addProductInfo(int id, String name, String category) {
+    public ProductInfo addProductInfo(int id, String name, String category) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category);
         products.add(productInfo);
+
+        return productInfo;
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
