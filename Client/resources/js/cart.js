@@ -184,6 +184,8 @@ async function purchaseCart(){
                 console.log(result)
                 if(result['resultCode'] === 'SUCCESS'){
                     alert('purchase successfull')
+                    location.reload()
+
                 }
                 else{
                     alert(result['details'])

@@ -122,6 +122,8 @@ async function logout(){
             sessionStorage['username'] = ''
 
         }
+        location.reload()
+
     }
 }
 

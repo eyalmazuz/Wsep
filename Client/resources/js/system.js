@@ -8,16 +8,6 @@ headers = {
 
 async function startSystem(){
     
-    // window.addEventListener('beforeunload', (event) => {
-    //     // Cancel the event as stated by the standard.
-    //     event.preventDefault();
-    //     // Chrome requires returnValue to be set.
-    //     event.returnValue = '';
-
-    //     sessionStorage.clear()
-    //   });
-      
-
     if(!('sessionId' in sessionStorage)){
         getSessionId()
     }
