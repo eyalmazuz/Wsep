@@ -448,8 +448,6 @@ public class SystemTests extends TestCase {
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
-
-
         store1.addProduct(infoBamba, 10);
         store1.setProductPrice(4, 10);
         store1.addProduct(infoApple, 5);

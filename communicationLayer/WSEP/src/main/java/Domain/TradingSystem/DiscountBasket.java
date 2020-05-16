@@ -18,10 +18,12 @@ public class DiscountBasket {
         private int amount;
         private double price;
         private int productId;
+        private String category;
 
-        public DiscountProduct(int productId, int amount, double price) {
+        public DiscountProduct(int productId, String category, int amount, double price) {
             //this.productInfo = System.getProductInfoById(productId);
             this.productId = productId;
+            this.category = category;
             this.amount = amount;
             this.price = price;
         }
@@ -36,6 +38,10 @@ public class DiscountBasket {
 
         public int getProductId() {
             return productId;
+        }
+
+        public String getCategory() {
+            return category;
         }
 
         public int getAmount() {

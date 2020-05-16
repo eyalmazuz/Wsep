@@ -26,7 +26,7 @@ public class ProductDiscount extends SimpleDiscount {
             List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
-                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getAmount(), discountProduct.getPrice()));
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getCategory(), discountProduct.getAmount(), discountProduct.getPrice()));
             }
 
             DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
@@ -57,12 +57,17 @@ public class ProductDiscount extends SimpleDiscount {
             List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
-                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getAmount(), discountProduct.getPrice()));
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getCategory(), discountProduct.getAmount(), discountProduct.getPrice()));
             }
 
             DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
 
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
+                //java.lang.System.out.println(discountProduct.getProductId());
+                java.lang.System.out.println(System.getInstance().getProductInfoById(5));
+
+
+
                 if (System.getInstance().getProductInfoById(discountProduct.getProductId()).getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);

@@ -21,7 +21,7 @@ public class System {
     private UserHandler userHandler;
     private Map<Integer,Store> stores;
     private SystemLogger logger;
-    private static Map<Integer,ProductInfo> products;
+    private Map<Integer,ProductInfo> products;
 
     private Publisher publisher;
 
