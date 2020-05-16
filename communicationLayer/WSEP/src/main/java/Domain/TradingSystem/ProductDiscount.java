@@ -63,12 +63,7 @@ public class ProductDiscount extends SimpleDiscount {
             DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
 
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
-                //java.lang.System.out.println(discountProduct.getProductId());
-                java.lang.System.out.println(System.getInstance().getProductInfoById(5));
-
-
-
-                if (System.getInstance().getProductInfoById(discountProduct.getProductId()).getCategory().equals(categoryName)) {
+                if (discountProduct.getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);
                 }

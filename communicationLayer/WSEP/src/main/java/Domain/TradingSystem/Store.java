@@ -135,7 +135,7 @@ public class Store {
     }
 
     public PurchaseDetails savePurchase(User user, Map<ProductInfo, Integer> products) {
-        double totalPrice = getPrice(user, products);
+        double totalPrice = getPrice(user, products).getPrice();
 
         Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
         // get the ProductInfo -> integer map

@@ -105,7 +105,7 @@ public class ShoppingBasket {
         return store.getProductPrice(productId);
     }
 
-    public void setProducts(Map<Integer, Integer> products) {
+    public void setProducts(Map<ProductInfo, Integer> products) {
         this.products = products;
     }
 }
