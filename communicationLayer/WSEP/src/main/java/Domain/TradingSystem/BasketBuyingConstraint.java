@@ -48,7 +48,7 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
         public boolean canBuy(ShoppingBasket basket) {
             int totalAmount = 0;
-            Map<Integer, Integer> products = basket.getProducts();
+            Map<ProductInfo, Integer> products = basket.getProducts();
             for (Integer productAmount: products.values()) {
                 totalAmount += productAmount;
                 if (totalAmount >= maxAmount) return false;
