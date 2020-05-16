@@ -448,6 +448,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(0);
         test.openStore(sessionId);
 
+        test.removeProduct(4);
+        test.removeProduct(5);
 
         test.addProductInfo(4, "bamba", "snacks");
         test.addProductInfo(5, "apple", "fruits");
@@ -546,6 +548,8 @@ public class SystemTests extends TestCase {
 
         assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20 * 0.5, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
+        test.removeProduct(4);
+        test.removeProduct(5);
 
     }
 
@@ -555,6 +559,10 @@ public class SystemTests extends TestCase {
         test.addStore();
         Store store1 = test.getStores().get(0);
         test.openStore(sessionId);
+
+        Map<Integer, ProductInfo> originalProducts = test.getProducts();
+        test.removeProduct(4);
+        test.removeProduct(5);
 
         test.addProductInfo(4, "bamba", "snacks");
         test.addProductInfo(5, "apple", "fruits");
@@ -617,6 +625,11 @@ public class SystemTests extends TestCase {
 
         assertEquals(0.5*5*10 + 10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscounts();
+        test.removeProduct(4);
+        test.removeProduct(5);
+
+        test.setProducts(originalProducts);
+
 
     }
 }
