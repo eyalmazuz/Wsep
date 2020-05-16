@@ -43,8 +43,8 @@ public class ShoppingBasket {
     }
 
     // usecase 2.8.1
-    public boolean checkBuyingPolicy(User user) {
-        return store.checkPurchaseValidity(user);
+    public boolean checkBuyingPolicy(User user, ShoppingBasket basket) {
+        return store.checkPurchaseValidity(user, basket);
     }
 
     public DoubleActionResultDTO getTotalPrice(User user) {
