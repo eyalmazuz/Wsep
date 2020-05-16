@@ -14,26 +14,22 @@ async function startSystem(){
     //     // Chrome requires returnValue to be set.
     //     event.returnValue = '';
 
-    //     localStorage.clear()
+    //     sessionStorage.clear()
     //   });
       
 
-    if(!('sessionId' in localStorage)){
+    if(!('sessionId' in sessionStorage)){
         getSessionId()
     }
     await fetch("https://localhost:8443/setup?supplyConfig=supplyConfig&paymentConfig=paymentConfig")
-        if(!('loggedin' in localStorage)){
-        localStorage['loggedin'] = false
+        if(!('loggedin' in sessionStorage)){
+        sessionStorage['loggedin'] = false
     }
 
-    if(!('productID' in localStorage)){
-        localStorage['productID'] = 0
+    if(!('isAdmin' in sessionStorage)){
+        sessionStorage['isAdmin'] = false
     }
-
-    if(!('isAdmin' in localStorage)){
-        localStorage['isAdmin'] = false
-    }
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 }
@@ -42,8 +38,8 @@ async function getSessionId(){
 
     await fetch("https://localhost:8443/startSession")
     .then(response => response.json())
-    .then(response => localStorage['sessionId']=response['id'])
-    console.log("session id: " + localStorage['sessionId'])
+    .then(response => sessionStorage['sessionId']=response['id'])
+    console.log("session id: " + sessionStorage['sessionId'])
 
 
 }
@@ -53,7 +49,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });

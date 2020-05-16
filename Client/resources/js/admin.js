@@ -15,7 +15,7 @@ async function showViewUserHistory(){
     var result;
     subscribersURL = 'https://localhost:8443/getAllSubscribers?'
     
-    subscribersURL += 'sessionId=' + localStorage['sessionId']
+    subscribersURL += 'sessionId=' + sessionStorage['sessionId']
     
     await fetch(subscribersURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result);
@@ -43,7 +43,7 @@ async function getUserHistory(){
 
     userHistoryURL = 'https://localhost:8443/getSubscriberHistory?'
 
-    userHistoryURL += 'sessionId=' + localStorage['sessionId']
+    userHistoryURL += 'sessionId=' + sessionStorage['sessionId']
 
     var user = document.getElementById('userHistorySelect').value.split(' ')
     console.log(user)
@@ -121,7 +121,7 @@ async function showViewShopHistory(){
     var result;
     subscribersURL = 'https://localhost:8443/viewStoreProductInfo?'
 
-    subscribersURL += 'sessionId=' + localStorage['sessionId']
+    subscribersURL += 'sessionId=' + sessionStorage['sessionId']
     
     await fetch(subscribersURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result);
@@ -150,7 +150,7 @@ async function getShopHistory(){
 
     userHistoryURL = 'https://localhost:8443/getStoreHistory?'
 
-    userHistoryURL += 'sessionId=' + localStorage['sessionId']
+    userHistoryURL += 'sessionId=' + sessionStorage['sessionId']
 
     var store = document.getElementById('shopHistorySelect').value.split(' ')
     console.log(store)
@@ -209,7 +209,7 @@ async function getShopHistory(){
 }
 
 async function loadAdminPage(){
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 }
@@ -219,7 +219,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });

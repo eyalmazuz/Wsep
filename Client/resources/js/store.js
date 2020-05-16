@@ -8,7 +8,7 @@ headers = {
 
 async function viewStore(){
 
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 
@@ -20,14 +20,14 @@ async function viewStore(){
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
 
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -37,7 +37,7 @@ async function viewStore(){
     console.log(typeof(storeId))
     var storeURL = "https://localhost:8443/getStore?"
     
-    storeURL += 'sessionId=' + localStorage['sessionId']
+    storeURL += 'sessionId=' + sessionStorage['sessionId']
 
     storeURL += "&storeId=" + parseInt(storeId)
 
@@ -126,14 +126,14 @@ async function deleteProduct(idx){
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
 
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -151,7 +151,7 @@ async function deleteProduct(idx){
 
         var productId = products.rows[idx].cells[0].innerHTML
 
-        editProductURL += 'sessionId=' + localStorage['sessionId']
+        editProductURL += 'sessionId=' + sessionStorage['sessionId']
         editProductURL += "&storeId=" + storeId;
         editProductURL += "&productId=" + idx;
 
@@ -191,14 +191,14 @@ async function editProduct(idx){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -218,7 +218,7 @@ async function editProduct(idx){
 
         var productInfo = document.getElementById('productInfoText').value;
 
-        editProductURL += 'sessionId=' + localStorage['sessionId']
+        editProductURL += 'sessionId=' + sessionStorage['sessionId']
         editProductURL += "&storeId=" + storeId;
         editProductURL += "&productId=" + productId;
         editProductURL += "&info=" + productInfo;
@@ -258,14 +258,14 @@ async function addProduct(){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
 
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -283,7 +283,7 @@ async function addProduct(){
             addProductToStoreURL = 'https://localhost:8443/ManagerAddProductToStore?'
         }
 
-        addProductToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addProductToStoreURL += 'sessionId=' + sessionStorage['sessionId']
         addProductToStoreURL += "&storeId=" + storeId;
         addProductToStoreURL += "&productId=" + productId;
         addProductToStoreURL += "&amount=" + amount;
@@ -313,7 +313,7 @@ async function showAddManager(){
     var possibleManagers;
     possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
     
-    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
 
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
@@ -338,7 +338,7 @@ async function showAddOwner(){
     var possibleManagers;
     possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
     
-    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
@@ -363,7 +363,7 @@ async function showRemoveManager(){
     var possibleManagers;
     possibleManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
@@ -389,7 +389,7 @@ async function showEditManager(){
     var possibleManagers;
     possibleManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    possibleManagersURL += 'sessionId=' + localStorage['sessionId']
+    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
@@ -420,14 +420,14 @@ async function addManagerToStore(){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -438,7 +438,7 @@ async function addManagerToStore(){
         addManagerToStoreURL = 'https://localhost:8443/addStoreManager?'
 
 
-        addManagerToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addManagerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
         addManagerToStoreURL += "&storeId=" + storeId;
         var user = document.getElementById('managerSelect').value.split(' ')
         console.log(user)
@@ -470,14 +470,14 @@ async function addOwnerToStore(){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username']){
+        if(sessionStorage['username'] === manager['username']){
             type = manager['type']
         }
     }
@@ -488,7 +488,7 @@ async function addOwnerToStore(){
         addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
 
 
-        addOwnerToStoreURL += 'sessionId=' + localStorage['sessionId']
+        addOwnerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
         addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
         var user = document.getElementById('ownerSelect').value.split(' ')
         console.log(user)
@@ -522,14 +522,14 @@ async function removeManagerFromStore(){
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
         console.log(manager)
-        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+        if(sessionStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
             type = manager['type']
         }
     }
@@ -540,7 +540,7 @@ async function removeManagerFromStore(){
         removeManagerURL = 'https://localhost:8443/deleteManager?'
 
 
-        removeManagerURL += 'sessionId=' + localStorage['sessionId']
+        removeManagerURL += 'sessionId=' + sessionStorage['sessionId']
         removeManagerURL += "&storeId=" + storeId;
         var user = document.getElementById('employeeSelect').value.split(' ')
         console.log(user)
@@ -572,13 +572,13 @@ async function editManager(){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
-        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+        if(sessionStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
             type = manager['type']
         }
     }
@@ -589,7 +589,7 @@ async function editManager(){
         editManagerURL = 'https://localhost:8443/editManageOptions?'
 
 
-        editManagerURL += 'sessionId=' + localStorage['sessionId']
+        editManagerURL += 'sessionId=' + sessionStorage['sessionId']
         editManagerURL += "&storeId=" + storeId;
 
         var user = document.getElementById('editManagerSelect').value.split(' ')
@@ -624,13 +624,13 @@ async function viewStoreHistory(){
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
-    storeManagersURL += 'sessionId=' + localStorage['sessionId']
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
     await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
     console.log(managers)
     for(managerIdx in managers['subscribers']){
         manager = managers['subscribers'][managerIdx]
-        if(localStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
+        if(sessionStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
             type = manager['type']
         }
     }
@@ -641,7 +641,7 @@ async function viewStoreHistory(){
         var historyURL = 'https://localhost:8443/viewPurchaseHistory?'
 
 
-        historyURL += 'sessionId=' + localStorage['sessionId']
+        historyURL += 'sessionId=' + sessionStorage['sessionId']
         historyURL += "&storeId=" + storeId;
 
         var result;
@@ -698,7 +698,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });
