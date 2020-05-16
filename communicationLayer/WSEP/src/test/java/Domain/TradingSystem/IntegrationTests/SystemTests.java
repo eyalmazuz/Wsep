@@ -442,8 +442,13 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(0);
         test.openStore(sessionId);
 
-        ProductInfo infoBamba = test.addProductInfo(4, "bamba", "snacks");
-        ProductInfo infoApple = test.addProductInfo(5, "apple", "fruits");
+
+        test.addProductInfo(4, "bamba", "snacks");
+        test.addProductInfo(5, "apple", "fruits");
+        ProductInfo infoBamba = test.getProductInfoById(4);
+        ProductInfo infoApple = test.getProductInfoById(5);
+
+
 
         store1.addProduct(infoBamba, 10);
         store1.setProductPrice(4, 10);
@@ -547,8 +552,10 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(0);
         test.openStore(sessionId);
 
-        ProductInfo infoBamba = test.addProductInfo(4, "bamba", "snacks");
-        ProductInfo infoApple = test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks");
+        test.addProductInfo(5, "apple", "fruits");
+        ProductInfo infoBamba = test.getProductInfoById(4);
+        ProductInfo infoApple = test.getProductInfoById(5);
 
         store1.addProduct(infoBamba, 10);
         store1.setProductPrice(4, 10);

@@ -21,7 +21,7 @@ public class System {
     private UserHandler userHandler;
     private Map<Integer,Store> stores;
     private SystemLogger logger;
-    private Map<Integer,ProductInfo> products;
+    private static Map<Integer,ProductInfo> products;
 
     private Publisher publisher;
 
@@ -842,7 +842,7 @@ public class System {
     public double checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice().getPrice() : -1.0;
     }
 
     public void savePurchaseHistory(int sessionId) {
