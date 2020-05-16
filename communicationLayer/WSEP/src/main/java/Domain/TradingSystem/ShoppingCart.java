@@ -152,9 +152,8 @@ public class ShoppingCart {
 
     // 2.8 related
     public ActionResultDTO checkBuyingPolicy() {
-        boolean allowed = true;
         for (ShoppingBasket basket : shoppingBaskets) {
-            if(!basket.checkBuyingPolicy(user)) {
+            if(!basket.checkBuyingPolicy(user, basket)) {
                 return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Store " + basket.getStoreId() + " does not allow this purchase.");
             }
         }

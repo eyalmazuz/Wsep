@@ -17,6 +17,7 @@ public class User {
     private ShoppingCart shoppingCart;
     private static int idCounter = 0;
     private int id;
+    private String country = "Unknown";
 
     public User() {
         this.id = idCounter;
@@ -174,6 +175,14 @@ public class User {
 
     public List<Integer> getStoresInCart() {
         return shoppingCart.getStores();
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
     }
 }
 

@@ -130,8 +130,8 @@ public class Store {
             this.discountPolicy = policy;
     }
 
-    public boolean checkPurchaseValidity(User user, Map<ProductInfo, Integer> productAmounts) {
-        return buyingPolicy.isAllowed(user, productAmounts);
+    public boolean checkPurchaseValidity(User user, ShoppingBasket basket) {
+        return buyingPolicy.isAllowed(user, basket);
     }
 
     public PurchaseDetails savePurchase(User user, Map<ProductInfo, Integer> products) {
