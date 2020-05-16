@@ -41,17 +41,17 @@ public class CartTests extends ServiceTest {
 
 
     //USE CASE 2.7.1
-    @Test
-    public void testViewCartSuccessful(){
-        String cart = viewCart(Database.sessionId);
-       // assertEquals(cart, Database.Cart);
-        logout(Database.sessionId);
-        login(Database.sessionId, "hanamaru", "123456");
-        clearCart(Database.sessionId);
-        addToCart(Database.sessionId, Database.userToStore.get("chika"),1,5);
-        addToCart(Database.sessionId, Database.userToStore.get("chika"),2,5);
-        assertEquals(viewCart(Database.sessionId), Database.Cart);
-    }
+//    @Test
+//    public void testViewCartSuccessful(){
+//        String cart = viewCart(Database.sessionId);
+//       // assertEquals(cart, Database.Cart);
+//        logout(Database.sessionId);
+//        login(Database.sessionId, "hanamaru", "123456");
+//        clearCart(Database.sessionId);
+//        addToCart(Database.sessionId, Database.userToStore.get("chika"),1,5);
+//        addToCart(Database.sessionId, Database.userToStore.get("chika"),2,5);
+//        assertEquals(viewCart(Database.sessionId), Database.Cart);
+//    }
 
 
     //USE CASE 2.7.2
