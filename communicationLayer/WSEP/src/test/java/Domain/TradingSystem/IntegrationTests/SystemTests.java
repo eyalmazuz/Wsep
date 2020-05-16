@@ -444,14 +444,9 @@ public class SystemTests extends TestCase {
     @Test
     public void testDiscountPoliciesSimple() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int store1Id = test.addStore();
+        Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
-
-        Map<Integer, ProductInfo> originalProducts = test.getProducts();
-
-        test.removeProduct(4);
-        test.removeProduct(5);
 
         test.addProductInfo(4, "bamba", "snacks");
         test.addProductInfo(5, "apple", "fruits");
@@ -553,19 +548,14 @@ public class SystemTests extends TestCase {
         test.removeProduct(4);
         test.removeProduct(5);
 
-        test.setProducts(originalProducts);
     }
 
     @Test
     public void testDiscountPoliciesComplex() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int store1Id = test.addStore();
+        Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
-
-        Map<Integer, ProductInfo> originalProducts = test.getProducts();
-        test.removeProduct(4);
-        test.removeProduct(5);
 
         test.addProductInfo(4, "bamba", "snacks");
         test.addProductInfo(5, "apple", "fruits");
@@ -630,9 +620,6 @@ public class SystemTests extends TestCase {
         policy.clearDiscounts();
         test.removeProduct(4);
         test.removeProduct(5);
-
-        test.setProducts(originalProducts);
-
 
     }
 }
