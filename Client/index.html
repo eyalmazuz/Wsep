@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="resources/css/main.css">
+
+        <meta charset="utf-8">
+        <title>My Website</title>
+
+        <script type='text/javascript' src="resources/js/buttons.js"></script>
+        <script type='text/javascript' src="resources/js/system.js"></script>
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+    </head>
+
+    <body onload="startSystem()">
+        
+        <!-- Tittle-->
+        <header class='title'>
+            <h1 class='BigTitle'>
+                Wsep Best Trading System
+            </h1>
+        </header>
+
+        <div class="buttons">
+            
+            <button onclick="logout()" class='nav' id='logoutButton'>Logout</button>
+
+            <!-- "Button to open the modal register form -->
+            <button onclick="showRegister()" class='nav' id='registerButton'>Register</button>
+        
+            <!-- Button to open the modal login form -->
+            <button onclick="showLogin()" class='nav' id='loginButton'>Login</button>
+
+            <button onclick="location.href='stores.html'" class='nav' id='storesButton'>Stores</button>
+
+            <button type="button" class='nav' id="cartButton" onclick="location.href='cartpage.html'">Cart</button>
+
+            <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
+
+            <!-- Button to open the modal login form -->
+            <button onclick="moveToAdminPage()" class='nav' id='moveToAdmin'>Admin</button>
+
+
+
+        </div>
+        <!-- The Register Model -->
+        <div id="registerForm" class="modal">
+            <span onclick="document.getElementById('registerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input id='registerUserText' type="text" placeholder="Enter Username" name="username" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input id='registerPasswordText' type="password" placeholder="Enter Password" name="password" required>
+
+                <button type="button" onclick="register()">Register</button>
+                <label id='registerResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('registerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+         <!-- The Login Model -->
+         <div id="loginForm" class="modal">
+            <span onclick="document.getElementById('loginForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+    
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+    
+                <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
+    
+                <label for="psw"><b>Password</b></label>
+                <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
+    
+                <button type="button" onclick="login()">Login</button>
+                <label id='loginResult'></label>
+                </div>
+    
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+        
+        
+        </div>
+        <!-- The add product Model -->
+        <div id="addProductForm" class="modal">
+            <span onclick="document.getElementById('addProductForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                <label for="id"><b>Product Id</b></label>
+                <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+
+
+                <label for="name"><b>Product Name</b></label>
+                <input id='nameText' type="text" placeholder="Enter Product Name" name="productName" required>
+
+                <label for="category"><b>Product Category</b></label>
+                <input id='categoryText' type="text" placeholder="Enter Category" name="productCategory" required>
+
+                <button type="button" onclick="addProduct()">Add</button>
+                <label id='productAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('addProductForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+    </body>
+
+</html>

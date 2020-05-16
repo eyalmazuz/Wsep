@@ -6,13 +6,14 @@ public class ProductInStore {
     private int amount;
     private String info;
     private Store store;
-
+    private double price;
 
 
     public ProductInStore(ProductInfo productInfo, int amount, Store store) {
         this.productInfo = productInfo;
         this.amount = amount;
         this.store = store;
+        this.price = productInfo.getDefaultPrice();
     }
 
     public int getId() {
@@ -48,5 +49,13 @@ public class ProductInStore {
 
     public Store getStore() {
         return store;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

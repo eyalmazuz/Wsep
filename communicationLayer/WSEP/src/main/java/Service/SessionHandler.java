@@ -4,6 +4,7 @@ package Service;
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
 import Domain.TradingSystem.System;
+import NotificationPublisher.Publisher;
 
 public class SessionHandler {
 
@@ -19,5 +20,9 @@ public class SessionHandler {
 
     public IntActionResultDto startSession() {
         return system.startSession();
+    }
+
+    public void setPublisher(Publisher publisher){
+        system.setPublisher(publisher);
     }
 }

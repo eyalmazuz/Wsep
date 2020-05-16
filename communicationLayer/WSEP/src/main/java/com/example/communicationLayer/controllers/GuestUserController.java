@@ -11,7 +11,7 @@ public class GuestUserController {
 
     @GetMapping("/login")
     @ResponseBody
-    public ActionResultDTO login(
+    public IntActionResultDto login(
             @RequestParam(value = "sessionId", defaultValue = "-1") int sessionId,
             @RequestParam(value = "username", defaultValue = "") String username,
             @RequestParam(value = "password", defaultValue = "") String password) {
@@ -103,6 +103,12 @@ public class GuestUserController {
     @ResponseBody
     public StoreActionResultDTO viewStoreProductInfo() {
         return guestUserHandler.viewStoreProductInfo();
+    }
+
+    @GetMapping("/getStore")
+    @ResponseBody
+    public StoreActionResultDTO viewStoreProductInfo(@RequestParam(value = "storeId", defaultValue = "-1") int storeId) {
+        return guestUserHandler.getStore(storeId);
     }
 
     @GetMapping("/viewCart")

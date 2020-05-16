@@ -3,6 +3,7 @@ package com.example.communicationLayer.controllers;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.SubscriberActionResultDTO;
 import DTOs.UserPurchaseHistoryDTO;
 import Service.SubscriberStateHandler;
 import org.springframework.web.bind.annotation.*;
@@ -20,19 +21,26 @@ public class SubscriberStateController {
 
     @GetMapping("/logout")
     @ResponseBody
-    public ActionResultDTO logout(){
-        return subscriberStateHandler.logout();
+    public ActionResultDTO logout(@RequestParam(value = "sessionId", defaultValue = "") int sessionId){
+        return new SubscriberStateHandler(sessionId).logout();
     }
 
     @GetMapping("/openStore")
     @ResponseBody
-    public IntActionResultDto openStore(){
-        return subscriberStateHandler.openStore();
+    public IntActionResultDto openStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId){
+        return new SubscriberStateHandler(sessionId).openStore();
     }
 
     @GetMapping("/getHistory")
     @ResponseBody
-    public UserPurchaseHistoryDTO getHistory(){
-        return subscriberStateHandler.getHistory();
+    public UserPurchaseHistoryDTO getHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId){
+        return new SubscriberStateHandler(sessionId).getHistory();
+    }
+
+    @GetMapping("/getAllManagers")
+    @ResponseBody
+    public SubscriberActionResultDTO getManagers(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                 @RequestParam(value = "storeId",defaultValue = "-1") int storeId){
+        return new SubscriberStateHandler(sessionId).getAllManagers(storeId);
     }
 }
