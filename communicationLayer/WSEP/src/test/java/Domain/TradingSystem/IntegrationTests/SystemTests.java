@@ -448,6 +448,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(0);
         test.openStore(sessionId);
 
+        Map<Integer, ProductInfo> originalProducts = test.getProducts();
+
         test.removeProduct(4);
         test.removeProduct(5);
 
@@ -551,6 +553,7 @@ public class SystemTests extends TestCase {
         test.removeProduct(4);
         test.removeProduct(5);
 
+        test.setProducts(originalProducts);
     }
 
     @Test
