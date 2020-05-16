@@ -61,19 +61,19 @@ public class User {
         }
     }
 
-    public ActionResultDTO addProductToCart(Store store, int productId, int amount) {
+    public ActionResultDTO addProductToCart(Store store, ProductInfo product, int amount) {
         if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.addProduct(store, productId, amount);
+        return shoppingCart.addProduct(store, product, amount);
     }
 
-    public ActionResultDTO editCartProductAmount(Store store, int productId, int newAmount) {
+    public ActionResultDTO editCartProductAmount(Store store, ProductInfo product, int newAmount) {
         if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.editProduct(store, productId, newAmount);
+        return shoppingCart.editProduct(store, product, newAmount);
     }
 
-    public ActionResultDTO removeProductFromCart(Store store, int productId) {
+    public ActionResultDTO removeProductFromCart(Store store, ProductInfo product) {
         if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.removeProductFromCart(store, productId);
+        return shoppingCart.removeProductFromCart(store, product);
     }
 
     public ActionResultDTO removeAllProductsFromCart() {

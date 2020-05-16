@@ -12,7 +12,7 @@ public class BuyingPolicy {
         this.details = details;
     }
 
-    public boolean isAllowed(User user, Map<Integer, Integer> productAmounts) {
+    public boolean isAllowed(User user, Map<ProductInfo, Integer> productAmounts) {
         if (details.equals("No one is allowed")) return false;
         return true;
     }

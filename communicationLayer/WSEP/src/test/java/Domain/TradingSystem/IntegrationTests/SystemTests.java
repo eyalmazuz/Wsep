@@ -78,12 +78,13 @@ public class SystemTests extends TestCase {
     public void testCheckSuppliesAndGetPrice() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 5);
+        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(pi4 , 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, pi4, 4);
         assertEquals(test.checkSuppliesAndGetPrice(sessionId), 0.0);
 
-        u.addProductToCart(store1, 4, 10);
+        u.addProductToCart(store1, pi4, 10);
         assertEquals(test.checkSuppliesAndGetPrice(sessionId), -1.0);
     }
 
@@ -93,9 +94,10 @@ public class SystemTests extends TestCase {
 
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 5);
+        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(pi4, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, pi4, 4);
         u.setState(new Subscriber());
 
         try {
@@ -108,7 +110,7 @@ public class SystemTests extends TestCase {
 
         // make sure nothing was changed
         assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
-        assertTrue(store1.getStorePurchaseHistory().getPurchaseHistory().isEmpty());
+        assertTrue(store1.getStorePurchaseHistory().isEmpty());
         assertEquals(store1.getProductAmount(4), 5);
         assertNotNull(u.getShoppingCart().getStoreProductsIds().get(store1.getId()));
         assertEquals((int) u.getShoppingCart().getStoreProductsIds().get(store1.getId()).get(4), 4);
@@ -121,7 +123,7 @@ public class SystemTests extends TestCase {
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
 
         u.setState(new Subscriber());  // so it should indeed be saved
         u.saveCurrentCartAsPurchase();
@@ -131,7 +133,7 @@ public class SystemTests extends TestCase {
         PurchaseDetails details = map.get(store1).get(0);
         assertEquals((int)details.getProducts().get(info), 4);
 
-        List<PurchaseDetails> storeHistory = store1.getStorePurchaseHistory().getPurchaseHistory();
+        List<PurchaseDetails> storeHistory = store1.getStorePurchaseHistory();
         assertEquals(storeHistory.size(), 1);
         details = storeHistory.get(0);
         assertEquals((int)details.getProducts().get(info), 4);
@@ -145,7 +147,7 @@ public class SystemTests extends TestCase {
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
 
         test.updateStoreSupplies(sessionId);
         // after this the store should have 4 less lambda
@@ -160,7 +162,7 @@ public class SystemTests extends TestCase {
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
 
         test.saveOngoingPurchaseForUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeProductIds = test.getOngoingPurchases().get(sessionId);
@@ -177,7 +179,7 @@ public class SystemTests extends TestCase {
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
         try {
             test.setSupplyHandler(new SupplyHandler("None"));
@@ -200,7 +202,7 @@ public class SystemTests extends TestCase {
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
         test.updateStoreSupplies(sessionId); // this REMOVES the items. now we wanna return them
 
@@ -217,7 +219,7 @@ public class SystemTests extends TestCase {
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
 
         test.savePurchaseHistory(sessionId); // this saves history, now we wanna see it gone
@@ -231,11 +233,12 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id =test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        test.addProductInfo(4, "lambda", "snacks");
+        ProductInfo info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
 
         test.emptyCart(sessionId); // empty the cart, now we wanna see it back
@@ -255,7 +258,7 @@ public class SystemTests extends TestCase {
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId); // now remove it
 
         test.removeOngoingPurchase(sessionId);
@@ -267,11 +270,13 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        test.addProductInfo(4,"lambda","snacks");
+        ProductInfo info = test.getProductInfoById(4);
+
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
 
         try {
             test.setSupplyHandler(new SupplyHandler("none"));
@@ -289,10 +294,10 @@ public class SystemTests extends TestCase {
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
-        u.editCartProductAmount(store1, 4, 6);
+        u.editCartProductAmount(store1, info, 6);
         double price = test.checkSuppliesAndGetPrice(sessionId);
         assertEquals(price, -1.0);
-        u.editCartProductAmount(store1, 4, 4);
+        u.editCartProductAmount(store1, info, 4);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
         price = test.checkSuppliesAndGetPrice(sessionId);
@@ -340,7 +345,7 @@ public class SystemTests extends TestCase {
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
         return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
-            store.getStorePurchaseHistory().getPurchaseHistory().isEmpty() &&
+            store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
             u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
             (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
@@ -416,7 +421,7 @@ public class SystemTests extends TestCase {
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
-        u.addProductToCart(store1, 4, 4);
+        u.addProductToCart(store1, info, 4);
 
         try {
             test.setSupplyHandler(new SupplyHandler("Mock Config"));

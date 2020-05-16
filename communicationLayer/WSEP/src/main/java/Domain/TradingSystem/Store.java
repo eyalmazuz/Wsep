@@ -3,10 +3,7 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -17,7 +14,9 @@ public class Store {
     private int id;
     private List<ProductInStore> products;
     private List <Subscriber> managers;
-    private StorePurchaseHistory storePurchaseHistory;
+
+    private List<PurchaseDetails> purchaseHistory;
+
     private BuyingPolicy buyingPolicy;
     private DiscountPolicy discountPolicy;
     private int nextPurchaseId = 0;
@@ -33,7 +32,8 @@ public class Store {
         products = new LinkedList<>();
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy();
-        storePurchaseHistory = new StorePurchaseHistory(this);
+        purchaseHistory = new ArrayList<>();
+        //storePurchaseHistory = new StorePurchaseHistory(this);
     }
 
     public int getId() {
@@ -115,8 +115,8 @@ public class Store {
         }
         return managers_;
     }
-    public StorePurchaseHistory getStorePurchaseHistory(){
-        return storePurchaseHistory;
+    public List<PurchaseDetails> getStorePurchaseHistory(){
+        return purchaseHistory;
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
@@ -129,20 +129,26 @@ public class Store {
             this.discountPolicy = policy;
     }
 
-    public boolean checkPurchaseValidity(User user, Map<Integer, Integer> productAmounts) {
+    public boolean checkPurchaseValidity(User user, Map<ProductInfo, Integer> productAmounts) {
         return buyingPolicy.isAllowed(user, productAmounts);
     }
 
-    public PurchaseDetails savePurchase(User user, Map<Integer, Integer> products) {
+    public PurchaseDetails savePurchase(User user, Map<ProductInfo, Integer> products) {
         double totalPrice = getPrice(user, products);
 
         Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
         // get the ProductInfo -> integer map
-        for (Integer productId : products.keySet()) {
-            productInfoIntegerMap.put(getProductInfoByProductId(productId), products.get(productId));
+        for (ProductInfo product : products.keySet()) {
+            productInfoIntegerMap.put(product, products.get(product));
         }
-        PurchaseDetails details = storePurchaseHistory.addPurchase(nextPurchaseId, user, productInfoIntegerMap, totalPrice);
+        PurchaseDetails details = addPurchase(nextPurchaseId, user, productInfoIntegerMap, totalPrice);
         nextPurchaseId++;
+        return details;
+    }
+
+    public PurchaseDetails addPurchase(int purchaseId, User user, Map<ProductInfo, Integer> products, double price) {
+        PurchaseDetails details = new PurchaseDetails(purchaseId, user, this, products, price);
+        purchaseHistory.add(details);
         return details;
     }
 
@@ -154,7 +160,7 @@ public class Store {
     }
 
     public void cancelPurchase(PurchaseDetails purchaseDetails) {
-        storePurchaseHistory.removePurchase(purchaseDetails);
+        purchaseHistory.remove(purchaseDetails);
     }
 
     public int getProductAmount(Integer productId) {
@@ -270,11 +276,11 @@ public class Store {
         return managers;
     }
 
-    public double getPrice(User user, Map<Integer, Integer> products) {
+    public double getPrice(User user, Map<ProductInfo, Integer> products) {
         return discountPolicy.getProductPrice(user, products);
     }
 
     public void removeLastHistoryItem() {
-        storePurchaseHistory.removeLastItem();
+        purchaseHistory.remove(purchaseHistory.size() - 1);
     }
 }
