@@ -196,8 +196,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testRestoreSupplies() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id = test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -212,8 +212,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testRestoreHistories() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id = test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -230,8 +230,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testRestoreCart() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id =test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -250,8 +250,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testRemoveOngoingPurchase() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id = test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -266,8 +266,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testEntirePurchaseProcessFailure() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id = test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -411,8 +411,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testGetHistory() {
         int sessionId = test.startSession().getId();
-        test.addStore();
-        Store store1 = test.getStores().get(0);
+        int id = test.addStore();
+        Store store1 = test.getStores().get(id);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks");
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);

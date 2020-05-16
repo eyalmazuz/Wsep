@@ -3,6 +3,7 @@ package Service;
 import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
 import DTOs.StorePurchaseHistoryDTO;
+import DTOs.SubscriberActionResultDTO;
 import Domain.TradingSystem.System;
 
 
@@ -35,6 +36,12 @@ public class OwnerHandler {
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
+    }
+
+    public SubscriberActionResultDTO getPossibleManagers(int storeId){
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new SubscriberActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.",null);
+        else
+            return s.getAvailableUsersToOwn(storeId);
     }
 
     //Usecase 4.3
@@ -98,6 +105,10 @@ public class OwnerHandler {
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only owners can use this functionality.");
     }
+
+
+
+
 
 
 

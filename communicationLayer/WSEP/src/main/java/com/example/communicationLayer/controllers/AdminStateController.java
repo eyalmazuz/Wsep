@@ -1,6 +1,8 @@
 package com.example.communicationLayer.controllers;
 
+import DTOs.ActionResultDTO;
 import DTOs.StorePurchaseHistoryDTO;
+import DTOs.SubscriberActionResultDTO;
 import DTOs.UserPurchaseHistoryDTO;
 import Service.AdminStateHandler;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +21,23 @@ public class AdminStateController {
 
     @GetMapping("/getSubscriberHistory")
     @ResponseBody
-    public UserPurchaseHistoryDTO getSubscriberHistory(@RequestParam(value = "subId", defaultValue = "") int subId){
-        return adminStateHandler.getSubscriberHistory(subId);
+    public UserPurchaseHistoryDTO getSubscriberHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                       @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new AdminStateHandler(sessionId).getSubscriberHistory(subId);
     }
 
     @GetMapping("/getStoreHistory")
     @ResponseBody
-    public StorePurchaseHistoryDTO getStoreHistory(@RequestParam(value = "storeId", defaultValue = "") int storeId){
-        return adminStateHandler.getStoreHistory(storeId);
+    public StorePurchaseHistoryDTO getStoreHistory(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                                    @RequestParam(value = "storeId", defaultValue = "") int storeId){
+        return new AdminStateHandler(sessionId).getStoreHistory(storeId);
     }
     @GetMapping("/addProductInfo")
-    public void addProductInfo(@RequestParam(value = "id", defaultValue = "") int id,
-                               @RequestParam(value = "name", defaultValue = "") String name,
-                                @RequestParam(value = "category", defaultValue = "") String category){
-        adminStateHandler.addProductInfo(id,name,category);
+    public ActionResultDTO addProductInfo(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                          @RequestParam(value = "id", defaultValue = "") int id,
+                                          @RequestParam(value = "name", defaultValue = "") String name,
+                                          @RequestParam(value = "category", defaultValue = "") String category){
+         return new AdminStateHandler(sessionId).addProductInfo(id,name,category);
 
    }
 
