@@ -20,7 +20,7 @@ async function searchProducts() {
     console.log(productItemRating)
     console.log(productStoreRating)
 
-    searchURL += '?sessionId=' + localStorage['sessionId']
+    searchURL += '?sessionId=' + sessionStorage['sessionId']
     if (productName != undefined) {
         searchURL += "&productName=" + productName
     }
@@ -86,7 +86,7 @@ async function addToCart(idx) {
 
     var products = document.getElementById('productTable')
 
-    var sessionId = localStorage['sessionId']
+    var sessionId = sessionStorage['sessionId']
     var storeId = products.rows[parseInt(idx) + 1].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx) + 1].cells[1].innerHTML
     var amount = products.rows[parseInt(idx) + 1].cells[6].children[0].value
@@ -114,7 +114,7 @@ async function addToCart(idx) {
 }
 
 async function loadSearchPage(){
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 }
@@ -125,7 +125,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });

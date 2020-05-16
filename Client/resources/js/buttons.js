@@ -12,7 +12,7 @@ async function register(){
 
         var password = document.getElementById("registerPasswordText").value;
 
-        registerURL = 'https://localhost:8443/register?sessionId=' + localStorage['sessionId'] + '&username=' + username + '&password=' + password
+        registerURL = 'https://localhost:8443/register?sessionId=' + sessionStorage['sessionId'] + '&username=' + username + '&password=' + password
 
         var result; 
         await fetch(registerURL).then(response => response.json()).then(response => result = response)
@@ -42,7 +42,7 @@ async function login(){
 
         var password = document.getElementById("loginPasswordText").value;
 
-        registerURL = 'https://localhost:8443/login?sessionId=' + localStorage['sessionId'] + '&username=' + username + '&password=' + password
+        registerURL = 'https://localhost:8443/login?sessionId=' + sessionStorage['sessionId'] + '&username=' + username + '&password=' + password
 
         var result; 
         await fetch(registerURL).then(response => response.json()).then(response => result = response)
@@ -51,12 +51,12 @@ async function login(){
 
         if (result['resultCode'] === 'SUCCESS'){
             
-            localStorage['loggedin'] = true
-            localStorage['username'] = username
-            localStorage['subId'] = result['id']
+            sessionStorage['loggedin'] = true
+            sessionStorage['username'] = username
+            sessionStorage['subId'] = result['id']
             connect()
             if(username === 'admin' && password === "admin"){
-                localStorage['isAdmin'] = true
+                sessionStorage['isAdmin'] = true
             }
             document.getElementById('loginForm').style.display = 'none'
             document.getElementById("loginUserText").value = ''
@@ -79,7 +79,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });
@@ -100,17 +100,17 @@ function showGreeting(message) {
 
 async function logout(){
 
-    if(localStorage['loggedin'] === 'false'){
+    if(sessionStorage['loggedin'] === 'false'){
         console.log('popup')
         alert("Can't logout when not logged in");
     }
     else{
         var logoutURL = "https://localhost:8443/logout?"
 
-        logoutURL += 'sessionId=' + localStorage['sessionId']
+        logoutURL += 'sessionId=' + sessionStorage['sessionId']
 
-        if(localStorage['isAdmin'] === 'true'){
-            localStorage['isAdmin'] = false
+        if(sessionStorage['isAdmin'] === 'true'){
+            sessionStorage['isAdmin'] = false
         }
 
         var result; 
@@ -118,8 +118,8 @@ async function logout(){
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             alert("successfully logged out")
-            localStorage['loggedin'] = false
-            localStorage['username'] = ''
+            sessionStorage['loggedin'] = false
+            sessionStorage['username'] = ''
 
         }
     }
@@ -127,7 +127,7 @@ async function logout(){
 
 
 function showLogin(){
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         console.log('popup')
         alert("Can't login already logged in");
     }
@@ -137,7 +137,7 @@ function showLogin(){
 }
 
 function showRegister(){
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         alert("Can't register already logged in");
     }
     else{
@@ -149,13 +149,13 @@ function showRegister(){
 async function openStore(){
     var result;
 
-    if(localStorage['loggedin'] === 'false'){
+    if(sessionStorage['loggedin'] === 'false'){
         alert("To open a store you need to be logged in")
     }
     else{
         openStoreURL = "https://localhost:8443/openStore?"
         
-        openStoreURL += 'sessionId=' + localStorage['sessionId']
+        openStoreURL += 'sessionId=' + sessionStorage['sessionId']
         await fetch(openStoreURL, headers).then(response => response.json()).then(response => result = response)
         alert("successfully openned store")
         location.reload()
@@ -165,7 +165,7 @@ async function openStore(){
 
 
 function showAddProduct(){
-    if(localStorage['isAdmin'] === 'false'){
+    if(sessionStorage['isAdmin'] === 'false'){
         alert("Only Admins can add products to the system");
     }
     else{
@@ -178,12 +178,11 @@ async function addProduct(){
 
         addProductURL = "https://localhost:8443/addProductInfo?";
         
-        localStorage['productID'] = parseInt(localStorage['productID']) + 1;
         var name = document.getElementById("nameText").value
         var category = document.getElementById("categoryText").value
         var productId = document.getElementById('idText').value
 
-        addProductURL += 'sessionId=' + localStorage['sessionId']
+        addProductURL += 'sessionId=' + sessionStorage['sessionId']
         addProductURL += '&id=' + productId
         addProductURL += '&name=' + name
         addProductURL += '&category=' + category
@@ -210,7 +209,7 @@ async function addProduct(){
 
 
 async function moveToAdminPage(){
-    if(localStorage['isAdmin'] === 'true'){
+    if(sessionStorage['isAdmin'] === 'true'){
         location.href = 'admin.html'
     }
     else{

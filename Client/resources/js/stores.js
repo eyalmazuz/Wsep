@@ -15,7 +15,7 @@ async function viewStores(){
     if (stores['resultCode'] === 'SUCCESS'){
         buildStoresTable(stores)
     }
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 }
@@ -25,7 +25,7 @@ async function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (greeting) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (greeting) {
             showGreeting(JSON.parse(greeting.body).content);
         });
     });
@@ -93,7 +93,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });

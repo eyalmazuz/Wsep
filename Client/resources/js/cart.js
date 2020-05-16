@@ -8,7 +8,7 @@ headers = {
 async function loadpage(){
     viewCart()
     getHisotry();
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
 }
@@ -18,7 +18,7 @@ async function viewCart(){
     cartURL = 'https://localhost:8443/viewCart'
 
 
-    cartURL += '?sessionId=' + localStorage['sessionId']
+    cartURL += '?sessionId=' + sessionStorage['sessionId']
     
     var result;
     await fetch(cartURL, headers).then(response => response.json()).then(response => result = response)
@@ -74,7 +74,7 @@ async function deleteProduct(idx){
     
     var products = document.getElementById('cartTable')
 
-    var sessionId = localStorage['sessionId']
+    var sessionId = sessionStorage['sessionId']
     var storeId = products.rows[parseInt(idx)].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx)].cells[1].innerHTML
     console.log(storeId)
@@ -106,7 +106,7 @@ async function editProduct(idx){
     
     var products = document.getElementById('cartTable')
 
-    var sessionId = localStorage['sessionId']
+    var sessionId = sessionStorage['sessionId']
     var storeId = products.rows[parseInt(idx)].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx)].cells[1].innerHTML
     var amount = products.rows[parseInt(idx)].cells[3].children[0].value
@@ -135,7 +135,7 @@ async function editProduct(idx){
 async function clearCart(){
 
     clearCartURL = 'https://localhost:8443/clearCart?'
-    var sessionId = localStorage['sessionId']
+    var sessionId = sessionStorage['sessionId']
 
     clearCartURL += "sessionId=" + sessionId;
 
@@ -165,7 +165,7 @@ async function purchaseCart(){
     else{
         requestPurchaseURL = 'https://localhost:8443/requestPurchase?'
 
-        var sessionId = localStorage['sessionId']
+        var sessionId = sessionStorage['sessionId']
 
         requestPurchaseURL += 'sessionId=' + sessionId
 
@@ -205,10 +205,10 @@ async function purchaseCart(){
 async function getHisotry(){
 
 
-    if(localStorage['loggedin'] === 'true'){
+    if(sessionStorage['loggedin'] === 'true'){
         historyURL = "https://localhost:8443/getHistory?"
         
-        historyURL += 'sessionId=' + localStorage['sessionId']
+        historyURL += 'sessionId=' + sessionStorage['sessionId']
         var result;
         await fetch(historyURL, headers).then(response => response.json()).then(response => result = response);
         console.log(result)
@@ -273,7 +273,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + localStorage['subId'], function (message) {
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             alert(message.body)
         });
     });
