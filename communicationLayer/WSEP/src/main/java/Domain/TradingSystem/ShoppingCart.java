@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 
 import java.util.*;
@@ -171,12 +172,12 @@ public class ShoppingCart {
         return !missing;
     }
 
-    public double getPrice() {
+    public DoubleActionResultDTO getPrice() {
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
-            totalPrice += basket.getTotalPrice(user);
+            totalPrice += basket.getTotalPrice(user).getPrice();
         }
-        return totalPrice;
+        return new DoubleActionResultDTO(ResultCode.SUCCESS, "get price", totalPrice);
     }
 
 

@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class ShoppingBasket {
         return store.checkPurchaseValidity(user, products);
     }
 
-    public double getTotalPrice(User user) {
+    public DoubleActionResultDTO getTotalPrice(User user) {
         return store.getPrice(user, products);
     }
 
@@ -97,5 +98,14 @@ public class ShoppingBasket {
         for (ProductInfo product : products.keySet()) {
             store.setProductAmount(product.getId(), store.getProductAmount(product.getId()) + products.get(product));
         }
+    }
+
+
+    public double getProductPrice(int productId) {
+        return store.getProductPrice(productId);
+    }
+
+    public void setProducts(Map<ProductInfo, Integer> products) {
+        this.products = products;
     }
 }

@@ -803,7 +803,7 @@ public class System {
     public ActionResultDTO addProductInfo(int id, String name, String category) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category);
-        if (products.get(id) != null){
+        if (products.get(id) != null) {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
@@ -842,7 +842,7 @@ public class System {
     public double checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice().getPrice() : -1.0;
     }
 
     public void savePurchaseHistory(int sessionId) {
@@ -980,5 +980,13 @@ public class System {
     public void setPublisher(Publisher publisher) {
 
         this.publisher = publisher;
+    }
+
+    public void removeProduct(int productId) {
+        products.remove(productId);
+    }
+
+    public void setProducts(Map<Integer, ProductInfo> products) {
+        this.products = products;
     }
 }

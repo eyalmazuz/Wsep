@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 
 import java.util.List;
@@ -142,7 +143,7 @@ public class User {
         return shoppingCart.checkStoreSupplies();
     }
 
-    public double getShoppingCartPrice() {
+    public DoubleActionResultDTO getShoppingCartPrice() {
         return shoppingCart.getPrice();
     }
 
