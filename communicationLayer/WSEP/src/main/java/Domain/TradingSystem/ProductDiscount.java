@@ -26,13 +26,13 @@ public class ProductDiscount extends SimpleDiscount {
             List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
-                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductInfo().getId(), discountProduct.getAmount(), discountProduct.getPrice()));
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getAmount(), discountProduct.getPrice()));
             }
 
             DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
 
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
-                if (discountProduct.getProductInfo().getId() == productId) {
+                if (discountProduct.getProductId() == productId) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);
                 }
@@ -57,13 +57,13 @@ public class ProductDiscount extends SimpleDiscount {
             List<DiscountBasket.DiscountProduct> resDiscountProducts = new ArrayList<>();
 
             for (DiscountBasket.DiscountProduct discountProduct: discountProducts) {
-                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductInfo().getId(), discountProduct.getAmount(), discountProduct.getPrice()));
+                resDiscountProducts.add(new DiscountBasket.DiscountProduct(discountProduct.getProductId(), discountProduct.getAmount(), discountProduct.getPrice()));
             }
 
             DiscountBasket resBasket = new DiscountBasket(resDiscountProducts);
 
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
-                if (discountProduct.getProductInfo().getCategory().equals(categoryName)) {
+                if (System.getProductInfoById(discountProduct.getProductId()).getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
                     discountProduct.setPrice(salePercentage * curPrice);
                 }

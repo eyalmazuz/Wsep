@@ -14,12 +14,14 @@ public class DiscountBasket {
     }
 
     public static class DiscountProduct {
-        private ProductInfo productInfo;
+        // private ProductInfo productInfo;
         private int amount;
         private double price;
+        private int productId;
 
         public DiscountProduct(int productId, int amount, double price) {
-            this.productInfo = System.getProductInfoById(productId);
+            //this.productInfo = System.getProductInfoById(productId);
+            this.productId = productId;
             this.amount = amount;
             this.price = price;
         }
@@ -28,8 +30,12 @@ public class DiscountBasket {
             return price;
         }
 
-        public ProductInfo getProductInfo() {
-            return productInfo;
+//        public ProductInfo getProductInfo() {
+//            return productInfo;
+//        }
+
+        public int getProductId() {
+            return productId;
         }
 
         public int getAmount() {
