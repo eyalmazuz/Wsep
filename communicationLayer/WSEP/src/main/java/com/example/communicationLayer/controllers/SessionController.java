@@ -28,6 +28,13 @@ public class SessionController {
 
     }
 
+    @PostMapping("/notificationAck")
+    @ResponseBody
+    public void notificationAck(@RequestParam(value = "subId",defaultValue = "-1") int subId,
+                                @RequestParam(value = "notification", defaultValue = "-1")int notificationId){
+        sessionHandler.notoficationAck(subId,notificationId);
+    }
+
 
 
 

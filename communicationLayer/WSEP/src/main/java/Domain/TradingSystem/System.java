@@ -5,15 +5,16 @@ import DTOs.SimpleDTOS.*;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
-import Domain.Util.Pair;
 import NotificationPublisher.Publisher;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class System {
 
     private static System instance = null;
+    private static int notificationId = 0;
 
 
     private SupplyHandler supplyHandler;
@@ -147,10 +148,7 @@ public class System {
             Store newStore = u.openStore();
             if (newStore != null) {
                 stores.put(newStore.getId(),newStore);
-                //Publisher update
-                if(publisher != null)
-                    publisher.addManager(newStore.getId(), ((Subscriber)u.getState()).getId());
-                //
+
                 return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
 
@@ -204,8 +202,12 @@ public class System {
                 ActionResultDTO result = store.addProduct(info, ammount);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null)
-                        publisher.notifyStore(storeId);
+                    if(publisher != null) {
+                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
+                        updateAllUsers(store.getAllManagers(),notification);
+                        publisher.notify(managers,notification);
+                    }
                 }
                 return result;
             }
@@ -223,8 +225,13 @@ public class System {
                 ActionResultDTO result =  store.editProduct(productId, newInfo);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null)
-                        publisher.notifyStore(storeId);
+                    if(publisher != null) {
+                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                        String message = "Store " + storeId + " has been updated: product has been edited";
+                        Notification notification = new Notification(notificationId++,message);
+                        updateAllUsers(store.getAllManagers(),notification);
+                        publisher.notify(managers,notification);
+                    }
                 }
                 return result;
             }
@@ -243,7 +250,12 @@ public class System {
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
                     if(publisher != null)
-                        publisher.notifyStore(storeId);
+                    {
+                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
+                        updateAllUsers(store.getAllManagers(),notification);
+                        publisher.notify(managers,notification);
+                    }
                 }
                 return result;
             }
@@ -299,10 +311,7 @@ public class System {
         {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
-                //Publisher update
-                if(publisher != null)
-                    publisher.addManager(s.getId(), subId);
-                //
+
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
 
@@ -337,10 +346,7 @@ public class System {
         if (store != null) {
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
-                //Publisher Update
-                if(publisher != null)
-                    publisher.addManager(store.getId(), userId);
-                //
+
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
         }
@@ -367,10 +373,7 @@ public class System {
                     if (store != null) {
                         managerToDelete.removePermission(store, "Manager");
                         store.removeManger(managerToDelete);
-                        //Publisher update
-                        if(publisher != null)
-                            publisher.deleteManager(store.getId(),managerToDelete.getId());
-                        //
+
                         return new ActionResultDTO(ResultCode.SUCCESS, null);
                     }
                 }
@@ -523,6 +526,9 @@ public class System {
         if (subToLogin != null) {
 
             u.setState(subToLogin);
+
+
+
             return true;
         }
 
@@ -866,7 +872,16 @@ public class System {
 
     private void notifyStoreOwners(List<Integer> storesInCart) {
         for(int storeId:storesInCart){
-            publisher.notifyStore(storeId);
+            List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+            Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
+            updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
+            publisher.notify(managers,notification);
+        }
+    }
+
+    private void updateAllUsers(List<Subscriber> users, Notification message) {
+        for(Subscriber subscriber : users){
+            subscriber.setNotification(message);
         }
     }
 
@@ -988,5 +1003,27 @@ public class System {
 
     public void setProducts(Map<Integer, ProductInfo> products) {
         this.products = products;
+    }
+
+    public void removeNotification(int subId, int notificationId) {
+        Subscriber subscriber = userHandler.getSubscriber(subId);
+        if(subscriber!=null){
+            subscriber.removeNotification(notificationId);
+        }
+    }
+
+    //publisher update
+    public void pullNotifications(int subId) {
+        Subscriber subToLogin = userHandler.getSubscriber(subId);
+        if (subToLogin != null) {
+            Queue<Notification> notifications = subToLogin.getAllNotification();
+            List<Integer> user = new ArrayList<>();
+            user.add(subToLogin.getId());
+            synchronized (notifications) {
+                while (!notifications.isEmpty()) {
+                    publisher.notify(user, notifications.poll());
+                }
+            }
+        }
     }
 }

@@ -25,4 +25,8 @@ public class SessionHandler {
     public void setPublisher(Publisher publisher){
         system.setPublisher(publisher);
     }
+
+    public void notoficationAck(int subId, int notificationId) {
+        system.removeNotification(subId,notificationId);
+    }
 }
