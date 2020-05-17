@@ -5,12 +5,14 @@ public class ProductInfo {
     private String name;
     private String category;
     private double rating;
+    private double defaultPrice;
 
     public ProductInfo(int productId, String name, String category) {
         this.id = productId;
         this.name = name;
         this.category = category;
         this.rating = 2.5;
+        this.defaultPrice = 0;
     }
 
     public int getId() {
@@ -40,5 +42,9 @@ public class ProductInfo {
                 "name: " + name + '\n' +
                 "category: " + category + '\n' +
                 "rating: " + rating + "\n";
+    }
+
+    public double getDefaultPrice() {
+        return defaultPrice;
     }
 }

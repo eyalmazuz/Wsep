@@ -1,9 +1,11 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ShoppingCart {
 
@@ -23,36 +25,36 @@ public class ShoppingCart {
      *
      */
 
-    public ActionResultDTO addProduct(Store store, int productId, int amount) {
+    public ActionResultDTO addProduct(Store store, ProductInfo product, int amount) {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
-        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+        if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
-        getOrCreateBasket(store).addProduct(productId, amount);
+        getOrCreateBasket(store).addProduct(product, amount);
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
-    public ActionResultDTO editProduct(Store store, int productId, int newAmount) {
+    public ActionResultDTO editProduct(Store store, ProductInfo product, int newAmount) {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
-        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+        if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
         if (newAmount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
 
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.editProduct(productId, newAmount);
+            return basket.editProduct(product, newAmount);
         }
     }
 
-    public ActionResultDTO removeProductFromCart(Store store, int productId) {
+    public ActionResultDTO removeProductFromCart(Store store, ProductInfo product) {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
-        if (productId < 0) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
+        if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
 
         ShoppingBasket basket = getBasket(store);
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.removeProduct(productId);
+            return basket.removeProduct(product);
         }
     }
 
@@ -60,13 +62,29 @@ public class ShoppingCart {
         shoppingBaskets.clear();
     }
 
+    private Map<Integer,Integer> covertInfoToIds(Map <ProductInfo,Integer> infos){
+        Map<Integer,Integer> result = new ConcurrentHashMap<>();
+        for(ProductInfo product: infos.keySet()){
+            result.put(product.getId(),infos.get(product));
+        }
+        return result;
+    }
 
     public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {
         Map<Integer, Map<Integer, Integer>> storeProductsIds = new HashMap<>();
         for (ShoppingBasket basket : shoppingBaskets) {
-            storeProductsIds.put(basket.getStoreId(), basket.getProducts());
+            storeProductsIds.put(basket.getStoreId(), covertInfoToIds(basket.getProducts()));
         }
         return storeProductsIds;
+    }
+
+
+    public Map<Integer, Map<Integer, Integer>> getPrimitiveDetails() {
+        Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
+        for (ShoppingBasket basket : shoppingBaskets) {
+            map.put(basket.getStoreId(), covertInfoToIds(basket.getProducts()));
+        }
+        return map;
     }
 
 
@@ -134,9 +152,8 @@ public class ShoppingCart {
 
     // 2.8 related
     public ActionResultDTO checkBuyingPolicy() {
-        boolean allowed = true;
         for (ShoppingBasket basket : shoppingBaskets) {
-            if(!basket.checkBuyingPolicy(user)) {
+            if(!basket.checkBuyingPolicy(user, basket)) {
                 return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Store " + basket.getStoreId() + " does not allow this purchase.");
             }
         }
@@ -154,12 +171,12 @@ public class ShoppingCart {
         return !missing;
     }
 
-    public double getPrice() {
+    public DoubleActionResultDTO getPrice() {
         double totalPrice = 0;
         for (ShoppingBasket basket : shoppingBaskets) {
-            totalPrice += basket.getTotalPrice(user);
+            totalPrice += basket.getTotalPrice(user).getPrice();
         }
-        return totalPrice;
+        return new DoubleActionResultDTO(ResultCode.SUCCESS, "get price", totalPrice);
     }
 
 
@@ -189,13 +206,7 @@ public class ShoppingCart {
         return true;
     }
 
-    public Map<Integer, Map<Integer, Integer>> getPrimitiveDetails() {
-        Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
-            map.put(basket.getStoreId(), basket.getProducts());
-        }
-        return map;
-    }
+
 
     public List<Integer> getStores() {
         List<Integer> storeIds = new ArrayList<>();

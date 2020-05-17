@@ -454,9 +454,9 @@ public class System {
         logger.info("getStoreHistory: storeId "+storeId);
         Store s = getStoreById(storeId);
         if(s!=null){
-            StorePurchaseHistory history =  s.getStorePurchaseHistory();
+            List<PurchaseDetails> history =  s.getStorePurchaseHistory();
             return new StorePurchaseHistoryDTO(ResultCode.SUCCESS,"Got store history",s.getId(),
-                    getPurchasesDto(history.getPurchaseHistory()));
+                    getPurchasesDto(history));
         }
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
@@ -701,7 +701,7 @@ public class System {
 
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        result = u.addProductToCart(store, productId, amount);
+        result = u.addProductToCart(store, getProductInfoById(productId), amount);
         if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Added " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
         return result;
     }
@@ -713,7 +713,7 @@ public class System {
 
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        result = u.editCartProductAmount(store, productId, amount);
+        result = u.editCartProductAmount(store, getProductInfoById(productId), amount);
         if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("There are now " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
         return result;
     }
@@ -725,7 +725,7 @@ public class System {
 
         User u = userHandler.getUser(sessionId);
         Store store = getStoreById(storeId);
-        result = u.removeProductFromCart(store, productId);
+        result = u.removeProductFromCart(store, getProductInfoById(productId));
         if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Deleted product " + getProductInfoById(productId) + " from basket of store " + storeId);
         return result;
     }
@@ -748,10 +748,10 @@ public class System {
             List<ShoppingBasketDTO> cart = new LinkedList<>();
             ShoppingCart userCart = u.getShoppingCart();
             for(ShoppingBasket basket: userCart.getBaskets()){
-                Map<Integer,Integer> productMapping = basket.getProducts();
+                Map<ProductInfo,Integer> productMapping = basket.getProducts();
                 List<SimpProductAmountDTO> dtoProductMapping = new ArrayList<>();
-                for(Integer pid: productMapping.keySet()) {
-                    SimpProductAmountDTO simpProductAmountDTO = new SimpProductAmountDTO(pid, getProductInfoById(pid).getName(), productMapping.get(pid));
+                for(ProductInfo product: productMapping.keySet()) {
+                    SimpProductAmountDTO simpProductAmountDTO = new SimpProductAmountDTO(product.getId(),product.getName(), productMapping.get(product));
                     dtoProductMapping.add(simpProductAmountDTO);
                 }
                 cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
@@ -803,7 +803,7 @@ public class System {
     public ActionResultDTO addProductInfo(int id, String name, String category) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category);
-        if (products.get(id) != null){
+        if (products.get(id) != null) {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
@@ -842,7 +842,7 @@ public class System {
     public double checkSuppliesAndGetPrice(int sessionId) {
         logger.info("checkSuppliesAndGetPrice: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
-        return u.checkStoreSupplies() ? u.getShoppingCartPrice() : -1.0;
+        return u.checkStoreSupplies() ? u.getShoppingCartPrice().getPrice() : -1.0;
     }
 
     public void savePurchaseHistory(int sessionId) {
@@ -937,7 +937,7 @@ public class System {
             Map<Integer, Integer> productAmounts = storeProductAmounts.get(storeId);
             for (Integer productId : productAmounts.keySet()) {
                 int amount = productAmounts.get(productId);
-                u.addProductToCart(store, productId, amount);
+                u.addProductToCart(store, getProductInfoById(productId), amount);
             }
         }
     }
@@ -980,5 +980,13 @@ public class System {
     public void setPublisher(Publisher publisher) {
 
         this.publisher = publisher;
+    }
+
+    public void removeProduct(int productId) {
+        products.remove(productId);
+    }
+
+    public void setProducts(Map<Integer, ProductInfo> products) {
+        this.products = products;
     }
 }
