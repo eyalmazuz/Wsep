@@ -57,10 +57,17 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterSucsess() {
+    public void testRegisterSucsessID() {
         int prev = uh.subscribers.size();
         int id1 = uh.register("Bob","123");
         assertTrue(id1>=0);
+
+    }
+
+    @Test
+    public void testRegisterSucsessSize() {
+        int prev = uh.subscribers.size();
+        int id1 = uh.register("Bob","123");
         assertEquals(prev+1,uh.subscribers.size());
 
     }
@@ -75,9 +82,17 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testRegisterBadValues() {
+    public void testRegisterBadValues1() {
         assertEquals(-1, uh.register(null, "123"));
+    }
+
+    @Test
+    public void testRegisterBadValues2() {
         assertEquals(-1, uh.register("Yaron", null));
+    }
+
+    @Test
+    public void testRegisterBadValues3() {
         assertEquals(-1,uh.register(null,null));
     }
 
@@ -88,16 +103,26 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetUser() {
-        int prev = uh.users.size();
+    public void testGetUserSuccess() {
         int id = uh.createSession();
         assertNotNull(uh.getUser(id));
+    }
+
+    @Test
+    public void testGetUserSize() {
+        int prev = uh.users.size();
+        uh.createSession();
         assertEquals(prev+1,uh.users.size());
     }
 
     @Test
-    public void testGetUserBadValues() {
+    public void testGetUserBadValues1() {
         assertNull(uh.getUser(5));
+    }
+
+
+    @Test
+    public void testGetUserBadValues2() {
         assertNull(uh.getUser(-6));
     }
 
@@ -108,8 +133,12 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetSubscriberBadValues() {
+    public void testGetSubscriberBadValues1() {
         assertNull(uh.getSubscriber(5));
+    }
+
+    @Test
+    public void testGetSubscriberBadValues2() {
         assertNull(uh.getSubscriber(-6));
     }
 
@@ -120,17 +149,20 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetSubscriberUserBadValues() {
+    public void testGetSubscriberUserBadValues1() {
         registerSubs();
         assertNull(uh.getSubscriberUser(null,null));
-        assertNull(uh.getSubscriberUser("test","blabla"));
-
     }
 
 
     @Test
-    public void testGetAvailableUsersToOwn() {
+    public void testGetSubscriberUserBadValues2() {
+        registerSubs();
+        assertNull(uh.getSubscriberUser("test","blabla"));
+    }
 
+    @Test
+    public void testGetAvailableUsersToOwn() {
         List<Subscriber> list = prepareSubsList();
         registerSubs();
         List<Subscriber> result = uh.getAvailableUsersToOwn(list);
@@ -142,27 +174,43 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetAvailableUsersToOwnBad() {
+    public void testGetAvailableUsersToOwnBadEmpty() {
     registerSubs();
     List<Subscriber> list1 = uh.getAvailableUsersToOwn(null);
-    List<Subscriber> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
     assertTrue(list1.isEmpty());
-    assertEquals(uh.subscribers.size(),list2.size());
+    }
+
+    @Test
+    public void testGetAvailableUsersToOwnBadSize() {
+        registerSubs();
+        List<Subscriber> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
+        assertEquals(uh.subscribers.size(),list2.size());
     }
 
 
 
     @Test
-    public void testSetState() {
+    public void testSetStateSuccess() {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test", "123");
         uh.setState(id,s.getId());
         User u = uh.getUser(id);
         assertTrue(!u.isGuest());//the state has changed
+    }
+
+
+    @Test
+    public void testSetStateSuccess2() {
+        int id = uh.createSession();
+        registerSubs();
+        Subscriber s = uh.getSubscriberUser("test", "123");
+        uh.setState(id,s.getId());
+        User u = uh.getUser(id);
         Subscriber userState = (Subscriber)u.getState();
         assertEquals(s.getId(),userState.getId());//the state is the correct one
     }
+
 
 
 
@@ -173,10 +221,14 @@ public class UserHandlerTest extends TestCase {
         assertTrue(id1 != id2);
     }
 
-    public void testCreateSessionSuccess() {
-        int prev = uh.users.size();
+    public void testCreateSessionSuccessID() {
         int id = uh.createSession();
         assertTrue(id>=0);
+    }
+
+    public void testCreateSessionSuccessSize() {
+        int prev = uh.users.size();
+        uh.createSession();
         assertEquals(prev+1,uh.users.size());
     }
 }

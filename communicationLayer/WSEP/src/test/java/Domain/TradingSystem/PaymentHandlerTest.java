@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -9,23 +10,34 @@ import java.util.Map;
 public class PaymentHandlerTest extends TestCase {
 
     PaymentHandler handler;
+    Map<Integer, Map<Integer, Integer>> map;
 
-    @Test
-    public void testMakePayment() {
+    @Before
+    public void setUp(){
         try {
             handler = new PaymentHandler("Mock Config");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
+        map = new HashMap<>();
         Map<Integer, Integer> productAmounts = new HashMap<>();
         productAmounts.put(4, 5);
         map.put(1, productAmounts);
 
+    }
+    @Test
+    public void testMakePaymentFailure() {
         // bad payment details
         assertFalse(handler.makePayment(1, "Bad payment details", map));
+    }
+
+    @Test
+    public void testMakePaymentSuccess() {
+
         assertTrue(handler.makePayment(1, "Ok details", map));
     }
+
+
 
 }
