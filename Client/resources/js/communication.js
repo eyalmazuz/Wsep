@@ -1,3 +1,12 @@
+headers = {
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+}
+
+
+
 function connect() {
     var socket = new SockJS('https://localhost:8443/notifications');
     stompClient = Stomp.over(socket);
