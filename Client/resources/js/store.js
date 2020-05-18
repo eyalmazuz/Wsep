@@ -294,7 +294,6 @@ async function addProduct(){
         console.log(result)
         if(result['resultCode'] === 'SUCCESS'){
             alert('successfully added proudct ${productId}')
-            location.reload()
         }
         console.log(addProductToStoreURL)
     }
@@ -692,14 +691,27 @@ async function viewStoreHistory(){
 
 }
 
+// function connect() {
+//     var socket = new SockJS('https://localhost:8443/notifications');
+//     stompClient = Stomp.over(socket);
+//     stompClient.connect({}, function (frame) {
+//         console.log('Connected: ' + frame);
+//         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
+//             recieveNotification(message)
+//         });
+//     });
+// }
 
-function connect() {
-    var socket = new SockJS('https://localhost:8443/notifications');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-            alert(message.body)
-        });
-    });
-}
+// async function recieveNotification(message){
+//     message = JSON.parse(message.body)
+//     alert(message['massage'])
+//     var id = message['id']
+
+//     ackURL = "https://localhost:8443/notificationAck?"
+
+//     ackURL += 'subId=' + sessionStorage['subId']
+//     ackURL += '&notification=' + id
+
+//     await fetch(ackURL, headers).then(response => console.log("message sent"))
+
+// }
