@@ -28,11 +28,18 @@ public class SessionController {
 
     }
 
-    @PostMapping("/notificationAck")
+    @GetMapping("/notificationAck")
     @ResponseBody
     public void notificationAck(@RequestParam(value = "subId",defaultValue = "-1") int subId,
                                 @RequestParam(value = "notification", defaultValue = "-1")int notificationId){
+        System.out.println(String.format("received ack on notfication: %d from user: %d", notificationId, subId));
         sessionHandler.notoficationAck(subId,notificationId);
+    }
+
+    @GetMapping("/ready")
+    public void pullNotifications(@RequestParam(value = "subId", defaultValue = "-1") int subId){
+        System.out.println("pulling notification");
+        sessionHandler.pullNotifications(subId);
     }
 
 

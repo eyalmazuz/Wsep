@@ -14,7 +14,7 @@ public class GuestUserHandler {
             int subId = s.getSubscriber(username, password);
             if(subId != -1){
                 s.setState(sessionId, subId);
-                s.pullNotifications(subId);
+//                s.pullNotifications(subId);
                 return new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId);
             }
             return new IntActionResultDto(ResultCode.ERROR_LOGIN, "No such username.",-1);

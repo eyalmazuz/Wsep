@@ -29,4 +29,8 @@ public class SessionHandler {
     public void notoficationAck(int subId, int notificationId) {
         system.removeNotification(subId,notificationId);
     }
+
+    public void pullNotifications(int subId) {
+        system.pullNotifications(subId);
+    }
 }
