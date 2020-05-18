@@ -166,50 +166,6 @@ async function openStore(){
 }
 
 
-function showAddProduct(){
-    if(sessionStorage['isAdmin'] === 'false'){
-        alert("Only Admins can add products to the system");
-    }
-    else{
-        document.getElementById('addProductForm').style.display='block'
-    }
-}
-
-async function addProduct(){
-
-
-        addProductURL = "https://localhost:8443/addProductInfo?";
-        
-        var name = document.getElementById("nameText").value
-        var category = document.getElementById("categoryText").value
-        var productId = document.getElementById('idText').value
-
-        addProductURL += 'sessionId=' + sessionStorage['sessionId']
-        addProductURL += '&id=' + productId
-        addProductURL += '&name=' + name
-        addProductURL += '&category=' + category
-        console.log(addProductURL)
-        var result;
-        await fetch(addProductURL, headers).then(response => response.json()).then(response => result = response)
-        
-        if(result['resultCode'] === 'SUCCESS'){
-            alert("successfully added proudct")            
-            document.getElementById('addProductForm').style.display='none'
-            document.getElementById("nameText").value = ''
-            document.getElementById("categoryText").value = ''
-
-        }
-        else{
-            alert(result['details'])
-            document.getElementById("nameText").value = ''
-            document.getElementById("categoryText").value = ''
-        
-        }
-
-
-}
-
-
 async function moveToAdminPage(){
     if(sessionStorage['isAdmin'] === 'true'){
         location.href = 'admin.html'

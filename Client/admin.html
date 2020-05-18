@@ -30,44 +30,12 @@
             <button onclick="showViewUserHistory()" class='nav' id='storesButton'>User History</button>
 
             <!-- Button to open the modal login form -->
-            <button onclick="showAddProduct()" class='nav' id='addProductButton'>Add Product</button>
             <button onclick="location.href='index.html'" class='nav' id='homepageButton'>Homepage</button>
 
 
         
         
         </div>
-        <!-- The add product Model -->
-        <div id="addProductForm" class="modal">
-            <span onclick="document.getElementById('addProductForm').style.display='none'"
-            class="close" title="Close Modal">&times;</span>
-
-            <!-- Modal Content -->
-            <form class="modal-content animate">
-
-                <div class="container">
-                
-                <label for="id"><b>Product Id</b></label>
-                <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
-
-
-
-                <label for="name"><b>Product Name</b></label>
-                <input id='nameText' type="text" placeholder="Enter Product Name" name="productName" required>
-
-                <label for="category"><b>Product Category</b></label>
-                <input id='categoryText' type="text" placeholder="Enter Category" name="productCategory" required>
-
-                <button type="button" onclick="addProduct()">Add</button>
-                <label id='productAddResult'></label>
-                </div>
-
-                <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('addProductForm').style.display='none'" class="cancelbtn">Cancel</button>
-                </div>
-            </form>
-        </div> 
-
 
          <!-- The view User history Model -->
          <div id="viewUserHistoryForm" class="modal">

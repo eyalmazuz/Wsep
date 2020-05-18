@@ -6,13 +6,13 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="resources/css/main.css">
         <script type='text/javascript' src="resources/js/buttons.js"></script>
-        <script type="text/javascript" src="resources/js/store.js"></script>
+        <script type="text/javascript" src="resources/js/owners.js"></script>
         <script src="resources/jars/sockjs.min.js"></script>
         <script src="resources/jars/stomp.min.js"></script>
     </head>
 
 
-    <body onload='viewStore()'>
+    <body onload='viewOwners()'>
             
         <div class="buttons">
             
@@ -32,24 +32,9 @@
 
             <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
 
+            <button type="button" class='nav' id="returnButton" onclick="returnToStore()">Back To Store</button>
+
         </div>
-
-        <br>
-        <br>
-        <br>
-
-        <div name='policies'>
-            <table id='storePolicies' border="1">
-                <tr>
-                    <th>Buying Policy</th>
-                    <th>Discount Policy</th>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-
-            </table>
 
         </div>
 
@@ -57,14 +42,11 @@
         <br>
         <br>
 
-        <div name='product'>
-            <table id='storeProducts' border="1">
+        <div name='managers'>
+            <table id='managerTable' border="1">
                 <tr>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Product Category</th>
-                    <th>Product Info</th>
-                    <th>Product Amount</th>
+                    <th>Owner ID</th>
+                    <th>Owner Name</th>
                 </tr>
             </table>
         </div>
@@ -74,31 +56,11 @@
         <br>
         <div>
             <h1 id='optionTitle'>Store OPTIONS</h1>
-            <button type="button" id='productPageButton' class='nav' onclick="moveToProducts()" >Products Page</button>
-            <button type="button" id='managersPageButton' class='nav' onclick="moveToManagers()" >Managers Page</button>
-            <button type="button" id='ownersPageButton' class='nav' onclick="moveToOwners()" >Owner Page</button>
-            <button type="button" id='buyingPolicyPageButton' class='nav' onclick="moveToBuyingPolicy()" >Buying Policy Page</button>
-            <button type="button" id='discountPolicyPageButton' class='nav' onclick="moveToDiscountPolicy()" >Discount Policy Page</button>
-            <button type="button" id='storeHistoryButton' class='nav' onclick="viewStoreHistory()">view Purchase Hisotry</button>
-
+            <button type="button" id='addManager' class='nav' onclick="showAddOwner()" >Add Owner to Store</button>
         </div>
 
-        <h1 id='historyTitle'>Store Purchase Hitory</h1>
         <br>
         <br>
-        <div id='storeHistory'>
-
-            <table id='storePruchaseHistory' border="1">
-                <tr>
-                    <th>Purchase ID</th>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Amount</th>
-                    <th>Price</th>
-                </tr>
-            </table>
-
-        </div>
 
         <!-- The Register Model -->
         <div id="registerForm" class="modal">
@@ -150,6 +112,56 @@
                 </div>
             </form>
         </div> 
+
+
+        <!-- The add Owner Model -->
+        <div id="addOwnerToStoreForm" class="modal">
+            <span onclick="document.getElementById('addOwnerToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='ownerSelect'>
+
+                    </select>
+                    <button type="button" onclick="addOwnerToStore()">Add Owner</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('addOwnerToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- The remove Owner Model -->
+        <div id="removeManagerForm" class="modal">
+            <span onclick="document.getElementById('removeManagerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='employeeSelect'>
+
+                    </select>
+                    <button type="button" onclick="removeManagerFromStore()">YOU ARE FIRED</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('removeManagerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+
 
     </body>
 
