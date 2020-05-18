@@ -538,6 +538,7 @@ public class System {
             result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
                     store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
         }
+        Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
 
         return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
     }
