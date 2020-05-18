@@ -1,5 +1,6 @@
 package com.example.communicationLayer.controllers;
 
+import NotificationPublisher.MessageBrokerImpl;
 import NotificationPublisher.Publisher;
 import Service.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class NotificationHandler {
 
     public NotificationHandler(SimpMessageSendingOperations messagingTemplate){
         this.messagingTemplate = messagingTemplate;
-        publisher = new Publisher(this.messagingTemplate);
+        publisher = new Publisher(new MessageBrokerImpl(this.messagingTemplate));
         SessionHandler sessionHandler = new SessionHandler();
         sessionHandler.setPublisher(publisher);
         if(this.messagingTemplate == null){

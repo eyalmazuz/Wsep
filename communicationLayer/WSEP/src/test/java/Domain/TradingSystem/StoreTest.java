@@ -25,18 +25,30 @@ public class StoreTest extends TestCase {
     }
 
     @Test
-    public void testAddProductExistingProduct(){
+    public void testAddProductExistingProductSize(){
         int size = store.getProducts().size();
-        store.addProduct(bamba,15);
         assertEquals(size,store.getProducts().size());
+    }
+
+
+    @Test
+    public void testAddProductExistingProductAmount(){
+        store.addProduct(bamba,15);
         assertEquals(25,store.getProductAmount(1));
     }
 
     @Test
-    public void testAddNewProduct(){
+    public void testAddNewProductSize(){
         int size = store.getProducts().size();
         store.addProduct(bisly,15);
+        store.getProducts().size();
         assertEquals(size+1,store.getProducts().size());
+
+    }
+
+    @Test
+    public void testAddNewProductAmount(){
+        store.addProduct(bisly,15);
         assertEquals(15,store.getProductAmount(2));
 
     }
@@ -74,11 +86,14 @@ public class StoreTest extends TestCase {
     }
 
     @Test
-    public void testDeleteNonExistProduct(){
-        int size = store.getProducts().size();
+    public void testDeleteNonExistProductFailure(){
         assertNotSame(store.deleteProduct(-1).getResultCode(), ResultCode.SUCCESS);
-        assertEquals(size,store.getProducts().size());
 
+    }
+    @Test
+    public void testDeleteNonExistProductSize(){
+       int size = store.getProducts().size();
+        assertEquals(size,store.getProducts().size());
     }
 
     @Test
@@ -86,24 +101,24 @@ public class StoreTest extends TestCase {
         int size = store.getProducts().size();
         store.removeProductAmount(1,10);
         assertEquals(size-1,store.getProducts().size());
-
     }
 
     @Test
     public void testRemoveProductAmountNotEnoughAmount(){
         int size = store.getProducts().size();
-        store.removeProductAmount(1,30);
         assertEquals(size,store.getProducts().size());
-        assertEquals(10,store.getProductAmount(1));
+    }
 
+    @Test
+    public void testRemoveProductAmountNotEnoughAmountSuccess(){
+        store.removeProductAmount(1,30);
+        assertEquals(10,store.getProductAmount(1));
     }
 
     @Test
     public void testRemoveProductAmountNgativeAmmount(){
-
         store.removeProductAmount(1,-10);
         assertEquals(10,store.getProductAmount(1));
-
 
     }
 

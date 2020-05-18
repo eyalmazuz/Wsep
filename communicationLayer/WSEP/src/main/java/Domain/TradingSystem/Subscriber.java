@@ -1,8 +1,12 @@
 package Domain.TradingSystem;
 
+import DTOs.Notification;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Subscriber implements UserState {
 
@@ -15,6 +19,7 @@ public class Subscriber implements UserState {
     private String hashedPassword;
     private boolean isAdmin;
     private UserPurchaseHistory userPurchaseHistory;
+    private Queue<Notification> notificationQueue ;
     private Object permissionLock;
 
     public Subscriber() {
@@ -33,6 +38,8 @@ public class Subscriber implements UserState {
         // FIX for acceptance tests
         userPurchaseHistory = new UserPurchaseHistory();
         permissionLock = new Object();
+        notificationQueue = new ConcurrentLinkedDeque<>();
+
 
     }
 
@@ -247,5 +254,28 @@ public class Subscriber implements UserState {
             return permission.getType();
         }
         return "No Permissions";
+    }
+
+    public void setNotification(Notification message){
+        notificationQueue.add(message);
+    }
+
+    public Queue<Notification> getAllNotification(){
+        return notificationQueue;
+    }
+
+    public void removeNotification(int id){
+        Notification toRemove = null;
+        synchronized (notificationQueue){
+            for(Notification notification:notificationQueue){
+                if(notification.getId() == id){
+                   toRemove = notification;
+                   break;
+                }
+            }
+        }
+        if(toRemove!=null){
+            notificationQueue.remove(toRemove);
+        }
     }
 }

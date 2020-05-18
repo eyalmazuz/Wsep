@@ -293,15 +293,3 @@ async function editManager(){
         alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
     }
 }
-
-
-function connect() {
-    var socket = new SockJS('https://localhost:8443/notifications');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-            alert(message.body)
-        });
-    });
-}

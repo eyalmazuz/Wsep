@@ -214,13 +214,7 @@ async function loadAdminPage(){
     }
 }
 
-function connect() {
-    var socket = new SockJS('https://localhost:8443/notifications');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-            alert(message.body)
-        });
-    });
+async function logoutAdmin(){
+    await logout()
+    location.href = 'index.html'
 }
