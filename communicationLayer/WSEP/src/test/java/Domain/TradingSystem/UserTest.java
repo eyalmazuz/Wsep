@@ -19,25 +19,33 @@ public class UserTest extends TestCase {
     }
 
 
-
     @Test
-    public void testCheckSubscriberOnlyFunctions(){
+    public void testCheckSubscriberOnlyLogout(){
         //Test that ensures guest will fail any subscriber functionality
         //usecase 3.1
         assertFalse(guest.logout());
+    }
+
+    @Test
+    public void testCheckSubscriberOnlyFunctionsGetHistory(){
+        //Test that ensures guest will fail any subscriber functionality
+        //usecase 3.1
         assertNull(guest.getHistory());
     }
 
     //Usecase 3.2
     @Test
-    public void testOpenStoreTest(){
+    public void testOpenStoreFailure(){
         assertNull(guest.openStore());
+    }
+
+    @Test
+    public void testOpenStoreSuccess(){
         assertNotNull(subscriber.openStore());
     }
 
     @Test
     public void testSetStateNotNull(){
-
         assertThrows(Exception.class,()->guest.setState(null));
     }
 
