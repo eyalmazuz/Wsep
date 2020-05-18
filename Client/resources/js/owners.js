@@ -1,9 +1,4 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
+
 
 function returnToStore(){
     var urlParams = new URLSearchParams(window.location.search);

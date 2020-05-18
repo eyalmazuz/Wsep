@@ -1,11 +1,3 @@
-headers = {
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-}
-
-
 async function searchProducts() {
     searchURL = 'https://localhost:8443/searchProducts'
 

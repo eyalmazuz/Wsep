@@ -1,11 +1,3 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
-
-
 
 async function showViewUserHistory(){
 
@@ -209,6 +201,7 @@ async function getShopHistory(){
 }
 
 async function loadAdminPage(){
+    testAlert();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
