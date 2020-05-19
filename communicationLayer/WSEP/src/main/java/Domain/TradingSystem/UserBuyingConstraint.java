@@ -1,9 +1,12 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 public class UserBuyingConstraint extends SimpleBuying {
 
-    public boolean canBuy(String country) {
-        return true;
+    public ActionResultDTO canBuy(String country) {
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class NotOutsideCountryConstraint extends UserBuyingConstraint {
@@ -14,8 +17,9 @@ public class UserBuyingConstraint extends SimpleBuying {
             this.validCountry = validCountry;
         }
 
-        public boolean canBuy(String country) {
-            return country.equals(validCountry);
+        public ActionResultDTO canBuy(String country) {
+            return country.equals(validCountry) ? new ActionResultDTO(ResultCode.SUCCESS, null) :
+                    new ActionResultDTO(ResultCode.ERROR_PURCHASE, "This purchase is only available in " + validCountry);
         }
     }
 

@@ -1,5 +1,9 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +19,19 @@ public class BuyingPolicy {
     }
     private List<BuyingType> buyingTypes = new ArrayList<>();
 
-    public boolean isAllowed(User user, ShoppingBasket basket) {
-        if (details.equals("No one is allowed")) return false;
+    public ActionResultDTO isAllowed(User user, ShoppingBasket basket) {
+        if (details.equals("No one is allowed")) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "No one is allowed to buy at this store.");
+        String buyingPolicyErrors = "";
+        boolean error = false;
         for (BuyingType type : buyingTypes) {
-            if (!type.canBuy(user, basket)) return false;
+            ActionResultDTO buyingConstraintResult = type.canBuy(user, basket);
+            if (buyingConstraintResult.getResultCode() != ResultCode.SUCCESS) {
+                error = true;
+                buyingPolicyErrors += buyingConstraintResult.getDetails() + "\n";
+            }
         }
-        return true;
+        if (error) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, buyingPolicyErrors);
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     @Override

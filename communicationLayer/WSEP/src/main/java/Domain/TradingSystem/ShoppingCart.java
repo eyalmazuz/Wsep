@@ -152,11 +152,16 @@ public class ShoppingCart {
 
     // 2.8 related
     public ActionResultDTO checkBuyingPolicy() {
+        boolean error = false;
+        String errorStrings = "";
         for (ShoppingBasket basket : shoppingBaskets) {
-            if(!basket.checkBuyingPolicy(user, basket)) {
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Store " + basket.getStoreId() + " does not allow this purchase.");
+            ActionResultDTO buyingPolicyCheckResult = basket.checkBuyingPolicy(user, basket);
+            if(buyingPolicyCheckResult.getResultCode() != ResultCode.SUCCESS) {
+                error = true;
+                errorStrings += ("Store " + basket.getStoreId() + " does not allow this purchase. Details: " + buyingPolicyCheckResult.getDetails() + "\n");
             }
         }
+        if (error) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, errorStrings);
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
