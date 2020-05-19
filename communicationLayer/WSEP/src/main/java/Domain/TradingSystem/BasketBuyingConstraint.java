@@ -10,31 +10,31 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
     public static class MaxAmountForProductConstraint extends BasketBuyingConstraint {
 
-        private int productId;
+        private ProductInfo productInfo;
         private int maxAmount;
 
-        public MaxAmountForProductConstraint(int productId, int maxAmount) {
-            this.productId = productId;
+        public MaxAmountForProductConstraint(ProductInfo productInfo, int maxAmount) {
+            this.productInfo = productInfo;
             this.maxAmount = maxAmount;
         }
 
         public boolean canBuy(ShoppingBasket basket) {
-            return basket.getProducts().get(productId) <= maxAmount;
+            return basket.getProducts().get(productInfo) <= maxAmount;
         }
     }
 
     public static class MinAmountForProductConstraint extends BasketBuyingConstraint {
 
-        private int productId;
+        private ProductInfo productInfo;
         private int minAmount;
 
-        public MinAmountForProductConstraint(int productId, int minAmount) {
-            this.productId = productId;
+        public MinAmountForProductConstraint(ProductInfo productInfo, int minAmount) {
+            this.productInfo = productInfo;
             this.minAmount = minAmount;
         }
 
         public boolean canBuy(ShoppingBasket basket) {
-            return basket.getProducts().get(productId) >= minAmount;
+            return basket.getProducts().get(productInfo) >= minAmount;
         }
     }
 
@@ -51,7 +51,7 @@ public class BasketBuyingConstraint extends SimpleBuying {
             Map<ProductInfo, Integer> products = basket.getProducts();
             for (Integer productAmount: products.values()) {
                 totalAmount += productAmount;
-                if (totalAmount >= maxAmount) return false;
+                if (totalAmount > maxAmount) return false;
             }
             return true;
         }
