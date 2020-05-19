@@ -130,7 +130,7 @@ public class Store {
             this.discountPolicy = policy;
     }
 
-    public boolean checkPurchaseValidity(User user, ShoppingBasket basket) {
+    public ActionResultDTO checkPurchaseValidity(User user, ShoppingBasket basket) {
         return buyingPolicy.isAllowed(user, basket);
     }
 

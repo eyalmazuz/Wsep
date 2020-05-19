@@ -1,7 +1,10 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
 import sun.rmi.runtime.Log;
 
+import javax.xml.transform.Result;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,8 +19,8 @@ public class AdvancedBuying implements BuyingType {
         IMPLIES
     }
 
-    public boolean canBuy(User user, ShoppingBasket basket) {
-        return true;
+    public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class LogicalBuying extends AdvancedBuying {
@@ -30,26 +33,62 @@ public class AdvancedBuying implements BuyingType {
         }
 
         @Override
-        public boolean canBuy(User user, ShoppingBasket basket) {
+        public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
             boolean[] canBuys = new boolean[buyingConstraints.size()];
             int i=0;
             for (BuyingType constraint: buyingConstraints) {
-                canBuys[i] = constraint.canBuy(user, basket);
+                canBuys[i] = constraint.canBuy(user, basket).getResultCode() == ResultCode.SUCCESS;
                 i++;
             }
             Stream<Boolean> stream = IntStream.range(0, canBuys.length).mapToObj(idx -> canBuys[idx]);
             if (type == LogicalOperation.OR) {
-                return stream.reduce(false, (a,b) -> a||b);
+                boolean success = stream.reduce(false, (a, b) -> a || b);
+                if (success) return new ActionResultDTO(ResultCode.SUCCESS, null);
+                String errorStrings = "OR condition not satisfied. Policy fails:\n";
+                for (BuyingType constraint : buyingConstraints) {
+                    ActionResultDTO result = constraint.canBuy(user, basket);
+                    if (result.getResultCode() != ResultCode.SUCCESS) {
+                        errorStrings += result.getDetails() + "\n";
+                    }
+                }
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, errorStrings);
             }
             else if (type == LogicalOperation.AND) {
-                return stream.reduce(true, (a,b) -> a&&b);
+                boolean success = stream.reduce(true, (a,b) -> a && b);
+                if (success) return new ActionResultDTO(ResultCode.SUCCESS, null);
+                String errorStrings = "AND condition not satisfied. Policy fails:\n";
+                for (BuyingType constraint : buyingConstraints) {
+                    ActionResultDTO result = constraint.canBuy(user, basket);
+                    if (result.getResultCode() != ResultCode.SUCCESS) {
+                        errorStrings += result.getDetails() + "\n";
+                    }
+                }
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, errorStrings);
             }
             else if (type == LogicalOperation.XOR) {
-                return stream.reduce(true, (a,b) -> a^b);
+                boolean success = stream.reduce(false, (a,b) -> a^b);
+                if (success) return new ActionResultDTO(ResultCode.SUCCESS, null);
+                String errorStrings = "XOR condition not satisfied. Policy fails:\n";
+                for (BuyingType constraint : buyingConstraints) {
+                    ActionResultDTO result = constraint.canBuy(user, basket);
+                    if (result.getResultCode() != ResultCode.SUCCESS) {
+                        errorStrings += result.getDetails() + "\n";
+                    }
+                }
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, errorStrings);
             } else if (type == LogicalOperation.IMPLIES) { // a -> b = (not a) or b
-                return !canBuys[0] || canBuys[1];
+                boolean success = !canBuys[0] || canBuys[1];
+                if (success) return new ActionResultDTO(ResultCode.SUCCESS, null);
+                String errorStrings = "IMPLIES condition not satisfied. Policy fails:\n";
+                for (BuyingType constraint : buyingConstraints) {
+                    ActionResultDTO result = constraint.canBuy(user, basket);
+                    if (result.getResultCode() != ResultCode.SUCCESS) {
+                        errorStrings += result.getDetails() + "\n";
+                    }
+                }
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, errorStrings);
             }
-            return false;
+            return new ActionResultDTO(ResultCode.ERROR_PURCHASE, null);
         }
     }
 

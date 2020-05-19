@@ -1,5 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 public class SimpleBuying implements BuyingType {
 
 
@@ -7,7 +10,7 @@ public class SimpleBuying implements BuyingType {
 
     }
 
-    public boolean canBuy(User user, ShoppingBasket basket) {
+    public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
         if (this instanceof BasketBuyingConstraint) {
             BasketBuyingConstraint c = (BasketBuyingConstraint) this;
             return c.canBuy(basket);
@@ -20,7 +23,7 @@ public class SimpleBuying implements BuyingType {
             UserBuyingConstraint c = (UserBuyingConstraint) this;
             return c.canBuy(user.getCountry());
         }
-        return true;
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 }
 

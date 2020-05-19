@@ -1,11 +1,14 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 import java.util.Map;
 
 public class BasketBuyingConstraint extends SimpleBuying {
 
-    public boolean canBuy(ShoppingBasket basket) {
-        return true;
+    public ActionResultDTO canBuy(ShoppingBasket basket) {
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class MaxAmountForProductConstraint extends BasketBuyingConstraint {
@@ -18,8 +21,9 @@ public class BasketBuyingConstraint extends SimpleBuying {
             this.maxAmount = maxAmount;
         }
 
-        public boolean canBuy(ShoppingBasket basket) {
-            return basket.getProducts().get(productInfo) <= maxAmount;
+        public ActionResultDTO canBuy(ShoppingBasket basket) {
+            if (basket.getProducts().get(productInfo) > maxAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase " + basket.getProducts().get(productInfo) + " of " + productInfo + ". Max amount is " + maxAmount);
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
     }
 
@@ -33,8 +37,9 @@ public class BasketBuyingConstraint extends SimpleBuying {
             this.minAmount = minAmount;
         }
 
-        public boolean canBuy(ShoppingBasket basket) {
-            return basket.getProducts().get(productInfo) >= minAmount;
+        public ActionResultDTO canBuy(ShoppingBasket basket) {
+            if (basket.getProducts().get(productInfo) < minAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase " + basket.getProducts().get(productInfo) + " of " + productInfo + ". Min amount is " + minAmount);
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
     }
 
@@ -46,14 +51,14 @@ public class BasketBuyingConstraint extends SimpleBuying {
             this.maxAmount = maxAmount;
         }
 
-        public boolean canBuy(ShoppingBasket basket) {
+        public ActionResultDTO canBuy(ShoppingBasket basket) {
             int totalAmount = 0;
             Map<ProductInfo, Integer> products = basket.getProducts();
             for (Integer productAmount: products.values()) {
                 totalAmount += productAmount;
-                if (totalAmount > maxAmount) return false;
+                if (totalAmount > maxAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase more than " + maxAmount + " products.");
             }
-            return true;
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
     }
 
