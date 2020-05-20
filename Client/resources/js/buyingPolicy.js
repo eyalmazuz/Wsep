@@ -25,7 +25,7 @@ async function viewStoreBuyingPolicies(){
     await fetch(policiesURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
-    // if(result['resultCode'] === 'SUCCESS'){
+    if(result['resultCode'] === 'SUCCESS'){
 
         
         var policies = result['dtos']
@@ -49,7 +49,7 @@ async function viewStoreBuyingPolicies(){
             
         }
 
-    // }
+    }
     
 }
 

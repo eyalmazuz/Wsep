@@ -66,17 +66,49 @@ async function viewStore(){
 
     storeURL += "&storeId=" + parseInt(storeId)
 
+    var policiesURL = "https://localhost:8443/viewBuyingPolicies?"
+    
+    policiesURL += 'sessionId=' + sessionStorage['sessionId']
+
+    policiesURL += "&storeId=" + parseInt(storeId)
+
+    var result
+    await fetch(policiesURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    
+    if(result['resultCode'] === 'SUCCESS'){
+
+        
+        var policies = result['dtos']
+        console.log(policies)
+        var policyTable = document.getElementById('buyingPolicies')
+
+        for(var i = 1; i< policyTable.rows.length; i++){
+            policyTable.deleteRow(i);
+        }
+
+        var ridx = 1;
+        for(productIdx in policies){
+            var policy = policies[productIdx]
+            console.log(policy)
+            var row = policyTable.insertRow(ridx)
+            var policyId = row.insertCell(0)
+            var policyDescription = row.insertCell(1)
+
+            policyId.innerHTML = policy['id']
+            policyDescription.innerHTML = policy['toString']
+            
+        }
+
+    }
+
+
     var result
     await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
     if(result['resultCode'] === 'SUCCESS'){
 
-        var policies = document.getElementById('storePolicies')
-        policies.rows[1].cells[0].innerHTML = result['stores'][0]['buyingPolicy']
-        policies.rows[1].cells[1].innerHTML = result['stores'][0]['discountPolicy']
-
-        
         var products = result['stores'][0]['products']
         var productsTable = document.getElementById('storeProducts')
 
