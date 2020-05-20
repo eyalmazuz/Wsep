@@ -1,6 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+
 public interface BuyingType {
 
-    boolean canBuy(User user, ShoppingBasket basket);
+    ActionResultDTO canBuy(User user, ShoppingBasket basket);
 }

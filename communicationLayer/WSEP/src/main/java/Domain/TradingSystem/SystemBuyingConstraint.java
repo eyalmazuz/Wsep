@@ -1,11 +1,14 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.ResultCode;
+
 import java.util.Calendar;
 
 public class SystemBuyingConstraint extends SimpleBuying {
 
-    public boolean canBuy() {
-        return true;
+    public ActionResultDTO canBuy() {
+        return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class NotOnDayConstraint extends SystemBuyingConstraint {
@@ -16,8 +19,9 @@ public class SystemBuyingConstraint extends SimpleBuying {
             this.forbiddenDay = forbiddenDay;
         }
 
-        public boolean canBuy() {
-            return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) != forbiddenDay;
+        public ActionResultDTO canBuy() {
+            return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) != forbiddenDay? new ActionResultDTO(ResultCode.SUCCESS, null) :
+                    new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Today is " + forbiddenDay + " and therefore purchase is rejected.");
         }
     }
 

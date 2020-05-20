@@ -8,10 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SystemTests extends TestCase {
 
@@ -439,6 +436,137 @@ public class SystemTests extends TestCase {
 
         assertEquals(history, u.getHistory().toString());
 
+    }
+
+    @Test
+    public void testBuyingPoliciesSimple() {
+        int sessionId = test.startSession().getId();
+        int storeId = test.addStore();
+        Store store1 = test.getStores().get(storeId);
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 10);
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        u.addProductToCart(store1, info, 4);
+
+        // bad
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // good
+        policy.setDetails("blah");
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // bad
+        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 3));
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 4));
+        store1.setBuyingPolicy(policy);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        policy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
+        u.addProductToCart(store1, info, 39);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        u.editCartProductAmount(store1, info, 39);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // bad
+        policy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
+        u.setCountry("Brazil");
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        policy.clearBuyingTypes();
+        // good
+        u.setCountry("Israel");
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
+
+    @Test
+    public void testBuyingPoliciesComplex() {
+        int sessionId = test.startSession().getId();
+        int storeId = test.addStore();
+        Store store1 = test.getStores().get(storeId);
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        store1.addProduct(info, 10);
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        u.addProductToCart(store1, info, 4);
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
+        List<BuyingType> buyingConstraints = new ArrayList<>();
+        buyingConstraints.add(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10));
+        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.AND));
+
+        // 4 is not 5 <= x <= 10
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // 11 is not 5 <= x <= 10
+        u.editCartProductAmount(store1, info, 11);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // 5 <= x <= 10
+        u.editCartProductAmount(store1, info, 10);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        u.editCartProductAmount(store1, info, 5);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        u.editCartProductAmount(store1, info, 7);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // if its not today, can only buy 20 of product 4
+        policy.clearBuyingTypes();
+        buyingConstraints.clear();
+        buyingConstraints.add(new SystemBuyingConstraint.NotOnDayConstraint(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 20));
+        //policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.OR));
+        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.IMPLIES));
+
+        // its today and user wants more than 20 - ok
+        u.editCartProductAmount(store1, info, 30);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+        // its not today (huh?) and user wants more than 20 - bad!
+
+        buyingConstraints.clear();
+        buyingConstraints.add(new SystemBuyingConstraint.NotOnDayConstraint(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) + 1));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 20));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
