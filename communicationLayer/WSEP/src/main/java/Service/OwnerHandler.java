@@ -165,6 +165,8 @@ public class OwnerHandler {
     }
 
 
-
+    public ActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
+        return new ActionResultDTO(ResultCode.SUCCESS, s.getBuyingPolicyDetails(storeId));
+    }
 
 }

@@ -129,4 +129,13 @@ public class ManagerController {
     ) {
         return new ManagerHandler(sessionId).createAdvancedBuyingType(storeId, buyingTypeIDs, logicalOperation);
     }
+
+    @GetMapping("/ManagerViewBuyingPolicies")
+    @ResponseBody
+    public ActionResultDTO viewBuyingPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new ManagerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
+    }
 }

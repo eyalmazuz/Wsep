@@ -5,6 +5,7 @@ import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.StorePurchaseHistoryDTO;
 import DTOs.SubscriberActionResultDTO;
+import Service.ManagerHandler;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -166,6 +167,15 @@ public class OwnerController {
             @RequestParam(value = "logicalOperation", defaultValue = "") String logicalOperation
     ) {
         return new OwnerHandler(sessionId).createAdvancedBuyingType(storeId, buyingTypeIDs, logicalOperation);
+    }
+
+    @GetMapping("/OwnerViewBuyingPolicies")
+    @ResponseBody
+    public ActionResultDTO viewBuyingPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new OwnerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
     }
 
 }

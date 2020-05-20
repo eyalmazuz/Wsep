@@ -18,9 +18,6 @@ public class BuyingPolicy {
     }
     private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
 
-
-    Map<String, BuyingType> buyingTypeDictionary = new HashMap<>();
-
     public ActionResultDTO isAllowed(User user, ShoppingBasket basket) {
         if (details.equals("No one is allowed")) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "No one is allowed to buy at this store.");
         String buyingPolicyErrors = "";
@@ -38,7 +35,11 @@ public class BuyingPolicy {
 
     @Override
     public String toString() {
-        return "";
+        String output = "";
+        for (BuyingType type : buyingTypes.values()) {
+            output += type.toString() + "\n";
+        }
+        return output;
     }
 
     public int addBuyingType(BuyingType type) {
