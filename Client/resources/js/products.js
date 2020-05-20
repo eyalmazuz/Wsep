@@ -76,26 +76,13 @@ function showDeleteProduct(){
 
 async function deleteProduct(idx){
 
-    var type = '';
-
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
+
     var deleteProductURL;
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
 
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
     if(type === 'Owner'){
         deleteProductURL = 'https:/localhost:8443/OwnerDeleteProductFromStore?'
     }
@@ -134,25 +121,11 @@ function showEditProduct(){
 async function editProduct(idx){
 
 
-    var type = '';
-    var managers;
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
-    var editProductURL;
+    var type = urlParams.get('type');
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var editProductURL;
 
     if(type != ''){
 
@@ -200,23 +173,10 @@ function showAddProduct(){
 async function addProduct(){
 
 
-    var type = '';
-    var managers;
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var type = urlParams.get('type');
+
 
     var addProductToStoreURL;
 

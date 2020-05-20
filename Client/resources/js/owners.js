@@ -78,51 +78,24 @@ async function showAddOwner(){
 }
 
 async function addOwnerToStore(){
-    var managers;
-    var type = '';
-    var addManagerToStoreURL;
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
+    addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
 
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+    addOwnerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
+    addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
+    var user = document.getElementById('ownerSelect').value.split(' ')
+    console.log(user)
+    addOwnerToStoreURL += "&subId=" +parseInt(user[1]);
+
+    console.log(addOwnerToStoreURL)
+    var result;
+    await fetch(addOwnerToStoreURL, headers).then(response => response.json()).then(response => result = response)
     
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        alert('successfully added ${user[3]} to the Owners ranks')
+        location.reload()
     }
 
-
-    if(type != ''){
-
-        addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
-
-
-        addOwnerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
-        addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
-        var user = document.getElementById('ownerSelect').value.split(' ')
-        console.log(user)
-        addOwnerToStoreURL += "&subId=" +parseInt(user[1]);
-
-        console.log(addOwnerToStoreURL)
-        var result;
-        await fetch(addOwnerToStoreURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully added ${user[3]} to the Owners ranks')
-            location.reload()
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
 }

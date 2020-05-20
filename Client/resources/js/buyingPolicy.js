@@ -76,28 +76,14 @@ function showDeleteBuyingPolicy(){
 
 async function deleteBuyingPolicy(idx){
 
-    var type = '';
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
     var deletePolicyURL;
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
     if(type === 'Owner'){
-        deletePolicyURL = 'https:/localhost:8443/OwnerDeletePolicyFromStore?'
+        deletePolicyURL = 'https:/localhost:8443/OwnerRemoveBuyingType?'
     }
     else{
         deletePolicyURL = 'https:/localhost:8443/ManagerDeletePolicyFromStore?'
@@ -107,10 +93,18 @@ async function deleteBuyingPolicy(idx){
 
     deletePolicyURL += 'sessionId=' + sessionStorage['sessionId']
     deletePolicyURL += "&storeId=" + storeId;
-    deletePolicyURL += "&policyId=" + policyId;
+    deletePolicyURL += "&buyingTypeID=" + policyId;
 
-    console.log(deletePolicyURL)
-
+    var result;
+    await fetch(deletePolicyURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        console.log('success')
+        alert("successfully added advance constraint policy with id: " + result['id'])
+    }
+    else{
+        alert(result['details'])
+    }  
 
 }
 
@@ -193,31 +187,20 @@ async function addBuyingPolicy(){
 }
 
 
-  async function CreateAmountPolicy(){
+async function CreateAmountPolicy(){
     
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
+
     var addAmountPolicyURL;
 
     if(type === 'Owner'){
-        addAmountPolicyURL = 'https://localhost:8443/OwnerAddAmountPolicy?'
+        addAmountPolicyURL = 'https://localhost:8443/OwnerAddSimpleBuyingTypeBasketConstraint?'
     }
     else{
-        addAmountPolicyURL = 'https://localhost:8443/ManagerAddAmountPolicy?'
+        addAmountPolicyURL = 'https://localhost:8443/ManagerAddSimpleBuyingTypeBasketConstraint?'
     }
-
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
 
 
     var radios = document.getElementsByName('type');
@@ -235,74 +218,78 @@ async function addBuyingPolicy(){
     var productId = document.getElementById('idText').value
     var amount = document.getElementById('amountText').value
 
-    addAmountPolicyURL += 'storeId=' + storeId
-    addAmountPolicyURL += '&prodcutId' + productId
+    addAmountPolicyURL += '&sessionId=' + parseInt(sessionStorage['sessionId'])
+    addAmountPolicyURL += '&storeId=' + parseInt(storeId)
+    addAmountPolicyURL += '&productId=' + parseInt(productId)
     addAmountPolicyURL += '&minmax=' + type
-    addAmountPolicyURL += '&amount=' + amount
+    addAmountPolicyURL += '&amount=' + parseInt(amount)
 
     console.log(addAmountPolicyURL)
+
+    var result;
+    await fetch(addAmountPolicyURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        console.log('success')
+        alert("successfully added amount constraint policy with id: " + result['id'])
+    }
+    else{
+        alert(result['details'])
+    }    
 }
 
 
 async function CreateCountryPolicy(){
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
+
 
     var addCountryPolicyURL;
 
 
     if(type === 'Owner'){
-        addCountryPolicyURL = 'https://localhost:8443/OwnerAddCountryPolicy?'
+        addCountryPolicyURL = 'https://localhost:8443/OwnerAddSimpleBuyingTypeUserConstraint?'
     }
     else{
-        addCountryPolicyURL = 'https://localhost:8443/ManagerAddCountryPolicy?'
+        addCountryPolicyURL = 'https://localhost:8443/ManagerAddSimpleBuyingTypeUserConstraint?'
     }
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
 
 
 
     var country = document.getElementById('countryText').value
 
-    addCountryPolicyURL += 'storeId=' + storeId
+    addCountryPolicyURL += '&sessionId=' + parseInt(sessionStorage['sessionId'])
+    addCountryPolicyURL += '&storeId=' + parseInt(storeId)
     addCountryPolicyURL += '&country' + country
 
     console.log(addCountryPolicyURL)
+
+    var result;
+    await fetch(addCountryPolicyURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        console.log('success')
+        alert("successfully added country constraint policy with id: " + result['id'])
+    }
+    else{
+        alert(result['details'])
+    }  
 }
 
 async function CreateDayPolicy(){
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
+
     var addDaysPolicyURL;
     if(type === 'Owner'){
-        addDaysPolicyURL = 'https://localhost:8443/OwnerAddDayPolicy?'
+        addDaysPolicyURL = 'https://localhost:8443/OwnerAddSimpleBuyingTypeSystemConstraint?'
 
     }
     else{
-        addDaysPolicyURL = 'https://localhost:8443/ManagerAddDayPolicy?'
+        addDaysPolicyURL = 'https://localhost:8443/ManagerAddSimpleBuyingTypeSystemConstraint?'
     }
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
 
     
     var radios = document.getElementsByName('days');
@@ -317,40 +304,41 @@ async function CreateDayPolicy(){
       }
     }
 
-    addDaysPolicyURL += 'storeId=' + storeId
-    addDaysPolicyURL += '&day=' + day
+    addDaysPolicyURL += '&sessionId=' + parseInt(sessionStorage['sessionId'])
+    addDaysPolicyURL += '&storeId=' + parseInt(storeId)
+    addDaysPolicyURL += '&dayOfWeek=' + parseInt(day)
 
     console.log(addDaysPolicyURL)
+
+    var result;
+    await fetch(addDaysPolicyURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        console.log('success')
+        alert("successfully added day constraint policy with id: " + result['id'])
+    }
+    else{
+        alert(result['details'])
+    }  
 }
 
 
 async function CreateAdvancePolicy(){
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var type = urlParams.get('type');
+
     var addAdvancePolicyURL;
 
     if(type === 'Owner'){
-        addAdvancePolicyURL = 'https://localhost:8443/OwnerAddAdvancePolicy?'
+        addAdvancePolicyURL = 'https://localhost:8443/OwnerCreateAdvancedBuyingType?'
 
     }
     else{
-        addAdvancePolicyURL = 'https://localhost:8443/ManagerAddAdvancePolicy?'
+        addAdvancePolicyURL = 'https://localhost:8443/ManagerCreateAdvancedBuyingType?'
     }
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
 
-    
     var radios = document.getElementsByName('operator');
     var operator = ''
     for (var i = 0, length = radios.length; i < length; i++) {
@@ -365,10 +353,36 @@ async function CreateAdvancePolicy(){
 
     var ids = document.getElementById('idsText').value
 
-    addAdvancePolicyURL += 'storeId=' + storeId
-    addAdvancePolicyURL += '&operator=' + operator
-    addAdvancePolicyURL += '&ids=' + ids.split(' ').join(',')
+    addAdvancePolicyURL += '&sessionId=' + parseInt(sessionStorage['sessionId'])
+    addAdvancePolicyURL += '&storeId=' + parseInt(storeId)
+    addAdvancePolicyURL += '&logicalOperation=' + operator
+    addAdvancePolicyURL += '&buyingTypeIDs=' + ids.split(' ').join(',')
 
     console.log(addAdvancePolicyURL)
+
+    var result;
+    await fetch(addAdvancePolicyURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        console.log('success')
+        alert("successfully added advance constraint policy with id: " + result['id'])
+    }
+    else{
+        alert(result['details'])
+    }  
 }
  
+
+function openTab(evt, cityName) {
+    var i, x, tablinks;
+    x = document.getElementsByClassName("city");
+    for (i = 0; i < x.length; i++) {
+      x[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablink");
+    for (i = 0; i < x.length; i++) {
+      tablinks[i].classList.remove("w3-light-grey");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.classList.add("w3-light-grey");
+  }

@@ -27,6 +27,7 @@ async function viewStore(){
         }
     }
 
+
     if(type != ''){
         document.getElementById('productPageButton').style.visibility = '';
         document.getElementById('managersPageButton').style.visibility = '';
@@ -37,10 +38,7 @@ async function viewStore(){
         document.getElementById('storeHistory').style.visibility = '';
         document.getElementById('optionTitle').style.visibility = '';
         document.getElementById('historyTitle').style.visibility = '';
-
-        
-
-        
+        sessionStorage['storeType'] = type
 
     }
 
@@ -54,6 +52,7 @@ async function viewStore(){
         document.getElementById('storeHistory').style.visibility = 'hidden';
         document.getElementById('optionTitle').style.visibility = 'hidden';
         document.getElementById('historyTitle').style.visibility = 'hidden';
+        sessionStorage['storeType'] = 'Normie'
 
 
 
@@ -113,24 +112,39 @@ function moveToProducts(){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
+        location.href = 'products.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
 
-    location.href = 'products.html?storeId=' + storeId  
+    }
+    else{
+        alert('NO permissions')
+    }
 }
 
 function moveToManagers(){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
+        location.href = 'manager.html?storeId=' + storeId+ '&type=' + sessionStorage['storeType']  
 
-    location.href = 'manager.html?storeId=' + storeId  
+    }
+    else{
+        alert('NO permissions')
+    }
 }
 
 function moveToOwners(){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
+        location.href = 'owners.html?storeId=' + storeId + '&type=' + sessionStorage['storeType'] 
 
-    location.href = 'owners.html?storeId=' + storeId  
+    }
+    else{
+        alert('NO permissions')
+    }
 }
 
 
@@ -138,8 +152,13 @@ function moveToBuyingPolicy(){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
+        location.href = 'buyingpolicy.html?storeId=' + storeId + '&type=' + sessionStorage['storeType'] 
 
-    location.href = 'buyingpolicy.html?storeId=' + storeId  
+    }
+    else{
+        alert('NO permissions')
+    }
 }
 
 
@@ -147,8 +166,13 @@ function moveToDiscountPolicy(){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
+        location.href = 'discountpolicy.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
 
-    location.href = 'discountpolicy.html?storeId=' + storeId  
+    }
+    else{
+        alert('NO permissions')
+    }
 }
 
 async function viewStoreHistory(){
