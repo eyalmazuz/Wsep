@@ -1,12 +1,11 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BuyingPolicy {
 
@@ -17,13 +16,16 @@ public class BuyingPolicy {
     public BuyingPolicy(String details) {
         this.details = details;
     }
-    private List<BuyingType> buyingTypes = new ArrayList<>();
+    private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
+
+
+    Map<String, BuyingType> buyingTypeDictionary = new HashMap<>();
 
     public ActionResultDTO isAllowed(User user, ShoppingBasket basket) {
         if (details.equals("No one is allowed")) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "No one is allowed to buy at this store.");
         String buyingPolicyErrors = "";
         boolean error = false;
-        for (BuyingType type : buyingTypes) {
+        for (BuyingType type : buyingTypes.values()) {
             ActionResultDTO buyingConstraintResult = type.canBuy(user, basket);
             if (buyingConstraintResult.getResultCode() != ResultCode.SUCCESS) {
                 error = true;
@@ -39,11 +41,14 @@ public class BuyingPolicy {
         return "";
     }
 
-    public void addBuyingType(BuyingType type) {
-        buyingTypes.add(type);
+    public int addBuyingType(BuyingType type) {
+        int id = 0;
+        if (!buyingTypes.isEmpty()) id = Collections.max(buyingTypes.keySet()) + 1;
+        buyingTypes.put(id, type);
+        return id;
     }
 
-    public List<BuyingType> getBuyingTypes() {
+    public Map<Integer, BuyingType> getBuyingTypes() {
         return buyingTypes;
     }
 
@@ -53,5 +58,26 @@ public class BuyingPolicy {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public void removeBuyingType(int buyingTypeID) {
+        buyingTypes.remove(buyingTypeID);
+    }
+
+    public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperationStr) {
+        synchronized (buyingTypes) {
+            List<BuyingType> relevantBuyingTypes = new ArrayList<>();
+            for (Integer typeID : buyingTypeIDs) {
+                if (buyingTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
+                relevantBuyingTypes.add(buyingTypes.get(typeID));
+                buyingTypeIDs.remove(typeID);
+            }
+            AdvancedBuying.LogicalOperation logicalOperation = AdvancedBuying.LogicalOperation.AND;
+            if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedBuying.LogicalOperation.OR;
+            else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedBuying.LogicalOperation.XOR;
+            else if (logicalOperationStr.toLowerCase().equals("implies")) logicalOperation = AdvancedBuying.LogicalOperation.IMPLIES;
+            BuyingType advanced = new AdvancedBuying.LogicalBuying(relevantBuyingTypes, logicalOperation);
+            return new IntActionResultDto(ResultCode.SUCCESS, null, addBuyingType(advanced));
+        }
     }
 }

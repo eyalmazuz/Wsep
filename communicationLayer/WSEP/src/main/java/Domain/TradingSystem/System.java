@@ -1027,4 +1027,35 @@ public class System {
             }
         }
     }
+
+    public int addSimpleBuyingTypeBasketConstraint(int storeId, int productId, String minmax, int amount) {
+        ProductInfo info;
+        if (productId < 0) info = null;
+        else {
+            info = getProductInfoById(productId);
+            // valid product id is entered but product doesn't exist - abort action
+            if (info == null) return -1;
+        }
+        return getStoreById(storeId).addSimpleBuyingTypeBasketConstraint(info, minmax, amount);
+    }
+
+    public int addSimpleBuyingTypeUserConstraint(int storeId, String country) {
+        return getStoreById(storeId).addSimpleBuyingTypeUserConstraint(country);
+    }
+
+    public int addSimpleBuyingTypeSystemConstraint(int storeId, int dayOfWeek) {
+        return getStoreById(storeId).addSimpleBuyingTypeSystemConstraint(dayOfWeek);
+    }
+
+    public void removeBuyingTypeFromStore(int storeId, int buyingTypeID) {
+        getStoreById(storeId).removeBuyingType(buyingTypeID);
+    }
+
+    public void removeAllBuyingTypes(int storeId) {
+        getStoreById(storeId).removeAllBuyingTypes();
+    }
+
+    public IntActionResultDto addAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
+        return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+    }
 }

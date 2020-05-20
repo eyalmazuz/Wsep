@@ -1,10 +1,9 @@
 package Service;
 
-import DTOs.ActionResultDTO;
-import DTOs.ResultCode;
-import DTOs.StorePurchaseHistoryDTO;
-import DTOs.SubscriberActionResultDTO;
+import DTOs.*;
 import Domain.TradingSystem.System;
+
+import java.util.List;
 
 
 public class OwnerHandler {
@@ -106,9 +105,64 @@ public class OwnerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only owners can use this functionality.");
     }
 
+    // editing policies
 
+    // for productId = -1, constraint will be for all products in the basket
+    public IntActionResultDto addSimpleBuyingTypeBasketConstraint(int storeId, int productId, String minmax, int amount) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            if (!minmax.toLowerCase().equals("max") && !minmax.toLowerCase().equals("min")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "The minmax string should be either max or min", -1);
+            if (amount < 0) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Amount must be non-negative", -1);
 
+            int buyingTypeID = s.addSimpleBuyingTypeBasketConstraint(storeId, productId, minmax, amount);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
 
+    public IntActionResultDto addSimpleBuyingTypeUserConstraint(int storeId, String country) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            if (country.toLowerCase().equals("any")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "No new policy has been added", -1);
+            int buyingTypeID = s.addSimpleBuyingTypeUserConstraint(storeId, country);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
+
+    public IntActionResultDto addSimpleBuyingTypeSystemConstraint(int storeId, int dayOfWeek) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            if (dayOfWeek < 1 || dayOfWeek > 7) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Invalid day of week", -1);
+            int buyingTypeID = s.addSimpleBuyingTypeSystemConstraint(storeId, dayOfWeek);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
+
+    public IntActionResultDto removeBuyingType(int storeId, int buyingTypeID) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            s.removeBuyingTypeFromStore(storeId, buyingTypeID);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Removed buying type " + buyingTypeID, buyingTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
+
+    public IntActionResultDto removeAllBuyingTypes(int storeId) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            s.removeAllBuyingTypes(storeId);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Removed all buying types", 0);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
+
+    public IntActionResultDto createAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
+        if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
+            if (!logicalOperation.toLowerCase().equals("xor") && !logicalOperation.toLowerCase().equals("and") && !logicalOperation.toLowerCase().equals("or")
+                    && !logicalOperation.toLowerCase().equals("implies")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Logical operations are: and, or, xor, implies", -1);
+            if (logicalOperation.toLowerCase().equals("implies") && buyingTypeIDs.size() != 2) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Implies requires exactly 2 basic constraints", -1);
+
+            return s.addAdvancedBuyingType(storeId, buyingTypeIDs, logicalOperation);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
 
 
 

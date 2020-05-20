@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 
 import java.util.*;
@@ -304,5 +305,35 @@ public class Store {
             }
         }
         return -1;
+    }
+
+    public int addSimpleBuyingTypeBasketConstraint(ProductInfo productInfo, String minmax, int amount) {
+        if (productInfo == null) {
+            if (minmax.equals("max")) return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(amount));
+            else return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(amount));
+        }  else {
+            if (minmax.equals("max")) return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(productInfo, amount));
+            else return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(productInfo, amount));
+        }
+    }
+
+    public int addSimpleBuyingTypeUserConstraint(String country) {
+        return buyingPolicy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint(country));
+    }
+
+    public int addSimpleBuyingTypeSystemConstraint(int dayOfWeek) {
+        return buyingPolicy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(dayOfWeek));
+    }
+
+    public void removeBuyingType(int buyingTypeID) {
+        buyingPolicy.removeBuyingType(buyingTypeID);
+    }
+
+    public void removeAllBuyingTypes() {
+        buyingPolicy.clearBuyingTypes();
+    }
+
+    public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperation) {
+        return buyingPolicy.addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
 }
