@@ -6,6 +6,7 @@ import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
+import org.springframework.aop.interceptor.PerformanceMonitorInterceptor;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1061,5 +1062,30 @@ public class System {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
         return getStoreById(storeId).getBuyingPolicyDetails();
+    }
+
+    public PermissionActionResultDTO getPermission(int subId, int storeId) {
+        Subscriber s = userHandler.getSubscriber(subId);
+        if(s == null){
+            return new PermissionActionResultDTO(ResultCode.ERROR_SUBID,"subid "+ subId+"Not exist!",null);
+        }
+        Permission permission = s.getPermission(storeId);
+        if ( permission == null){
+            return new PermissionActionResultDTO(ResultCode.ERROR_STOREID,"permission in store "+ storeId+"Not exist!",null);
+        }
+         PermissionDTO permissionDTO = getPermissionDTO(permission);
+        return new PermissionActionResultDTO(ResultCode.SUCCESS,"got user permissions",permissionDTO);
+    }
+
+    private PermissionDTO getPermissionDTO(Permission permission) {
+        SubscriberDTO user  = null;
+        SubscriberDTO grantor = null;
+        if(permission.getGrantor() != null){
+            grantor = new SubscriberDTO(permission.getGrantor().getId(),permission.getGrantor().getUsername());
+        }
+        user = new SubscriberDTO(permission.getUser().getId(),permission.getUser().getUsername());
+
+        return new PermissionDTO(permission.getStore().getId(),user,grantor,permission.getType(),permission.getDetails());
+
     }
 }

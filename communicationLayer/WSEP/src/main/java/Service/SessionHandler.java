@@ -3,6 +3,7 @@ package Service;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.PermissionActionResultDTO;
 import Domain.TradingSystem.System;
 import NotificationPublisher.Publisher;
 
@@ -32,5 +33,9 @@ public class SessionHandler {
 
     public void pullNotifications(int subId) {
         system.pullNotifications(subId);
+    }
+
+    public PermissionActionResultDTO getPermission(int subId, int storeId) {
+       return  system.getPermission(subId,storeId);
     }
 }
