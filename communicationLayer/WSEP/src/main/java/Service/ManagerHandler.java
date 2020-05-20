@@ -85,20 +85,20 @@ public class ManagerHandler {
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
     }
 
-    public IntActionResultDto removeBuyingType(int storeId, int buyingTypeID) {
+    public ActionResultDTO removeBuyingType(int storeId, int buyingTypeID) {
         if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
             s.removeBuyingTypeFromStore(storeId, buyingTypeID);
-            return new IntActionResultDto(ResultCode.SUCCESS, "Removed buying type " + buyingTypeID, buyingTypeID);
+            return new ActionResultDTO(ResultCode.SUCCESS, "Removed buying type " + buyingTypeID);
         }
-        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.");
     }
 
-    public IntActionResultDto removeAllBuyingTypes(int storeId) {
+    public ActionResultDTO removeAllBuyingTypes(int storeId) {
         if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
             s.removeAllBuyingTypes(storeId);
-            return new IntActionResultDto(ResultCode.SUCCESS, "Removed all buying types", 0);
+            return new ActionResultDTO(ResultCode.SUCCESS, "Removed all buying types");
         }
-        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.");
     }
 
     public IntActionResultDto createAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {

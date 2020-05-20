@@ -2,10 +2,13 @@ package com.example.communicationLayer.controllers;
 
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.StorePurchaseHistoryDTO;
 import DTOs.SubscriberActionResultDTO;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin()
 @RestController
@@ -101,6 +104,68 @@ public class OwnerController {
     public SubscriberActionResultDTO getOptionalManagers(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
                                                          @RequestParam(value = "storeId" , defaultValue = "-1")int storeId){
         return new OwnerHandler(sessionId).getPossibleManagers(storeId);
+    }
+
+    @GetMapping("/OwnerAddSimpleBuyingTypeBasketConstraint")
+    @ResponseBody
+    public IntActionResultDto addSimpleBuyingTypeBasketConstraint(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "minmax", defaultValue = "") String minmax,
+            @RequestParam(value = "amount", defaultValue = "") int amount
+    ) {
+        return new OwnerHandler(sessionId).addSimpleBuyingTypeBasketConstraint(storeId, productId, minmax, amount);
+    }
+
+    @GetMapping("/OwnerAddSimpleBuyingTypeUserConstraint")
+    @ResponseBody
+    public IntActionResultDto addSimpleBuyingTypeUserConstraint(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "country", defaultValue = "") String country
+    ) {
+        return new OwnerHandler(sessionId).addSimpleBuyingTypeUserConstraint(storeId, country);
+    }
+
+    @GetMapping("/OwnerAddSimpleBuyingTypeSystemConstraint")
+    @ResponseBody
+    public IntActionResultDto addSimpleBuyingTypeSystemConstraint(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "dayOfWeek", defaultValue = "") int dayOfWeek
+    ) {
+        return new OwnerHandler(sessionId).addSimpleBuyingTypeSystemConstraint(storeId, dayOfWeek);
+    }
+
+    @GetMapping("/OwnerRemoveBuyingType")
+    @ResponseBody
+    public ActionResultDTO removeBuyingType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "buyingTypeID", defaultValue = "") int buyingTypeID
+    ) {
+        return new OwnerHandler(sessionId).removeBuyingType(storeId, buyingTypeID);
+    }
+
+    @GetMapping("/OwnerRemoveAllBuyingTypes")
+    @ResponseBody
+    public ActionResultDTO removeAllBuyingTypes(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new OwnerHandler(sessionId).removeAllBuyingTypes(storeId);
+    }
+
+    @GetMapping("/OwnerCreateAdvancedBuyingType")
+    @ResponseBody
+    public ActionResultDTO createAdvancedBuyingType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "buyingTypeIDs", defaultValue = "") List<Integer> buyingTypeIDs,
+            @RequestParam(value = "logicalOperation", defaultValue = "") String logicalOperation
+    ) {
+        return new OwnerHandler(sessionId).createAdvancedBuyingType(storeId, buyingTypeIDs, logicalOperation);
     }
 
 }
