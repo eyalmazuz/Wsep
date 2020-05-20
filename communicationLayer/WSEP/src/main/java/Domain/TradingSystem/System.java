@@ -1054,4 +1054,8 @@ public class System {
     public void removeAllBuyingTypes(int storeId) {
         getStoreById(storeId).removeAllBuyingTypes();
     }
+
+    public IntActionResultDto addAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
+        return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+    }
 }

@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 
 import javax.swing.*;
@@ -61,5 +62,22 @@ public class BuyingPolicy {
 
     public void removeBuyingType(int buyingTypeID) {
         buyingTypes.remove(buyingTypeID);
+    }
+
+    public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperationStr) {
+        synchronized (buyingTypes) {
+            List<BuyingType> relevantBuyingTypes = new ArrayList<>();
+            for (Integer typeID : buyingTypeIDs) {
+                if (buyingTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
+                relevantBuyingTypes.add(buyingTypes.get(typeID));
+                buyingTypeIDs.remove(typeID);
+            }
+            AdvancedBuying.LogicalOperation logicalOperation = AdvancedBuying.LogicalOperation.AND;
+            if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedBuying.LogicalOperation.OR;
+            else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedBuying.LogicalOperation.XOR;
+            else if (logicalOperationStr.toLowerCase().equals("implies")) logicalOperation = AdvancedBuying.LogicalOperation.IMPLIES;
+            BuyingType advanced = new AdvancedBuying.LogicalBuying(relevantBuyingTypes, logicalOperation);
+            return new IntActionResultDto(ResultCode.SUCCESS, null, addBuyingType(advanced));
+        }
     }
 }

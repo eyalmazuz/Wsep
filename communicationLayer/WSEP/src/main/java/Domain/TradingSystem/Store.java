@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 
 import java.util.*;
@@ -330,5 +331,9 @@ public class Store {
 
     public void removeAllBuyingTypes() {
         buyingPolicy.clearBuyingTypes();
+    }
+
+    public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperation) {
+        return buyingPolicy.addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
 }

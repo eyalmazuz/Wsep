@@ -6,6 +6,8 @@ import DTOs.ResultCode;
 import DTOs.StorePurchaseHistoryDTO;
 import Domain.TradingSystem.System;
 
+import java.util.List;
+
 public class ManagerHandler {
     //Usecase 5.1 Handler
     private int sessionId;
@@ -95,6 +97,17 @@ public class ManagerHandler {
         if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
             s.removeAllBuyingTypes(storeId);
             return new IntActionResultDto(ResultCode.SUCCESS, "Removed all buying types", 0);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
+    }
+
+    public IntActionResultDto createAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            if (!logicalOperation.toLowerCase().equals("xor") && !logicalOperation.toLowerCase().equals("and") && !logicalOperation.toLowerCase().equals("or")
+            && !logicalOperation.toLowerCase().equals("implies")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Logical operations are: and, or, xor, implies", -1);
+            if (logicalOperation.toLowerCase().equals("implies") && buyingTypeIDs.size() != 2) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Implies requires exactly 2 basic constraints", -1);
+
+            return s.addAdvancedBuyingType(storeId, buyingTypeIDs, logicalOperation);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
     }
