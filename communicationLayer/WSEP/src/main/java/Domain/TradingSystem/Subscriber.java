@@ -278,4 +278,8 @@ public class Subscriber implements UserState {
             notificationQueue.remove(toRemove);
         }
     }
+
+    public Permission getPermission(int storeId) {
+        return permissions.get(storeId);
+    }
 }
