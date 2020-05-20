@@ -353,7 +353,7 @@ async function CreateAdvancePolicy(){
 
     var ids = document.getElementById('idsText').value
 
-    addAdvancePolicyURL += '&sessionId=' + parseInt(sessionStorage['sessionId'])
+    addAdvancePolicyURL += 'sessionId=' + parseInt(sessionStorage['sessionId'])
     addAdvancePolicyURL += '&storeId=' + parseInt(storeId)
     addAdvancePolicyURL += '&logicalOperation=' + operator
     addAdvancePolicyURL += '&buyingTypeIDs=' + ids.split(' ').join(',')
