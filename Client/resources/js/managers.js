@@ -139,7 +139,8 @@ async function showEditManager(){
 async function addManagerToStore(){
 
     var addManagerToStoreURL;
-
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
     addManagerToStoreURL = 'https://localhost:8443/addStoreManager?'
 
 
@@ -163,6 +164,8 @@ async function addManagerToStore(){
 
 
 async function removeManagerFromStore(){
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
 
     removeManagerURL = 'https://localhost:8443/deleteManager?'
 
@@ -186,6 +189,8 @@ async function removeManagerFromStore(){
 
 
 async function editManager(){
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
 
     editManagerURL = 'https://localhost:8443/editManageOptions?'
 

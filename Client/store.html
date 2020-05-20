@@ -92,11 +92,11 @@
         <br>
         <div>
             <h1 id='optionTitle'>Store OPTIONS</h1>
-            <button type="button" id='productPageButton' class='nav' onclick="moveToProducts()" >Products Page</button>
-            <button type="button" id='managersPageButton' class='nav' onclick="moveToManagers()" >Managers Page</button>
-            <button type="button" id='ownersPageButton' class='nav' onclick="moveToOwners()" >Owner Page</button>
-            <button type="button" id='buyingPolicyPageButton' class='nav' onclick="moveToBuyingPolicy()" >Buying Policy Page</button>
-            <button type="button" id='discountPolicyPageButton' class='nav' onclick="moveToDiscountPolicy()" >Discount Policy Page</button>
+            <button type="button" id='productPageButton' class='nav' name='products' onclick="movePage(event)" >Products Page</button>
+            <button type="button" id='managersPageButton' class='nav' name='managers' onclick="movePage(event)" >Managers Page</button>
+            <button type="button" id='ownersPageButton' class='nav' name='owners' onclick="movePage(event)" >Owner Page</button>
+            <button type="button" id='buyingPolicyPageButton' class='nav' name='buyingPolicy' onclick="movePage(event)" >Buying Policy Page</button>
+            <button type="button" id='discountPolicyPageButton' class='nav' name='discountPolicy' onclick="movePage(event)" >Discount Policy Page</button>
             <button type="button" id='storeHistoryButton' class='nav' onclick="viewStoreHistory()">view Purchase Hisotry</button>
 
         </div>

@@ -1,6 +1,4 @@
 
-
-
 async function viewStoreProducts(){
 
     if(sessionStorage['loggedin'] === 'true'){
@@ -22,6 +20,7 @@ async function viewStoreProducts(){
     storeURL += "&storeId=" + parseInt(storeId)
 
     var result
+    console.log('asdasdasd')
     await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
@@ -66,10 +65,16 @@ function returnToStore(){
 }
 
 
-function showDeleteProduct(){
-
-    
-    document.getElementById('deleteProductToStoreForm').style.display='block'
+async function showDeleteProduct(){
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var res = await checkPermission(storeId, 'delete product') 
+    if(res){
+        document.getElementById('deleteProductToStoreForm').style.display='block'
+    }
+    else{
+        alert("NO PERMISSION")
+    }
 }
 
 
@@ -111,10 +116,17 @@ async function deleteProduct(idx){
 
 }
 
-function showEditProduct(){
-
+async function showEditProduct(){
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var res = await checkPermission(storeId, 'edit product') 
+    if(res){
+        document.getElementById('editProductToStoreForm').style.display='block'
+    }
+    else{
+        alert("NO PERMISSION")
+    }
     
-    document.getElementById('editProductToStoreForm').style.display='block'
 }
 
 
@@ -164,10 +176,17 @@ async function editProduct(idx){
     }
 }
 
-function showAddProduct(){
+async function showAddProduct(){
 
-    
-    document.getElementById('addProductToStoreForm').style.display='block'
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+    var res = await checkPermission(storeId, 'add product') 
+    if(res){
+        document.getElementById('addProductToStoreForm').style.display='block'
+    }
+    else{
+        alert("NO PERMISSION")
+    }
 }
 
 async function addProduct(){
@@ -218,4 +237,19 @@ async function addProduct(){
     }
     console.log(addProductToStoreURL)
 
+}
+
+async function checkPermission(storeId, perm){
+        
+    permissionURL = 'https://localhost:8443/getPermission?'
+    var permissions;
+
+    console.log('permission')
+    permissionURL += 'storeId=' + parseInt(storeId)
+    permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
+    await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
+    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
+    var isManager = (permissions['permission']['details'] === perm || permissions['permission']['details'] === 'any') && permissions['permission']['type'] === 'Manager' 
+
+     return isOwner || isManager  
 }

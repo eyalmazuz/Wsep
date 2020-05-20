@@ -7,28 +7,13 @@ async function viewStore(){
         connect()
     }
 
-    var type = '';
-
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
+    var type = isManager(storeId, sessionStorage['subId'])
 
 
-    if(type != ''){
+    if(type){
         document.getElementById('productPageButton').style.visibility = '';
         document.getElementById('managersPageButton').style.visibility = '';
         document.getElementById('ownersPageButton').style.visibility = '';
@@ -140,12 +125,15 @@ async function viewStore(){
 }
 
 
-function moveToProducts(){
+async function movePage(event){
 
+    var name = event.target.name
+    console.log(name)
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
-    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
-        location.href = 'products.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
+    var res = await checkPermission(storeId, name)
+    if(res){
+        location.href = name + '.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
 
     }
     else{
@@ -153,58 +141,37 @@ function moveToProducts(){
     }
 }
 
-function moveToManagers(){
+async function isManager(storeId, subId){
+    permissionURL = 'https://localhost:8443/getPermission?'
+    var permissions;
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
-        location.href = 'manager.html?storeId=' + storeId+ '&type=' + sessionStorage['storeType']  
-
-    }
-    else{
-        alert('NO permissions')
-    }
-}
-
-function moveToOwners(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
-        location.href = 'owners.html?storeId=' + storeId + '&type=' + sessionStorage['storeType'] 
-
-    }
-    else{
-        alert('NO permissions')
-    }
+    console.log('permission')
+    permissionURL += 'storeId=' + parseInt(storeId)
+    permissionURL += '&subId=' + parseInt(subId)
+    await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response) 
+    console.log(permissions)
+    return permissions['permission']['type'] === 'Owner' || permissions['permission']['type'] === 'Manager'  
 }
 
 
-function moveToBuyingPolicy(){
+async function checkPermission(storeId, page){
+        
+    permissionURL = 'https://localhost:8443/getPermission?'
+    var permissions;
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
-        location.href = 'buyingpolicy.html?storeId=' + storeId + '&type=' + sessionStorage['storeType'] 
-
+    console.log('permission')
+    permissionURL += 'storeId=' + parseInt(storeId)
+    permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
+    await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
+    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
+    var isManager;
+    if(page === 'products'){
+      isManager = ['any', 'add product', 'edit product', 'delete product'].includes(permissions['permission']['details']) && permissions['permission']['type'] === 'Manager' 
     }
-    else{
-        alert('NO permissions')
+    if(page === 'buyingPolicy' || page === 'buyingPolicy'){
+        isManager = permissions['permission']['details'] === 'any' && permissions['permission']['type'] === 'Manager' 
     }
-}
-
-
-function moveToDiscountPolicy(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    if(sessionStorage['storeType'] === 'Manager' || sessionStorage['storeType'] === 'Owner'){
-        location.href = 'discountpolicy.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
-
-    }
-    else{
-        alert('NO permissions')
-    }
+     return isOwner || isManager  
 }
 
 async function viewStoreHistory(){
