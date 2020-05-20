@@ -25,6 +25,10 @@ public class BasketBuyingConstraint extends SimpleBuying {
             if (basket.getProducts().get(productInfo) > maxAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase " + basket.getProducts().get(productInfo) + " of " + productInfo + ". Max amount is " + maxAmount);
             return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
+
+        public String toString() {
+            return "Cannot purchase more than " + maxAmount + " of " + productInfo.getName() + " (" + productInfo.getId() + ")";
+        }
     }
 
     public static class MinAmountForProductConstraint extends BasketBuyingConstraint {
@@ -40,6 +44,10 @@ public class BasketBuyingConstraint extends SimpleBuying {
         public ActionResultDTO canBuy(ShoppingBasket basket) {
             if (basket.getProducts().get(productInfo) < minAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase " + basket.getProducts().get(productInfo) + " of " + productInfo + ". Min amount is " + minAmount);
             return new ActionResultDTO(ResultCode.SUCCESS, null);
+        }
+
+        public String toString() {
+            return "Cannot purchase less than " + minAmount + " of " + productInfo.getName() + " (" + productInfo.getId() + ")";
         }
     }
 
@@ -60,6 +68,10 @@ public class BasketBuyingConstraint extends SimpleBuying {
             }
             return new ActionResultDTO(ResultCode.SUCCESS, null);
         }
+
+        public String toString() {
+            return "Cannot purchase more than " + maxAmount + " products";
+        }
     }
 
     public static class MinProductAmountConstraint extends BasketBuyingConstraint {
@@ -78,6 +90,10 @@ public class BasketBuyingConstraint extends SimpleBuying {
             }
             if (totalAmount < minAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase less than " + minAmount + " products.");
             return new ActionResultDTO(ResultCode.SUCCESS, null);
+        }
+
+        public String toString() {
+            return "Cannot purchase less than " + minAmount + " products";
         }
     }
 }

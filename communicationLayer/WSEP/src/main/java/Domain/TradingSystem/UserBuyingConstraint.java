@@ -21,6 +21,10 @@ public class UserBuyingConstraint extends SimpleBuying {
             return country.equals(validCountry) ? new ActionResultDTO(ResultCode.SUCCESS, null) :
                     new ActionResultDTO(ResultCode.ERROR_PURCHASE, "This purchase is only available in " + validCountry);
         }
+
+        public String toString() {
+            return "Cannot buy outside of " + validCountry;
+        }
     }
 
 }

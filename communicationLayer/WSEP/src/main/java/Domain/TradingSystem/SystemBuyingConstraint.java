@@ -23,6 +23,10 @@ public class SystemBuyingConstraint extends SimpleBuying {
             return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) != forbiddenDay? new ActionResultDTO(ResultCode.SUCCESS, null) :
                     new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Today is " + forbiddenDay + " and therefore purchase is rejected.");
         }
+
+        public String toString() {
+            return "Cannot buy on day " + forbiddenDay + " of the week";
+        }
     }
 
 }

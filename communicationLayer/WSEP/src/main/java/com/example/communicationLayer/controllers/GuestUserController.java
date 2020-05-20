@@ -4,6 +4,8 @@ import DTOs.*;
 import Service.GuestUserHandler;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
+
 @CrossOrigin()
 @RestController
 public class GuestUserController {
@@ -115,5 +117,14 @@ public class GuestUserController {
     @ResponseBody
     public ShoppingCartDTO viewCart(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId) {
         return guestUserHandler.viewCart(sessionId);
+    }
+
+    @GetMapping("/viewBuyingPolicies")
+    @ResponseBody
+    public ActionResultDTO viewBuyingPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return guestUserHandler.viewBuyingPolicies(sessionId, storeId);
     }
 }

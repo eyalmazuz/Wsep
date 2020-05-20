@@ -90,6 +90,15 @@ public class AdvancedBuying implements BuyingType {
             }
             return new ActionResultDTO(ResultCode.ERROR_PURCHASE, null);
         }
+
+        public String toString() {
+            String output = "";
+            for (int i = 0; i < buyingConstraints.size(); i++) {
+                output += buyingConstraints.get(i).toString();
+                if (i < buyingConstraints.size() - 1) output += (" " + type.toString() + " ");
+            }
+            return output;
+        }
     }
 
 

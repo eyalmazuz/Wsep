@@ -1058,4 +1058,8 @@ public class System {
     public IntActionResultDto addAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
         return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
+
+    public String getBuyingPolicyDetails(int storeId) {
+        return getStoreById(storeId).getBuyingPolicyDetails();
+    }
 }
