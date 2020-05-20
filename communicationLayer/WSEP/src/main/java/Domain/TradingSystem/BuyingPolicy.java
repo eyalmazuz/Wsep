@@ -71,7 +71,7 @@ public class BuyingPolicy {
         synchronized (buyingTypes) {
             List<BuyingType> relevantBuyingTypes = new ArrayList<>();
             for (Integer typeID : buyingTypeIDs) {
-                if (buyingTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
+                if (buyingTypes.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
                 relevantBuyingTypes.add(buyingTypes.get(typeID));
             }
             // remove buying types to create one advanced out of all of them
@@ -92,6 +92,6 @@ public class BuyingPolicy {
             BuyingType type = buyingTypes.get(id);
             dtos.add(new BuyingTypeDTO(id, type.toString()));
         }
-        return new BuyingPolicyActionResultDTO(dtos);
+        return new BuyingPolicyActionResultDTO(ResultCode.SUCCESS, null, dtos);
     }
 }
