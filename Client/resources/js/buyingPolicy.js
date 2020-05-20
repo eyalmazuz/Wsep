@@ -15,47 +15,47 @@ async function viewStoreBuyingPolicies(){
 
 
     console.log(typeof(storeId))
-    var storeURL = "https://localhost:8443/getStore?"
+    var policiesURL = "https://localhost:8443/viewBuyingPolicies?"
     
-    storeURL += 'sessionId=' + sessionStorage['sessionId']
+    policiesURL += 'sessionId=' + sessionStorage['sessionId']
 
-    storeURL += "&storeId=" + parseInt(storeId)
+    policiesURL += "&storeId=" + parseInt(storeId)
 
     var result
-    await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
+    await fetch(policiesURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
-    if(result['resultCode'] === 'SUCCESS'){
+    // if(result['resultCode'] === 'SUCCESS'){
 
         
-        var products = result['stores'][0]['products']
-        var productsTable = document.getElementById('storeProducts')
+    //     var products = result['stores'][0]['products']
+    //     var productsTable = document.getElementById('storeProducts')
 
-        for(var i = 1; i< productsTable.rows.length; i++){
-            productsTable.deleteRow(i);
-        }
+    //     for(var i = 1; i< productsTable.rows.length; i++){
+    //         productsTable.deleteRow(i);
+    //     }
 
-        var ridx = 1;
-        for(productIdx in products){
-            var product = products[productIdx]
-            var row = productsTable.insertRow(ridx)
-            var productId = row.insertCell(0)
-            var productName = row.insertCell(1)
-            var productCategory = row.insertCell(2)
-            var productInfo = row.insertCell(3)
-            var productAmount = row.insertCell(4)
-            var DeleteProduct = row.insertCell(5)
+    //     var ridx = 1;
+    //     for(productIdx in products){
+    //         var product = products[productIdx]
+    //         var row = productsTable.insertRow(ridx)
+    //         var productId = row.insertCell(0)
+    //         var productName = row.insertCell(1)
+    //         var productCategory = row.insertCell(2)
+    //         var productInfo = row.insertCell(3)
+    //         var productAmount = row.insertCell(4)
+    //         var DeleteProduct = row.insertCell(5)
 
-            productId.innerHTML = product['productId']
-            productName.innerHTML = product['name']
-            productCategory.innerHTML = product['category']
-            productInfo.innerHTML = product['info']
-            productAmount.innerHTML = product['amount']
-            DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
+    //         productId.innerHTML = product['productId']
+    //         productName.innerHTML = product['name']
+    //         productCategory.innerHTML = product['category']
+    //         productInfo.innerHTML = product['info']
+    //         productAmount.innerHTML = product['amount']
+    //         DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             
-        }
+    //     }
 
-    }
+    // }
     
 }
 
