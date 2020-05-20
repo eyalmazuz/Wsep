@@ -112,5 +112,7 @@ public class ManagerHandler {
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
     }
 
-
+    public ActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
+        return new ActionResultDTO(ResultCode.SUCCESS, s.getBuyingPolicyDetails(storeId));
+    }
 }

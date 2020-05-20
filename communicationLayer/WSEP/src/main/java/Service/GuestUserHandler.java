@@ -108,6 +108,9 @@ public class GuestUserHandler {
         return s.getCart(sessionId);
     }
 
+    public ActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
+        return new ActionResultDTO(ResultCode.SUCCESS, s.getBuyingPolicyDetails(storeId));
+    }
 
 }
 
