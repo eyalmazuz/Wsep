@@ -8,7 +8,8 @@ import java.util.List;
 public class BuyingPolicyActionResultDTO extends ActionResultDTO {
     List<BuyingTypeDTO> dtos;
 
-    public BuyingPolicyActionResultDTO(List<BuyingTypeDTO> dtos) {
+    public BuyingPolicyActionResultDTO(ResultCode code, String details, List<BuyingTypeDTO> dtos) {
+        super(code, details);
         this.dtos = dtos;
     }
 
