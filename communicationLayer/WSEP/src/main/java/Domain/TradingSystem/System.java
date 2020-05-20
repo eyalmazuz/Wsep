@@ -1059,7 +1059,7 @@ public class System {
         return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
 
-    public String getBuyingPolicyDetails(int storeId) {
+    public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
         return getStoreById(storeId).getBuyingPolicyDetails();
     }
 }

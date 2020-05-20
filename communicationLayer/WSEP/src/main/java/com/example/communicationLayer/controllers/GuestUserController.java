@@ -121,7 +121,7 @@ public class GuestUserController {
 
     @GetMapping("/viewBuyingPolicies")
     @ResponseBody
-    public ActionResultDTO viewBuyingPolicies(
+    public BuyingPolicyActionResultDTO viewBuyingPolicies(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "storeId", defaultValue = "") int storeId
     ) {

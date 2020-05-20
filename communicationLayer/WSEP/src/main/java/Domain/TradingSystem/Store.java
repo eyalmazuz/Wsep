@@ -1,9 +1,6 @@
 package Domain.TradingSystem;
 
-import DTOs.ActionResultDTO;
-import DTOs.DoubleActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.ResultCode;
+import DTOs.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -337,7 +334,7 @@ public class Store {
         return buyingPolicy.addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
 
-    public String getBuyingPolicyDetails() {
-        return buyingPolicy.toString();
+    public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {
+        return buyingPolicy.getDTO();
     }
 }
