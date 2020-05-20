@@ -73,8 +73,10 @@ public class BuyingPolicy {
             for (Integer typeID : buyingTypeIDs) {
                 if (buyingTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
                 relevantBuyingTypes.add(buyingTypes.get(typeID));
-                buyingTypeIDs.remove(typeID);
             }
+            // remove buying types to create one advanced out of all of them
+            for (Integer typeID : buyingTypeIDs) buyingTypes.remove(typeID);
+
             AdvancedBuying.LogicalOperation logicalOperation = AdvancedBuying.LogicalOperation.AND;
             if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedBuying.LogicalOperation.OR;
             else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedBuying.LogicalOperation.XOR;
