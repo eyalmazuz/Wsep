@@ -5,7 +5,7 @@ import DTOs.SimpleDTOS.ShoppingBasketDTO;
 
 import java.util.List;
 
-public class BuyingPolicyActionResultDTO {
+public class BuyingPolicyActionResultDTO extends ActionResultDTO {
     List<BuyingTypeDTO> dtos;
 
     public BuyingPolicyActionResultDTO(List<BuyingTypeDTO> dtos) {
