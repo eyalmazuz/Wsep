@@ -1,8 +1,10 @@
 package Domain.TradingSystem;
 
 import DTOs.ActionResultDTO;
+import DTOs.BuyingPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
+import DTOs.SimpleDTOS.BuyingTypeDTO;
 
 import javax.swing.*;
 import java.util.*;
@@ -80,5 +82,14 @@ public class BuyingPolicy {
             BuyingType advanced = new AdvancedBuying.LogicalBuying(relevantBuyingTypes, logicalOperation);
             return new IntActionResultDto(ResultCode.SUCCESS, null, addBuyingType(advanced));
         }
+    }
+
+    public BuyingPolicyActionResultDTO getDTO() {
+        List<BuyingTypeDTO> dtos = new ArrayList<>();
+        for (Integer id : buyingTypes.keySet()) {
+            BuyingType type = buyingTypes.get(id);
+            dtos.add(new BuyingTypeDTO(id, type.toString()));
+        }
+        return new BuyingPolicyActionResultDTO(dtos);
     }
 }

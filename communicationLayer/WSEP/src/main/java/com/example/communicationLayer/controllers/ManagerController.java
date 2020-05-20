@@ -2,6 +2,7 @@ package com.example.communicationLayer.controllers;
 
 
 import DTOs.ActionResultDTO;
+import DTOs.BuyingPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.StorePurchaseHistoryDTO;
 import Service.ManagerHandler;
@@ -132,7 +133,7 @@ public class ManagerController {
 
     @GetMapping("/ManagerViewBuyingPolicies")
     @ResponseBody
-    public ActionResultDTO viewBuyingPolicies(
+    public BuyingPolicyActionResultDTO viewBuyingPolicies(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "storeId", defaultValue = "") int storeId
     ) {

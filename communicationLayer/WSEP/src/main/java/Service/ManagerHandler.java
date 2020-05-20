@@ -1,9 +1,6 @@
 package Service;
 
-import DTOs.ActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.ResultCode;
-import DTOs.StorePurchaseHistoryDTO;
+import DTOs.*;
 import Domain.TradingSystem.System;
 
 import java.util.List;
@@ -112,7 +109,7 @@ public class ManagerHandler {
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
     }
 
-    public ActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
-        return new ActionResultDTO(ResultCode.SUCCESS, s.getBuyingPolicyDetails(storeId));
+    public BuyingPolicyActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
+        return s.getBuyingPolicyDetails(storeId);
     }
 }
