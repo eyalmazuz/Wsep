@@ -1021,8 +1021,8 @@ public class System {
             List<Integer> user = new ArrayList<>();
             user.add(subToLogin.getId());
             synchronized (notifications) {
-                while (!notifications.isEmpty()) {
-                    publisher.notify(user, notifications.poll());
+                for(Notification notification:notifications){
+                    publisher.notify(user,notification);
                 }
             }
         }

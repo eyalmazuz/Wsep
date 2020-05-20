@@ -1,8 +1,11 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.Notification;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
+import NotificationPublisher.MessageBroker;
+import NotificationPublisher.Publisher;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -748,6 +751,35 @@ public class SystemTests extends TestCase {
         policy.clearDiscounts();
         test.removeProduct(4);
         test.removeProduct(5);
+
+    }
+
+    @Test
+    public void testAddProductUpdateNotification(){
+        int counter;
+        Publisher publisherMock = new Publisher(new MessageBroker() {
+
+            @Override
+            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
+
+                return null;
+            }
+        });
+        test.setPublisher(publisherMock);
+        int openerSessionId = test.startSession().getId();
+        int subId = test.register(openerSessionId,"Amir","1234").getId();
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId).getId();
+        test.addProductInfo(4, "bamba", "snacks");
+        test.addProductInfo(5, "apple", "fruits");
+        ProductInfo infoBamba = test.getProductInfoById(4);
+        ProductInfo infoApple = test.getProductInfoById(5);
+
+        test.addProductToStore(openerSessionId,storeid,4,5);
+        Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
+        assertEquals(1,noties.size());
+
+
 
     }
 }
