@@ -28,32 +28,26 @@ async function viewStoreBuyingPolicies(){
     // if(result['resultCode'] === 'SUCCESS'){
 
         
-    //     var products = result['stores'][0]['products']
-    //     var productsTable = document.getElementById('storeProducts')
+        var policies = result['dtos']
+        console.log(policies)
+        var policyTable = document.getElementById('storePolicies')
 
-    //     for(var i = 1; i< productsTable.rows.length; i++){
-    //         productsTable.deleteRow(i);
-    //     }
+        for(var i = 1; i< policyTable.rows.length; i++){
+            policyTable.deleteRow(i);
+        }
 
-    //     var ridx = 1;
-    //     for(productIdx in products){
-    //         var product = products[productIdx]
-    //         var row = productsTable.insertRow(ridx)
-    //         var productId = row.insertCell(0)
-    //         var productName = row.insertCell(1)
-    //         var productCategory = row.insertCell(2)
-    //         var productInfo = row.insertCell(3)
-    //         var productAmount = row.insertCell(4)
-    //         var DeleteProduct = row.insertCell(5)
+        var ridx = 1;
+        for(productIdx in policies){
+            var policy = policies[productIdx]
+            console.log(policy)
+            var row = policyTable.insertRow(ridx)
+            var policyId = row.insertCell(0)
+            var policyDescription = row.insertCell(1)
 
-    //         productId.innerHTML = product['productId']
-    //         productName.innerHTML = product['name']
-    //         productCategory.innerHTML = product['category']
-    //         productInfo.innerHTML = product['info']
-    //         productAmount.innerHTML = product['amount']
-    //         DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
+            policyId.innerHTML = policy['id']
+            policyDescription.innerHTML = policy['toString']
             
-    //     }
+        }
 
     // }
     
