@@ -62,4 +62,22 @@ public class BasketBuyingConstraint extends SimpleBuying {
         }
     }
 
+    public static class MinProductAmountConstraint extends BasketBuyingConstraint {
+
+        private int minAmount;
+
+        public MinProductAmountConstraint(int minAmount) {
+            this.minAmount = minAmount;
+        }
+
+        public ActionResultDTO canBuy(ShoppingBasket basket) {
+            int totalAmount = 0;
+            Map<ProductInfo, Integer> products = basket.getProducts();
+            for (Integer productAmount: products.values()) {
+                totalAmount += productAmount;
+            }
+            if (totalAmount < minAmount) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Cannot purchase less than " + minAmount + " products.");
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
+        }
+    }
 }

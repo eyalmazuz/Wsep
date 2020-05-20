@@ -4,9 +4,7 @@ import DTOs.ActionResultDTO;
 import DTOs.ResultCode;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BuyingPolicy {
 
@@ -17,13 +15,16 @@ public class BuyingPolicy {
     public BuyingPolicy(String details) {
         this.details = details;
     }
-    private List<BuyingType> buyingTypes = new ArrayList<>();
+    private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
+
+
+    Map<String, BuyingType> buyingTypeDictionary = new HashMap<>();
 
     public ActionResultDTO isAllowed(User user, ShoppingBasket basket) {
         if (details.equals("No one is allowed")) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "No one is allowed to buy at this store.");
         String buyingPolicyErrors = "";
         boolean error = false;
-        for (BuyingType type : buyingTypes) {
+        for (BuyingType type : buyingTypes.values()) {
             ActionResultDTO buyingConstraintResult = type.canBuy(user, basket);
             if (buyingConstraintResult.getResultCode() != ResultCode.SUCCESS) {
                 error = true;
@@ -39,11 +40,14 @@ public class BuyingPolicy {
         return "";
     }
 
-    public void addBuyingType(BuyingType type) {
-        buyingTypes.add(type);
+    public int addBuyingType(BuyingType type) {
+        int id = 0;
+        if (!buyingTypes.isEmpty()) id = Collections.max(buyingTypes.keySet()) + 1;
+        buyingTypes.put(id, type);
+        return id;
     }
 
-    public List<BuyingType> getBuyingTypes() {
+    public Map<Integer, BuyingType> getBuyingTypes() {
         return buyingTypes;
     }
 
@@ -53,5 +57,9 @@ public class BuyingPolicy {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public void removeBuyingType(int buyingTypeID) {
+        buyingTypes.remove(buyingTypeID);
     }
 }
