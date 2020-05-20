@@ -5,6 +5,11 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="resources/css/main.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+        <style>
+            .city {display:none}
+            </style>
         <script type='text/javascript' src="resources/js/buttons.js"></script>
         <script type="text/javascript" src="resources/js/buyingPolicy.js"></script>
         <script type='text/javascript' src="./resources/js/communication.js"></script>
@@ -121,44 +126,87 @@
             </form>
         </div> 
 
-
         <!-- The add buying policy Model -->
         <div id="addBuyingPolicyToStoreForm" class="modal">
-            <span onclick="document.getElementById('addBuyingPolicyToStoreForm').style.display='none'"
-            class="close" title="Close Modal">&times;</span>
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
 
-            <!-- Modal Content -->
-            <form class="modal-content animate">
-
-                <div class="container">
-                
+              
+                <div class="w3-bar w3-border-bottom">
+                 <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'Amount')">Amount Constraint</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'Country')">Country Constraint</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'Day')">Day Constraint</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'Advance')">Advance Constraint</button>
+                </div>
+              
+                <div id="Amount" class="w3-container city">
+                    <p>Please Select Type:</p>
+                    <input type="radio" id="min" name="type" value="min">
+                    <label for="min">Min</label><br>
+                    <input type="radio" id="max" name="type" value="max">
+                    <label for="max">Max</label><br>  
+                    
                     <label for="id"><b>Product Id</b></label>
-                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
+                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required><br>
 
                     <label for="amount"><b>Product Amount</b></label>
-                    <input id='amountText' type="Number" placeholder="Amount" name="productAmount" required>
+                    <input id='amountText' type="Number" placeholder="Amount" name="productAmount" required><br>
 
-                    <br>
-                    <br>
-                    <label for="category"><b>Product Category</b></label>
-                    <input id='categoryText' type="text" placeholder="Category" name="productCategory" required>
+                    <input type="button" onclick='CreateAmountPolicy()' value="Submit">
 
-                    <br>
-                    <br>
-                    <label for="name"><b>Product Name</b></label>
-                    <input id='nameText' type="text" placeholder="Name" name="productName" required>
+                </div>
+              
+                <div id="Country" class="w3-container city">
+                    <label for="amount"><b>Product Amount</b></label>
+                    <input id='countryText' type="text" placeholder="Country" name="userCountry" required><br>
 
-                    <label for="price"><b>Product Price</b></label>
-                    <input id='priceText' type="Number" placeholder="Pirce" name="productPrice" required>
-                    <br><br>
-                    <button type="button" onclick="addBuyingPolicy()">Add</button>
-                    
+                    <input type="button" onclick='CreateCountryPolicy()' value="Submit">
+
+                </div>
+              
+                <div id="Day" class="w3-container city">
+                    <input type="radio" id="unday" name="days" value="1">
+                    <label for="sunday">Sunday</label><br>
+                    <input type="radio" id="monday" name="days" value="2">
+                    <label for="monday">Monday</label><br>
+                    <input type="radio" id="tuesday" name="days" value="3">
+                    <label for="tuesday">Tuesday</label><br>
+                    <input type="radio" id="wednesday" name="days" value="4">
+                    <label for="wednesday">Wednesday</label><br>
+                    <input type="radio" id="thursday" name="days" value="5">
+                    <label for="thursday">Thursday</label><br>
+                    <input type="radio" id="friday" name="days" value="6">
+                    <label for="friday">Friday</label><br>
+                    <input type="radio" id="saturday" name="days" value="7">
+                    <label for="saturday">Saturday</label><br>
+
+                    <input type="button" onclick='CreateDayPolicy()' value="Submit">
+
                 </div>
 
-                <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('addBuyingPolicyToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                <div id="Advance" class="w3-container city">
+                    <input type="radio" id="xor" name="operator" value="xor">
+                    <label for="xor">XOR</label><br>
+                    <input type="radio" id="implies" name="operator" value="implies">
+                    <label for="implies">Implies</label><br>
+                    <input type="radio" id="and" name="operator" value="and">
+                    <label for="and">AND</label><br>
+                    <input type="radio" id="or" name="operator" value="or">
+                    <label for="or">OR</label><br>
+
+                    <label for="ids"><b>Policy IDS SPACE SEPERATED ONLY</b></label>
+                    <input id='idsText' type="text" placeholder="Ids" name="ids" required><br>
+
+                    <input type="button" onclick='CreateAdvancePolicy()' value="Submit">
+
+                   </div>
+              
+                <div class="w3-container w3-light-grey w3-padding">
+                 <button class="w3-button w3-right w3-white w3-border" 
+                 onclick="document.getElementById('addBuyingPolicyToStoreForm').style.display='none'">Close</button>
                 </div>
-            </form>
+               </div>
+              </div>
+               
         </div> 
 
         <!-- The edit policy Model -->
@@ -198,8 +246,8 @@
 
                 <div class="container">
                 
-                    <label for="id"><b>Product Id</b></label>
-                    <input id='deleteproductIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+                    <label for="id"><b>Policy Id</b></label>
+                    <input id='deletepolicyIdText' type="number" placeholder="Enter Policy ID" name="policyId" required>
 
 
                     <button type="button" onclick="deleteBuyingPolicy()">Delete</button>
@@ -211,6 +259,7 @@
             </form>
         </div> 
         
+
 
     </body>
 

@@ -80,7 +80,7 @@ async function deleteBuyingPolicy(idx){
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
-    var deleteProductURL;
+    var deletePolicyURL;
 
     storeManagersURL = 'https://localhost:8443/getAllManagers?'
     
@@ -97,30 +97,20 @@ async function deleteBuyingPolicy(idx){
         }
     }
     if(type === 'Owner'){
-        deleteProductURL = 'https:/localhost:8443/OwnerDeleteProductFromStore?'
+        deletePolicyURL = 'https:/localhost:8443/OwnerDeletePolicyFromStore?'
     }
     else{
-        deleteProductURL = 'https:/localhost:8443/ManagerDeleteProductFromStore?'
+        deletePolicyURL = 'https:/localhost:8443/ManagerDeletePolicyFromStore?'
     }
     
-    var productId = document.getElementById('deleteproductIdText').value
+    var policyId = document.getElementById('deletepolicyIdText').value
 
-    deleteProductURL += 'sessionId=' + sessionStorage['sessionId']
-    deleteProductURL += "&storeId=" + storeId;
-    deleteProductURL += "&productId=" + productId;
+    deletePolicyURL += 'sessionId=' + sessionStorage['sessionId']
+    deletePolicyURL += "&storeId=" + storeId;
+    deletePolicyURL += "&policyId=" + policyId;
 
-    console.log(deleteProductURL)
-    var result;
-    await fetch(deleteProductURL, headers).then(response => response.json()).then(response => result = response)
-    console.log(result)
-    if(result['resultCode'] === 'SUCCESS'){
-        alert("deleted product: " + productId)
-        location.reload()
+    console.log(deletePolicyURL)
 
-    }
-    else{
-        alert(result['details'])
-    }
 
 }
 
@@ -193,18 +183,17 @@ async function editBuyingPolicy(idx){
 
 function showAddBuyingPolicy(){
 
-    
     document.getElementById('addBuyingPolicyToStoreForm').style.display='block'
 }
 
 async function addBuyingPolicy(){
 
 
-    var type = '';
-    var managers;
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
+
+}
+
+
+  async function CreateAmountPolicy(){
     
     storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
     storeManagersURL += '&storeId=' + storeId
@@ -217,45 +206,169 @@ async function addBuyingPolicy(){
             type = manager['type']
         }
     }
+    var addAmountPolicyURL;
 
-    var addProductToStoreURL;
+    if(type === 'Owner'){
+        addAmountPolicyURL = 'https://localhost:8443/OwnerAddAmountPolicy?'
+    }
+    else{
+        addAmountPolicyURL = 'https://localhost:8443/ManagerAddAmountPolicy?'
+    }
+
 
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
+
+
+    var radios = document.getElementsByName('type');
+    var type = ''
+    for (var i = 0, length = radios.length; i < length; i++) {
+      if (radios[i].checked) {
+        // do whatever you want with the checked radio
+        type = radios[i].value;
+    
+        // only one radio can be logically checked, don't check the rest
+        break;
+      }
+    }
 
     var productId = document.getElementById('idText').value
     var amount = document.getElementById('amountText').value
-    var price = document.getElementById('priceText').value
-    var category = document.getElementById('categoryText').value
-    var name = document.getElementById('nameText').value
+
+    addAmountPolicyURL += 'storeId=' + storeId
+    addAmountPolicyURL += '&prodcutId' + productId
+    addAmountPolicyURL += '&minmax=' + type
+    addAmountPolicyURL += '&amount=' + amount
+
+    console.log(addAmountPolicyURL)
+}
+
+
+async function CreateCountryPolicy(){
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        console.log(manager)
+        if(sessionStorage['username'] === manager['username']){
+            type = manager['type']
+        }
+    }
+
+    var addCountryPolicyURL;
+
+
+    if(type === 'Owner'){
+        addCountryPolicyURL = 'https://localhost:8443/OwnerAddCountryPolicy?'
+    }
+    else{
+        addCountryPolicyURL = 'https://localhost:8443/ManagerAddCountryPolicy?'
+    }
+
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
 
+
+
+    var country = document.getElementById('countryText').value
+
+    addCountryPolicyURL += 'storeId=' + storeId
+    addCountryPolicyURL += '&country' + country
+
+    console.log(addCountryPolicyURL)
+}
+
+async function CreateDayPolicy(){
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        console.log(manager)
+        if(sessionStorage['username'] === manager['username']){
+            type = manager['type']
+        }
+    }
+    var addDaysPolicyURL;
     if(type === 'Owner'){
-        addProductToStoreURL = 'https://localhost:8443/addProductToStore?'
+        addDaysPolicyURL = 'https://localhost:8443/OwnerAddDayPolicy?'
+
     }
     else{
-        addProductToStoreURL = 'https://localhost:8443/ManagerAddProductToStore?'
+        addDaysPolicyURL = 'https://localhost:8443/ManagerAddDayPolicy?'
     }
 
-    addProductToStoreURL += 'sessionId=' + sessionStorage['sessionId']
-    addProductToStoreURL += "&storeId=" + storeId;
-    addProductToStoreURL += "&productId=" + productId;
-    addProductToStoreURL += "&amount=" + amount;
-    addProductToStoreURL += "&category=" + category;
-    addProductToStoreURL += "&price=" + price;
-    addProductToStoreURL += "&name=" + name;
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
 
-
-    console.log(addProductToStoreURL)
-    var result;
-    await fetch(addProductToStoreURL, headers).then(response => response.json()).then(response => result = response)
     
-    console.log(result)
-    if(result['resultCode'] === 'SUCCESS'){
-        alert('successfully added proudct ${productId}')
-        location.reload()
+    var radios = document.getElementsByName('days');
+    var day = ''
+    for (var i = 0, length = radios.length; i < length; i++) {
+      if (radios[i].checked) {
+        // do whatever you want with the checked radio
+        day = radios[i].value;
+    
+        // only one radio can be logically checked, don't check the rest
+        break;
+      }
     }
-    console.log(addProductToStoreURL)
 
+    addDaysPolicyURL += 'storeId=' + storeId
+    addDaysPolicyURL += '&day=' + day
+
+    console.log(addDaysPolicyURL)
 }
+
+
+async function CreateAdvancePolicy(){
+    
+    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
+    storeManagersURL += '&storeId=' + storeId
+    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
+    console.log(managers)
+    for(managerIdx in managers['subscribers']){
+        manager = managers['subscribers'][managerIdx]
+        console.log(manager)
+        if(sessionStorage['username'] === manager['username']){
+            type = manager['type']
+        }
+    }
+    var addAdvancePolicyURL;
+
+    if(type === 'Owner'){
+        addAdvancePolicyURL = 'https://localhost:8443/OwnerAddAdvancePolicy?'
+
+    }
+    else{
+        addAdvancePolicyURL = 'https://localhost:8443/ManagerAddAdvancePolicy?'
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var storeId = urlParams.get('storeId');
+
+    
+    var radios = document.getElementsByName('operator');
+    var operator = ''
+    for (var i = 0, length = radios.length; i < length; i++) {
+      if (radios[i].checked) {
+        // do whatever you want with the checked radio
+        operator = radios[i].value;
+    
+        // only one radio can be logically checked, don't check the rest
+        break;
+      }
+    }
+
+    var ids = document.getElementById('idsText').value
+
+    addAdvancePolicyURL += 'storeId=' + storeId
+    addAdvancePolicyURL += '&operator=' + operator
+    addAdvancePolicyURL += '&ids=' + ids.split(' ').join(',')
+
+    console.log(addAdvancePolicyURL)
+}
+ 
