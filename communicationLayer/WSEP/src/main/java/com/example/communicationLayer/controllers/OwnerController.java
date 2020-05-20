@@ -1,10 +1,7 @@
 package com.example.communicationLayer.controllers;
 
 
-import DTOs.ActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.StorePurchaseHistoryDTO;
-import DTOs.SubscriberActionResultDTO;
+import DTOs.*;
 import Service.ManagerHandler;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
@@ -171,7 +168,7 @@ public class OwnerController {
 
     @GetMapping("/OwnerViewBuyingPolicies")
     @ResponseBody
-    public ActionResultDTO viewBuyingPolicies(
+    public BuyingPolicyActionResultDTO viewBuyingPolicies(
             @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
             @RequestParam(value = "storeId", defaultValue = "") int storeId
     ) {
