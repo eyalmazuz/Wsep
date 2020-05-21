@@ -1,9 +1,3 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
 
 async function register(){
 
@@ -75,53 +69,6 @@ async function login(){
     
 }
 
-function connect() {
-    var socket = new SockJS('https://localhost:8443/notifications');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-            recieveNotification(message)
-        });
-    });
-}
-
-async function sendReadyForNotificaitons(){
-
-    pullNotificationURL = 'https://localhost:8443/ready?'
-
-    pullNotificationURL += 'subId=' + sessionStorage['subId']
-
-    await fetch(pullNotificationURL, headers).then(response => console.log("send ready message"))
-}
-
-async function recieveNotification(message){
-    message = JSON.parse(message.body)
-    alert(message['massage'])
-    var id = message['id']
-
-    ackURL = "https://localhost:8443/notificationAck?"
-
-    ackURL += 'subId=' + sessionStorage['subId']
-    ackURL += '&notification=' + id
-
-    await fetch(ackURL, headers).then(response => console.log("message sent"))
-
-}
-
-function disconnect() {
-    if (stompClient !== null) {
-        stompClient.disconnect();
-    }
-    setConnected(false);
-    console.log("Disconnected");
-}
-
-
-function showGreeting(message) {
-    console.log(message)
-}
-
 async function logout(){
 
     if(sessionStorage['loggedin'] === 'false'){
@@ -146,6 +93,8 @@ async function logout(){
             sessionStorage['username'] = ''
 
         }
+        location.reload()
+
     }
 }
 
@@ -188,50 +137,6 @@ async function openStore(){
 }
 
 
-function showAddProduct(){
-    if(sessionStorage['isAdmin'] === 'false'){
-        alert("Only Admins can add products to the system");
-    }
-    else{
-        document.getElementById('addProductForm').style.display='block'
-    }
-}
-
-async function addProduct(){
-
-
-        addProductURL = "https://localhost:8443/addProductInfo?";
-        
-        var name = document.getElementById("nameText").value
-        var category = document.getElementById("categoryText").value
-        var productId = document.getElementById('idText').value
-
-        addProductURL += 'sessionId=' + sessionStorage['sessionId']
-        addProductURL += '&id=' + productId
-        addProductURL += '&name=' + name
-        addProductURL += '&category=' + category
-        console.log(addProductURL)
-        var result;
-        await fetch(addProductURL, headers).then(response => response.json()).then(response => result = response)
-        
-        if(result['resultCode'] === 'SUCCESS'){
-            alert("successfully added proudct")            
-            document.getElementById('addProductForm').style.display='none'
-            document.getElementById("nameText").value = ''
-            document.getElementById("categoryText").value = ''
-
-        }
-        else{
-            alert(result['details'])
-            document.getElementById("nameText").value = ''
-            document.getElementById("categoryText").value = ''
-        
-        }
-
-
-}
-
-
 async function moveToAdminPage(){
     if(sessionStorage['isAdmin'] === 'true'){
         location.href = 'admin.html'
@@ -239,10 +144,4 @@ async function moveToAdminPage(){
     else{
         alert("admins only")
     }
-}
-
-
-async function logoutAdmin(){
-    await logout()
-    location.href = 'index.html'
 }

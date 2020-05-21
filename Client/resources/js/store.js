@@ -1,9 +1,4 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
+
 
 
 async function viewStore(){
@@ -12,27 +7,42 @@ async function viewStore(){
         connect()
     }
 
-    var type = '';
-
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
+    var type = await isManager(storeId, sessionStorage['subId'])
 
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
+
+    if(type === 'Manager' || type === 'Owner'){
+        document.getElementById('productPageButton').style.visibility = '';
+        document.getElementById('managersPageButton').style.visibility = '';
+        document.getElementById('ownersPageButton').style.visibility = '';
+        document.getElementById('buyingPolicyPageButton').style.visibility = '';
+        document.getElementById('discountPolicyPageButton').style.visibility = '';
+        document.getElementById('storeHistoryButton').style.visibility = '';
+        document.getElementById('storeHistory').style.visibility = '';
+        document.getElementById('optionTitle').style.visibility = '';
+        document.getElementById('historyTitle').style.visibility = '';
+        sessionStorage['storeType'] = type
+
     }
 
+    else{
+        document.getElementById('productPageButton').style.visibility = 'hidden';
+        document.getElementById('managersPageButton').style.visibility = 'hidden';
+        document.getElementById('ownersPageButton').style.visibility = 'hidden';
+        document.getElementById('buyingPolicyPageButton').style.visibility = 'hidden';
+        document.getElementById('discountPolicyPageButton').style.visibility = 'hidden';
+        document.getElementById('storeHistoryButton').style.visibility = 'hidden';
+        document.getElementById('storeHistory').style.visibility = 'hidden';
+        document.getElementById('optionTitle').style.visibility = 'hidden';
+        document.getElementById('historyTitle').style.visibility = 'hidden';
+        sessionStorage['storeType'] = 'Normie'
 
+
+
+
+    }
 
     console.log(typeof(storeId))
     var storeURL = "https://localhost:8443/getStore?"
@@ -41,17 +51,49 @@ async function viewStore(){
 
     storeURL += "&storeId=" + parseInt(storeId)
 
+    var policiesURL = "https://localhost:8443/viewBuyingPolicies?"
+    
+    policiesURL += 'sessionId=' + sessionStorage['sessionId']
+
+    policiesURL += "&storeId=" + parseInt(storeId)
+
+    var result
+    await fetch(policiesURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    
+    if(result['resultCode'] === 'SUCCESS'){
+
+        
+        var policies = result['dtos']
+        console.log(policies)
+        var policyTable = document.getElementById('buyingPolicies')
+
+        for(var i = 1; i< policyTable.rows.length; i++){
+            policyTable.deleteRow(i);
+        }
+
+        var ridx = 1;
+        for(productIdx in policies){
+            var policy = policies[productIdx]
+            console.log(policy)
+            var row = policyTable.insertRow(ridx)
+            var policyId = row.insertCell(0)
+            var policyDescription = row.insertCell(1)
+
+            policyId.innerHTML = policy['id']
+            policyDescription.innerHTML = policy['toString']
+            
+        }
+
+    }
+
+
     var result
     await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
     if(result['resultCode'] === 'SUCCESS'){
 
-        var policies = document.getElementById('storePolicies')
-        policies.rows[1].cells[0].innerHTML = result['stores'][0]['buyingPolicy']
-        policies.rows[1].cells[1].innerHTML = result['stores'][0]['discountPolicy']
-
-        
         var products = result['stores'][0]['products']
         var productsTable = document.getElementById('storeProducts')
 
@@ -68,547 +110,69 @@ async function viewStore(){
             var productCategory = row.insertCell(2)
             var productInfo = row.insertCell(3)
             var productAmount = row.insertCell(4)
-            var DeleteProduct = row.insertCell(5)
+            var productPrice = row.insertCell(5)
 
             productId.innerHTML = product['productId']
             productName.innerHTML = product['name']
             productCategory.innerHTML = product['category']
             productInfo.innerHTML = product['info']
             productAmount.innerHTML = product['amount']
-            DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
+            productPrice.innerHTML = product['price']
             
         }
 
     }
-    if(type != ''){
-        document.getElementById('optionTitle').style.visibility = '';
-        document.getElementById('addProduct').style.visibility = '';
-        document.getElementById('addManager').style.visibility = '';
-        document.getElementById('addOwner').style.visibility = '';
-        document.getElementById('getHistory').style.visibility = '';
-        document.getElementById('editProduct').style.visibility = '';
-        document.getElementById('editManager').style.visibility = '';
-        document.getElementById('deleteManager').style.visibility = '';
-        document.getElementById('changeBuyingPolicy').style.visibility = '';
-        document.getElementById('storeHistory').style.visibility = '';
-        document.getElementById('deleteProductButton').style.visibility = '';
-
-
-    }
-
-    else{
-        document.getElementById('optionTitle').style.visibility = 'hidden';
-        document.getElementById('addProduct').style.visibility = 'hidden';
-        document.getElementById('addManager').style.visibility = 'hidden';
-        document.getElementById('addOwner').style.visibility = 'hidden';
-        document.getElementById('getHistory').style.visibility = 'hidden';
-        document.getElementById('editProduct').style.visibility = 'hidden';
-        document.getElementById('editManager').style.visibility = 'hidden';
-        document.getElementById('deleteManager').style.visibility = 'hidden';
-        document.getElementById('changeBuyingPolicy').style.visibility = 'hidden';
-        document.getElementById('storeHistory').style.visibility = 'hidden';
-        document.getElementById('deleteProductButton').style.visibility = 'hidden';
-
-    }
     
 }
 
 
-async function deleteProduct(idx){
+async function movePage(event){
 
-    var type = '';
-    var addProductToStoreURL;
-
+    var name = event.target.name
+    console.log(name)
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
-    var editProductURL;
+    var res = await checkPermission(storeId, name)
+    if(res){
+        location.href = name + '.html?storeId=' + storeId + '&type=' + sessionStorage['storeType']
 
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
     }
+    else{
+        alert('NO permissions')
+    }
+}
 
-    if(type != ''){
+async function isManager(storeId, subId){
+    permissionURL = 'https://localhost:8443/getPermission?'
+    var permissions;
 
-        if(type === 'Owner'){
-            editProductURL = 'https:/localhost:8443/OwnerDeleteProductFromStore?'
-        }
-        else{
-            editProductURL = 'https:/localhost:8443/ManagerDeleteProductFromStore?'
-        }
+    console.log('permission')
+    permissionURL += 'storeId=' + parseInt(storeId)
+    permissionURL += '&subId=' + parseInt(subId)
+    await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response) 
+    console.log(permissions)
+    return permissions['permission']['type']
+}
+
+
+async function checkPermission(storeId, page){
         
-        var products = document.getElementById('storeProducts')
+    permissionURL = 'https://localhost:8443/getPermission?'
+    var permissions;
 
-        var productId = products.rows[idx].cells[0].innerHTML
-
-        editProductURL += 'sessionId=' + sessionStorage['sessionId']
-        editProductURL += "&storeId=" + storeId;
-        editProductURL += "&productId=" + idx;
-
-        var result;
-        await fetch(editProductURL, headers).then(response => response.json()).then(response => result = response)
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            console.log('success')
-        }
-        else{
-            console.log('fail')
-        }
-        location.reload()
+    console.log('permission')
+    permissionURL += 'storeId=' + parseInt(storeId)
+    permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
+    await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
+    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
+    var isManager;
+    if(page === 'products'){
+      isManager = ['any', 'add product', 'edit product', 'delete product'].includes(permissions['permission']['details']) && permissions['permission']['type'] === 'Manager' 
     }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
+    if(page === 'buyingPolicy' || page === 'buyingPolicy'){
+        isManager = permissions['permission']['details'] === 'any' && permissions['permission']['type'] === 'Manager' 
     }
-
-}
-
-async function showEditProduct(){
-
-    
-    document.getElementById('editProductToStoreForm').style.display='block'
-}
-
-
-async function editProduct(idx){
-
-
-    var type = '';
-    var addProductToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-    var editProductURL;
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
-
-    if(type != ''){
-
-        if(type === 'Owner'){
-            editProductURL = 'https:/localhost:8443/editProductToStore?'
-        }
-        else{
-            editProductURL = 'https:/localhost:8443/ManagerEditProductToStoreManager?'
-        }
-        
-        var products = document.getElementById('storeProducts')
-
-        var productId = document.getElementById('productIdText').value
-
-        var productInfo = document.getElementById('productInfoText').value;
-
-        editProductURL += 'sessionId=' + sessionStorage['sessionId']
-        editProductURL += "&storeId=" + storeId;
-        editProductURL += "&productId=" + productId;
-        editProductURL += "&info=" + productInfo;
-        console.log(editProductURL)
-        var result;
-        await fetch(editProductURL, headers).then(response => response.json()).then(response => result = response)
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            console.log('success')
-            alert("successfully edited product")
-            location.reload()
-        }
-        else{
-            console.log('fail')
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
-}
-
-async function showAddProduct(){
-
-    
-    document.getElementById('addProductToStoreForm').style.display='block'
-}
-
-async function addProduct(){
-
-    var managers;
-    var type = '';
-    var addProductToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
-
-    if(type != ''){
-        var productId = document.getElementById('idText').value
-        var amount = document.getElementById('amountText').value
-        var urlParams = new URLSearchParams(window.location.search);
-        var storeId = urlParams.get('storeId');
-
-        if(type === 'Owner'){
-            addProductToStoreURL = 'https://localhost:8443/addProductToStore?'
-        }
-        else{
-            addProductToStoreURL = 'https://localhost:8443/ManagerAddProductToStore?'
-        }
-
-        addProductToStoreURL += 'sessionId=' + sessionStorage['sessionId']
-        addProductToStoreURL += "&storeId=" + storeId;
-        addProductToStoreURL += "&productId=" + productId;
-        addProductToStoreURL += "&amount=" + amount;
-
-        var result;
-        await fetch(addProductToStoreURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully added proudct ${productId}')
-        }
-        console.log(addProductToStoreURL)
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
-}
-
-
-
-async function showAddManager(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-    var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
-    
-    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    possibleManagersURL += '&storeId=' + storeId
-
-    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
-    console.log(possibleManagers)
-    for(managerIdx in possibleManagers['subscribers']){
-        manager = possibleManagers['subscribers'][managerIdx]
-        console.log(manager)
-        var x = document.getElementById("managerSelect");
-        var option = document.createElement("option");
-        option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
-        x.add(option); 
-    }
-
-    document.getElementById('addManagerToStoreForm').style.display='block'
-}
-
-async function showAddOwner(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-    var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getOptionalManagers?'
-    
-    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    possibleManagersURL += '&storeId=' + storeId
-    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
-    console.log(possibleManagers)
-    for(managerIdx in possibleManagers['subscribers']){
-        manager = possibleManagers['subscribers'][managerIdx]
-        console.log(manager)
-        var x = document.getElementById("ownerSelect");
-        var option = document.createElement("option");
-        option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
-        x.add(option); 
-    }
-
-    document.getElementById('addOwnerToStoreForm').style.display='block'
-
-}
-
-async function showRemoveManager(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-    var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    possibleManagersURL += '&storeId=' + storeId
-    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
-    console.log(possibleManagers)
-    for(managerIdx in possibleManagers['subscribers']){
-        manager = possibleManagers['subscribers'][managerIdx]
-        console.log(manager)
-        if(manager['type'] === 'Manager'){
-            var x = document.getElementById("employeeSelect");
-            var option = document.createElement("option");
-            option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
-            x.add(option);
-        } 
-    }
-
-    document.getElementById('removeManagerForm').style.display='block'
-}
-
-async function showEditManager(){
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-    var possibleManagers;
-    possibleManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    possibleManagersURL += '&storeId=' + storeId
-    await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
-    console.log(possibleManagers)
-    for(managerIdx in possibleManagers['subscribers']){
-        manager = possibleManagers['subscribers'][managerIdx]
-        console.log(manager)
-        if(manager['type'] === 'Manager'){
-            var x = document.getElementById("editManagerSelect");
-            var option = document.createElement("option");
-            option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
-            x.add(option);
-        } 
-    }
-
-    document.getElementById('editManagerForm').style.display='block'
-}
-
-
-
-async function addManagerToStore(){
-    var managers;
-    var type = '';
-    var addManagerToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
-
-
-    if(type != ''){
-
-        addManagerToStoreURL = 'https://localhost:8443/addStoreManager?'
-
-
-        addManagerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
-        addManagerToStoreURL += "&storeId=" + storeId;
-        var user = document.getElementById('managerSelect').value.split(' ')
-        console.log(user)
-        addManagerToStoreURL += "&userId=" + user[1];
-
-        var result;
-        await fetch(addManagerToStoreURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully added ${user[3]} to the Manager ranks')
-            location.reload()
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
-}
-
-
-async function addOwnerToStore(){
-    var managers;
-    var type = '';
-    var addManagerToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username']){
-            type = manager['type']
-        }
-    }
-
-
-    if(type != ''){
-
-        addOwnerToStoreURL = 'https://localhost:8443/addStoreOwner?'
-
-
-        addOwnerToStoreURL += 'sessionId=' + sessionStorage['sessionId']
-        addOwnerToStoreURL += "&storeId=" + parseInt(storeId);
-        var user = document.getElementById('ownerSelect').value.split(' ')
-        console.log(user)
-        addOwnerToStoreURL += "&subId=" +parseInt(user[1]);
-
-        console.log(addOwnerToStoreURL)
-        var result;
-        await fetch(addOwnerToStoreURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully added ${user[3]} to the Owners ranks')
-            location.reload()
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
-}
-
-
-async function removeManagerFromStore(){
-    var managers;
-    var type = '';
-    var addManagerToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        console.log(manager)
-        if(sessionStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
-            type = manager['type']
-        }
-    }
-
-
-    if(type != ''){
-
-        removeManagerURL = 'https://localhost:8443/deleteManager?'
-
-
-        removeManagerURL += 'sessionId=' + sessionStorage['sessionId']
-        removeManagerURL += "&storeId=" + storeId;
-        var user = document.getElementById('employeeSelect').value.split(' ')
-        console.log(user)
-        removeManagerURL += "&userId=" + user[1];
-
-        var result;
-        await fetch(removeManagerURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully fired ${user[3]} that piece of shit')
-            location.reload()
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
-}
-
-
-async function editManager(){
-    var managers;
-    var type = '';
-    var addManagerToStoreURL;
-
-    var urlParams = new URLSearchParams(window.location.search);
-    var storeId = urlParams.get('storeId');
-
-
-    storeManagersURL = 'https://localhost:8443/getAllManagers?'
-    
-    storeManagersURL += 'sessionId=' + sessionStorage['sessionId']
-    storeManagersURL += '&storeId=' + storeId
-    await fetch(storeManagersURL, headers).then(response => response.json()).then(response => managers = response)
-    console.log(managers)
-    for(managerIdx in managers['subscribers']){
-        manager = managers['subscribers'][managerIdx]
-        if(sessionStorage['username'] === manager['username'] && manager['type'] === 'Owner'){
-            type = manager['type']
-        }
-    }
-
-
-    if(type != ''){
-
-        editManagerURL = 'https://localhost:8443/editManageOptions?'
-
-
-        editManagerURL += 'sessionId=' + sessionStorage['sessionId']
-        editManagerURL += "&storeId=" + storeId;
-
-        var user = document.getElementById('editManagerSelect').value.split(' ')
-        editManagerURL += "&userId=" + user[1];
-        console.log(user[1])
-        var option = document.getElementById('editOptionsSelect').value
-        editManagerURL += "&options=" + option;
-
-        var result;
-        await fetch(editManagerURL, headers).then(response => response.json()).then(response => result = response)
-        
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            alert('successfully edited ${user[3]} options')
-            location.reload()
-        }
-    }
-    else{
-        alert('ONLY MANAGER/OWNERS ALLOWED TO DO THIS ACTION')
-    }
+     return isOwner || isManager  
 }
 
 async function viewStoreHistory(){
@@ -690,28 +254,3 @@ async function viewStoreHistory(){
 
 
 }
-
-// function connect() {
-//     var socket = new SockJS('https://localhost:8443/notifications');
-//     stompClient = Stomp.over(socket);
-//     stompClient.connect({}, function (frame) {
-//         console.log('Connected: ' + frame);
-//         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-//             recieveNotification(message)
-//         });
-//     });
-// }
-
-// async function recieveNotification(message){
-//     message = JSON.parse(message.body)
-//     alert(message['massage'])
-//     var id = message['id']
-
-//     ackURL = "https://localhost:8443/notificationAck?"
-
-//     ackURL += 'subId=' + sessionStorage['subId']
-//     ackURL += '&notification=' + id
-
-//     await fetch(ackURL, headers).then(response => console.log("message sent"))
-
-// }

@@ -3,6 +3,7 @@ package com.example.communicationLayer.controllers;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.PermissionActionResultDTO;
 import Service.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,13 @@ public class SessionController {
     public IntActionResultDto startSession() {
         return sessionHandler.startSession();
 
+    }
+
+    @GetMapping("/getPermission")
+    @ResponseBody
+    public PermissionActionResultDTO getPermission(@RequestParam(value = "subId", defaultValue = "-1") int subId,
+                                                   @RequestParam(value = "storeId", defaultValue = "-1") int storeId){
+        return sessionHandler.getPermission(subId,storeId);
     }
 
     @GetMapping("/notificationAck")

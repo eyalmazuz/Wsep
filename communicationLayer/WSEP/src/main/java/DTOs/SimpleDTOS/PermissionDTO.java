@@ -5,12 +5,15 @@ public class PermissionDTO {
     SubscriberDTO user;
     SubscriberDTO grantor;
     String type;
+    String details;
 
-    public PermissionDTO(int storeId, SubscriberDTO user, SubscriberDTO grantor, String type) {
+
+    public PermissionDTO(int storeId, SubscriberDTO user, SubscriberDTO grantor, String type, String details) {
         this.storeId = storeId;
         this.user = user;
         this.grantor = grantor;
         this.type = type;
+        this.details = details;
     }
 
     public int getStoreId() {
@@ -44,4 +47,13 @@ public class PermissionDTO {
     public void setType(String type) {
         this.type = type;
     }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
 }

@@ -1,23 +1,6 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
-
 
 async function startSystem(){
     
-    // window.addEventListener('beforeunload', (event) => {
-    //     // Cancel the event as stated by the standard.
-    //     event.preventDefault();
-    //     // Chrome requires returnValue to be set.
-    //     event.returnValue = '';
-
-    //     sessionStorage.clear()
-    //   });
-      
-
     if(!('sessionId' in sessionStorage)){
         getSessionId()
     }
@@ -35,36 +18,18 @@ async function startSystem(){
 }
 
 async function getSessionId(){
-
-    await fetch("https://localhost:8443/startSession")
+    headers = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }
+    
+    
+    await fetch("https://localhost:8443/startSession", headers)
     .then(response => response.json())
-    .then(response => sessionStorage['sessionId']=response['id'])
+    .then(response => sessionStorage['sessionId']=response['id']).catch(err => console.log(err))
     console.log("session id: " + sessionStorage['sessionId'])
 
 
 }
-
-// function connect() {
-//     var socket = new SockJS('https://localhost:8443/notifications');
-//     stompClient = Stomp.over(socket);
-//     stompClient.connect({}, function (frame) {
-//         console.log('Connected: ' + frame);
-//         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-//             recieveNotification(message)
-//         });
-//     });
-// }
-
-// async function recieveNotification(mesage){
-//     message = JSON.parse(message.body)
-//     alert(message['message'])
-//     var id = message['id']
-
-//     ackURL = "https://localhost:8443/notificationAck?"
-
-//     ackURL += 'subId=' + sessionStorage['subId']
-//     ackURL += '&notification=' + id
-
-//     await fetch(ackURL, headers).then(response => console.log("message sent"))
-
-// }

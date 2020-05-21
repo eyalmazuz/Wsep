@@ -4,6 +4,7 @@ import DTOs.ActionResultDTO;
 import DTOs.StorePurchaseHistoryDTO;
 import DTOs.SubscriberActionResultDTO;
 import DTOs.UserPurchaseHistoryDTO;
+import Domain.TradingSystem.Subscriber;
 import Service.AdminStateHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,11 @@ public class AdminStateController {
          return new AdminStateHandler(sessionId).addProductInfo(id,name,category, basePrice);
 
    }
+
+    @GetMapping("/getAllSubscribers")
+    public SubscriberActionResultDTO getAllSubscribers(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId){
+       return new AdminStateHandler(sessionId).getAllSubscribers();
+    }
 
 
 }

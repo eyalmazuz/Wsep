@@ -1,11 +1,3 @@
-headers = {
-    headers: {          
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-}
-
-
 
 async function showViewUserHistory(){
 
@@ -183,14 +175,14 @@ async function getShopHistory(){
                 var productId = row.insertCell(1);
                 var productName = row.insertCell(2);
                 var productAmount = row.insertCell(3);
-                row.insertCell(4);
+                var productPrice = row.insertCell(4);
 
                 purchaseId.innerHTML = purchaseIdx
 
                 productId.innerHTML = item['productInfo']['id']
                 productName.innerHTML = item['productInfo']['name']
                 productAmount.innerHTML = item['amount']
-
+                productPrice.innerHTML = item['price']
                 ridx++;
             }                        
 
@@ -200,7 +192,7 @@ async function getShopHistory(){
             row.insertCell(2);
             row.insertCell(3);
             var basketPrice = row.insertCell(4);
-            basketPrice.innerHTML = purchase['price']
+            basketPrice.innerHTML = 'total: ' + purchase['price']
             ridx++;
         }
         
@@ -214,27 +206,7 @@ async function loadAdminPage(){
     }
 }
 
-// function connect() {
-//     var socket = new SockJS('https://localhost:8443/notifications');
-//     stompClient = Stomp.over(socket);
-//     stompClient.connect({}, function (frame) {
-//         console.log('Connected: ' + frame);
-//         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
-//             recieveNotification(message)
-//         });
-//     });
-// }
-
-// async function recieveNotification(mesage){
-//     message = JSON.parse(message.body)
-//     alert(message['message'])
-//     var id = message['id']
-
-//     ackURL = "https://localhost:8443/notificationAck?"
-
-//     ackURL += 'subId=' + sessionStorage['subId']
-//     ackURL += '&notification=' + id
-
-//     await fetch(ackURL, headers).then(response => console.log("message sent"))
-
-// }
+async function logoutAdmin(){
+    await logout()
+    location.href = 'index.html'
+}
