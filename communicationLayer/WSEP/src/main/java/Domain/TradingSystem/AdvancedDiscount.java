@@ -1,6 +1,5 @@
 package Domain.TradingSystem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AdvancedDiscount implements DiscountType {

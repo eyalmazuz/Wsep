@@ -1,12 +1,10 @@
 package Domain.TradingSystem;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DiscountPolicy {
 
-    private List<DiscountType> discounts = new ArrayList<>();
+    private Map<Integer, DiscountType> discountTypes = new HashMap<>();
 
     public double getBasketDiscountedPrice(User user, ShoppingBasket basket) {
         List<DiscountBasket.DiscountProduct> discountProducts = new ArrayList<>();
@@ -25,7 +23,7 @@ public class DiscountPolicy {
         DiscountBasket discountBasket = new DiscountBasket(discountProducts);
 
 
-        for (DiscountType discount: discounts) {
+        for (DiscountType discount: discountTypes.values()) {
             discountBasket = discount.getDiscountedBasket(user, discountBasket);
         }
 
@@ -39,11 +37,18 @@ public class DiscountPolicy {
 
     }
 
-    public void addDiscount(DiscountType discount) {
-        discounts.add(discount);
+    public int addDiscountType(DiscountType discount) {
+        int id = 0;
+        if (!discountTypes.isEmpty()) id = Collections.max(discountTypes.keySet()) + 1;
+        discountTypes.put(id, discount);
+        return id;
     }
 
-    public void clearDiscounts() {
-        discounts.clear();
+    public void removeDiscountType(int discountTypeId) {
+        discountTypes.remove(discountTypeId);
+    }
+
+    public void clearDiscountTypes() {
+        discountTypes.clear();
     }
 }

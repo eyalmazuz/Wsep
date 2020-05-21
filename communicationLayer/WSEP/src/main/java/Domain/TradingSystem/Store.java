@@ -345,4 +345,22 @@ public class Store {
         }
         return false;
     }
+
+
+    public int addSimpleProductDiscount(int productId, double salePercentage) {
+        return discountPolicy.addDiscountType(new ProductDiscount.ProductSaleDiscount(productId, salePercentage));
+    }
+
+    public int addSimpleCategoryDiscount(String categoryName, double salePercentage) {
+        return discountPolicy.addDiscountType(new ProductDiscount.CategorySaleDiscount(categoryName, salePercentage));
+    }
+
+    public void removeDiscountType(int discountTypeID) {
+        discountPolicy.removeDiscountType(discountTypeID);
+    }
+
+    public void removeAllDiscountTypes() {
+        discountPolicy.clearDiscountTypes();
+    }
+
 }

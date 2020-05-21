@@ -1091,4 +1091,21 @@ public class System {
         return new PermissionDTO(permission.getStore().getId(),user,grantor,permission.getType(),permission.getDetails());
 
     }
+
+    public void removeDiscountTypeFromStore(int storeId, int discountTypeID) {
+        getStoreById(storeId).removeDiscountType(discountTypeID);
+    }
+
+    public void removeAllDiscountTypes(int storeId) {
+        getStoreById(storeId).removeAllDiscountTypes();
+    }
+
+    public int addSimpleProductDiscount(int storeId, int productId, double salePercentage) {
+        return getStoreById(storeId).addSimpleProductDiscount(productId, salePercentage);
+    }
+
+    public int addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) {
+        return getStoreById(storeId).addSimpleCategoryDiscount(categoryName, salePercentage);
+    }
+
 }
