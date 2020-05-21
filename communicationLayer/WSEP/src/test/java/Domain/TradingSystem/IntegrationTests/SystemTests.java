@@ -1,8 +1,12 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.ActionResultDTO;
+import DTOs.Notification;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
+import NotificationPublisher.MessageBroker;
+import NotificationPublisher.Publisher;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +40,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         assertSame(test.addProductToStore(sessionId, storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addProductToStore(sessionId, storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
 
@@ -48,7 +52,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
@@ -63,7 +67,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.deleteProductFromStore(sessionId, storeId, 1).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.deleteProductFromStore(sessionId, storeId, 2).getResultCode(), ResultCode.SUCCESS);
@@ -74,52 +78,10 @@ public class SystemTests extends TestCase {
     // USECASE 2.8
 
     @Test
-    public void testCheckSuppliesAndGetPrice() {
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4 , 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), 0.0);
-
-        u.addProductToCart(store1, pi4, 10);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), -1.0);
-    }
-
-    @Test
-    public void testMakePaymentFail() {
-        // keep track of the original cart, history, store supplies
-
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4, 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        u.setState(new Subscriber());
-
-        try {
-            test.setPaymentHandler(new PaymentHandler("None"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        PaymentSystemMock.succeedPurchase = false;
-        assertNotSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
-
-        // make sure nothing was changed
-        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
-        assertTrue(store1.getStorePurchaseHistory().isEmpty());
-        assertEquals(store1.getProductAmount(4), 5);
-        assertNotNull(u.getShoppingCart().getStoreProductsIds().get(store1.getId()));
-        assertEquals((int) u.getShoppingCart().getStoreProductsIds().get(store1.getId()).get(4), 4);
-    }
-
-    @Test
     public void testSavePurchaseHistory() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -143,7 +105,7 @@ public class SystemTests extends TestCase {
     public void testUpdateStoreSupplies() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -158,7 +120,7 @@ public class SystemTests extends TestCase {
     public void testSaveOngoingPurchaseForUser() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -175,21 +137,23 @@ public class SystemTests extends TestCase {
     public void testRequestSupply() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
+        SupplyHandler supplyHandler = null;
         try {
-            test.setSupplyHandler(new SupplyHandler("None"));
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        SupplySystemMock.succeedSupply = false;
+        supplyHandler.setProxySupplySuccess(false);
         assertFalse(test.requestSupply(sessionId));
 
-        SupplySystemMock.succeedSupply = true;
+        supplyHandler.setProxySupplySuccess(true);
         assertTrue(test.requestSupply(sessionId));
     }
 
@@ -198,7 +162,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -214,7 +178,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -232,7 +196,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id =test.addStore();
         Store store1 = test.getStores().get(id);
-        test.addProductInfo(4, "lambda", "snacks");
+        test.addProductInfo(4, "lambda", "snacks", 10);
         ProductInfo info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -253,7 +217,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -264,33 +228,71 @@ public class SystemTests extends TestCase {
         assertNull(test.getOngoingPurchases().get(sessionId));
     }
 
-    @Test
-    public void testEntirePurchaseProcessFailure() {
-        int sessionId = test.startSession().getId();
-        int id = test.addStore();
-        Store store1 = test.getStores().get(id);
-        test.addProductInfo(4,"lambda","snacks");
-        ProductInfo info = test.getProductInfoById(4);
 
+    private int sessionId, id;
+    private Store store1;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
+
+    private void setUpPurchase() {
+        sessionId = test.startSession().getId();
+        id = test.addStore();
+        store1 = test.getStores().get(id);
+        test.addProductInfo(4, "lambda", "snacks", 10);
+        info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
-        User u = test.getUser(sessionId);
+        u = test.getUser(sessionId);
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
 
         try {
-            test.setSupplyHandler(new SupplyHandler("none"));
-            test.setPaymentHandler(new PaymentHandler("none"));
+            paymentHandler = new PaymentHandler("None");
+            test.setPaymentHandler(paymentHandler);
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
+    @Test
+    public void testPurchaseSuccess() {
+        setUpPurchase();
 
-        // the process
         assertFalse(test.isCartEmpty(sessionId));
-        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        double price = test.checkSuppliesAndGetPrice(sessionId);
+        assertFalse(price < 0);
 
+        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
+
+        assertTrue(test.updateStoreSupplies(sessionId));
+        test.emptyCart(sessionId);
+        assertTrue(test.requestSupply(sessionId));
+        test.removeOngoingPurchase(sessionId);
+
+        // check state
+        assertTrue(!u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+                !store1.getStorePurchaseHistory().isEmpty() &&
+                store1.getProductAmount(4) == 1 &&
+                 u.getShoppingCart().isEmpty() && !u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+    }
+
+    @Test
+    public void testPurchaseFailBuyingPolicy() {
+        setUpPurchase();
+        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
+
+    @Test
+    public void testPurhcaseFailMissingSupplies() {
+        setUpPurchase();
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
         u.editCartProductAmount(store1, info, 6);
@@ -298,22 +300,30 @@ public class SystemTests extends TestCase {
         assertEquals(price, -1.0);
         u.editCartProductAmount(store1, info, 4);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        price = test.checkSuppliesAndGetPrice(sessionId);
-        assertEquals(price, 0.0);
-
-        PaymentSystemMock.succeedPurchase = false;
+    @Test
+    public void testPurchaseFailPaymentSystem() {
+        setUpPurchase();
+        paymentHandler.setProxyPurchaseSuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        PaymentSystemMock.succeedPurchase = true;
-        SupplySystemMock.succeedSupply = false;
+    @Test
+    public void testPurchaseFailSupplySystem() {
+        setUpPurchase();
+        supplyHandler.setProxySupplySuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        SupplySystemMock.succeedSupply = true;
+    @Test
+    public void testPurchaseFailSyncProblem() {
+        setUpPurchase();
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) {
@@ -346,8 +356,7 @@ public class SystemTests extends TestCase {
         return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
             store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
-            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
-            (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
+            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
     }
 
     @Test
@@ -416,7 +425,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10.0);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -429,7 +438,7 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 0.0\n\n";
+        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 40.0\n\n";
 
         store1.setBuyingPolicy(new BuyingPolicy("Any"));
         u.saveCurrentCartAsPurchase();
@@ -443,7 +452,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 10);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -519,7 +528,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 10);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -576,8 +585,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
 
-        test.addProductInfo(4, "bamba", "snacks");
-        test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -685,8 +694,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
 
-        test.addProductInfo(4, "bamba", "snacks");
-        test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -748,6 +757,35 @@ public class SystemTests extends TestCase {
         policy.clearDiscounts();
         test.removeProduct(4);
         test.removeProduct(5);
+
+    }
+
+    @Test
+    public void testAddProductUpdateNotification(){
+        int counter;
+        Publisher publisherMock = new Publisher(new MessageBroker() {
+
+            @Override
+            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
+
+                return null;
+            }
+        });
+        test.setPublisher(publisherMock);
+        int openerSessionId = test.startSession().getId();
+        int subId = test.register(openerSessionId,"Amir","1234").getId();
+        test.login(openerSessionId,"Amir","1234");
+        int storeid = test.openStore(openerSessionId).getId();
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
+        ProductInfo infoBamba = test.getProductInfoById(4);
+        ProductInfo infoApple = test.getProductInfoById(5);
+
+        test.addProductToStore(openerSessionId,storeid,4,5);
+        Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
+        assertEquals(1,noties.size());
+
+
 
     }
 }

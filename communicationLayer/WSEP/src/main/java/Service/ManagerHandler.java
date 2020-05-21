@@ -21,6 +21,17 @@ public class ManagerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores.");
     }
 
+    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount, double basePrice) {
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
+            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
+            if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
+                return addProductInfoResult;
+            }
+            return s.addProductToStore(sessionId,storeId,productId,amount);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
+    }
+
     public ActionResultDTO editProductToStore(int storeId, int productId, String info)  {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"edit Product")){
             return s.editProductInStore(sessionId,storeId,productId,info);
@@ -111,5 +122,9 @@ public class ManagerHandler {
 
     public BuyingPolicyActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
         return s.getBuyingPolicyDetails(storeId);
+    }
+
+    public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
+        return s.changeProductPrice(storeId, productId, price);
     }
 }

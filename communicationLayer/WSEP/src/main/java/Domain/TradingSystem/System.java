@@ -193,14 +193,14 @@ public class System {
         return s.hasOwnerPermission(storeId);
 
     }
-    public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int ammount) {
+    public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int amount) {
 
-        logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, ammount, productId, storeId));
+        logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, amount, productId, storeId));
         ProductInfo info = getProductInfoById(productId);
         if(info != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-                ActionResultDTO result = store.addProduct(info, ammount);
+                ActionResultDTO result = store.addProduct(info, amount);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
                     if(publisher != null) {
@@ -465,15 +465,6 @@ public class System {
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
-    // usecase 2.8
-    /*public boolean requestConfirmedPurchase(int sessionId) {
-        User u = userHandler.getUser(sessionId);
-
-        makePayment(sessionId, paymentDetails, u.getShoppingCart().getStoreProductsIds());
-
-        return u.requestConfirmedPurchase();
-    }
-*/
     public boolean setPaymentDetails(int sessionId, String details) {
         logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
         User u = userHandler.getUser(sessionId);
@@ -485,7 +476,7 @@ public class System {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
+        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts, u.getShoppingCartPrice().getPrice());
         logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
         return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
 
@@ -808,14 +799,14 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public ActionResultDTO addProductInfo(int id, String name, String category) {
+    public ActionResultDTO addProductInfo(int id, String name, String category, double basePrice) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
-        ProductInfo productInfo = new ProductInfo(id, name, category);
+        ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
         if (products.get(id) != null) {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
-        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to store");
+        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
@@ -1022,8 +1013,8 @@ public class System {
             List<Integer> user = new ArrayList<>();
             user.add(subToLogin.getId());
             synchronized (notifications) {
-                while (!notifications.isEmpty()) {
-                    publisher.notify(user, notifications.poll());
+                for(Notification notification:notifications){
+                    publisher.notify(user,notification);
                 }
             }
         }
@@ -1062,6 +1053,17 @@ public class System {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
         return getStoreById(storeId).getBuyingPolicyDetails();
+    }
+
+    public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
+        Store store = getStoreById(storeId);
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such store");
+        ProductInfo info = getProductInfoById(productId);
+        if (!store.hasProduct(info)) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such product in the store");
+        if (price < 0) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "Invalid price. Must be non-negative.");
+        store.setProductPrice(info.getId(), price);
+
+        return new ActionResultDTO(ResultCode.SUCCESS, "Changed price of " + info.getName() + " (" + info.getId() + ") to " + price);
     }
 
     public PermissionActionResultDTO getPermission(int subId, int storeId) {

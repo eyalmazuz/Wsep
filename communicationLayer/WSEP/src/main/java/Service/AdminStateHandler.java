@@ -29,9 +29,9 @@ public class AdminStateHandler {
 
     }
 
-    public ActionResultDTO addProductInfo(int id, String name, String category){
+    public ActionResultDTO addProductInfo(int id, String name, String category, double basePrice){
         if(s.isAdmin(sessionId)){
-            return s.addProductInfo(id, name, category);
+            return s.addProductInfo(id, name, category, basePrice);
         }
         return new ActionResultDTO(ResultCode.ERROR_ADMIN,"User is not admin");
     }

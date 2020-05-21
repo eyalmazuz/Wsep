@@ -20,8 +20,8 @@ public abstract class ServiceTest extends TestCase {
 
             this.setUpUsers();
             login(Database.sessionId, "admin", "admin");
-            addProductInfo(Database.sessionId, 1, "UO", "KB");
-            addProductInfo(Database.sessionId, 2, "Famichiki", "Food");
+            addProductInfo(Database.sessionId, 1, "UO", "KB", 10);
+            addProductInfo(Database.sessionId, 2, "Famichiki", "Food", 10);
             logout(Database.sessionId);
             Driver.flag = false;
         }
@@ -114,7 +114,7 @@ public abstract class ServiceTest extends TestCase {
 
     public int startSession() { return this.bridge.startSession(); }
 
-    public void addProductInfo(int sessionId, int id, String name, String category) { this.bridge.addProductInfo(sessionId, id, name, category);}
+    public void addProductInfo(int sessionId, int id, String name, String category, double basePrice) { this.bridge.addProductInfo(sessionId, id, name, category, basePrice);}
 
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy) { return this.bridge.changeBuyingPolicy(sessionId, flag, storeId, newPolicy); }
 }

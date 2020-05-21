@@ -28,6 +28,18 @@ public class OwnerController {
         return new OwnerHandler(sessionId).addProductToStore(storeId,productId,amount);
     }
 
+    @GetMapping("/addNewProductToStore")
+    @ResponseBody
+    public ActionResultDTO addProductToStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                             @RequestParam(value = "productId", defaultValue = "") int productId,
+                                             @RequestParam(value = "prodectName",defaultValue = "") String productName,
+                                             @RequestParam(value="productCategory",defaultValue = "") String productCategory,
+                                             @RequestParam(value = "amount", defaultValue = "") int amount,
+                                             @RequestParam(value = "basePrice", defaultValue = "") double basePrice){
+        return new OwnerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount,basePrice);
+    }
+
 
     @GetMapping("/editProductToStore")
     @ResponseBody
@@ -174,5 +186,17 @@ public class OwnerController {
     ) {
         return new OwnerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
     }
+
+    @GetMapping("/OwnerChangeProductPrice")
+    @ResponseBody
+    public ActionResultDTO changeProductPrice(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "price", defaultValue = "") double price
+    ) {
+        return new OwnerHandler(sessionId).changeProductPrice(storeId, productId, price);
+    }
+
 
 }

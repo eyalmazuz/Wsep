@@ -181,7 +181,7 @@ public class SystemTest extends TestCase {
 
         List<Integer> productIds = new ArrayList<>();
         Map<Integer, ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene", 10));
 
         for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
@@ -207,7 +207,7 @@ public class SystemTest extends TestCase {
 
         List<Integer> productIds = new ArrayList<>();
         Map<Integer, ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene", 10));
 
         for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
@@ -236,7 +236,7 @@ public class SystemTest extends TestCase {
 
         List<Integer> productIds = new ArrayList<>();
         Map<Integer, ProductInfo> products = test.getProducts();
-        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene"));
+        if (products.isEmpty()) products.put(1,new ProductInfo(1, "gloves", "hygiene", 10));
 
         for (ProductInfo info : products.values()) {
             productIds.add(info.getId());
@@ -285,9 +285,9 @@ class StoreMock extends Store{
 
     public StoreMock(int i) {
         id = i;
-        ProductInfo bamba = new ProductInfo(4, "bamba", "snack");
+        ProductInfo bamba = new ProductInfo(4, "bamba", "snack", 10);
         bamba.setRating(3);
-        ProductInfo apple = new ProductInfo(5, "apple", "fruit");
+        ProductInfo apple = new ProductInfo(5, "apple", "fruit", 10);
         apple.setRating(2);
 
         if (id == 1) {

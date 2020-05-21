@@ -30,11 +30,11 @@ public class ShoppingCartTest extends TestCase {
         store1 = new Store();
         store2 = new Store();
         store3 = new Store();
-        productInfo2 = new ProductInfo(2,"two","two");
-        productInfo4 = new ProductInfo(4,"four","four");
-        productInfo5 = new ProductInfo(5,"five","five");
-        productInfo10 = new ProductInfo(10,"ten","ten");
-        productInfo40 = new ProductInfo(40,"fourty","fourty");
+        productInfo2 = new ProductInfo(2,"two","two", 10);
+        productInfo4 = new ProductInfo(4,"four","four", 10);
+        productInfo5 = new ProductInfo(5,"five","five", 10);
+        productInfo10 = new ProductInfo(10,"ten","ten", 10);
+        productInfo40 = new ProductInfo(40,"fourty","fourty", 10);
         found = false;
     }
 
@@ -319,7 +319,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testCheckStoreSuppliesSuccess() {
-        store1.addProduct(new ProductInfo(4, "lambda", "snacks"), 4);
+        store1.addProduct(new ProductInfo(4, "lambda", "snacks", 10), 4);
         shoppingCart.addProduct(store1, productInfo4, 2);
         assertTrue(shoppingCart.checkStoreSupplies());
 
@@ -334,7 +334,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testSaveAndGetStorePurchaseDetails() {
-        info = new ProductInfo(4, "lambda", "snacks");
+        info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
@@ -343,7 +343,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testSaveAndGetStorePurchaseDetails2() {
-        info = new ProductInfo(4, "lambda", "snacks");
+        info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
@@ -353,7 +353,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testSaveAndGetStorePurchaseDetails3() {
-        info = new ProductInfo(4, "lambda", "snacks");
+        info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
@@ -362,7 +362,7 @@ public class ShoppingCartTest extends TestCase {
 
     @Test
     public void testSaveAndGetStorePurchaseDetails4() {
-        info = new ProductInfo(4, "lambda", "snacks");
+        info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();

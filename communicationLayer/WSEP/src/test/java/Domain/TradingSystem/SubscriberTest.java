@@ -1,6 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.Notification;
 import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,6 +27,11 @@ public class SubscriberTest extends TestCase {
 
         subscriber = new Subscriber("hava nagila", "1234", false);
         subscriber.setUser(new User());
+    }
+
+    @After
+    public void tearDown(){
+        subscriber.getAllNotification().clear();
     }
 
     @Test
@@ -253,12 +260,35 @@ public class SubscriberTest extends TestCase {
         store = new Store();
         int storeId = store.getId();
         products = new HashMap<>();
-        productInfo = new ProductInfo(3,"bamba","hatif");
+        productInfo = new ProductInfo(3,"bamba","hatif", 10);
         products.put(productInfo,2);
         details = new PurchaseDetails(3,user,store,products,13.8);
         storePurchaseDetails.put(store,details);
         subscriber.addPurchase(storePurchaseDetails);
         //Assert.assertEquals(subscriber.getPurchaseHistory());
 
+    }
+
+    @Test
+    public void testSetNotification(){
+        Notification notification = new Notification(9,"test");
+        subscriber.setNotification(notification);
+        assertEquals(1,subscriber.getAllNotification().size());
+    }
+
+    @Test
+    public void testRemoveNotificationSuccess(){
+        Notification notification = new Notification(42,"test");
+        subscriber.setNotification(notification);
+        subscriber.removeNotification(42);
+        assertEquals(0,subscriber.getAllNotification().size());
+    }
+
+    @Test
+    public void testRemoveNotificationWrondId(){
+        Notification notification = new Notification(42,"test");
+        subscriber.setNotification(notification);
+        subscriber.removeNotification(10);
+        assertEquals(1,subscriber.getAllNotification().size());
     }
 }

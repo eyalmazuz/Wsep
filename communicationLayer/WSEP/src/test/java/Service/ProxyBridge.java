@@ -239,9 +239,9 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public void addProductInfo(int sessionId, int id, String name, String category){
+    public void addProductInfo(int sessionId, int id, String name, String category, double basePrice){
         if(rb != null){
-            rb.addProductInfo(sessionId, id, name, category);
+            rb.addProductInfo(sessionId, id, name, category, basePrice);
         }
         else{
 
