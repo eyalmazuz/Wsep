@@ -160,9 +160,9 @@ public class RealBridge implements Bridge {
         return null;
     }
 
-    public void addProductInfo(int sessionId, int id, String name, String category){
+    public void addProductInfo(int sessionId, int id, String name, String category, double basePrice){
         AdminStateHandler ash = new AdminStateHandler(sessionId);
-        ash.addProductInfo(id, name, category);
+        ash.addProductInfo(id, name, category, basePrice);
     }
 
     public int startSession() {

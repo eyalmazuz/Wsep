@@ -192,14 +192,14 @@ public class System {
         return s.hasOwnerPermission(storeId);
 
     }
-    public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int ammount) {
+    public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int amount) {
 
-        logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, ammount, productId, storeId));
+        logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, amount, productId, storeId));
         ProductInfo info = getProductInfoById(productId);
         if(info != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-                ActionResultDTO result = store.addProduct(info, ammount);
+                ActionResultDTO result = store.addProduct(info, amount);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
                     if(publisher != null) {
@@ -798,9 +798,9 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public ActionResultDTO addProductInfo(int id, String name, String category) {
+    public ActionResultDTO addProductInfo(int id, String name, String category, double basePrice) {
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
-        ProductInfo productInfo = new ProductInfo(id, name, category);
+        ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
         if (products.get(id) != null) {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
@@ -1060,7 +1060,7 @@ public class System {
         ProductInfo info = getProductInfoById(productId);
         if (!store.hasProduct(info)) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such product in the store");
         if (price < 0) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "Invalid price. Must be non-negative.");
-        store.changeProductPrice(info, price);
+        store.setProductPrice(info.getId(), price);
 
         return new ActionResultDTO(ResultCode.SUCCESS, "Changed price of " + info.getName() + " (" + info.getId() + ") to " + price);
     }

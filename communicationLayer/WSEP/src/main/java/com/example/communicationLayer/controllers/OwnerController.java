@@ -35,8 +35,9 @@ public class OwnerController {
                                              @RequestParam(value = "productId", defaultValue = "") int productId,
                                              @RequestParam(value = "prodectName",defaultValue = "") String productName,
                                              @RequestParam(value="productCategory",defaultValue = "") String productCategory,
-                                             @RequestParam(value = "amount", defaultValue = "") int amount){
-        return new OwnerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount);
+                                             @RequestParam(value = "amount", defaultValue = "") int amount,
+                                             @RequestParam(value = "basePrice", defaultValue = "") double basePrice){
+        return new OwnerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount,basePrice);
     }
 
 

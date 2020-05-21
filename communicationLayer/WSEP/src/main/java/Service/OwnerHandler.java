@@ -22,9 +22,9 @@ public class OwnerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
 
-    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount) {
+    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount, double basePrice) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
-            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory);
+            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }

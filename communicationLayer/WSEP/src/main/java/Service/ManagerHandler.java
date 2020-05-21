@@ -21,9 +21,9 @@ public class ManagerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores.");
     }
 
-    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount) {
+    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount, double basePrice) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
-            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory);
+            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }

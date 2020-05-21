@@ -286,7 +286,7 @@ public class Store {
         purchaseHistory.remove(purchaseHistory.size() - 1);
     }
 
-    public void setProductPrice(int id, int price) {
+    public void setProductPrice(int id, double price) {
         for (ProductInStore productInStore: products) {
             if (productInStore.getProductInfo().getId() == id) {
                 productInStore.setPrice(price);
@@ -344,14 +344,5 @@ public class Store {
             if (pis.getId() == productId) return true;
         }
         return false;
-    }
-
-    public void changeProductPrice(ProductInfo info, double price) {
-        for (ProductInStore pis : products) {
-            if (pis.getId() == info.getId()) {
-                pis.setPrice(price);
-                return;
-            }
-        }
     }
 }
