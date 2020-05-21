@@ -28,6 +28,17 @@ public class OwnerController {
         return new OwnerHandler(sessionId).addProductToStore(storeId,productId,amount);
     }
 
+    @GetMapping("/addNewProductToStore")
+    @ResponseBody
+    public ActionResultDTO addProductToStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                             @RequestParam(value = "productId", defaultValue = "") int productId,
+                                             @RequestParam(value = "prodectName",defaultValue = "") String productName,
+                                             @RequestParam(value="productCategory",defaultValue = "") String productCategory,
+                                             @RequestParam(value = "amount", defaultValue = "") int amount){
+        return new OwnerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount);
+    }
+
 
     @GetMapping("/editProductToStore")
     @ResponseBody

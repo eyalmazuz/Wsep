@@ -814,7 +814,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
-        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to store");
+        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
