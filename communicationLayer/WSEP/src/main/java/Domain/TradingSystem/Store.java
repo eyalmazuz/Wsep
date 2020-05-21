@@ -286,7 +286,7 @@ public class Store {
         purchaseHistory.remove(purchaseHistory.size() - 1);
     }
 
-    public void setProductPrice(int id, int price) {
+    public void setProductPrice(int id, double price) {
         for (ProductInStore productInStore: products) {
             if (productInStore.getProductInfo().getId() == id) {
                 productInStore.setPrice(price);
@@ -336,5 +336,13 @@ public class Store {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {
         return buyingPolicy.getDTO();
+    }
+
+    public boolean hasProduct(ProductInfo productInfo) {
+        int productId = productInfo.getId();
+        for (ProductInStore pis : products) {
+            if (pis.getId() == productId) return true;
+        }
+        return false;
     }
 }

@@ -7,12 +7,12 @@ public class ProductInfo {
     private double rating;
     private double defaultPrice;
 
-    public ProductInfo(int productId, String name, String category) {
+    public ProductInfo(int productId, String name, String category, double basePrice) {
         this.id = productId;
         this.name = name;
         this.category = category;
         this.rating = 2.5;
-        this.defaultPrice = 0;
+        this.defaultPrice = basePrice;
     }
 
     public int getId() {

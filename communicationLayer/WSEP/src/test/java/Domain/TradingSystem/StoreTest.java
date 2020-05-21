@@ -10,8 +10,8 @@ public class StoreTest extends TestCase {
 
     Store store = new Store();
     Subscriber s = new Subscriber();
-    ProductInfo bamba = new ProductInfo(1,"bamba","sanck");
-    ProductInfo bisly = new ProductInfo(2,"bisly","sanck");
+    ProductInfo bamba = new ProductInfo(1,"bamba","sanck", 10);
+    ProductInfo bisly = new ProductInfo(2,"bisly","sanck", 10);
 
     @Before
     public void setUp(){

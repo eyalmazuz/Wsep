@@ -52,7 +52,7 @@ public interface Bridge {
 
     int startSession();
 
-    void addProductInfo(int sessionId, int id, String name, String category);
+    void addProductInfo(int sessionId, int id, String name, String category, double basePrice);
 
     boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy);
 }

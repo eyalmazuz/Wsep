@@ -36,8 +36,9 @@ public class AdminStateController {
     public ActionResultDTO addProductInfo(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
                                           @RequestParam(value = "id", defaultValue = "-1") int id,
                                           @RequestParam(value = "name", defaultValue = "") String name,
-                                          @RequestParam(value = "category", defaultValue = "") String category){
-         return new AdminStateHandler(sessionId).addProductInfo(id,name,category);
+                                          @RequestParam(value = "category", defaultValue = "") String category,
+                                          @RequestParam(value = "basePrice", defaultValue = "") double basePrice){
+         return new AdminStateHandler(sessionId).addProductInfo(id,name,category, basePrice);
 
    }
 

@@ -39,8 +39,9 @@ public class ManagerController {
                                              @RequestParam(value = "productId", defaultValue = "") int productId,
                                              @RequestParam(value = "prodectName",defaultValue = "") String productName,
                                              @RequestParam(value="productCategory",defaultValue = "") String productCategory,
-                                             @RequestParam(value = "amount", defaultValue = "") int amount){
-        return new ManagerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount);
+                                             @RequestParam(value = "amount", defaultValue = "") int amount,
+                                             @RequestParam(value = "basePrice", defaultValue = "") double basePrice){
+        return new ManagerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount,basePrice);
     }
 
 
@@ -150,5 +151,16 @@ public class ManagerController {
             @RequestParam(value = "storeId", defaultValue = "") int storeId
     ) {
         return new ManagerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
+    }
+
+    @GetMapping("/ManagerChangeProductPrice")
+    @ResponseBody
+    public ActionResultDTO changeProductPrice(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "price", defaultValue = "") double price
+    ) {
+        return new ManagerHandler(sessionId).changeProductPrice(storeId, productId, price);
     }
 }

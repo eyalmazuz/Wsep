@@ -40,7 +40,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         assertSame(test.addProductToStore(sessionId, storeId, 1, 5).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addProductToStore(sessionId, storeId, 3, 5).getResultCode(), ResultCode.SUCCESS); //productid does not exist
 
@@ -52,7 +52,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         assertNotSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.editProductInStore(sessionId, storeId, 1, "contains peanuts").getResultCode(), ResultCode.SUCCESS);
@@ -67,7 +67,7 @@ public class SystemTests extends TestCase {
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
         int storeId = test.openStore(sessionId).getId();
-        test.addProductInfo(1, "bamba", "hatif");
+        test.addProductInfo(1, "bamba", "hatif", 10);
         test.addProductToStore(sessionId, storeId, 1, 5);
         assertSame(test.deleteProductFromStore(sessionId, storeId, 1).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.deleteProductFromStore(sessionId, storeId, 2).getResultCode(), ResultCode.SUCCESS);
@@ -81,7 +81,7 @@ public class SystemTests extends TestCase {
     public void testSavePurchaseHistory() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -105,7 +105,7 @@ public class SystemTests extends TestCase {
     public void testUpdateStoreSupplies() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -120,7 +120,7 @@ public class SystemTests extends TestCase {
     public void testSaveOngoingPurchaseForUser() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -137,7 +137,7 @@ public class SystemTests extends TestCase {
     public void testRequestSupply() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -162,7 +162,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
@@ -178,7 +178,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -196,7 +196,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id =test.addStore();
         Store store1 = test.getStores().get(id);
-        test.addProductInfo(4, "lambda", "snacks");
+        test.addProductInfo(4, "lambda", "snacks", 10);
         ProductInfo info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -217,7 +217,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -240,7 +240,7 @@ public class SystemTests extends TestCase {
         sessionId = test.startSession().getId();
         id = test.addStore();
         store1 = test.getStores().get(id);
-        test.addProductInfo(4, "lambda", "snacks");
+        test.addProductInfo(4, "lambda", "snacks", 10);
         info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         u = test.getUser(sessionId);
@@ -425,7 +425,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10.0);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -438,7 +438,7 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 0.0\n\n";
+        String history = "Basket Purchase for store ID: "+store1.getId()+"\nlambda\nAmount: 4\nPrice: 40.0\n\n";
 
         store1.setBuyingPolicy(new BuyingPolicy("Any"));
         u.saveCurrentCartAsPurchase();
@@ -452,7 +452,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 10);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -528,7 +528,7 @@ public class SystemTests extends TestCase {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
-        ProductInfo info = new ProductInfo(4, "lambda", "snacks");
+        ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 10);
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -585,8 +585,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
 
-        test.addProductInfo(4, "bamba", "snacks");
-        test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -694,8 +694,8 @@ public class SystemTests extends TestCase {
         Store store1 = test.getStores().get(store1Id);
         test.openStore(sessionId);
 
-        test.addProductInfo(4, "bamba", "snacks");
-        test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -776,8 +776,8 @@ public class SystemTests extends TestCase {
         int subId = test.register(openerSessionId,"Amir","1234").getId();
         test.login(openerSessionId,"Amir","1234");
         int storeid = test.openStore(openerSessionId).getId();
-        test.addProductInfo(4, "bamba", "snacks");
-        test.addProductInfo(5, "apple", "fruits");
+        test.addProductInfo(4, "bamba", "snacks", 10);
+        test.addProductInfo(5, "apple", "fruits", 10);
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 

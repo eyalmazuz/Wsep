@@ -27,8 +27,8 @@ public class PaymentHandler {
 
     // usecase 2.8.3
     // receives external purchase details and a map: (store id -> (product id -> amount))
-    public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        return paymentSystem.attemptPurchase(sessionId, paymentDetails, storeProductsIds);
+    public boolean makePayment(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductsIds, double price) {
+        return paymentSystem.attemptPurchase(sessionId, paymentDetails, storeProductsIds, price);
     }
 
     public boolean requestRefund(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
