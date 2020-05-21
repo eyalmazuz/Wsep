@@ -123,4 +123,8 @@ public class ManagerHandler {
     public BuyingPolicyActionResultDTO viewBuyingPolicies(int sessionId, int storeId) {
         return s.getBuyingPolicyDetails(storeId);
     }
+
+    public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
+        return s.changeProductPrice(storeId, productId, price);
+    }
 }

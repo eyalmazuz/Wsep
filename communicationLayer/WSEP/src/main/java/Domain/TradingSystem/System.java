@@ -464,15 +464,6 @@ public class System {
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
-    // usecase 2.8
-    /*public boolean requestConfirmedPurchase(int sessionId) {
-        User u = userHandler.getUser(sessionId);
-
-        makePayment(sessionId, paymentDetails, u.getShoppingCart().getStoreProductsIds());
-
-        return u.requestConfirmedPurchase();
-    }
-*/
     public boolean setPaymentDetails(int sessionId, String details) {
         logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
         User u = userHandler.getUser(sessionId);
@@ -484,7 +475,7 @@ public class System {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts);
+        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts, u.getShoppingCartPrice().getPrice());
         logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
         return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
 
@@ -1061,5 +1052,16 @@ public class System {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
         return getStoreById(storeId).getBuyingPolicyDetails();
+    }
+
+    public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
+        Store store = getStoreById(storeId);
+        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such store");
+        ProductInfo info = getProductInfoById(productId);
+        if (!store.hasProduct(info)) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such product in the store");
+        if (price < 0) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "Invalid price. Must be non-negative.");
+        store.changeProductPrice(info, price);
+
+        return new ActionResultDTO(ResultCode.SUCCESS, "Changed price of " + info.getName() + " (" + info.getId() + ") to " + price);
     }
 }

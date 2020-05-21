@@ -180,4 +180,7 @@ public class OwnerHandler {
         return s.getBuyingPolicyDetails(storeId);
     }
 
+    public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
+        return s.changeProductPrice(storeId, productId, price);
+    }
 }

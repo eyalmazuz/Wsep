@@ -337,4 +337,21 @@ public class Store {
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {
         return buyingPolicy.getDTO();
     }
+
+    public boolean hasProduct(ProductInfo productInfo) {
+        int productId = productInfo.getId();
+        for (ProductInStore pis : products) {
+            if (pis.getId() == productId) return true;
+        }
+        return false;
+    }
+
+    public void changeProductPrice(ProductInfo info, double price) {
+        for (ProductInStore pis : products) {
+            if (pis.getId() == info.getId()) {
+                pis.setPrice(price);
+                return;
+            }
+        }
+    }
 }

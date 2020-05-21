@@ -29,13 +29,13 @@ public class PaymentHandlerTest extends TestCase {
     @Test
     public void testMakePaymentFailure() {
         // bad payment details
-        assertFalse(handler.makePayment(1, "Bad payment details", map));
+        assertFalse(handler.makePayment(1, "Bad payment details", map, 0));
     }
 
     @Test
     public void testMakePaymentSuccess() {
 
-        assertTrue(handler.makePayment(1, "Ok details", map));
+        assertTrue(handler.makePayment(1, "Ok details", map, 0));
     }
 
 

@@ -186,4 +186,16 @@ public class OwnerController {
         return new OwnerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
     }
 
+    @GetMapping("/OwnerChangeProductPrice")
+    @ResponseBody
+    public ActionResultDTO changeProductPrice(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "price", defaultValue = "") double price
+    ) {
+        return new OwnerHandler(sessionId).changeProductPrice(storeId, productId, price);
+    }
+
+
 }
