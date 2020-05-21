@@ -102,12 +102,14 @@ public class SystemTests extends TestCase {
         u.addProductToCart(store1, pi4, 4);
         u.setState(new Subscriber());
 
+        PaymentHandler paymentHandler = null;
         try {
-            test.setPaymentHandler(new PaymentHandler("None"));
+            paymentHandler = new PaymentHandler("None");
+            test.setPaymentHandler(paymentHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        PaymentSystemMock.succeedPurchase = false;
+        paymentHandler.setProxyPurchaseSuccess(false);
         assertNotSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
 
         // make sure nothing was changed
@@ -183,16 +185,18 @@ public class SystemTests extends TestCase {
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
+        SupplyHandler supplyHandler = null;
         try {
-            test.setSupplyHandler(new SupplyHandler("None"));
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        SupplySystemMock.succeedSupply = false;
+        supplyHandler.setProxySupplySuccess(false);
         assertFalse(test.requestSupply(sessionId));
 
-        SupplySystemMock.succeedSupply = true;
+        supplyHandler.setProxySupplySuccess(true);
         assertTrue(test.requestSupply(sessionId));
     }
 
@@ -280,9 +284,14 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
 
+        PaymentHandler paymentHandler = null;
+        SupplyHandler supplyHandler = null;
+
         try {
-            test.setSupplyHandler(new SupplyHandler("none"));
-            test.setPaymentHandler(new PaymentHandler("none"));
+            paymentHandler = new PaymentHandler("None");
+            test.setPaymentHandler(paymentHandler);
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -305,16 +314,16 @@ public class SystemTests extends TestCase {
         price = test.checkSuppliesAndGetPrice(sessionId);
         assertEquals(price, 0.0);
 
-        PaymentSystemMock.succeedPurchase = false;
+        paymentHandler.setProxyPurchaseSuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
-        PaymentSystemMock.succeedPurchase = true;
-        SupplySystemMock.succeedSupply = false;
+        paymentHandler.setProxyPurchaseSuccess(true);
+        supplyHandler.setProxySupplySuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
 
-        SupplySystemMock.succeedSupply = true;
+        supplyHandler.setProxySupplySuccess(true);
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
     }
