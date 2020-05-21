@@ -271,21 +271,23 @@ public class SystemTests extends TestCase {
         assertNull(test.getOngoingPurchases().get(sessionId));
     }
 
-    @Test
-    public void testEntirePurchaseProcessFailure() {
-        int sessionId = test.startSession().getId();
-        int id = test.addStore();
-        Store store1 = test.getStores().get(id);
-        test.addProductInfo(4,"lambda","snacks");
-        ProductInfo info = test.getProductInfoById(4);
+    private int sessionId, id;
+    private Store store1;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
 
+    private void setUpPurchase() {
+        sessionId = test.startSession().getId();
+        id = test.addStore();
+        store1 = test.getStores().get(id);
+        test.addProductInfo(4, "lambda", "snacks");
+        info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
-        User u = test.getUser(sessionId);
+        u = test.getUser(sessionId);
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
-
-        PaymentHandler paymentHandler = null;
-        SupplyHandler supplyHandler = null;
 
         try {
             paymentHandler = new PaymentHandler("None");
@@ -295,14 +297,19 @@ public class SystemTests extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void testPurchaseFailBuyingPolicy() {
+        setUpPurchase();
         store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
-
-        // the process
-        assertFalse(test.isCartEmpty(sessionId));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
-
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
+
+    @Test
+    public void testPurhcaseFailMissingSupplies() {
+        setUpPurchase();
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
         u.editCartProductAmount(store1, info, 6);
@@ -310,22 +317,30 @@ public class SystemTests extends TestCase {
         assertEquals(price, -1.0);
         u.editCartProductAmount(store1, info, 4);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        price = test.checkSuppliesAndGetPrice(sessionId);
-        assertEquals(price, 0.0);
-
+    @Test
+    public void testPurchaseFailPaymentSystem() {
+        setUpPurchase();
         paymentHandler.setProxyPurchaseSuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        paymentHandler.setProxyPurchaseSuccess(true);
+    @Test
+    public void testPurchaseFailSupplySystem() {
+        setUpPurchase();
         supplyHandler.setProxySupplySuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        supplyHandler.setProxySupplySuccess(true);
+    @Test
+    public void testPurchaseFailSyncProblem() {
+        setUpPurchase();
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) {
