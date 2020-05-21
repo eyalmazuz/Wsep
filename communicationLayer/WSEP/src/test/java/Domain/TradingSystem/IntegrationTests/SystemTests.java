@@ -1,5 +1,6 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.ActionResultDTO;
 import DTOs.Notification;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
@@ -75,50 +76,6 @@ public class SystemTests extends TestCase {
 
 
     // USECASE 2.8
-
-    @Test
-    public void testCheckSuppliesAndGetPrice() {
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4 , 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), 0.0);
-
-        u.addProductToCart(store1, pi4, 10);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), -1.0);
-    }
-
-    @Test
-    public void testMakePaymentFail() {
-        // keep track of the original cart, history, store supplies
-
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4, 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        u.setState(new Subscriber());
-
-        PaymentHandler paymentHandler = null;
-        try {
-            paymentHandler = new PaymentHandler("None");
-            test.setPaymentHandler(paymentHandler);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        paymentHandler.setProxyPurchaseSuccess(false);
-        assertNotSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
-
-        // make sure nothing was changed
-        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
-        assertTrue(store1.getStorePurchaseHistory().isEmpty());
-        assertEquals(store1.getProductAmount(4), 5);
-        assertNotNull(u.getShoppingCart().getStoreProductsIds().get(store1.getId()));
-        assertEquals((int) u.getShoppingCart().getStoreProductsIds().get(store1.getId()).get(4), 4);
-    }
 
     @Test
     public void testSavePurchaseHistory() {
@@ -271,6 +228,7 @@ public class SystemTests extends TestCase {
         assertNull(test.getOngoingPurchases().get(sessionId));
     }
 
+
     private int sessionId, id;
     private Store store1;
     private ProductInfo info;
@@ -297,6 +255,31 @@ public class SystemTests extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testPurchaseSuccess() {
+        setUpPurchase();
+
+        assertFalse(test.isCartEmpty(sessionId));
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        double price = test.checkSuppliesAndGetPrice(sessionId);
+        assertFalse(price < 0);
+
+        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
+
+        assertTrue(test.updateStoreSupplies(sessionId));
+        test.emptyCart(sessionId);
+        assertTrue(test.requestSupply(sessionId));
+        test.removeOngoingPurchase(sessionId);
+
+        // check state
+        assertTrue(!u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+                !store1.getStorePurchaseHistory().isEmpty() &&
+                store1.getProductAmount(4) == 1 &&
+                 u.getShoppingCart().isEmpty() && !u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -373,8 +356,7 @@ public class SystemTests extends TestCase {
         return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
             store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
-            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
-            (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
+            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
     }
 
     @Test
