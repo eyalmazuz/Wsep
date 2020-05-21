@@ -7,14 +7,16 @@ public class ProductInStoreDTO {
     int amount;
     String info;
     int storeId;
+    double price;
 
-    public ProductInStoreDTO(int productId, String name, String category, int amount, String info, int storeId) {
+    public ProductInStoreDTO(int productId, String name, String category, int amount, String info, int storeId, double price) {
         this.productId = productId;
         this.name = name;
         this.category = category;
         this.amount = amount;
         this.info = info;
         this.storeId = storeId;
+        this.price = price;
     }
 
     public String getName() {
@@ -65,6 +67,13 @@ public class ProductInStoreDTO {
         this.productId = productId;
     }
 
+    public double getPrice(){
+        return price;
+    }
+
+    public void setPrice(double price){
+        this.price = price;
+    }
 
     public String toString() {
         return "Store ID: " + getStoreId() + ", product ID: " + getProductId() + ", amount: " + getAmount() + ", info: " + getInfo();

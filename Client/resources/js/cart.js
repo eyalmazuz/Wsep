@@ -26,7 +26,7 @@ async function createCartTable(productList){
     products = productList['baskets']
 
     var productTable = document.getElementById('cartTable')
-
+    var totalPrice = 0;
     for(var i = 1; i< productTable.rows.length; i++){
         productTable.deleteRow(i);
     }
@@ -44,19 +44,35 @@ async function createCartTable(productList){
             var storeId = row.insertCell(0);
             var productId = row.insertCell(1);
             var productName = row.insertCell(2);
-            var productAmount = row.insertCell(3);
-            var updateButton = row.insertCell(4);
-            var deleteButton = row.insertCell(5);
+            var productPrice = row.insertCell(3);
+            var productAmount = row.insertCell(4);
+            var updateButton = row.insertCell(5);
+            var deleteButton = row.insertCell(6);
 
             storeId.innerHTML = "<a href='store.html'>" + basket['storeId'] + "</a>"
             productId.innerHTML = product['pid'] 
             productName.innerHTML = product['name'];
+            productPrice.innerHTML = product['price'];
             productAmount.innerHTML = "<input id='cartAmount' type='number' min='1' value='" + product['amount'] + "'>"
             updateButton.innerHTML = "<button type='button' id='editProductButton' onclick='editProduct(" + ridx + ")'>Update Amount</button>";
             deleteButton.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             ridx += 1;
+            totalPrice += product['amount'] * product['price']
+
         }
+        
     }
+    var row = productTable.insertRow(ridx);
+    var storeId = row.insertCell(0);
+    var productId = row.insertCell(1);
+    var productName = row.insertCell(2);
+    var productPrice = row.insertCell(3);
+    var productAmount = row.insertCell(4);
+    var updateButton = row.insertCell(5);
+    var deleteButton = row.insertCell(6);
+    var sum = row.insertCell(7);
+
+    sum.innerHTML = totalPrice;
     console.log('done cart')
 }
 
@@ -200,7 +216,6 @@ async function purchaseCart(){
 
 async function getHisotry(){
 
-
     if(sessionStorage['loggedin'] === 'true'){
         historyURL = "https://localhost:8443/getHistory?"
         
@@ -227,7 +242,7 @@ async function getHisotry(){
                         var productName = row.insertCell(3);
                         var productCategory = row.insertCell(4);
                         var productAmount = row.insertCell(5);
-                        row.insertCell(6);
+                        var productPrice = row.insertCell(6);
 
                         storeId.innerHTML = storeIdx
                         purchaseId.innerHTML = basket['id']
@@ -236,8 +251,8 @@ async function getHisotry(){
                         productId.innerHTML = product['productInfo']['id']
                         productName.innerHTML = product['productInfo']['name']
                         productCategory.innerHTML = product['productInfo']['category']
-
                         productAmount.innerHTML = product['amount']
+                        productPrice.innerHTML = product['price']
                         ridx++;
                         
                     }
@@ -250,7 +265,7 @@ async function getHisotry(){
                 row.insertCell(4);
                 row.insertCell(5);
                 var basketPrice = row.insertCell(6);
-                basketPrice.innerHTML = basket['price']
+                basketPrice.innerHTML = 'total: ' + basket['price']
                 ridx++;
                 }
 

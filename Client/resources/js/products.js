@@ -43,13 +43,15 @@ async function viewStoreProducts(){
             var productCategory = row.insertCell(2)
             var productInfo = row.insertCell(3)
             var productAmount = row.insertCell(4)
-            var DeleteProduct = row.insertCell(5)
+            var productPrice = row.insertCell(5)
+            var DeleteProduct = row.insertCell(6)
 
             productId.innerHTML = product['productId']
             productName.innerHTML = product['name']
             productCategory.innerHTML = product['category']
             productInfo.innerHTML = product['info']
             productAmount.innerHTML = product['amount']
+            productPrice.innerHTML = product['price']
             DeleteProduct.innerHTML = "<button type='button' id='deleteProductButton' onclick='deleteProduct(" + ridx + ")'>Delete</button>";
             
         }
@@ -211,19 +213,19 @@ async function addProduct(){
     var storeId = urlParams.get('storeId');
 
     if(type === 'Owner'){
-        addProductToStoreURL = 'https://localhost:8443/addProductToStore?'
+        addProductToStoreURL = 'https://localhost:8443/addNewProductToStore?'
     }
     else{
-        addProductToStoreURL = 'https://localhost:8443/ManagerAddProductToStore?'
+        addProductToStoreURL = 'https://localhost:8443/ManagerAddNewProductToStore?'
     }
 
     addProductToStoreURL += 'sessionId=' + sessionStorage['sessionId']
     addProductToStoreURL += "&storeId=" + storeId;
     addProductToStoreURL += "&productId=" + productId;
+    addProductToStoreURL += "&prodectName=" + name;
+    addProductToStoreURL += "&productCategory=" + category;
     addProductToStoreURL += "&amount=" + amount;
-    addProductToStoreURL += "&category=" + category;
-    addProductToStoreURL += "&price=" + price;
-    addProductToStoreURL += "&name=" + name;
+    addProductToStoreURL += "&basePrice=" + price;
 
 
     console.log(addProductToStoreURL)
@@ -235,7 +237,9 @@ async function addProduct(){
         alert('successfully added proudct ${productId}')
         location.reload()
     }
-    console.log(addProductToStoreURL)
+    else{
+        alert(result['details'])
+    }
 
 }
 

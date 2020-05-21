@@ -10,10 +10,10 @@ async function viewStore(){
     var urlParams = new URLSearchParams(window.location.search);
     var storeId = urlParams.get('storeId');
 
-    var type = isManager(storeId, sessionStorage['subId'])
+    var type = await isManager(storeId, sessionStorage['subId'])
 
 
-    if(type){
+    if(type === 'Manager' || type === 'Owner'){
         document.getElementById('productPageButton').style.visibility = '';
         document.getElementById('managersPageButton').style.visibility = '';
         document.getElementById('ownersPageButton').style.visibility = '';
@@ -110,13 +110,14 @@ async function viewStore(){
             var productCategory = row.insertCell(2)
             var productInfo = row.insertCell(3)
             var productAmount = row.insertCell(4)
-            var DeleteProduct = row.insertCell(5)
+            var productPrice = row.insertCell(5)
 
             productId.innerHTML = product['productId']
             productName.innerHTML = product['name']
             productCategory.innerHTML = product['category']
             productInfo.innerHTML = product['info']
             productAmount.innerHTML = product['amount']
+            productPrice.innerHTML = product['price']
             
         }
 
@@ -150,7 +151,7 @@ async function isManager(storeId, subId){
     permissionURL += '&subId=' + parseInt(subId)
     await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response) 
     console.log(permissions)
-    return permissions['permission']['type'] === 'Owner' || permissions['permission']['type'] === 'Manager'  
+    return permissions['permission']['type']
 }
 
 

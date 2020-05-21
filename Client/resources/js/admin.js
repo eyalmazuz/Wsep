@@ -175,14 +175,14 @@ async function getShopHistory(){
                 var productId = row.insertCell(1);
                 var productName = row.insertCell(2);
                 var productAmount = row.insertCell(3);
-                row.insertCell(4);
+                var productPrice = row.insertCell(4);
 
                 purchaseId.innerHTML = purchaseIdx
 
                 productId.innerHTML = item['productInfo']['id']
                 productName.innerHTML = item['productInfo']['name']
                 productAmount.innerHTML = item['amount']
-
+                productPrice.innerHTML = item['price']
                 ridx++;
             }                        
 
@@ -192,7 +192,7 @@ async function getShopHistory(){
             row.insertCell(2);
             row.insertCell(3);
             var basketPrice = row.insertCell(4);
-            basketPrice.innerHTML = purchase['price']
+            basketPrice.innerHTML = 'total: ' + purchase['price']
             ridx++;
         }
         

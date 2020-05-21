@@ -55,9 +55,10 @@ function createProductTable(productList){
         var productName = row.insertCell(2);
         var productCategory = row.insertCell(3);
         var productInfo = row.insertCell(4);
-        var productAmount = row.insertCell(5);
-        var Amount = row.insertCell(6);
-        var button = row.insertCell(7);
+        var productPrice = row.insertCell(5);
+        var productAmount = row.insertCell(6);
+        var Amount = row.insertCell(7);
+        var button = row.insertCell(8);
 
         storeId.innerHTML = "<a href='store.html'>" + product['storeId'] + "</a>"
         productId.innerHTML = product['productId'] 
@@ -65,6 +66,7 @@ function createProductTable(productList){
         productCategory.innerHTML = product['category'];
         productInfo.innerHTML = product['info'];
         productAmount.innerHTML = product['amount'];
+        productPrice.innerHTML = product['price'];
         Amount.innerHTML = "<input id='cartAmount' type='number' min='1'>"
         button.innerHTML = "<button type='button' id='addToCartButton' onclick='addToCart(" + productIdx + ")'>Add to Cart</button>";
     }
@@ -81,7 +83,7 @@ async function addToCart(idx) {
     var sessionId = sessionStorage['sessionId']
     var storeId = products.rows[parseInt(idx) + 1].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx) + 1].cells[1].innerHTML
-    var amount = products.rows[parseInt(idx) + 1].cells[6].children[0].value
+    var amount = products.rows[parseInt(idx) + 1].cells[7].children[0].value
     console.log(storeId)
     console.log(productId)
     console.log(amount)

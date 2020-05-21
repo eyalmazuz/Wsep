@@ -549,7 +549,8 @@ public class System {
                     pis.getProductInfo().getCategory(),
                     pis.getAmount(),
                     pis.getInfo(),
-                    pis.getStore().getId()));
+                    pis.getStore().getId(),
+                    pis.getPrice()));
         }
         return result;
 
@@ -666,7 +667,7 @@ public class System {
             List<ProductAmountDTO> productAmountDTOS = new ArrayList<>();
             for(ProductInfo pi : purchaseDetails.getProducts().keySet()){
                 ProductInfoDTO pidto = new ProductInfoDTO(pi.getId(),pi.getName(),pi.getCategory(),pi.getRating());
-                ProductAmountDTO paDTO = new ProductAmountDTO(pidto,purchaseDetails.getProducts().get(pi));
+                ProductAmountDTO paDTO = new ProductAmountDTO(pidto,purchaseDetails.getProducts().get(pi), pi.getDefaultPrice());
                 productAmountDTOS.add(paDTO);
             }
 
@@ -750,7 +751,7 @@ public class System {
                 Map<ProductInfo,Integer> productMapping = basket.getProducts();
                 List<SimpProductAmountDTO> dtoProductMapping = new ArrayList<>();
                 for(ProductInfo product: productMapping.keySet()) {
-                    SimpProductAmountDTO simpProductAmountDTO = new SimpProductAmountDTO(product.getId(),product.getName(), productMapping.get(product));
+                    SimpProductAmountDTO simpProductAmountDTO = new SimpProductAmountDTO(product.getId(),product.getName(), productMapping.get(product), basket.getProductPrice(product.getId()));
                     dtoProductMapping.add(simpProductAmountDTO);
                 }
                 cart.add(new ShoppingBasketDTO(basket.getStoreId(),dtoProductMapping));
