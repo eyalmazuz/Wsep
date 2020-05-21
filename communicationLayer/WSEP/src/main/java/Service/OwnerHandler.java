@@ -21,6 +21,17 @@ public class OwnerHandler {
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
+
+    public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount) {
+        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory);
+            if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
+                return addProductInfoResult;
+            }
+            return s.addProductToStore(sessionId,storeId,productId,amount);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
+    }
     //Usecase 4.1.2
     public ActionResultDTO editProductToStore(int storeId, int productId, String info) {
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){

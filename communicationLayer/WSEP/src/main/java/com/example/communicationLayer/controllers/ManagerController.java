@@ -6,6 +6,7 @@ import DTOs.BuyingPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.StorePurchaseHistoryDTO;
 import Service.ManagerHandler;
+import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,17 @@ public class ManagerController {
             @RequestParam(value = "productId", defaultValue = "") int productId,
             @RequestParam(value = "amount", defaultValue = "") int amount){
         return new ManagerHandler(sessionId).addProductToStore(storeId,productId,amount);
+    }
+
+    @GetMapping("/ManagerAddNewProductToStore")
+    @ResponseBody
+    public ActionResultDTO addProductToStore(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                             @RequestParam(value = "productId", defaultValue = "") int productId,
+                                             @RequestParam(value = "prodectName",defaultValue = "") String productName,
+                                             @RequestParam(value="productCategory",defaultValue = "") String productCategory,
+                                             @RequestParam(value = "amount", defaultValue = "") int amount){
+        return new ManagerHandler(sessionId).addProductToStore(storeId,productId,productName,productCategory,amount);
     }
 
 
