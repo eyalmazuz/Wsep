@@ -1,5 +1,6 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.ActionResultDTO;
 import DTOs.Notification;
 import DTOs.ResultCode;
 import Domain.TradingSystem.System;
@@ -77,48 +78,6 @@ public class SystemTests extends TestCase {
     // USECASE 2.8
 
     @Test
-    public void testCheckSuppliesAndGetPrice() {
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4 , 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), 0.0);
-
-        u.addProductToCart(store1, pi4, 10);
-        assertEquals(test.checkSuppliesAndGetPrice(sessionId), -1.0);
-    }
-
-    @Test
-    public void testMakePaymentFail() {
-        // keep track of the original cart, history, store supplies
-
-        int sessionId = test.startSession().getId();
-        Store store1 = new Store();
-        ProductInfo pi4 = new ProductInfo(4, "lambda", "snacks");
-        store1.addProduct(pi4, 5);
-        User u = test.getUser(sessionId);
-        u.addProductToCart(store1, pi4, 4);
-        u.setState(new Subscriber());
-
-        try {
-            test.setPaymentHandler(new PaymentHandler("None"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        PaymentSystemMock.succeedPurchase = false;
-        assertNotSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
-
-        // make sure nothing was changed
-        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
-        assertTrue(store1.getStorePurchaseHistory().isEmpty());
-        assertEquals(store1.getProductAmount(4), 5);
-        assertNotNull(u.getShoppingCart().getStoreProductsIds().get(store1.getId()));
-        assertEquals((int) u.getShoppingCart().getStoreProductsIds().get(store1.getId()).get(4), 4);
-    }
-
-    @Test
     public void testSavePurchaseHistory() {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
@@ -183,16 +142,18 @@ public class SystemTests extends TestCase {
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
         test.saveOngoingPurchaseForUser(sessionId);
+        SupplyHandler supplyHandler = null;
         try {
-            test.setSupplyHandler(new SupplyHandler("None"));
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        SupplySystemMock.succeedSupply = false;
+        supplyHandler.setProxySupplySuccess(false);
         assertFalse(test.requestSupply(sessionId));
 
-        SupplySystemMock.succeedSupply = true;
+        supplyHandler.setProxySupplySuccess(true);
         assertTrue(test.requestSupply(sessionId));
     }
 
@@ -267,33 +228,71 @@ public class SystemTests extends TestCase {
         assertNull(test.getOngoingPurchases().get(sessionId));
     }
 
-    @Test
-    public void testEntirePurchaseProcessFailure() {
-        int sessionId = test.startSession().getId();
-        int id = test.addStore();
-        Store store1 = test.getStores().get(id);
-        test.addProductInfo(4,"lambda","snacks");
-        ProductInfo info = test.getProductInfoById(4);
 
+    private int sessionId, id;
+    private Store store1;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
+
+    private void setUpPurchase() {
+        sessionId = test.startSession().getId();
+        id = test.addStore();
+        store1 = test.getStores().get(id);
+        test.addProductInfo(4, "lambda", "snacks");
+        info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
-        User u = test.getUser(sessionId);
+        u = test.getUser(sessionId);
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
 
         try {
-            test.setSupplyHandler(new SupplyHandler("none"));
-            test.setPaymentHandler(new PaymentHandler("none"));
+            paymentHandler = new PaymentHandler("None");
+            test.setPaymentHandler(paymentHandler);
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
+    @Test
+    public void testPurchaseSuccess() {
+        setUpPurchase();
 
-        // the process
         assertFalse(test.isCartEmpty(sessionId));
-        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+        double price = test.checkSuppliesAndGetPrice(sessionId);
+        assertFalse(price < 0);
 
+        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
+
+        assertTrue(test.updateStoreSupplies(sessionId));
+        test.emptyCart(sessionId);
+        assertTrue(test.requestSupply(sessionId));
+        test.removeOngoingPurchase(sessionId);
+
+        // check state
+        assertTrue(!u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+                !store1.getStorePurchaseHistory().isEmpty() &&
+                store1.getProductAmount(4) == 1 &&
+                 u.getShoppingCart().isEmpty() && !u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+    }
+
+    @Test
+    public void testPurchaseFailBuyingPolicy() {
+        setUpPurchase();
+        store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
+
+    @Test
+    public void testPurhcaseFailMissingSupplies() {
+        setUpPurchase();
 
         store1.setBuyingPolicy(new BuyingPolicy("None"));
         u.editCartProductAmount(store1, info, 6);
@@ -301,22 +300,30 @@ public class SystemTests extends TestCase {
         assertEquals(price, -1.0);
         u.editCartProductAmount(store1, info, 4);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        price = test.checkSuppliesAndGetPrice(sessionId);
-        assertEquals(price, 0.0);
-
-        PaymentSystemMock.succeedPurchase = false;
+    @Test
+    public void testPurchaseFailPaymentSystem() {
+        setUpPurchase();
+        paymentHandler.setProxyPurchaseSuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        PaymentSystemMock.succeedPurchase = true;
-        SupplySystemMock.succeedSupply = false;
+    @Test
+    public void testPurchaseFailSupplySystem() {
+        setUpPurchase();
+        supplyHandler.setProxySupplySuccess(false);
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+    }
 
-        SupplySystemMock.succeedSupply = true;
+    @Test
+    public void testPurchaseFailSyncProblem() {
+        setUpPurchase();
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, store1));
+
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) {
@@ -349,8 +356,7 @@ public class SystemTests extends TestCase {
         return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
             store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
-            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4 &&
-            (int) u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
+            u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
     }
 
     @Test
