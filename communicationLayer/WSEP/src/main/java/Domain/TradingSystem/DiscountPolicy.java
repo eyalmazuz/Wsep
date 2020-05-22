@@ -1,5 +1,8 @@
 package Domain.TradingSystem;
 
+import DTOs.IntActionResultDto;
+import DTOs.ResultCode;
+
 import java.util.*;
 
 public class DiscountPolicy {
@@ -42,6 +45,22 @@ public class DiscountPolicy {
         if (!discountTypes.isEmpty()) id = Collections.max(discountTypes.keySet()) + 1;
         discountTypes.put(id, discount);
         return id;
+    }
+
+    public IntActionResultDto addAdvancedDiscountType(List<Integer> discountTypeIDs, String logicalOperationStr) {
+        synchronized (discountTypes) {
+            List<DiscountType> relevantDiscountTypes = new ArrayList<>();
+            for (Integer typeID : discountTypeIDs) {
+                if (discountTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "There is no discount type ID" + typeID, -1);
+                relevantDiscountTypes.add(discountTypes.get(typeID));
+                discountTypeIDs.remove(typeID);
+            }
+            AdvancedDiscount.LogicalOperation logicalOperation = AdvancedDiscount.LogicalOperation.AND;
+            if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedDiscount.LogicalOperation.OR;
+            else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedDiscount.LogicalOperation.XOR;
+            DiscountType advanced = new AdvancedDiscount.LogicalDiscount(relevantDiscountTypes, logicalOperation);
+            return new IntActionResultDto(ResultCode.SUCCESS, null, addDiscountType(advanced));
+        }
     }
 
     public void removeDiscountType(int discountTypeId) {

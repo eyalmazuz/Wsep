@@ -1108,4 +1108,8 @@ public class System {
         return getStoreById(storeId).addSimpleCategoryDiscount(categoryName, salePercentage);
     }
 
+    public IntActionResultDto addAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
+        return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+    }
+
 }

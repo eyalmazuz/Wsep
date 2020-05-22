@@ -148,6 +148,16 @@ public class ManagerHandler {
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
     }
 
+    public IntActionResultDto createAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            if (!logicalOperation.toLowerCase().equals("xor") && !logicalOperation.toLowerCase().equals("and") && !logicalOperation.toLowerCase().equals("or"))
+                return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Logical operations are: and, or, xor", -1);
+
+            return s.addAdvancedDiscountType(storeId, discountTypeIDs, logicalOperation);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
+    }
+
     public ActionResultDTO removeDiscountType(int storeId, int discountTypeId) {
         if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
             s.removeDiscountTypeFromStore(storeId, discountTypeId);

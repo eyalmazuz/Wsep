@@ -355,6 +355,10 @@ public class Store {
         return discountPolicy.addDiscountType(new ProductDiscount.CategorySaleDiscount(categoryName, salePercentage));
     }
 
+    public IntActionResultDto addAdvancedDiscountType(List<Integer> discountTypeIDs, String logicalOperation) {
+        return discountPolicy.addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+    }
+
     public void removeDiscountType(int discountTypeID) {
         discountPolicy.removeDiscountType(discountTypeID);
     }
