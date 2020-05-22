@@ -1,10 +1,8 @@
 package Domain.TradingSystem;
 
-import DTOs.BuyingPolicyActionResultDTO;
 import DTOs.DiscountPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
-import DTOs.SimpleDTOS.BuyingTypeDTO;
 import DTOs.SimpleDTOS.DiscountTypeDTO;
 
 import java.util.*;
