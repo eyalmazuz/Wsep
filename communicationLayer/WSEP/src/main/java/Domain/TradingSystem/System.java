@@ -827,6 +827,16 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "The specified store does not exist.");
     }
 
+    public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy){
+        logger.info("changeDiscountPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
+        Store s = getStoreById(storeId);
+        if(s != null){
+            s.setDiscountPolicy(new DiscountPolicy(newPolicy));
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "The specified store does not exist.");
+    }
+
     public ActionResultDTO checkBuyingPolicy(int sessionId) {
         logger.info("checkBuyingPolicy: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
@@ -1054,6 +1064,10 @@ public class System {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
         return getStoreById(storeId).getBuyingPolicyDetails();
+    }
+
+    public DiscountPolicyActionResultDTO getDiscountPolicyDetails(int storeId) {
+        return getStoreById(storeId).getDiscountPolicyDetails();
     }
 
     public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {

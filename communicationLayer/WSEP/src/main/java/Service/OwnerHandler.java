@@ -229,4 +229,10 @@ public class OwnerHandler {
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.");
     }
 
+    public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy) {
+        if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
+            return s.changeDiscountPolicy(storeId, newPolicy);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only owners can use this functionality.");
+    }
 }

@@ -145,7 +145,7 @@ public class ManagerHandler {
             int discountTypeID = s.addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
             return new IntActionResultDto(ResultCode.SUCCESS, "Added discount type " + discountTypeID, discountTypeID);
         }
-        return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
+        return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
     }
 
     public IntActionResultDto createAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
@@ -163,7 +163,7 @@ public class ManagerHandler {
             s.removeDiscountTypeFromStore(storeId, discountTypeId);
             return new ActionResultDTO(ResultCode.SUCCESS, "Removed discount type " + discountTypeId);
         }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
     }
 
     public ActionResultDTO removeAllDiscountTypes(int storeId) {
@@ -171,7 +171,18 @@ public class ManagerHandler {
             s.removeAllDiscountTypes(storeId);
             return new ActionResultDTO(ResultCode.SUCCESS, "Removed all discount types");
         }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+    }
+
+    public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy) {
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId, "any")){
+            return s.changeDiscountPolicy(storeId, newPolicy);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+    }
+
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(int sessionId, int storeId) {
+        return s.getDiscountPolicyDetails(storeId);
     }
 
 

@@ -1,13 +1,22 @@
 package Domain.TradingSystem;
 
+import DTOs.BuyingPolicyActionResultDTO;
+import DTOs.DiscountPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
+import DTOs.SimpleDTOS.BuyingTypeDTO;
+import DTOs.SimpleDTOS.DiscountTypeDTO;
 
 import java.util.*;
 
 public class DiscountPolicy {
 
+    private String details;
     private Map<Integer, DiscountType> discountTypes = new HashMap<>();
+
+    public DiscountPolicy(String details) {
+        this.details = details;
+    }
 
     public double getBasketDiscountedPrice(User user, ShoppingBasket basket) {
         List<DiscountBasket.DiscountProduct> discountProducts = new ArrayList<>();
@@ -70,4 +79,19 @@ public class DiscountPolicy {
     public void clearDiscountTypes() {
         discountTypes.clear();
     }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public DiscountPolicyActionResultDTO getDTO() {
+        List<DiscountTypeDTO> dtos = new ArrayList<>();
+        for (Integer id : discountTypes.keySet()) {
+            DiscountType type = discountTypes.get(id);
+            dtos.add(new DiscountTypeDTO(id, type.toString()));
+        }
+        return new DiscountPolicyActionResultDTO(ResultCode.SUCCESS, null, dtos);
+    }
+
+
 }

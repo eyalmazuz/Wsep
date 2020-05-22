@@ -30,7 +30,7 @@ public class Store {
         managers = new LinkedList<>();
         products = new LinkedList<>();
         buyingPolicy = new BuyingPolicy("None");
-        discountPolicy = new DiscountPolicy();
+        discountPolicy = new DiscountPolicy("None");
         purchaseHistory = new ArrayList<>();
         //storePurchaseHistory = new StorePurchaseHistory(this);
     }
@@ -336,6 +336,10 @@ public class Store {
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {
         return buyingPolicy.getDTO();
+    }
+
+    public DiscountPolicyActionResultDTO getDiscountPolicyDetails() {
+        return discountPolicy.getDTO();
     }
 
     public boolean hasProduct(ProductInfo productInfo) {
