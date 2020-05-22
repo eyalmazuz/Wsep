@@ -43,8 +43,11 @@ public class DiscountPolicy {
 
     @Override
     public String toString() {
-        return "";
-
+        String output = "";
+        for (DiscountType type : discountTypes.values()) {
+            output += type.toString() + "\n";
+        }
+        return output;
     }
 
     public int addDiscountType(DiscountType discount) {
@@ -90,6 +93,8 @@ public class DiscountPolicy {
         }
         return new DiscountPolicyActionResultDTO(ResultCode.SUCCESS, null, dtos);
     }
+
+
 
 
 }

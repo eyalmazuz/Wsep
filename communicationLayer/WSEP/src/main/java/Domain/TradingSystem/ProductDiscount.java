@@ -39,6 +39,11 @@ public class ProductDiscount extends SimpleDiscount {
             }
             return resBasket;
         }
+
+        public String toString() {
+            return salePercentage*100 + "% sale on product ID " + productId;
+        }
+
     }
 
     public static class CategorySaleDiscount extends ProductDiscount {
@@ -69,6 +74,10 @@ public class ProductDiscount extends SimpleDiscount {
                 }
             }
             return resBasket;
+        }
+
+        public String toString() {
+            return salePercentage*100 + "% sale on the " + categoryName + " category";
         }
     }
 
