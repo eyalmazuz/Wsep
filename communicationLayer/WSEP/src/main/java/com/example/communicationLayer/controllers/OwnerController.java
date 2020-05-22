@@ -195,6 +195,15 @@ public class OwnerController {
         return new OwnerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
     }
 
+    @GetMapping("/OwnerViewDiscountPolicies")
+    @ResponseBody
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new OwnerHandler(sessionId).viewDiscountPolicies(sessionId, storeId);
+    }
+
     @GetMapping("/OwnerChangeProductPrice")
     @ResponseBody
     public ActionResultDTO changeProductPrice(

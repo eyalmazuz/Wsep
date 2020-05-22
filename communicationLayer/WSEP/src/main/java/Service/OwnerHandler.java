@@ -235,4 +235,8 @@ public class OwnerHandler {
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only owners can use this functionality.");
     }
+
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(int sessionId, int storeId) {
+        return s.getDiscountPolicyDetails(storeId);
+    }
 }
