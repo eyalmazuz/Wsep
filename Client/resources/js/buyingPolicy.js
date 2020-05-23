@@ -1,6 +1,3 @@
-
-
-//TODO
 async function viewStoreBuyingPolicies(){
 
     if(sessionStorage['loggedin'] === 'true'){
@@ -94,7 +91,7 @@ async function deleteBuyingPolicy(idx){
     console.log(result)
     if(result['resultCode'] === 'SUCCESS'){
         console.log('success')
-        alert("successfully added advance constraint policy with id: " + result['id'])
+        alert("successfully deleted policy with id: " + result['id'])
     }
     else{
         alert(result['details'])

@@ -57,7 +57,45 @@ async function viewStore(){
 
     policiesURL += "&storeId=" + parseInt(storeId)
 
+    var discountPoliciesURL = "https://localhost:8443/OwnerViewDiscountPolicies?"
+    
+    discountPoliciesURL += 'sessionId=' + sessionStorage['sessionId']
+
+    discountPoliciesURL += "&storeId=" + parseInt(storeId)
+
     var result
+
+    //Discount policy Table
+    await fetch(discountPoliciesURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    
+    if(result['resultCode'] === 'SUCCESS'){
+
+        
+        var policies = result['dtos']
+        console.log(policies)
+        var policyTable = document.getElementById('discountPolicies')
+
+        for(var i = 1; i< policyTable.rows.length; i++){
+            policyTable.deleteRow(i);
+        }
+
+        var ridx = 1;
+        for(productIdx in policies){
+            var policy = policies[productIdx]
+            console.log(policy)
+            var row = policyTable.insertRow(ridx)
+            var policyId = row.insertCell(0)
+            var policyDescription = row.insertCell(1)
+
+            policyId.innerHTML = policy['id']
+            policyDescription.innerHTML = policy['toString']
+            
+        }
+
+    }
+
+    //Buying Policy table
     await fetch(policiesURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
     
@@ -88,6 +126,7 @@ async function viewStore(){
     }
 
 
+    //Store Product Table
     var result
     await fetch(storeURL, headers).then(response => response.json()).then(response => result = response)
     console.log(result)
