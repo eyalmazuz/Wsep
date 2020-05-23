@@ -674,6 +674,8 @@ public class SystemTests extends TestCase {
         policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
 
+        //java.lang.System.out.println(policy);
+
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
@@ -731,7 +733,12 @@ public class SystemTests extends TestCase {
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
 
         policy = new DiscountPolicy("test");
+
+        AdvancedDiscount.LogicalDiscount hi = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
+
         policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+
+        //java.lang.System.out.println(policy);
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);

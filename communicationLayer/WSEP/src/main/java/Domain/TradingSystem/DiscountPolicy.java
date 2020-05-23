@@ -24,8 +24,6 @@ public class DiscountPolicy {
         for (Map.Entry<ProductInfo, Integer> entry : products.entrySet()) {
             double productPrice = basket.getProductPrice(entry.getKey().getId());
 
-            //java.lang.System.out.println(entry.getValue());
-            //system.println(entry.getValue());
             discountProducts.add(new DiscountBasket.DiscountProduct(entry.getKey().getId(), entry.getKey().getCategory(), entry.getValue(), entry.getValue() * productPrice));
         }
 
@@ -40,6 +38,9 @@ public class DiscountPolicy {
         return discountBasket.getTotalPrice();
     }
 
+    public String getDetails() {
+        return details;
+    }
 
     @Override
     public String toString() {
@@ -63,8 +64,9 @@ public class DiscountPolicy {
             for (Integer typeID : discountTypeIDs) {
                 if (discountTypeIDs.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "There is no discount type ID" + typeID, -1);
                 relevantDiscountTypes.add(discountTypes.get(typeID));
-                discountTypeIDs.remove(typeID);
             }
+            for (int typeID : discountTypeIDs) discountTypes.remove(typeID);
+
             AdvancedDiscount.LogicalOperation logicalOperation = AdvancedDiscount.LogicalOperation.AND;
             if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedDiscount.LogicalOperation.OR;
             else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedDiscount.LogicalOperation.XOR;
