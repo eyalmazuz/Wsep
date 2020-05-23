@@ -34,7 +34,7 @@ public class ProductDiscount extends SimpleDiscount {
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getProductId() == productId) {
                     double curPrice = discountProduct.getPrice();
-                    discountProduct.setPrice(salePercentage * curPrice);
+                    discountProduct.setPrice((1-salePercentage) * curPrice);
                 }
             }
             return resBasket;
@@ -70,7 +70,7 @@ public class ProductDiscount extends SimpleDiscount {
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
-                    discountProduct.setPrice(salePercentage * curPrice);
+                    discountProduct.setPrice((1-salePercentage) * curPrice);
                 }
             }
             return resBasket;
