@@ -1,0 +1,24 @@
+version: 2 # use CircleCI 2.0
+jobs: # a collection of steps
+  build: # runs not using Workflows must have a `build` job as entry point
+
+    working_directory: ~/Wsep # directory where steps will run
+
+    docker: # run the steps with Docker
+      - image: circleci/openjdk:8-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
+
+    steps: # a collection of executable commands
+
+      - checkout # check out source code to working directory
+
+      - run: ls -l
+
+      - run: mvn -f communicationLayer/WSEP/pom.xml dependency:go-offline # gets the project dependencies
+
+      - run: mvn -f communicationLayer/WSEP/pom.xml -Dtest=AllTests test # compile
+
+      - store_test_results: # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard.
+          # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: target/surefire-reports
+
+      # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples

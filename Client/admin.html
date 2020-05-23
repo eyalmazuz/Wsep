@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="resources/css/main.css">
+
+        <meta charset="utf-8">
+        <title>My Website</title>
+
+        <script type='text/javascript' src="./resources/js/buttons.js"></script>
+        <script type='text/javascript' src="./resources/js/admin.js"></script>
+        <script type='text/javascript' src="./resources/js/communication.js"></script>
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+    </head>
+
+    <body onload="loadAdminPage()">
+        
+        <!-- Tittle-->
+        <header class='title'>
+            <h1 class='BigTitle'>
+                Wsep Best Trading System
+            </h1>
+        </header>
+
+        <div class="buttons">
+            
+            <button onclick="logoutAdmin()" class='nav' id='logoutButton'>Logout</button>
+
+            <button onclick="showViewShopHistory()" class='nav' id='storesButton'>Store Histrory</button>
+            <button onclick="showViewUserHistory()" class='nav' id='storesButton'>User History</button>
+
+            <!-- Button to open the modal login form -->
+            <button onclick="location.href='index.html'" class='nav' id='homepageButton'>Homepage</button>
+
+
+        
+        
+        </div>
+
+         <!-- The view User history Model -->
+         <div id="viewUserHistoryForm" class="modal">
+            <span onclick="document.getElementById('viewUserHistoryForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='userHistorySelect'>
+
+                    </select>
+                    <button type="button" onclick="getUserHistory()">View History</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('viewUserHistoryForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+        <!-- The view Store history Model -->
+         <div id="viewStoreHistoryForm" class="modal">
+            <span onclick="document.getElementById('viewStoreHistoryForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Choose Shop</b></label>
+                    <select id='shopHistorySelect'>
+
+                    </select>
+                    <button type="button" onclick="getShopHistory()">View History</button>
+                    <label id='managerAddResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('viewStoreHistoryForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+        <div id='storeHistory'>
+            <br>
+            <br>
+            <h1><b>Store Purchase History</b></h1>
+            <table id='adminStoreHistoryTable' border="1">
+                <tr>
+                    <th>Purchase ID</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                </tr>
+            </table>
+
+        </div>
+
+
+        <div>
+            <br>
+            <br>
+            <h1><b>User Purchase History</b></h1>
+            <table id='adminUserHistoryTable' border="1">
+                <tr>
+                    <th>Store Id</th>
+                    <th>Purchase Id</th>
+                    <th>Product Id</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                </tr>
+            </table>
+        </div>
+    </body>
+
+</html>

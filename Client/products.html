@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="resources/css/main.css">
+        <script type='text/javascript' src="resources/js/buttons.js"></script>
+        <script type="text/javascript" src="resources/js/products.js"></script>
+        <script type='text/javascript' src="./resources/js/communication.js"></script>
+
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+    </head>
+
+
+    <body onload='viewStoreProducts()'>
+            
+        <div class="buttons">
+            
+            <button onclick="logout()" class='nav' id='logoutButton'>Logout</button>
+
+            <!-- "Button to open the modal register form -->
+            <button onclick="showRegister()" class='nav' id='registerButton'>Register</button>
+        
+            <!-- Button to open the modal login form -->
+            <button onclick="showLogin()" class='nav' id='loginButton'>Login</button>
+
+            <button onclick="location.href='stores.html'" class='nav' id='storesButton'>Stores</button>
+
+            <button type="button" class='nav' id="cartButton" onclick="location.href='cartpage.html'">Cart</button>
+
+            <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
+
+            <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
+
+            <button type="button" class='nav' id="returnButton" onclick="returnToStore()">Back To Store</button>
+
+        </div>
+
+        </div>
+
+        <br>
+        <br>
+        <br>
+
+        <div name='product'>
+            <table id='storeProducts' border="1">
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Product Category</th>
+                    <th>Product Info</th>
+                    <th>Product Amount</th>
+                    <th>Product Price</th>
+                    <th>Delete</th>
+                </tr>
+            </table>
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <div>
+            <h1 id='optionTitle'>Store OPTIONS</h1>
+            <button type="button" id='addProduct' class='nav' onclick="showAddProduct()" >Add Prodcut to Store</button>
+            <button type="button" id='editProduct' class='nav' onclick="showEditProduct()" >Edit Product Info</button>
+            <button type="button" id='deleteProduct' class='nav' onclick="showDeleteProduct()" >Delete Product</button>
+        </div>
+
+        <br>
+        <br>
+
+        <!-- The Register Model -->
+        <div id="registerForm" class="modal">
+            <span onclick="document.getElementById('registerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input id='registerUserText' type="text" placeholder="Enter Username" name="username" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input id='registerPasswordText' type="password" placeholder="Enter Password" name="password" required>
+
+                <button type="button" onclick="register()">Register</button>
+                <label id='registerPasswordText'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('registerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+         <!-- The Login Model -->
+         <div id="loginForm" class="modal">
+            <span onclick="document.getElementById('loginForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+    
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+    
+                <div class="container">
+                    <label for="uname"><b>Username</b></label>
+                    <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
+        
+                    <label for="psw"><b>Password</b></label>
+                    <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
+        
+                    <button type="button" onclick="login()">Login</button>
+                    <label id='loginResult'></label>
+                    </div>
+        
+                    <div class="container" style="background-color:#f1f1f1">
+                    <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+        <!-- The add product Model -->
+        <div id="addProductToStoreForm" class="modal">
+            <span onclick="document.getElementById('addProductToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+                    <label for="amount"><b>Product Amount</b></label>
+                    <input id='amountText' type="Number" placeholder="Amount" name="productAmount" required>
+
+                    <br>
+                    <br>
+                    <label for="category"><b>Product Category</b></label>
+                    <input id='categoryText' type="text" placeholder="Category" name="productCategory" required>
+
+                    <br>
+                    <br>
+                    <label for="name"><b>Product Name</b></label>
+                    <input id='nameText' type="text" placeholder="Name" name="productName" required>
+
+                    <label for="price"><b>Product Price</b></label>
+                    <input id='priceText' type="Number" placeholder="Pirce" name="productPrice" required>
+                    <br><br>
+                    <button type="button" onclick="addProduct()">Add</button>
+                    
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('addProductToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+        <!-- The edit product Model -->
+        <div id="editProductToStoreForm" class="modal">
+            <span onclick="document.getElementById('editProductToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='productIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+                    <label for="info"><b>Product Info</b></label>
+                    <input id='productInfoText' type="Text" placeholder="Info" name="productInfo" required>
+
+                    <button type="button" onclick="editProduct()">Edit</button>
+                    <label id='productEditResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('editProductToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+        
+        
+        <!-- The Delete product Model -->
+        <div id="deleteProductToStoreForm" class="modal">
+            <span onclick="document.getElementById('deleteProductToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='deleteproductIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+
+                    <button type="button" onclick="deleteProduct()">Delete</button>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('deleteProductToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+        
+
+    </body>
+
+</html>
