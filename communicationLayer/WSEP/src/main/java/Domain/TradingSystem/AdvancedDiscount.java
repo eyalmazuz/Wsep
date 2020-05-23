@@ -1,6 +1,5 @@
 package Domain.TradingSystem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AdvancedDiscount implements DiscountType {
@@ -76,6 +75,15 @@ public class AdvancedDiscount implements DiscountType {
             }
 
             return discountBasket;
+        }
+
+        public String toString() {
+            String output = "";
+            for (int i = 0; i < discounts.size(); i++) {
+                output += discounts.get(i).toString();
+                if (i < discounts.size() - 1) output += (" " + type.toString() + " ");
+            }
+            return output;
         }
     }
 

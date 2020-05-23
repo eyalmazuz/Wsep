@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="resources/css/main.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+        <style>
+            .city {display:none}
+            </style>
+        <script type='text/javascript' src="resources/js/buttons.js"></script>
+        <script type="text/javascript" src="resources/js/discountPolicy.js"></script>
+        <script type='text/javascript' src="./resources/js/communication.js"></script>
+
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+    </head>
+
+
+    <body onload='viewStoreDiscountPolicies()'>
+            
+        <div class="buttons">
+            
+            <button onclick="logout()" class='nav' id='logoutButton'>Logout</button>
+
+            <!-- "Button to open the modal register form -->
+            <button onclick="showRegister()" class='nav' id='registerButton'>Register</button>
+        
+            <!-- Button to open the modal login form -->
+            <button onclick="showLogin()" class='nav' id='loginButton'>Login</button>
+
+            <button onclick="location.href='stores.html'" class='nav' id='storesButton'>Stores</button>
+
+            <button type="button" class='nav' id="cartButton" onclick="location.href='cartpage.html'">Cart</button>
+
+            <button type="button" class='nav' id="searchButton" onclick="location.href='search.html'">Search</button>
+
+            <button type="button" class='nav' id="homepageButton" onclick="location.href='index.html'">Homepage</button>
+
+            <button type="button" class='nav' id="returnButton" onclick="returnToStore()">Back To Store</button>
+
+        </div>
+
+        </div>
+
+        <br>
+        <br>
+        <br>
+
+        <div name='policies'>
+            <table id='storePolicies' border="1">
+                <tr>
+                    <th>Policy ID</th>
+                    <th>Policy Description</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+            </table>
+
+        </div>
+        <br>
+        <br>
+        <br>
+        <div>
+            <h1 id='optionTitle'>Store OPTIONS</h1>
+            <button type="button" id='addProduct' class='nav' onclick="showAddDiscountPolicy()" >Add Discount Policy to Store</button>
+            <!-- <button type="button" id='editProduct' class='nav' onclick="showEditDiscountPolicyProduct()" >Edit Discount Policy</button> -->
+            <button type="button" id='deleteProduct' class='nav' onclick="showDeleteDiscountPolicy()" >Delete Discount Policy</button>
+        </div>
+
+        <br>
+        <br>
+
+        <!-- The Register Model -->
+        <div id="registerForm" class="modal">
+            <span onclick="document.getElementById('registerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input id='registerUserText' type="text" placeholder="Enter Username" name="username" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input id='registerPasswordText' type="password" placeholder="Enter Password" name="password" required>
+
+                <button type="button" onclick="register()">Register</button>
+                <label id='registerPasswordText'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('registerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+
+         <!-- The Login Model -->
+         <div id="loginForm" class="modal">
+            <span onclick="document.getElementById('loginForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+    
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+    
+                <div class="container">
+                    <label for="uname"><b>Username</b></label>
+                    <input id='loginUserText' type="text" placeholder="Enter Username" name="username" required>
+        
+                    <label for="psw"><b>Password</b></label>
+                    <input id='loginPasswordText' type="password" placeholder="Enter Password" name="password" required>
+        
+                    <button type="button" onclick="login()">Login</button>
+                    <label id='loginResult'></label>
+                    </div>
+        
+                    <div class="container" style="background-color:#f1f1f1">
+                    <button type="button" onclick="document.getElementById('loginForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+        <!-- The add discount policy Model -->
+        <div id="addDiscountPolicyToStoreForm" class="modal">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+
+              
+                <div class="w3-bar w3-border-bottom">
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Product')">Product Discount</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Category')">Category Discount</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Advance')">Advance Constraint</button>
+                </div>
+              
+                <div id="Product" class="w3-container city">
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required><br>
+
+                    <label for="discount"><b>Discount Value</b></label>
+                    <input id='discountProductText' type="Number" placeholder="Discount" name="productDiscount" required><br>
+
+                    <input type="button" onclick='CreateProductDiscount()' value="Submit">
+
+                </div>
+              
+                <div id="Category" class="w3-container city">
+                    <label for="id"><b>Products Category</b></label>
+                    <input id='categoryText' type="text" placeholder="Enter Category" name="productCategory" required><br>
+
+                    <label for="discount"><b>Discount Value</b></label>
+                    <input id='discountCategoryText' type="Number" placeholder="Discount" name="productDiscount" required><br>
+
+                    <input type="button" onclick='CreateCategoryDiscount()' value="Submit">
+
+                </div>
+
+                <div id="Advance" class="w3-container city">
+                    <input type="radio" id="xor" name="operator" value="xor">
+                    <label for="xor">XOR</label><br>
+                    <input type="radio" id="implies" name="operator" value="implies">
+                    <label for="implies">Implies</label><br>
+                    <input type="radio" id="and" name="operator" value="and">
+                    <label for="and">AND</label><br>
+                    <input type="radio" id="or" name="operator" value="or">
+                    <label for="or">OR</label><br>
+
+                    <label for="ids"><b>Policy IDS SPACE SEPERATED ONLY</b></label>
+                    <input id='idsText' type="text" placeholder="Ids" name="ids" required><br>
+
+                    <input type="button" onclick='CreateAdvancePolicy()' value="Submit">
+
+                   </div>
+              
+                <div class="w3-container w3-light-grey w3-padding">
+                 <button class="w3-button w3-right w3-white w3-border" 
+                 onclick="document.getElementById('addDiscountPolicyToStoreForm').style.display='none'">Close</button>
+                </div>
+               </div>
+              </div>
+               
+        </div> 
+
+        <!-- The edit policy Model -->
+        <div id="editDisountPolicyToStoreForm" class="modal">
+            <span onclick="document.getElementById('editDiscountPolicyToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Product Id</b></label>
+                    <input id='productIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+
+                    <label for="info"><b>Product Info</b></label>
+                    <input id='productInfoText' type="Text" placeholder="Info" name="productInfo" required>
+
+                    <button type="button" onclick="editBuyingPolicy()">Edit</button>
+                    <label id='productEditResult'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('editDiscountPolicyToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+        
+        
+        <!-- The Delete buying policy Model -->
+        <div id="deleteDiscountPolicyToStoreForm" class="modal">
+            <span onclick="document.getElementById('deleteDiscountPolicyToStoreForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                
+                    <label for="id"><b>Policy Id</b></label>
+                    <input id='deletepolicyIdText' type="number" placeholder="Enter Policy ID" name="policyId" required>
+
+
+                    <button type="button" onclick="deleteDiscountPolicy()">Delete</button>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('deleteDiscountPolicyToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+        
+
+
+    </body>
+
+</html>

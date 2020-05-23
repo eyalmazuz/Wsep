@@ -2,7 +2,6 @@ package com.example.communicationLayer.controllers;
 
 
 import DTOs.*;
-import Service.ManagerHandler;
 import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,6 +108,15 @@ public class OwnerController {
         return new OwnerHandler(sessionId).changeBuyingPolicy(storeId, newPolicy);
     }
 
+    @GetMapping("/changeDiscountPolicy")
+    @ResponseBody
+    public ActionResultDTO changeDiscountPolicy(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                              @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                              @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
+        return new OwnerHandler(sessionId).changeDiscountPolicy(storeId, newPolicy);
+    }
+
+
     @GetMapping("/getOptionalManagers")
     @ResponseBody
     public SubscriberActionResultDTO getOptionalManagers(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
@@ -187,6 +195,15 @@ public class OwnerController {
         return new OwnerHandler(sessionId).viewBuyingPolicies(sessionId, storeId);
     }
 
+    @GetMapping("/OwnerViewDiscountPolicies")
+    @ResponseBody
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new OwnerHandler(sessionId).viewDiscountPolicies(sessionId, storeId);
+    }
+
     @GetMapping("/OwnerChangeProductPrice")
     @ResponseBody
     public ActionResultDTO changeProductPrice(
@@ -196,6 +213,61 @@ public class OwnerController {
             @RequestParam(value = "price", defaultValue = "") double price
     ) {
         return new OwnerHandler(sessionId).changeProductPrice(storeId, productId, price);
+    }
+
+    // discount policies
+
+    @GetMapping("/OwnerAddSimpleProductDiscount")
+    @ResponseBody
+    public IntActionResultDto addSimpleProductDiscount(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "salePercentage", defaultValue = "") double salePercentage
+    ) {
+        return new OwnerHandler(sessionId).addSimpleProductDiscount(storeId, productId, salePercentage);
+    }
+
+    @GetMapping("/OwnerAddSimpleCategoryDiscount")
+    @ResponseBody
+    public IntActionResultDto addSimpleCategoryDiscount(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "categoryName", defaultValue = "") String categoryName,
+            @RequestParam(value = "salePercentage", defaultValue = "") double salePercentage
+    ) {
+        return new OwnerHandler(sessionId).addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
+    }
+
+
+    @GetMapping("/OwnerRemoveDiscountType")
+    @ResponseBody
+    public ActionResultDTO removeDiscountType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "discountTypeID", defaultValue = "") int discountTypeID
+    ) {
+        return new OwnerHandler(sessionId).removeDiscountType(storeId, discountTypeID);
+    }
+
+    @GetMapping("/OwnerRemoveAllDiscountTypes")
+    @ResponseBody
+    public ActionResultDTO removeAllDiscountTypes(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new OwnerHandler(sessionId).removeAllDiscountTypes(storeId);
+    }
+
+    @GetMapping("/OwnerCreateAdvancedDiscountType")
+    @ResponseBody
+    public ActionResultDTO createAdvancedDiscountType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "discountTypeIDs", defaultValue = "") List<Integer> discountTypeIDs,
+            @RequestParam(value = "logicalOperation", defaultValue = "") String logicalOperation
+    ) {
+        return new OwnerHandler(sessionId).createAdvancedDiscountType(storeId, discountTypeIDs, logicalOperation);
     }
 
 

@@ -30,7 +30,7 @@ public class Store {
         managers = new LinkedList<>();
         products = new LinkedList<>();
         buyingPolicy = new BuyingPolicy("None");
-        discountPolicy = new DiscountPolicy();
+        discountPolicy = new DiscountPolicy("None");
         purchaseHistory = new ArrayList<>();
         //storePurchaseHistory = new StorePurchaseHistory(this);
     }
@@ -338,6 +338,10 @@ public class Store {
         return buyingPolicy.getDTO();
     }
 
+    public DiscountPolicyActionResultDTO getDiscountPolicyDetails() {
+        return discountPolicy.getDTO();
+    }
+
     public boolean hasProduct(ProductInfo productInfo) {
         int productId = productInfo.getId();
         for (ProductInStore pis : products) {
@@ -345,4 +349,26 @@ public class Store {
         }
         return false;
     }
+
+
+    public int addSimpleProductDiscount(int productId, double salePercentage) {
+        return discountPolicy.addDiscountType(new ProductDiscount.ProductSaleDiscount(productId, salePercentage));
+    }
+
+    public int addSimpleCategoryDiscount(String categoryName, double salePercentage) {
+        return discountPolicy.addDiscountType(new ProductDiscount.CategorySaleDiscount(categoryName, salePercentage));
+    }
+
+    public IntActionResultDto addAdvancedDiscountType(List<Integer> discountTypeIDs, String logicalOperation) {
+        return discountPolicy.addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+    }
+
+    public void removeDiscountType(int discountTypeID) {
+        discountPolicy.removeDiscountType(discountTypeID);
+    }
+
+    public void removeAllDiscountTypes() {
+        discountPolicy.clearDiscountTypes();
+    }
+
 }

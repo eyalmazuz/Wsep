@@ -119,7 +119,7 @@ async function editProduct(idx){
     var sessionId = sessionStorage['sessionId']
     var storeId = products.rows[parseInt(idx)].cells[0].children[0].innerHTML
     var productId = products.rows[parseInt(idx)].cells[1].innerHTML
-    var amount = products.rows[parseInt(idx)].cells[3].children[0].value
+    var amount = products.rows[parseInt(idx)].cells[4].children[0].value
     console.log(storeId)
     console.log(productId)
     console.log(amount)

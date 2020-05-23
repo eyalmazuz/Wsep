@@ -598,13 +598,13 @@ public class SystemTests extends TestCase {
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
 
-        DiscountPolicy policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        DiscountPolicy policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
         Map<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        policy.clearDiscountTypes();
 
 
         productsAmount = new HashMap<>();
@@ -613,75 +613,77 @@ public class SystemTests extends TestCase {
 
 
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         assertEquals(5 * 5.0, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        policy.clearDiscountTypes();
 
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        policy.clearDiscountTypes();
 
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        assertEquals((1-0.5) * 5 * 10 + (1-0.75) * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
 
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
         productsAmount.put(infoApple, 10);
 
-        assertEquals(0.75*10*20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        assertEquals((1-0.75)*10*20, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
 
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
-
-        store1.setDiscountPolicy(policy);
-
-        productsAmount = new HashMap<>();
-        productsAmount.put(infoBamba, 5);
-        productsAmount.put(infoApple, 10);
-        assertEquals(5*10 + 0.75*10*20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
-
-
-        policy = new DiscountPolicy();
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscount(new ProductDiscount.ProductSaleDiscount(5, 0.75));
-        policy.addDiscount(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
+        assertEquals(5*10 + (1-0.75)*10*20, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20 * 0.5, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
+
+        //java.lang.System.out.println(policy);
+
+        store1.setDiscountPolicy(policy);
+
+        productsAmount = new HashMap<>();
+        productsAmount.put(infoBamba, 5);
+        productsAmount.put(infoApple, 10);
+
+        assertEquals((1-0.5) * 5 * 10 + (1-0.75) * 10 * 20 * (1-0.5), store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
         test.removeProduct(4);
         test.removeProduct(5);
 
@@ -708,53 +710,58 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
 
 
-        DiscountPolicy policy = new DiscountPolicy();
+        DiscountPolicy policy = new DiscountPolicy("test");
 
         List<DiscountType> discounts = new ArrayList<>();
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
 
-        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
+        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
         store1.setDiscountPolicy(policy);
         Map<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 
 
-        assertEquals(0.5 * 5 * 10 + 0.75 * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        assertEquals((1-0.5) * 5 * 10 + (1-0.75) * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
 
 
         discounts = new ArrayList<>();
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
 
-        policy = new DiscountPolicy();
-        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+        policy = new DiscountPolicy("test");
+
+        AdvancedDiscount.LogicalDiscount hi = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
+
+        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+
+        //java.lang.System.out.println(policy);
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 
 
-        assertEquals(5*10 + 0.75*20*10, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        assertEquals(5*10 + (1-0.75)*20*10, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
 
 
         discounts = new ArrayList<>();
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy = new DiscountPolicy();
-        policy.addDiscount(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR));
+        policy = new DiscountPolicy("test");
+        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 
 
-        assertEquals(0.5*5*10 + 10*20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscounts();
+        assertEquals((1-0.5)*5*10 + 10*20, store1.getPrice(u, productsAmount).getPrice());
+        policy.clearDiscountTypes();
         test.removeProduct(4);
         test.removeProduct(5);
 

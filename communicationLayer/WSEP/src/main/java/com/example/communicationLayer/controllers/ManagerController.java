@@ -1,12 +1,8 @@
 package com.example.communicationLayer.controllers;
 
 
-import DTOs.ActionResultDTO;
-import DTOs.BuyingPolicyActionResultDTO;
-import DTOs.IntActionResultDto;
-import DTOs.StorePurchaseHistoryDTO;
+import DTOs.*;
 import Service.ManagerHandler;
-import Service.OwnerHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -163,4 +159,79 @@ public class ManagerController {
     ) {
         return new ManagerHandler(sessionId).changeProductPrice(storeId, productId, price);
     }
+
+
+    // discount policies
+
+    @GetMapping("/ManagerChangeDiscountPolicy")
+    @ResponseBody
+    public ActionResultDTO changeDiscountPolicy(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "newPolicy", defaultValue = "") String newPolicy){
+        return new ManagerHandler(sessionId).changeDiscountPolicy(storeId, newPolicy);
+    }
+
+    @GetMapping("/ManagerAddSimpleProductDiscount")
+    @ResponseBody
+    public IntActionResultDto addSimpleProductDiscount(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "productId", defaultValue = "") int productId,
+            @RequestParam(value = "salePercentage", defaultValue = "") double salePercentage
+    ) {
+        return new ManagerHandler(sessionId).addSimpleProductDiscount(storeId, productId, salePercentage);
+    }
+
+    @GetMapping("/ManagerAddSimpleCategoryDiscount")
+    @ResponseBody
+    public IntActionResultDto addSimpleCategoryDiscount(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "categoryName", defaultValue = "") String categoryName,
+            @RequestParam(value = "salePercentage", defaultValue = "") double salePercentage
+    ) {
+        return new ManagerHandler(sessionId).addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
+    }
+
+
+    @GetMapping("/ManagerRemoveDiscountType")
+    @ResponseBody
+    public ActionResultDTO removeDiscountType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "discountTypeID", defaultValue = "") int discountTypeID
+    ) {
+        return new ManagerHandler(sessionId).removeDiscountType(storeId, discountTypeID);
+    }
+
+    @GetMapping("/ManagerRemoveAllDiscountTypes")
+    @ResponseBody
+    public ActionResultDTO removeAllDiscountTypes(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new ManagerHandler(sessionId).removeAllDiscountTypes(storeId);
+    }
+
+    @GetMapping("/ManagerCreateAdvancedDiscountType")
+    @ResponseBody
+    public ActionResultDTO createAdvancedDiscountType(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId,
+            @RequestParam(value = "discountTypeIDs", defaultValue = "") List<Integer> discountTypeIDs,
+            @RequestParam(value = "logicalOperation", defaultValue = "") String logicalOperation
+    ) {
+        return new ManagerHandler(sessionId).createAdvancedDiscountType(storeId, discountTypeIDs, logicalOperation);
+    }
+
+    @GetMapping("/ManagerViewDiscountPolicies")
+    @ResponseBody
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(
+            @RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+            @RequestParam(value = "storeId", defaultValue = "") int storeId
+    ) {
+        return new ManagerHandler(sessionId).viewDiscountPolicies(sessionId, storeId);
+    }
+
 }

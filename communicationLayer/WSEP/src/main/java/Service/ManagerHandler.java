@@ -127,4 +127,63 @@ public class ManagerHandler {
     public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
         return s.changeProductPrice(storeId, productId, price);
     }
+
+
+    // editing discount policies
+
+    public IntActionResultDto addSimpleProductDiscount(int storeId, int productId, double salePercentage) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            if (salePercentage < 0) return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Sale percentage must be non-negative", -1);
+            int discountTypeID = s.addSimpleProductDiscount(storeId, productId, salePercentage);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Added discount type " + discountTypeID, discountTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
+    }
+
+    public IntActionResultDto addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            int discountTypeID = s.addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
+            return new IntActionResultDto(ResultCode.SUCCESS, "Added discount type " + discountTypeID, discountTypeID);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
+    }
+
+    public IntActionResultDto createAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            if (!logicalOperation.toLowerCase().equals("xor") && !logicalOperation.toLowerCase().equals("and") && !logicalOperation.toLowerCase().equals("or"))
+                return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Logical operations are: and, or, xor", -1);
+
+            return s.addAdvancedDiscountType(storeId, discountTypeIDs, logicalOperation);
+        }
+        return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
+    }
+
+    public ActionResultDTO removeDiscountType(int storeId, int discountTypeId) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            s.removeDiscountTypeFromStore(storeId, discountTypeId);
+            return new ActionResultDTO(ResultCode.SUCCESS, "Removed discount type " + discountTypeId);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+    }
+
+    public ActionResultDTO removeAllDiscountTypes(int storeId) {
+        if (s.isSubscriber(sessionId) && s.isManagerWith(sessionId, storeId, "any")) {
+            s.removeAllDiscountTypes(storeId);
+            return new ActionResultDTO(ResultCode.SUCCESS, "Removed all discount types");
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+    }
+
+    public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy) {
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId, "any")){
+            return s.changeDiscountPolicy(storeId, newPolicy);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.");
+    }
+
+    public DiscountPolicyActionResultDTO viewDiscountPolicies(int sessionId, int storeId) {
+        return s.getDiscountPolicyDetails(storeId);
+    }
+
+
 }

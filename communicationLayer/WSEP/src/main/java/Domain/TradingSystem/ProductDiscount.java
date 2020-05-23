@@ -34,11 +34,16 @@ public class ProductDiscount extends SimpleDiscount {
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getProductId() == productId) {
                     double curPrice = discountProduct.getPrice();
-                    discountProduct.setPrice(salePercentage * curPrice);
+                    discountProduct.setPrice((1-salePercentage) * curPrice);
                 }
             }
             return resBasket;
         }
+
+        public String toString() {
+            return salePercentage*100 + "% sale on product ID " + productId;
+        }
+
     }
 
     public static class CategorySaleDiscount extends ProductDiscount {
@@ -65,10 +70,14 @@ public class ProductDiscount extends SimpleDiscount {
             for (DiscountBasket.DiscountProduct discountProduct: resDiscountProducts) {
                 if (discountProduct.getCategory().equals(categoryName)) {
                     double curPrice = discountProduct.getPrice();
-                    discountProduct.setPrice(salePercentage * curPrice);
+                    discountProduct.setPrice((1-salePercentage) * curPrice);
                 }
             }
             return resBasket;
+        }
+
+        public String toString() {
+            return salePercentage*100 + "% sale on the " + categoryName + " category";
         }
     }
 

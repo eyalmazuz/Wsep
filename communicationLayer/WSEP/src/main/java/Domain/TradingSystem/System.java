@@ -827,6 +827,16 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "The specified store does not exist.");
     }
 
+    public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy){
+        logger.info("changeDiscountPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
+        Store s = getStoreById(storeId);
+        if(s != null){
+            s.setDiscountPolicy(new DiscountPolicy(newPolicy));
+            return new ActionResultDTO(ResultCode.SUCCESS, null);
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "The specified store does not exist.");
+    }
+
     public ActionResultDTO checkBuyingPolicy(int sessionId) {
         logger.info("checkBuyingPolicy: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
@@ -1056,6 +1066,10 @@ public class System {
         return getStoreById(storeId).getBuyingPolicyDetails();
     }
 
+    public DiscountPolicyActionResultDTO getDiscountPolicyDetails(int storeId) {
+        return getStoreById(storeId).getDiscountPolicyDetails();
+    }
+
     public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
         Store store = getStoreById(storeId);
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such store");
@@ -1091,4 +1105,25 @@ public class System {
         return new PermissionDTO(permission.getStore().getId(),user,grantor,permission.getType(),permission.getDetails());
 
     }
+
+    public void removeDiscountTypeFromStore(int storeId, int discountTypeID) {
+        getStoreById(storeId).removeDiscountType(discountTypeID);
+    }
+
+    public void removeAllDiscountTypes(int storeId) {
+        getStoreById(storeId).removeAllDiscountTypes();
+    }
+
+    public int addSimpleProductDiscount(int storeId, int productId, double salePercentage) {
+        return getStoreById(storeId).addSimpleProductDiscount(productId, salePercentage);
+    }
+
+    public int addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) {
+        return getStoreById(storeId).addSimpleCategoryDiscount(categoryName, salePercentage);
+    }
+
+    public IntActionResultDto addAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
+        return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+    }
+
 }
