@@ -2,12 +2,14 @@ package Domain.TradingSystem;
 
 import DTOs.*;
 import DTOs.SimpleDTOS.*;
+import DataAccess.DAOManager;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
-import org.springframework.aop.interceptor.PerformanceMonitorInterceptor;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -16,7 +18,6 @@ public class System {
 
     private static System instance = null;
     private static int notificationId = 0;
-
 
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
@@ -30,11 +31,20 @@ public class System {
     // session id -> (store id -> (product id -> amount))
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
+    private DAOManager daoManager;
+
     public System(){
         userHandler = new UserHandler();
         stores = new ConcurrentHashMap<>();
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
+
+        try {
+            daoManager = new DAOManager(new JdbcConnectionSource("jdbc:mysql://localhost/trading_system?user=root&password=weloveshahaf&serverTimezone=UTC"));
+            daoManager.createTable(ProductInfo.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static System getInstance(){
@@ -807,6 +817,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
+        daoManager.createProductInfo(productInfo);
         return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
     }
 

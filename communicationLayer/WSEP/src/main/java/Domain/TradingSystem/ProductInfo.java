@@ -1,11 +1,27 @@
 package Domain.TradingSystem;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable (tableName = "productInfos")
 public class ProductInfo {
+
+    @DatabaseField(id = true)
     private int id;
+
+    @DatabaseField
     private String name;
+
+    @DatabaseField
     private String category;
+
+    @DatabaseField
     private double rating;
+
+    @DatabaseField
     private double defaultPrice;
+
+    public ProductInfo() {}
 
     public ProductInfo(int productId, String name, String category, double basePrice) {
         this.id = productId;
