@@ -1,16 +1,20 @@
 package Domain.TradingSystem;
 
 import DTOs.*;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+@DatabaseTable(tableName = "stores")
 public class Store {
 
     private static int globalId = 0;
 
+    @DatabaseField(id = true)
     private int id;
+
     private List<ProductInStore> products;
     private List <Subscriber> managers;
 

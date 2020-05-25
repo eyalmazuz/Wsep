@@ -11,29 +11,41 @@ import java.sql.SQLException;
 
 public class DAOManager {
 
-    private ConnectionSource csrc;
-    private Dao<ProductInfo, String> productInfoDao;
+    private static ConnectionSource connectionSource;
+    private static Dao<ProductInfo, String> productInfoDao;
+    private static Dao<ProductInStore, String> productInStoreDao;
 
-    public DAOManager(ConnectionSource csrc) {
-        this.csrc = csrc;
+
+    public static void init(ConnectionSource csrc) {
+        connectionSource = csrc;
         try {
             productInfoDao = DaoManager.createDao(csrc, ProductInfo.class);
+            //productInStoreDao = DaoManager.createDao(csrc, ProductInStore.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
-    public void createTable(Class<?> tableClass) {
+    public static void createTable(Class<?> tableClass) {
         try {
-            TableUtils.createTableIfNotExists(csrc, tableClass);
+            TableUtils.createTableIfNotExists(connectionSource, tableClass);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void createProductInfo(ProductInfo productInfo) {
+    public static void createProductInfo(ProductInfo productInfo) {
         try {
             productInfoDao.create(productInfo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createProductInStore(ProductInStore pis) {
+        try {
+            productInStoreDao.create(pis);
         } catch (SQLException e) {
             e.printStackTrace();
         }

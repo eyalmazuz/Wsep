@@ -31,8 +31,6 @@ public class System {
     // session id -> (store id -> (product id -> amount))
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
-    private DAOManager daoManager;
-
     public System(){
         userHandler = new UserHandler();
         stores = new ConcurrentHashMap<>();
@@ -40,8 +38,8 @@ public class System {
         products = new ConcurrentHashMap<>();
 
         try {
-            daoManager = new DAOManager(new JdbcConnectionSource("jdbc:mysql://localhost/trading_system?user=root&password=weloveshahaf&serverTimezone=UTC"));
-            daoManager.createTable(ProductInfo.class);
+            DAOManager.init(new JdbcConnectionSource("jdbc:mysql://localhost/trading_system?user=root&password=weloveshahaf&serverTimezone=UTC"));
+            DAOManager.createTable(ProductInfo.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -817,7 +815,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
         }
         products.put(id,productInfo);
-        daoManager.createProductInfo(productInfo);
+        DAOManager.createProductInfo(productInfo);
         return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
     }
 
