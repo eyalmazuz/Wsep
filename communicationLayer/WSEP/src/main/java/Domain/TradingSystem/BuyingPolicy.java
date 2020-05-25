@@ -5,20 +5,35 @@ import DTOs.BuyingPolicyActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 import DTOs.SimpleDTOS.BuyingTypeDTO;
+import DataAccess.DAOManager;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import javax.swing.*;
 import java.util.*;
 
+@DatabaseTable(tableName = "buyingPolicies")
 public class BuyingPolicy {
 
     // This class defines a purchase policy for a store
 
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField
     private String details;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private HashMap<Integer, String> buyingTypeIDs = new HashMap<>();
+
+    private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
+    private static int nextId = 0;
+
+    public BuyingPolicy () { }
 
     public BuyingPolicy(String details) {
         this.details = details;
     }
-    private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
 
     public ActionResultDTO isAllowed(User user, ShoppingBasket basket) {
         if (details.equals("No one is allowed")) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "No one is allowed to buy at this store.");
@@ -45,10 +60,18 @@ public class BuyingPolicy {
     }
 
     public int addBuyingType(BuyingType type) {
-        int id = 0;
-        if (!buyingTypes.isEmpty()) id = Collections.max(buyingTypes.keySet()) + 1;
-        buyingTypes.put(id, type);
+        int id = nextId;
+        nextId++;
+        addBuyingType(id, type);
+        DAOManager.addBuyingTypeToPolicy(this, id, type);
         return id;
+}
+
+    public void addBuyingType(int id, BuyingType type) {
+        buyingTypes.put(id, type);
+        String typeStr = "simple";
+        if (type instanceof AdvancedBuying) typeStr = "advanced";
+        buyingTypeIDs.put(id, typeStr);
     }
 
     public Map<Integer, BuyingType> getBuyingTypes() {
@@ -57,6 +80,7 @@ public class BuyingPolicy {
 
     public void clearBuyingTypes() {
         buyingTypes.clear();
+        buyingTypeIDs.clear();
     }
 
     public void setDetails(String details) {
@@ -65,9 +89,10 @@ public class BuyingPolicy {
 
     public void removeBuyingType(int buyingTypeID) {
         buyingTypes.remove(buyingTypeID);
+        buyingTypeIDs.remove(buyingTypeID);
     }
 
-    public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperationStr) {
+    public IntActionResultDto createAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperationStr) {
         synchronized (buyingTypes) {
             List<BuyingType> relevantBuyingTypes = new ArrayList<>();
             for (Integer typeID : buyingTypeIDs) {
@@ -75,7 +100,15 @@ public class BuyingPolicy {
                 relevantBuyingTypes.add(buyingTypes.get(typeID));
             }
             // remove buying types to create one advanced out of all of them
-            for (Integer typeID : buyingTypeIDs) buyingTypes.remove(typeID);
+            for (Integer typeID : buyingTypeIDs) {
+                BuyingType type = buyingTypes.get(typeID);
+                buyingTypes.remove(typeID);
+
+                // PERSIST the type so that once reloaded, we can create advanced buying types
+                DAOManager.addBuyingTypeToPolicy(this, typeID, type);
+
+                buyingTypeIDs.remove(typeID);
+            }
 
             AdvancedBuying.LogicalOperation logicalOperation = AdvancedBuying.LogicalOperation.AND;
             if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedBuying.LogicalOperation.OR;
@@ -93,5 +126,9 @@ public class BuyingPolicy {
             dtos.add(new BuyingTypeDTO(id, type.toString()));
         }
         return new BuyingPolicyActionResultDTO(ResultCode.SUCCESS, null, dtos);
+    }
+
+    public HashMap<Integer, String> getBuyingTypeIDs() {
+        return buyingTypeIDs;
     }
 }

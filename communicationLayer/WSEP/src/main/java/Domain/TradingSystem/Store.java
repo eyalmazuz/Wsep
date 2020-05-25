@@ -335,7 +335,7 @@ public class Store {
     }
 
     public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperation) {
-        return buyingPolicy.addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+        return buyingPolicy.createAdvancedBuyingType(buyingTypeIDs, logicalOperation);
     }
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {

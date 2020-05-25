@@ -5,9 +5,14 @@ import DTOs.ResultCode;
 
 public class SimpleBuying implements BuyingType {
 
+    protected int id;
 
     public SimpleBuying() {
 
+    }
+
+    public int getId() {
+        return id;
     }
 
     public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
@@ -25,5 +30,6 @@ public class SimpleBuying implements BuyingType {
         }
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
+
 }
 

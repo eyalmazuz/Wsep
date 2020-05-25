@@ -37,9 +37,10 @@ public class System {
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
 
+        String databaseName = "trading_system_test";
+
         try {
-            DAOManager.init(new JdbcConnectionSource("jdbc:mysql://localhost/trading_system?user=root&password=weloveshahaf&serverTimezone=UTC"));
-            DAOManager.createTable(ProductInfo.class);
+            DAOManager.init(new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=root&password=weloveshahaf&serverTimezone=UTC"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -1135,4 +1136,7 @@ public class System {
         return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
     }
 
+    public void clearDatabase() {
+        DAOManager.clearDatabase();
+    }
 }

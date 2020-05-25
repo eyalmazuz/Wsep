@@ -7,18 +7,35 @@ import java.util.Map;
 
 public class BasketBuyingConstraint extends SimpleBuying {
 
+    protected ProductInfo productInfo;
+    protected int minAmount, maxAmount;
+
+    public BasketBuyingConstraint(ProductInfo info, int minAmount, int maxAmount) {
+        this.productInfo = info;
+        this.minAmount = minAmount;
+        this.maxAmount = maxAmount;
+    }
+
+    public ProductInfo getProductInfo() {
+        return productInfo;
+    }
+
+    public int getMinAmount() {
+        return minAmount;
+    }
+
+    public int getMaxAmount() {
+        return maxAmount;
+    }
+
     public ActionResultDTO canBuy(ShoppingBasket basket) {
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class MaxAmountForProductConstraint extends BasketBuyingConstraint {
 
-        private ProductInfo productInfo;
-        private int maxAmount;
-
         public MaxAmountForProductConstraint(ProductInfo productInfo, int maxAmount) {
-            this.productInfo = productInfo;
-            this.maxAmount = maxAmount;
+            super(productInfo, -1 ,maxAmount);
         }
 
         public ActionResultDTO canBuy(ShoppingBasket basket) {
@@ -33,12 +50,8 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
     public static class MinAmountForProductConstraint extends BasketBuyingConstraint {
 
-        private ProductInfo productInfo;
-        private int minAmount;
-
         public MinAmountForProductConstraint(ProductInfo productInfo, int minAmount) {
-            this.productInfo = productInfo;
-            this.minAmount = minAmount;
+            super(productInfo, minAmount, -1);
         }
 
         public ActionResultDTO canBuy(ShoppingBasket basket) {
@@ -53,10 +66,8 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
     public static class MaxProductAmountConstraint extends BasketBuyingConstraint {
 
-        private int maxAmount;
-
         public MaxProductAmountConstraint(int maxAmount) {
-            this.maxAmount = maxAmount;
+            super(null, -1, maxAmount);
         }
 
         public ActionResultDTO canBuy(ShoppingBasket basket) {
@@ -76,10 +87,8 @@ public class BasketBuyingConstraint extends SimpleBuying {
 
     public static class MinProductAmountConstraint extends BasketBuyingConstraint {
 
-        private int minAmount;
-
         public MinProductAmountConstraint(int minAmount) {
-            this.minAmount = minAmount;
+            super(null, minAmount, -1);
         }
 
         public ActionResultDTO canBuy(ShoppingBasket basket) {

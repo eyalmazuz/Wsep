@@ -7,16 +7,24 @@ import java.util.Calendar;
 
 public class SystemBuyingConstraint extends SimpleBuying {
 
+    protected int forbiddenDay;
+
+    public SystemBuyingConstraint(int forbiddenDay) {
+        this.forbiddenDay = forbiddenDay;
+    }
+
     public ActionResultDTO canBuy() {
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
+    public int getForbiddenDay() {
+        return forbiddenDay;
+    }
+
     public static class NotOnDayConstraint extends SystemBuyingConstraint {
 
-        private int forbiddenDay;
-
         public NotOnDayConstraint(int forbiddenDay) {
-            this.forbiddenDay = forbiddenDay;
+            super(forbiddenDay);
         }
 
         public ActionResultDTO canBuy() {

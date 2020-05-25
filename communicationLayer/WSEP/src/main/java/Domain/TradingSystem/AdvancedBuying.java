@@ -17,17 +17,30 @@ public class AdvancedBuying implements BuyingType {
         IMPLIES
     }
 
+    protected List<BuyingType> buyingConstraints;
+    protected LogicalOperation type;
+
+    public AdvancedBuying(List<BuyingType> buyingConstraints, LogicalOperation type) {
+        this.buyingConstraints = buyingConstraints;
+        this.type = type;
+    }
+
+    public List<BuyingType> getBuyingConstraints() {
+        return buyingConstraints;
+    }
+
+    public LogicalOperation getType() {
+        return type;
+    }
+
     public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class LogicalBuying extends AdvancedBuying {
-        private List<BuyingType> buyingConstraints;
-        private LogicalOperation type;
 
         public LogicalBuying(List<BuyingType> buyingConstraints, LogicalOperation type) {
-            this.buyingConstraints = buyingConstraints;
-            this.type = type;
+            super(buyingConstraints, type);
         }
 
         @Override

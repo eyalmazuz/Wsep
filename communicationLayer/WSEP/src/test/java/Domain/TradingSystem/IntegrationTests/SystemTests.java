@@ -22,6 +22,7 @@ public class SystemTests extends TestCase {
     @Before
     public void setUp() {
         test = new System();
+        test.clearDatabase();
     }
 
     @After
