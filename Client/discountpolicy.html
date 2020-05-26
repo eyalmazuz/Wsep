@@ -5,6 +5,11 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="resources/css/main.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+        <style>
+            .city {display:none}
+            </style>
         <script type='text/javascript' src="resources/js/buttons.js"></script>
         <script type="text/javascript" src="resources/js/discountPolicy.js"></script>
         <script type='text/javascript' src="./resources/js/communication.js"></script>
@@ -44,27 +49,28 @@
         <br>
         <br>
 
-        <div name='product'>
-            <table id='storeProducts' border="1">
+        <div name='policies'>
+            <table id='storePolicies' border="1">
                 <tr>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Product Category</th>
-                    <th>Product Info</th>
-                    <th>Product Amount</th>
-                    <th>Delete</th>
+                    <th>Policy ID</th>
+                    <th>Policy Description</th>
                 </tr>
-            </table>
-        </div>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
 
+            </table>
+
+        </div>
         <br>
         <br>
         <br>
         <div>
             <h1 id='optionTitle'>Store OPTIONS</h1>
             <button type="button" id='addProduct' class='nav' onclick="showAddDiscountPolicy()" >Add Discount Policy to Store</button>
-            <button type="button" id='editProduct' class='nav' onclick="showEditDiscountPolicyProduct()" >Edit Discount Policy</button>
-            <button type="button" id='deleteProduct' class='nav' onclick="showDeleteDiscountDiscountPolicy()" >Delete Discount Policy</button>
+            <!-- <button type="button" id='editProduct' class='nav' onclick="showEditDiscountPolicyProduct()" >Edit Discount Policy</button> -->
+            <button type="button" id='deleteProduct' class='nav' onclick="showDeleteDiscountPolicy()" >Delete Discount Policy</button>
         </div>
 
         <br>
@@ -121,48 +127,67 @@
             </form>
         </div> 
 
-
-        <!-- The add product Model -->
+        <!-- The add discount policy Model -->
         <div id="addDiscountPolicyToStoreForm" class="modal">
-            <span onclick="document.getElementById('addDiscountPolicyToStoreForm').style.display='none'"
-            class="close" title="Close Modal">&times;</span>
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
 
-            <!-- Modal Content -->
-            <form class="modal-content animate">
-
-                <div class="container">
-                
+              
+                <div class="w3-bar w3-border-bottom">
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Product')">Product Discount</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Category')">Category Discount</button>
+                 <button class="tablink w3-bar-item w3-button" onclick="openTab(event, 'Advance')">Advance Constraint</button>
+                </div>
+              
+                <div id="Product" class="w3-container city">
                     <label for="id"><b>Product Id</b></label>
-                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required>
+                    <input id='idText' type="number" placeholder="Enter Product ID" name="productId" required><br>
 
-                    <label for="amount"><b>Product Amount</b></label>
-                    <input id='amountText' type="Number" placeholder="Amount" name="productAmount" required>
+                    <label for="discount"><b>Discount Value</b></label>
+                    <input id='discountProductText' type="Number" placeholder="Discount" name="productDiscount" required><br>
 
-                    <br>
-                    <br>
-                    <label for="category"><b>Product Category</b></label>
-                    <input id='categoryText' type="text" placeholder="Category" name="productCategory" required>
+                    <input type="button" onclick='CreateProductDiscount()' value="Submit">
 
-                    <br>
-                    <br>
-                    <label for="name"><b>Product Name</b></label>
-                    <input id='nameText' type="text" placeholder="Name" name="productName" required>
+                </div>
+              
+                <div id="Category" class="w3-container city">
+                    <label for="id"><b>Products Category</b></label>
+                    <input id='categoryText' type="text" placeholder="Enter Category" name="productCategory" required><br>
 
-                    <label for="price"><b>Product Price</b></label>
-                    <input id='priceText' type="Number" placeholder="Pirce" name="productPrice" required>
-                    <br><br>
-                    <button type="button" onclick="addProduct()">Add</button>
-                    
+                    <label for="discount"><b>Discount Value</b></label>
+                    <input id='discountCategoryText' type="Number" placeholder="Discount" name="productDiscount" required><br>
+
+                    <input type="button" onclick='CreateCategoryDiscount()' value="Submit">
+
                 </div>
 
-                <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('addDiscountPolicyToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                <div id="Advance" class="w3-container city">
+                    <input type="radio" id="xor" name="operator" value="xor">
+                    <label for="xor">XOR</label><br>
+                    <input type="radio" id="implies" name="operator" value="implies">
+                    <label for="implies">Implies</label><br>
+                    <input type="radio" id="and" name="operator" value="and">
+                    <label for="and">AND</label><br>
+                    <input type="radio" id="or" name="operator" value="or">
+                    <label for="or">OR</label><br>
+
+                    <label for="ids"><b>Policy IDS SPACE SEPERATED ONLY</b></label>
+                    <input id='idsText' type="text" placeholder="Ids" name="ids" required><br>
+
+                    <input type="button" onclick='CreateAdvancePolicy()' value="Submit">
+
+                   </div>
+              
+                <div class="w3-container w3-light-grey w3-padding">
+                 <button class="w3-button w3-right w3-white w3-border" 
+                 onclick="document.getElementById('addDiscountPolicyToStoreForm').style.display='none'">Close</button>
                 </div>
-            </form>
+               </div>
+              </div>
+               
         </div> 
 
-        <!-- The edit product Model -->
-        <div id="editDiscountPolicyToStoreForm" class="modal">
+        <!-- The edit policy Model -->
+        <div id="editDisountPolicyToStoreForm" class="modal">
             <span onclick="document.getElementById('editDiscountPolicyToStoreForm').style.display='none'"
             class="close" title="Close Modal">&times;</span>
 
@@ -177,7 +202,7 @@
                     <label for="info"><b>Product Info</b></label>
                     <input id='productInfoText' type="Text" placeholder="Info" name="productInfo" required>
 
-                    <button type="button" onclick="editDiscountPolicy()">Edit</button>
+                    <button type="button" onclick="editBuyingPolicy()">Edit</button>
                     <label id='productEditResult'></label>
                 </div>
 
@@ -188,7 +213,7 @@
         </div>
         
         
-        <!-- The Delete product Model -->
+        <!-- The Delete buying policy Model -->
         <div id="deleteDiscountPolicyToStoreForm" class="modal">
             <span onclick="document.getElementById('deleteDiscountPolicyToStoreForm').style.display='none'"
             class="close" title="Close Modal">&times;</span>
@@ -198,8 +223,8 @@
 
                 <div class="container">
                 
-                    <label for="id"><b>Product Id</b></label>
-                    <input id='deleteproductIdText' type="number" placeholder="Enter Product ID" name="productId" required>
+                    <label for="id"><b>Policy Id</b></label>
+                    <input id='deletepolicyIdText' type="number" placeholder="Enter Policy ID" name="policyId" required>
 
 
                     <button type="button" onclick="deleteDiscountPolicy()">Delete</button>
@@ -211,6 +236,7 @@
             </form>
         </div> 
         
+
 
     </body>
 

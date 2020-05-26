@@ -17,13 +17,33 @@ public class AdvancedBuyingDTO {
     private AdvancedBuying.LogicalOperation logicalOperation;
 
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private HashMap<Integer, String> buyingTypeIDs; // id -> type (simple or advanced)
+    private HashMap<Integer, String> buyingTypeIdTypeMap; // id -> type (simple or advanced)
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private ArrayList<Integer> orderedBuyingTypeIds;
 
     public AdvancedBuyingDTO() {}
 
-    public AdvancedBuyingDTO(int id, AdvancedBuying.LogicalOperation logicalOperation, HashMap<Integer, String> buyingTypeIDs) {
+    public AdvancedBuyingDTO(int id, AdvancedBuying.LogicalOperation logicalOperation, HashMap<Integer, String> buyingTypeIdTypeMap, ArrayList<Integer> orderedBuyingTypeIds) {
         this.id = id;
         this.logicalOperation = logicalOperation;
-        this.buyingTypeIDs = buyingTypeIDs;
+        this.buyingTypeIdTypeMap = buyingTypeIdTypeMap;
+        this.orderedBuyingTypeIds = orderedBuyingTypeIds;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public AdvancedBuying.LogicalOperation getLogicalOperation() {
+        return logicalOperation;
+    }
+
+    public HashMap<Integer, String> getBuyingTypeIdTypeMap() {
+        return buyingTypeIdTypeMap;
+    }
+
+    public ArrayList<Integer> getOrderedBuyingTypeIds() {
+        return orderedBuyingTypeIds;
     }
 }

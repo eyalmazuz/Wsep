@@ -8,6 +8,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class DatabaseTests extends TestCase {
     System test;
@@ -24,13 +27,15 @@ public class DatabaseTests extends TestCase {
         test.deleteUsers();
     }
 
+    // add productinfo tests
+
     @Test
     public void testSimpleBuyingPolicyPersistenceBasket1() {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "what", "whatcategory", 50);
         ProductInfo info = test.getProductInfoById(1);
-        int buyingTypeId = policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
@@ -46,7 +51,7 @@ public class DatabaseTests extends TestCase {
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "what", "whatcategory", 50);
         ProductInfo info = test.getProductInfoById(1);
-        int buyingTypeId = policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 5));
+        int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 5));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
@@ -60,7 +65,7 @@ public class DatabaseTests extends TestCase {
     public void testSimpleBuyingPolicyPersistenceBasket3() {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
-        int buyingTypeId = policy.addBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(5));
+        int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(5));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
@@ -74,7 +79,7 @@ public class DatabaseTests extends TestCase {
     public void testSimpleBuyingPolicyPersistenceBasket4() {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
-        int buyingTypeId = policy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(5));
+        int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(5));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
@@ -88,7 +93,7 @@ public class DatabaseTests extends TestCase {
     public void testSimpleBuyingPolicyPersistenceUser() {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
-        int buyingTypeId = policy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
+        int buyingTypeId = policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
@@ -101,12 +106,146 @@ public class DatabaseTests extends TestCase {
     public void testSimpleBuyingPolicyPersistenceSystem() {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
-        int buyingTypeId = policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(5));
+        int buyingTypeId = policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(5));
 
         BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
         assertEquals(savedPolicy.getBuyingTypes().size(), 1);
         BuyingType constraint = savedPolicy.getBuyingTypes().get(buyingTypeId);
         assertTrue(constraint instanceof SystemBuyingConstraint.NotOnDayConstraint);
         assertEquals(((SystemBuyingConstraint) constraint).getForbiddenDay(), 5);
+    }
+
+    @Test
+    public void testAdvancedBuyingPolicyPersistence1() {
+        int storeId = test.addStore();
+        BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+
+        List<BuyingType> buyingConstraints = new ArrayList<>();
+        buyingConstraints.add(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10));
+        int buyingTypeId = policy.addAdvancedBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.AND), false);
+
+        BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
+        assertEquals(savedPolicy.getBuyingTypes().size(), 1);
+        AdvancedBuying advancedType = (AdvancedBuying) savedPolicy.getBuyingTypes().get(buyingTypeId);
+        assertSame(advancedType.getLogicalOperation(), AdvancedBuying.LogicalOperation.AND);
+        List<BuyingType> savedConstraints = advancedType.getBuyingConstraints();
+        assertTrue(savedConstraints.size() == 2 && savedConstraints.get(0).getClass() == BasketBuyingConstraint.MinAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) savedConstraints.get(0)).getMaxAmount() == -1 && ((BasketBuyingConstraint) savedConstraints.get(0)).getMinAmount() == 5 &&
+                ((BasketBuyingConstraint) savedConstraints.get(0)).getProductInfo().getId() == 1 && savedConstraints.get(1).getClass() == BasketBuyingConstraint.MaxAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) savedConstraints.get(1)).getProductInfo().getId() == 1 && ((BasketBuyingConstraint) savedConstraints.get(1)).getMinAmount() == -1 &&
+                ((BasketBuyingConstraint) savedConstraints.get(1)).getMaxAmount() == 10);
+    }
+
+    @Test
+    public void testAdvancedBuyingPolicyPersistence2() {
+        int storeId = test.addStore();
+        BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+
+        List<Integer> buyingConstraintIds = new ArrayList<>();
+        buyingConstraintIds.add(policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5)));
+        buyingConstraintIds.add(policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10)));
+        int buyingTypeId = policy.createAdvancedBuyingTypeFromExisting(buyingConstraintIds, "implies").getId();
+
+        BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
+        assertEquals(savedPolicy.getBuyingTypes().size(), 1);
+        AdvancedBuying advancedType = (AdvancedBuying) savedPolicy.getBuyingTypes().get(buyingTypeId);
+        assertTrue(advancedType.getLogicalOperation() == AdvancedBuying.LogicalOperation.IMPLIES);
+        List<BuyingType> savedConstraints = advancedType.getBuyingConstraints();
+        assertTrue(savedConstraints.size() == 2 && savedConstraints.get(0).getClass() == BasketBuyingConstraint.MinAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) savedConstraints.get(0)).getMaxAmount() == -1 && ((BasketBuyingConstraint) savedConstraints.get(0)).getMinAmount() == 5 &&
+                ((BasketBuyingConstraint) savedConstraints.get(0)).getProductInfo().getId() == 1 && savedConstraints.get(1).getClass() == BasketBuyingConstraint.MaxAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) savedConstraints.get(1)).getProductInfo().getId() == 1 && ((BasketBuyingConstraint) savedConstraints.get(1)).getMinAmount() == -1 &&
+                ((BasketBuyingConstraint) savedConstraints.get(1)).getMaxAmount() == 10);
+    }
+
+    @Test
+    public void testAdvancedBuyingPolicyPersistence3() {
+        int storeId = test.addStore();
+        BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+
+        List<BuyingType> buyingConstraints = new ArrayList<>();
+        buyingConstraints.add(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10));
+        BuyingType innerAdvanced = new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.AND);
+
+        List<BuyingType> otherBuyingConstraints = new ArrayList<>();
+        otherBuyingConstraints.add(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
+        otherBuyingConstraints.add(innerAdvanced);
+        int buyingTypeId = policy.addAdvancedBuyingType(new AdvancedBuying.LogicalBuying(otherBuyingConstraints, AdvancedBuying.LogicalOperation.IMPLIES), false);
+
+        BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
+        assertEquals(savedPolicy.getBuyingTypes().size(), 1);
+        AdvancedBuying advancedType = (AdvancedBuying) savedPolicy.getBuyingTypes().get(buyingTypeId);
+        assertTrue(advancedType.getLogicalOperation() == AdvancedBuying.LogicalOperation.IMPLIES);
+        List<BuyingType> savedConstraints = advancedType.getBuyingConstraints();
+        assertEquals(savedConstraints.size(), 2);
+
+        // check that first constraint is simple, user country israel
+        BuyingType constraint1 = savedConstraints.get(0);
+        assertEquals(constraint1.getClass(), UserBuyingConstraint.NotOutsideCountryConstraint.class);
+        assertEquals(((UserBuyingConstraint) constraint1).getValidCountry(), "Israel");
+
+        // check that the second constraint is advanced with all the simple ones
+        BuyingType constraint2 = savedConstraints.get(1);
+        assertEquals(constraint2.getClass(), AdvancedBuying.LogicalBuying.class);
+        assertEquals(((AdvancedBuying) constraint2).getLogicalOperation(), AdvancedBuying.LogicalOperation.AND);
+        List<BuyingType> subConstraints = ((AdvancedBuying) savedConstraints.get(1)).getBuyingConstraints();
+
+        assertTrue(subConstraints.size() == 2 && subConstraints.get(0).getClass() == BasketBuyingConstraint.MinAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) subConstraints.get(0)).getMaxAmount() == -1 && ((BasketBuyingConstraint) subConstraints.get(0)).getMinAmount() == 5 &&
+                ((BasketBuyingConstraint) subConstraints.get(0)).getProductInfo().getId() == 1 && subConstraints.get(1).getClass() == BasketBuyingConstraint.MaxAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) subConstraints.get(1)).getProductInfo().getId() == 1 && ((BasketBuyingConstraint) subConstraints.get(1)).getMinAmount() == -1 &&
+                ((BasketBuyingConstraint) subConstraints.get(1)).getMaxAmount() == 10);
+    }
+
+    @Test
+    public void testAdvancedBuyingPolicyPersistence4() {
+        int storeId = test.addStore();
+        BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+
+        List<Integer> buyingConstraints = new ArrayList<>();
+        buyingConstraints.add(policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5)));
+        buyingConstraints.add(policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10)));
+        int innerId = policy.createAdvancedBuyingTypeFromExisting(buyingConstraints, "and").getId();
+
+        List<Integer> otherBuyingConstraints = new ArrayList<>();
+        otherBuyingConstraints.add(policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel")));
+        otherBuyingConstraints.add(innerId);
+        int buyingTypeId = policy.createAdvancedBuyingTypeFromExisting(otherBuyingConstraints, "implies").getId();
+
+        BuyingPolicy savedPolicy = DAOManager.loadAllBuyingPolicies().get(0);
+        assertEquals(savedPolicy.getBuyingTypes().size(), 1);
+        AdvancedBuying advancedType = (AdvancedBuying) savedPolicy.getBuyingTypes().get(buyingTypeId);
+        assertTrue(advancedType.getLogicalOperation() == AdvancedBuying.LogicalOperation.IMPLIES);
+        List<BuyingType> savedConstraints = advancedType.getBuyingConstraints();
+        assertEquals(savedConstraints.size(), 2);
+
+        // check that first constraint is simple, user country israel
+        BuyingType constraint1 = savedConstraints.get(0);
+        assertEquals(constraint1.getClass(), UserBuyingConstraint.NotOutsideCountryConstraint.class);
+        assertEquals(((UserBuyingConstraint) constraint1).getValidCountry(), "Israel");
+
+        // check that the second constraint is advanced with all the simple ones
+        BuyingType constraint2 = savedConstraints.get(1);
+        assertEquals(constraint2.getClass(), AdvancedBuying.LogicalBuying.class);
+        assertEquals(((AdvancedBuying) constraint2).getLogicalOperation(), AdvancedBuying.LogicalOperation.AND);
+        List<BuyingType> subConstraints = ((AdvancedBuying) savedConstraints.get(1)).getBuyingConstraints();
+
+        java.lang.System.out.println(subConstraints);
+
+        assertTrue(subConstraints.size() == 2 && subConstraints.get(0).getClass() == BasketBuyingConstraint.MinAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) subConstraints.get(0)).getMaxAmount() == -1 && ((BasketBuyingConstraint) subConstraints.get(0)).getMinAmount() == 5 &&
+                ((BasketBuyingConstraint) subConstraints.get(0)).getProductInfo().getId() == 1 && subConstraints.get(1).getClass() == BasketBuyingConstraint.MaxAmountForProductConstraint.class &&
+                ((BasketBuyingConstraint) subConstraints.get(1)).getProductInfo().getId() == 1 && ((BasketBuyingConstraint) subConstraints.get(1)).getMinAmount() == -1 &&
+                ((BasketBuyingConstraint) subConstraints.get(1)).getMaxAmount() == 10);
     }
 }

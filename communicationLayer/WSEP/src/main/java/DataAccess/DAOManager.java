@@ -1,7 +1,6 @@
 package DataAccess;
 
 import Domain.TradingSystem.*;
-import Domain.Util.Pair;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
@@ -9,9 +8,9 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DAOManager {
 
@@ -44,14 +43,6 @@ public class DAOManager {
 
     }
 
-    public static void createTable(Class<?> tableClass) {
-        try {
-            TableUtils.createTableIfNotExists(connectionSource, tableClass);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void createProductInfo(ProductInfo productInfo) {
         try {
             productInfoDao.create(productInfo);
@@ -68,23 +59,20 @@ public class DAOManager {
         }
     }
 
-    public static void addBuyingTypeToPolicy(BuyingPolicy policy, int typeId, BuyingType type) {
+    public static void addBuyingTypeToPolicy(BuyingPolicy policy, BuyingType type) {
         if (type instanceof AdvancedBuying) {
-            HashMap<Integer, String> buyingConstraintIDs = new HashMap<>();
-            for (BuyingType buyingType : ((AdvancedBuying) type).getBuyingConstraints()) {
-                String typeStr = "";
-                if (buyingType instanceof AdvancedBuying) typeStr = "advanced";
-                else typeStr = "simple";
-                buyingConstraintIDs.put(typeId, typeStr);
+            HashMap<Integer, String> buyingTypeIdTypeMap = new HashMap<>();
+            ArrayList<Integer> orderedBuyingIds = new ArrayList<>();
+            for (BuyingType subType : ((AdvancedBuying) type).getBuyingConstraints()) {
+                buyingTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedBuying ? "advanced" : "simple");
+                orderedBuyingIds.add(subType.getId());
             }
-            AdvancedBuying.LogicalOperation logicalOperation = ((AdvancedBuying) type).getType();
             try {
-                advancedBuyingDao.create(new AdvancedBuyingDTO(typeId, logicalOperation, buyingConstraintIDs));
+                advancedBuyingDao.create(new AdvancedBuyingDTO(type.getId(), ((AdvancedBuying) type).getLogicalOperation(), buyingTypeIdTypeMap, orderedBuyingIds));
                 buyingPolicyDao.createOrUpdate(policy);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
         } else {
             // save via Type Per Hierarchy
             String constraintTypeStr = "";
@@ -108,7 +96,7 @@ public class DAOManager {
             }
 
             try {
-                simpleBuyingDao.create(new SimpleBuyingDTO(typeId, constraintTypeStr, productId, minAmount, maxAmount, validCountry, dayOfWeek));
+                simpleBuyingDao.create(new SimpleBuyingDTO(type.getId(), constraintTypeStr, productId, minAmount, maxAmount, validCountry, dayOfWeek));
                 buyingPolicyDao.createOrUpdate(policy);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -125,10 +113,10 @@ public class DAOManager {
                 for (Integer typeId : typeIds.keySet()) {
                     String type = typeIds.get(typeId);
                     if (type.equals("simple")) {
-                        Pair<Integer, BuyingType> simpleType = loadSimpleBuyingType(typeId);
-                        policy.addBuyingType(simpleType.getFirst(), simpleType.getSecond());
+                        BuyingType simpleType = loadSimpleBuyingType(typeId);
+                        policy.addSimpleBuyingType((SimpleBuying) simpleType);
                     }
-                    else policy.addBuyingType(loadAdvancedBuyingType(typeId));
+                    else policy.addAdvancedBuyingType((AdvancedBuying) loadAdvancedBuyingType(typeId), true);
                 }
             }
         } catch (SQLException e) {
@@ -137,25 +125,29 @@ public class DAOManager {
         return buyingPolicies;
     }
 
-    private static Pair<Integer, BuyingType> loadSimpleBuyingType(Integer typeId) {
+    private static BuyingType loadSimpleBuyingType(Integer typeId) {
         SimpleBuyingDTO dto = null;
         try {
             dto = simpleBuyingDao.queryForId(Integer.toString(typeId));
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (dto.getTypeStr() != null && dto.getTypeStr().equals("basket")) {
+        if (dto == null) System.err.println("Could not find simple buying type " + typeId + " in database");
+        SimpleBuying result = null;
+        if (dto.getTypeStr().equals("basket")) {
             if (dto.getProductInfoId() == -1) {
-                if (dto.getMinAmount() != -1) return new Pair(dto.getId(), new BasketBuyingConstraint.MinProductAmountConstraint(dto.getMinAmount()));
-                else return new Pair(dto.getId(), new BasketBuyingConstraint.MaxProductAmountConstraint(dto.getMaxAmount()));
+                if (dto.getMinAmount() != -1) result = new BasketBuyingConstraint.MinProductAmountConstraint(dto.getMinAmount());
+                else result = new BasketBuyingConstraint.MaxProductAmountConstraint(dto.getMaxAmount());
             } else {
-                if (dto.getMinAmount() != -1) return new Pair(dto.getId(), new BasketBuyingConstraint.MinAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMinAmount()));
-                else return new Pair(dto.getId(), new BasketBuyingConstraint.MaxAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMaxAmount()));
+                if (dto.getMinAmount() != -1) result = new BasketBuyingConstraint.MinAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMinAmount());
+                else result = new BasketBuyingConstraint.MaxAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMaxAmount());
             }
-        } else if (dto.getTypeStr().equals("user")) return new Pair(dto.getId(), new UserBuyingConstraint.NotOutsideCountryConstraint(dto.getValidCountry()));
-        else if (dto.getTypeStr().equals("system")) return new Pair(dto.getId(), new SystemBuyingConstraint.NotOnDayConstraint(dto.getDayOfWeek()));
+        } else if (dto.getTypeStr().equals("user")) result = new UserBuyingConstraint.NotOutsideCountryConstraint(dto.getValidCountry());
+        else if (dto.getTypeStr().equals("system")) result = new SystemBuyingConstraint.NotOnDayConstraint(dto.getDayOfWeek());
 
-        return null;
+        result.setId(dto.getId());
+
+        return result;
     }
 
     private static ProductInfo loadProductInfo(int productInfoId) {
@@ -168,7 +160,24 @@ public class DAOManager {
     }
 
     private static BuyingType loadAdvancedBuyingType(Integer typeId) {
-        return null;
+        AdvancedBuyingDTO dto = null;
+        try {
+            dto = advancedBuyingDao.queryForId(Integer.toString(typeId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        List<BuyingType> constraints = new ArrayList<>();
+        for (Integer subTypeId : dto.getOrderedBuyingTypeIds()) {
+            String typeStr = dto.getBuyingTypeIdTypeMap().get(subTypeId);
+            BuyingType resultingBuyingType = typeStr.equals("simple") ? loadSimpleBuyingType(subTypeId) : loadAdvancedBuyingType(subTypeId);
+            resultingBuyingType.setId(subTypeId);
+            constraints.add(resultingBuyingType);
+        }
+
+        AdvancedBuying advancedBuying = new AdvancedBuying.LogicalBuying(constraints, dto.getLogicalOperation());
+        advancedBuying.setId(dto.getId());
+        return advancedBuying;
     }
 
 

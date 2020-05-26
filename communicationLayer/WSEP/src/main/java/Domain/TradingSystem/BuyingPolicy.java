@@ -59,63 +59,80 @@ public class BuyingPolicy {
         return output;
     }
 
-    public int addBuyingType(BuyingType type) {
-        int id = nextId;
-        nextId++;
-        addBuyingType(id, type);
-        DAOManager.addBuyingTypeToPolicy(this, id, type);
+    public int addSimpleBuyingType(SimpleBuying type) {
+        int id;
+        if (type.getId() == -1) {
+            id = nextId;
+            nextId++;
+            type.setId(id);
+            buyingTypes.put(id, type);
+            buyingTypeIDs.put(id, "simple");
+            DAOManager.addBuyingTypeToPolicy(this, type);
+        } else {
+            if (buyingTypes.keySet().isEmpty()) nextId = type.getId() + 1;
+            else nextId = Math.max(Collections.max(buyingTypes.keySet()) + 1, type.getId() + 1);
+            id = type.getId();
+            buyingTypes.put(id, type);
+            buyingTypeIDs.put(id, "simple");
+        }
+
         return id;
-}
-
-    public void addBuyingType(int id, BuyingType type) {
-        buyingTypes.put(id, type);
-        String typeStr = "simple";
-        if (type instanceof AdvancedBuying) typeStr = "advanced";
-        buyingTypeIDs.put(id, typeStr);
     }
 
-    public Map<Integer, BuyingType> getBuyingTypes() {
-        return buyingTypes;
+    private void persistSubtypes(AdvancedBuying type) {
+        List<BuyingType> types = type.getBuyingConstraints();
+        for (BuyingType subType : types) {
+            if (subType instanceof AdvancedBuying) persistSubtypes((AdvancedBuying) subType); // recursive
+            subType.setId(nextId);
+            nextId++;
+            DAOManager.addBuyingTypeToPolicy(this, subType);
+        }
     }
 
-    public void clearBuyingTypes() {
-        buyingTypes.clear();
-        buyingTypeIDs.clear();
+    public int addAdvancedBuyingType(AdvancedBuying type, boolean fromExisting) {
+        int id;
+        if (type.getId() == -1) { // type never seen before, not in database
+            id = nextId;
+            nextId++;
+            type.setId(id);
+            buyingTypes.put(id, type);
+            buyingTypeIDs.put(id, "advanced");
+
+            // if subtypes dont exist here, persist them
+            if (!fromExisting) persistSubtypes(type);
+            DAOManager.addBuyingTypeToPolicy(this, type);
+
+        } else { // type is loaded from database
+            if (buyingTypes.keySet().isEmpty()) nextId = type.getId() + 1;
+            else nextId = Math.max(Collections.max(buyingTypes.keySet()) + 1, type.getId() + 1);
+            id = type.getId();
+            buyingTypes.put(id, type);
+            buyingTypeIDs.put(id, "advanced");
+        }
+        return id;
     }
 
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public void removeBuyingType(int buyingTypeID) {
-        buyingTypes.remove(buyingTypeID);
-        buyingTypeIDs.remove(buyingTypeID);
-    }
-
-    public IntActionResultDto createAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperationStr) {
+    public IntActionResultDto createAdvancedBuyingTypeFromExisting(List<Integer> subTypeIds, String logicalOperationStr) {
         synchronized (buyingTypes) {
             List<BuyingType> relevantBuyingTypes = new ArrayList<>();
-            for (Integer typeID : buyingTypeIDs) {
+            for (Integer typeID : subTypeIds) {
                 if (buyingTypes.get(typeID) == null) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "There is no buying type ID" + typeID, -1);
                 relevantBuyingTypes.add(buyingTypes.get(typeID));
             }
+
             // remove buying types to create one advanced out of all of them
-            for (Integer typeID : buyingTypeIDs) {
-                BuyingType type = buyingTypes.get(typeID);
+            for (Integer typeID : subTypeIds) {
                 buyingTypes.remove(typeID);
-
-                // PERSIST the type so that once reloaded, we can create advanced buying types
-                DAOManager.addBuyingTypeToPolicy(this, typeID, type);
-
                 buyingTypeIDs.remove(typeID);
             }
+
 
             AdvancedBuying.LogicalOperation logicalOperation = AdvancedBuying.LogicalOperation.AND;
             if (logicalOperationStr.toLowerCase().equals("or")) logicalOperation = AdvancedBuying.LogicalOperation.OR;
             else if (logicalOperationStr.toLowerCase().equals("xor")) logicalOperation = AdvancedBuying.LogicalOperation.XOR;
             else if (logicalOperationStr.toLowerCase().equals("implies")) logicalOperation = AdvancedBuying.LogicalOperation.IMPLIES;
             BuyingType advanced = new AdvancedBuying.LogicalBuying(relevantBuyingTypes, logicalOperation);
-            return new IntActionResultDto(ResultCode.SUCCESS, null, addBuyingType(advanced));
+            return new IntActionResultDto(ResultCode.SUCCESS, null, addAdvancedBuyingType((AdvancedBuying) advanced, true));
         }
     }
 
@@ -128,7 +145,26 @@ public class BuyingPolicy {
         return new BuyingPolicyActionResultDTO(ResultCode.SUCCESS, null, dtos);
     }
 
+    public Map<Integer, BuyingType> getBuyingTypes() {
+        return buyingTypes;
+    }
+
+    public void clearBuyingTypes() {
+        buyingTypes.clear();
+        buyingTypeIDs.clear();
+    }
+
+    public void removeBuyingType(int buyingTypeID) {
+        buyingTypes.remove(buyingTypeID);
+        buyingTypeIDs.remove(buyingTypeID);
+    }
+
     public HashMap<Integer, String> getBuyingTypeIDs() {
         return buyingTypeIDs;
     }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
 }

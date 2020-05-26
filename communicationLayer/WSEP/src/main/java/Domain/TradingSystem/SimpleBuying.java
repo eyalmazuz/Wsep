@@ -5,15 +5,12 @@ import DTOs.ResultCode;
 
 public class SimpleBuying implements BuyingType {
 
-    protected int id;
+    protected int id = -1;
 
     public SimpleBuying() {
 
     }
 
-    public int getId() {
-        return id;
-    }
 
     public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
         if (this instanceof BasketBuyingConstraint) {
@@ -29,6 +26,16 @@ public class SimpleBuying implements BuyingType {
             return c.canBuy(user.getCountry());
         }
         return new ActionResultDTO(ResultCode.SUCCESS, null);
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 
 }

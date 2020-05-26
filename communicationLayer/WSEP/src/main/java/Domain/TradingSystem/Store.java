@@ -310,20 +310,20 @@ public class Store {
 
     public int addSimpleBuyingTypeBasketConstraint(ProductInfo productInfo, String minmax, int amount) {
         if (productInfo == null) {
-            if (minmax.equals("max")) return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(amount));
-            else return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(amount));
+            if (minmax.equals("max")) return buyingPolicy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(amount));
+            else return buyingPolicy.addSimpleBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(amount));
         }  else {
-            if (minmax.equals("max")) return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(productInfo, amount));
-            else return buyingPolicy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(productInfo, amount));
+            if (minmax.equals("max")) return buyingPolicy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(productInfo, amount));
+            else return buyingPolicy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(productInfo, amount));
         }
     }
 
     public int addSimpleBuyingTypeUserConstraint(String country) {
-        return buyingPolicy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint(country));
+        return buyingPolicy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint(country));
     }
 
     public int addSimpleBuyingTypeSystemConstraint(int dayOfWeek) {
-        return buyingPolicy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(dayOfWeek));
+        return buyingPolicy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(dayOfWeek));
     }
 
     public void removeBuyingType(int buyingTypeID) {
@@ -335,7 +335,7 @@ public class Store {
     }
 
     public IntActionResultDto addAdvancedBuyingType(List<Integer> buyingTypeIDs, String logicalOperation) {
-        return buyingPolicy.createAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+        return buyingPolicy.createAdvancedBuyingTypeFromExisting(buyingTypeIDs, logicalOperation);
     }
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails() {

@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 
 public class AdvancedBuying implements BuyingType {
 
+    protected int id = -1;
+
     public enum LogicalOperation {
         OR,
         AND,
@@ -29,12 +31,22 @@ public class AdvancedBuying implements BuyingType {
         return buyingConstraints;
     }
 
-    public LogicalOperation getType() {
+    public LogicalOperation getLogicalOperation() {
         return type;
     }
 
     public ActionResultDTO canBuy(User user, ShoppingBasket basket) {
         return new ActionResultDTO(ResultCode.SUCCESS, null);
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 
     public static class LogicalBuying extends AdvancedBuying {
