@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DAOManager {
 
@@ -188,6 +189,23 @@ public class DAOManager {
             TableUtils.clearTable(connectionSource, BuyingPolicy.class);
             TableUtils.clearTable(connectionSource, SimpleBuyingDTO.class);
             TableUtils.clearTable(connectionSource, AdvancedBuyingDTO.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<ProductInfo> loadAllProductInfos() {
+        try {
+            return productInfoDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void updateProductInfo(ProductInfo productInfo) {
+        try {
+            productInfoDao.update(productInfo);
         } catch (SQLException e) {
             e.printStackTrace();
         }

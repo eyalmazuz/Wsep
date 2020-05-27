@@ -27,7 +27,18 @@ public class DatabaseTests extends TestCase {
         test.deleteUsers();
     }
 
-    // add productinfo tests
+    @Test
+    public void testProductInfoPersistence() {
+        test.addProductInfo(1, "what", "whatcategory", 40);
+        ProductInfo productInfo = DAOManager.loadAllProductInfos().get(0);
+
+        assertTrue(productInfo.getId() == 1 && productInfo.getName().equals("what") && productInfo.getCategory().equals("whatcategory") &&
+                productInfo.getDefaultPrice() == 40);
+
+        test.getProductInfoById(1).setRating(5.0);
+        productInfo = DAOManager.loadAllProductInfos().get(0);
+        assertEquals(productInfo.getRating(), 5.0);
+    }
 
     @Test
     public void testSimpleBuyingPolicyPersistenceBasket1() {

@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -49,6 +50,7 @@ public class ProductInfo {
 
     public void setRating(double rating) {
         this.rating = rating;
+        DAOManager.updateProductInfo(this);
     }
 
     @Override
