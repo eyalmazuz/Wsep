@@ -1,7 +1,10 @@
 package Domain.TradingSystem;
 
 import DTOs.*;
+import DataAccess.DAOManager;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
@@ -15,7 +18,9 @@ public class Store {
     @DatabaseField(id = true)
     private int id;
 
-    private List<ProductInStore> products;
+    @ForeignCollectionField(eager = true)
+    private ForeignCollection<ProductInStore> products = null;
+
     private List <Subscriber> managers;
 
     private List<PurchaseDetails> purchaseHistory;
@@ -32,7 +37,7 @@ public class Store {
         globalId ++;
         // FIX for acceptance tests
         managers = new LinkedList<>();
-        products = new LinkedList<>();
+        DAOManager.createProductInStoreListForStore(this, products);
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy("None");
         purchaseHistory = new ArrayList<>();
@@ -48,7 +53,7 @@ public class Store {
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Amount must be positive.");
         AtomicBoolean found = new AtomicBoolean(false);
         for(ProductInStore p : products){
-            if(p.getId() == info.getId()){
+            if(p.getProductInfoId() == info.getId()){
                 p.addAmount(amount);
                 found.set(true);
             }
@@ -71,7 +76,7 @@ public class Store {
     public ActionResultDTO editProduct(int productId, String info) {
         if(info!=null) {
             for (ProductInStore product : products) {
-                if (product.getId() == productId) {
+                if (product.getProductInfoId() == productId) {
                     synchronized (product) {
                         product.editInfo(info);
                     }
@@ -86,7 +91,7 @@ public class Store {
 
     public ActionResultDTO deleteProduct(int productId) {
         for (ProductInStore product: products){
-            if (product.getId() == productId){
+            if (product.getProductInfoId() == productId){
                 synchronized (product) {
                     products.remove(product);
                 }
@@ -157,7 +162,7 @@ public class Store {
 
     private ProductInfo getProductInfoByProductId(int productId) {
         for (ProductInStore pis : products) {
-            if (pis.getId() == productId) return pis.getProductInfo();
+            if (pis.getProductInfoId() == productId) return pis.getProductInfo();
         }
         return null;
     }
@@ -168,7 +173,7 @@ public class Store {
 
     public int getProductAmount(Integer productId) {
         for (ProductInStore product : products) {
-            if (productId == product.getId()) {
+            if (productId == product.getProductInfoId()) {
                 return product.getAmount();
             }
         }
@@ -177,11 +182,11 @@ public class Store {
 
     public boolean setProductAmount(Integer productId, int amount) {
         synchronized (products) {
-            if (amount == 0) products.removeIf(pis -> pis.getId() == productId);
+            if (amount == 0) products.removeIf(pis -> pis.getProductInfoId() == productId);
             else if (amount>0) {
                 boolean productExists = false;
                 for (ProductInStore pis : products) {
-                    if (productId == pis.getId()) {
+                    if (productId == pis.getProductInfoId()) {
                         pis.setAmount(amount);
                         productExists = true;
                         break;
@@ -197,7 +202,7 @@ public class Store {
 
     public ProductInStore getProductInStoreById(int id) {
         for (ProductInStore pis: products) {
-            if (pis.getId() == id)
+            if (pis.getProductInfoId() == id)
                 return pis;
         }
         return null;
@@ -218,16 +223,13 @@ public class Store {
     }
 
     public List<ProductInStore> getProducts() {
-        return products;
+        return new ArrayList<>(products);
     }
 
     public double getRating() {
         return rating;
     }
 
-    public void setProducts(List<ProductInStore> products) {
-        this.products = products;
-    }
 
     public void setRating(double rating) {
         this.rating = rating;
@@ -236,7 +238,7 @@ public class Store {
     public void removeProductAmount(Integer productId, Integer amount) {
         if (amount < 0) return;
         for (ProductInStore product : products) {
-            int id = product.getId();
+            int id = product.getProductInfoId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
                 if (newAmount>=0) {
@@ -248,6 +250,7 @@ public class Store {
                 }
             }
         }
+        DAOManager.updateStore(this);
     }
 
     public void removeManger(Subscriber managerToDelete) {
@@ -349,7 +352,7 @@ public class Store {
     public boolean hasProduct(ProductInfo productInfo) {
         int productId = productInfo.getId();
         for (ProductInStore pis : products) {
-            if (pis.getId() == productId) return true;
+            if (pis.getProductInfoId() == productId) return true;
         }
         return false;
     }
@@ -375,4 +378,10 @@ public class Store {
         discountPolicy.clearDiscountTypes();
     }
 
+    public String getProductInStoreInfo(int id) {
+        for (ProductInStore pis : products) {
+            if (pis.getProductInfoId() == id) return pis.getInfo();
+        }
+        return null;
+    }
 }

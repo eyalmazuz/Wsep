@@ -259,4 +259,95 @@ public class DatabaseTests extends TestCase {
                 ((BasketBuyingConstraint) subConstraints.get(1)).getProductInfo().getId() == 1 && ((BasketBuyingConstraint) subConstraints.get(1)).getMinAmount() == -1 &&
                 ((BasketBuyingConstraint) subConstraints.get(1)).getMaxAmount() == 10);
     }
+
+    @Test
+    public void testStoreProductPersistence1() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertEquals(savedStore.getProductAmount(info.getId()), 5);
+    }
+
+    @Test
+    public void testStoreProductPersistence2() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.removeProductAmount(info.getId(), 4);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertEquals(savedStore.getProductAmount(info.getId()), 1);
+    }
+
+    @Test
+    public void testStoreProductPersistence3() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.addProduct(info, 7);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertEquals(savedStore.getProductAmount(info.getId()), 12);
+    }
+
+    @Test
+    public void testStoreProductPersistence4() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.removeProductAmount(info.getId(), 5);
+
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertTrue(savedStore.getProducts().isEmpty());
+    }
+
+    @Test
+    public void testStoreProductPersistence5() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.setProductPrice(info.getId(), 123);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertEquals(savedStore.getProductPrice(info.getId()), 123.0);
+    }
+
+    @Test
+    public void testStoreProductPersistence6() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.editProduct(info.getId(), "this is a great product :)");
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertEquals(savedStore.getProductInStoreInfo(info.getId()), "this is a great product :)");
+    }
+
+    @Test
+    public void testStoreProductPersistence7() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        ProductInfo info = test.getProductInfoById(1);
+        Store store = test.getStoreById(storeId);
+        store.addProduct(info, 5);
+        store.deleteProduct(info.getId());
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        assertTrue(savedStore.getProducts().isEmpty());
+    }
 }

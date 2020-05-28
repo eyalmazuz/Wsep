@@ -1,5 +1,6 @@
 import AcceptanceTest.AcceptanceTests;
 import DALTests.DALTests;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.IntegrationTests.IntegrationTests;
 import Domain.TradingSystem.UnitTest;
 import junit.framework.Test;

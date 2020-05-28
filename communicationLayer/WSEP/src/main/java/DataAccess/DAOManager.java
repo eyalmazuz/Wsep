@@ -3,6 +3,7 @@ package DataAccess;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -17,26 +18,26 @@ public class DAOManager {
 
     private static ConnectionSource connectionSource;
     private static Dao<ProductInfo, String> productInfoDao;
-    private static Dao<ProductInStore, String> productInStoreDao;
     private static Dao<BuyingPolicy, String> buyingPolicyDao;
     private static Dao<SimpleBuyingDTO, String> simpleBuyingDao;
     private static Dao<AdvancedBuyingDTO, String> advancedBuyingDao;
+    private static Dao<ProductInStore, String> productInStoreDao;
+    private static Dao<Store, String> storeDao;
 
+    private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
+            Store.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
         try {
             productInfoDao = DaoManager.createDao(csrc, ProductInfo.class);
-            //productInStoreDao = DaoManager.createDao(csrc, ProductInStore.class);
             buyingPolicyDao = DaoManager.createDao(csrc, BuyingPolicy.class);
             simpleBuyingDao = DaoManager.createDao(csrc, SimpleBuyingDTO.class);
             advancedBuyingDao = DaoManager.createDao(csrc, AdvancedBuyingDTO.class);
+            productInStoreDao = DaoManager.createDao(csrc, ProductInStore.class);
+            storeDao = DaoManager.createDao(csrc, Store.class);
 
-            TableUtils.createTableIfNotExists(csrc, ProductInfo.class);
-            //TableUtils.createTableIfNotExists(csrc, ProductInStore.class);
-            TableUtils.createTableIfNotExists(csrc, BuyingPolicy.class);
-            TableUtils.createTableIfNotExists(csrc, SimpleBuyingDTO.class);
-            TableUtils.createTableIfNotExists(csrc, AdvancedBuyingDTO.class);
+            for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -181,19 +182,6 @@ public class DAOManager {
         return advancedBuying;
     }
 
-
-    public static void clearDatabase() {
-        try {
-            TableUtils.clearTable(connectionSource, ProductInfo.class);
-            //TableUtils.createTableIfNotExists(connectionSource, ProductInStore.class);
-            TableUtils.clearTable(connectionSource, BuyingPolicy.class);
-            TableUtils.clearTable(connectionSource, SimpleBuyingDTO.class);
-            TableUtils.clearTable(connectionSource, AdvancedBuyingDTO.class);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static List<ProductInfo> loadAllProductInfos() {
         try {
             return productInfoDao.queryForAll();
@@ -206,6 +194,57 @@ public class DAOManager {
     public static void updateProductInfo(ProductInfo productInfo) {
         try {
             productInfoDao.update(productInfo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void createProductInStoreListForStore(Store store, ForeignCollection<ProductInStore> products) {
+        try {
+            storeDao.assignEmptyForeignCollection(store, "products");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addStore(Store store) {
+        try {
+            storeDao.create(store);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void clearDatabase() {
+        try {
+            for (Class c : persistentClasses) TableUtils.clearTable(connectionSource, c);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<Store> loadAllStores() {
+        try {
+            return storeDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void updateStore(Store store) {
+        try {
+            storeDao.update(store);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateProductInStore(ProductInStore product) {
+        try {
+            productInStoreDao.update(product);
         } catch (SQLException e) {
             e.printStackTrace();
         }

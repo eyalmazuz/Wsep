@@ -127,6 +127,7 @@ public class System {
         logger.info("AddStore");
         Store store = new Store();
         stores.put(store.getId(),store);
+        DAOManager.addStore(store);
         return store.getId();
 
     }
@@ -553,7 +554,7 @@ public class System {
     private List<ProductInStoreDTO> getProductDTOlist(List<ProductInStore> products) {
         List<ProductInStoreDTO> result = new ArrayList<>();
         for (ProductInStore pis: products) {
-            result.add(new ProductInStoreDTO(pis.getId(),
+            result.add(new ProductInStoreDTO(pis.getProductInfoId(),
                     pis.getProductInfo().getName(),
                     pis.getProductInfo().getCategory(),
                     pis.getAmount(),

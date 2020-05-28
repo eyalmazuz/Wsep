@@ -262,11 +262,11 @@ public class SystemTest extends TestCase {
 
         boolean problem = false;
         for (ProductInStore pis : store1.getProducts()) {
-            if (pis.getId() == 4 && pis.getAmount() != 3) {
+            if (pis.getProductInfoId() == 4 && pis.getAmount() != 3) {
                 problem = true;
                 break;
             }
-            if (pis.getId() == 5) {
+            if (pis.getProductInfoId() == 5) {
                 problem = true;
                 break;
             }
@@ -317,7 +317,7 @@ class StoreMock extends Store{
     @Override
     public int getProductAmount(Integer productId) {
         for (ProductInStore product : getProducts()) {
-            if (productId == product.getId()) {
+            if (productId == product.getProductInfoId()) {
                 return product.getAmount();
             }
         }
@@ -327,7 +327,7 @@ class StoreMock extends Store{
     @Override
     public void removeProductAmount(Integer productId, Integer amount) {
         for (ProductInStore product : getProducts()) {
-            int id = product.getId();
+            int id = product.getProductInfoId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
                 if (newAmount == 0) {
