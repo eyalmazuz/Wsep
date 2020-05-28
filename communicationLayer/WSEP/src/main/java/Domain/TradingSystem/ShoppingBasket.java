@@ -3,15 +3,35 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@DatabaseTable(tableName = "shoppingBaskets")
 public class ShoppingBasket {
+
+    @DatabaseField (generatedId = true)
+    private int id;
+
+    @DatabaseField (foreign = true)
+    private ShoppingCart cart;
+
+    @DatabaseField (foreign = true)
     private Store store;
 
-    private Map<ProductInfo, Integer> products = new HashMap<>();
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private HashMap<ProductInfo, Integer> products = new HashMap<>();
+
+    public ShoppingBasket() {}
+
+    public ShoppingBasket(ShoppingCart cart, Store store) {
+        this.cart = cart;
+        this.store = store;
+    }
 
     public ShoppingBasket(Store store) {
         this.store = store;
@@ -106,7 +126,7 @@ public class ShoppingBasket {
         return store.getProductPrice(productId);
     }
 
-    public void setProducts(Map<ProductInfo, Integer> products) {
+    public void setProducts(HashMap<ProductInfo, Integer> products) {
         this.products = products;
     }
 }

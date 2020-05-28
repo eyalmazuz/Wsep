@@ -4,8 +4,10 @@ import DataAccess.DAOManager;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 @DatabaseTable (tableName = "productInfos")
-public class ProductInfo {
+public class ProductInfo implements Serializable {
 
     @DatabaseField(id = true)
     private int id;
@@ -60,6 +62,17 @@ public class ProductInfo {
                 "name: " + name + '\n' +
                 "category: " + category + '\n' +
                 "rating: " + rating + "\n";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (! (other instanceof ProductInfo)) return false;
+        return ((ProductInfo) other).id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 
     public double getDefaultPrice() {

@@ -37,7 +37,7 @@ public class Store {
         globalId ++;
         // FIX for acceptance tests
         managers = new LinkedList<>();
-        DAOManager.createProductInStoreListForStore(this, products);
+        DAOManager.createProductInStoreListForStore(this);
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy("None");
         purchaseHistory = new ArrayList<>();
@@ -141,7 +141,7 @@ public class Store {
         return buyingPolicy.isAllowed(user, basket);
     }
 
-    public PurchaseDetails savePurchase(User user, Map<ProductInfo, Integer> products) {
+    public PurchaseDetails savePurchase(User user, HashMap<ProductInfo, Integer> products) {
         double totalPrice = getPrice(user, products).getPrice();
 
         Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
@@ -282,7 +282,7 @@ public class Store {
         return managers;
     }
 
-    public DoubleActionResultDTO getPrice(User user, Map<ProductInfo, Integer> products) {
+    public DoubleActionResultDTO getPrice(User user, HashMap<ProductInfo, Integer> products) {
         ShoppingBasket basket = new ShoppingBasket(this);
         basket.setProducts(products);
 

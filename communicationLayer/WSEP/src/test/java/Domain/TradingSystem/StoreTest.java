@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +16,7 @@ public class StoreTest extends TestCase {
 
     @Before
     public void setUp(){
+        DAOManager.clearDatabase();
         store.addProduct(bamba,10);
         store.addOwner(s);
     }

@@ -23,9 +23,11 @@ public class DAOManager {
     private static Dao<AdvancedBuyingDTO, String> advancedBuyingDao;
     private static Dao<ProductInStore, String> productInStoreDao;
     private static Dao<Store, String> storeDao;
+    private static Dao<ShoppingCart, String> shoppingCartDao;
+    private static Dao<ShoppingBasket, String> shoppingBasketDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
-            Store.class};
+            Store.class, ShoppingCart.class, ShoppingBasket.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
@@ -36,6 +38,8 @@ public class DAOManager {
             advancedBuyingDao = DaoManager.createDao(csrc, AdvancedBuyingDTO.class);
             productInStoreDao = DaoManager.createDao(csrc, ProductInStore.class);
             storeDao = DaoManager.createDao(csrc, Store.class);
+            shoppingCartDao = DaoManager.createDao(csrc, ShoppingCart.class);
+            shoppingBasketDao = DaoManager.createDao(csrc, ShoppingBasket.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
@@ -200,7 +204,7 @@ public class DAOManager {
     }
 
 
-    public static void createProductInStoreListForStore(Store store, ForeignCollection<ProductInStore> products) {
+    public static void createProductInStoreListForStore(Store store) {
         try {
             storeDao.assignEmptyForeignCollection(store, "products");
         } catch (SQLException e) {
@@ -245,6 +249,40 @@ public class DAOManager {
     public static void updateProductInStore(ProductInStore product) {
         try {
             productInStoreDao.update(product);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createBasketListForCart(ShoppingCart shoppingCart) {
+        try {
+            shoppingCartDao.assignEmptyForeignCollection(shoppingCart, "persistentShoppingBaskets");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<ShoppingCart> loadAllShoppingCarts() {
+        try {
+            return shoppingCartDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<ShoppingBasket> loadAllShoppingBaskets() {
+        try {
+            return shoppingBasketDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void createOrUpdateShoppingCart(ShoppingCart shoppingCart) {
+        try {
+            shoppingCartDao.createOrUpdate(shoppingCart);
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 import Domain.Logger.SystemLogger;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -17,6 +18,7 @@ public class SystemTest extends TestCase {
 
     @Before
     public void setUp(){
+        DAOManager.clearDatabase();
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));
         }});
@@ -28,6 +30,7 @@ public class SystemTest extends TestCase {
         stores.put(1,new StoreMock(1));
         stores.put(2,new StoreMock(2));
         test.setStores(stores);
+
     }
 
     @After

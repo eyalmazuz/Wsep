@@ -1,6 +1,7 @@
 package AcceptanceTest;
 
 import AcceptanceTest.Data.Database;
+import DataAccess.DAOManager;
 import Service.Bridge;
 import junit.framework.TestCase;
 
@@ -16,6 +17,7 @@ public abstract class ServiceTest extends TestCase {
         Database.sessionId = startSession();
 
         this.setupSystem("Mock Config", "Mock Config");
+        DAOManager.clearDatabase();
         if(Driver.flag) {
 
             this.setUpUsers();

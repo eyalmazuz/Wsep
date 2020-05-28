@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.Notification;
+import DataAccess.DAOManager;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class SubscriberTest extends TestCase {
 
     @Before
     public void setUp() {
+        DAOManager.clearDatabase();
 
         subscriber = new Subscriber("hava nagila", "1234", false);
         subscriber.setUser(new User());

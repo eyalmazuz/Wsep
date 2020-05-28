@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +17,7 @@ public class UserHandlerTest extends TestCase {
 
     @Before
     public void setUp() {
+        DAOManager.clearDatabase();
 
 
     }

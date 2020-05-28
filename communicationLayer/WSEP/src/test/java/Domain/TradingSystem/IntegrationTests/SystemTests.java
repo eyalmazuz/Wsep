@@ -2,6 +2,7 @@ package Domain.TradingSystem.IntegrationTests;
 
 import DTOs.Notification;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -21,7 +22,7 @@ public class SystemTests extends TestCase {
     @Before
     public void setUp() {
         test = new System();
-        test.clearDatabase();
+        DAOManager.clearDatabase();
     }
 
     @After
@@ -601,7 +602,7 @@ public class SystemTests extends TestCase {
         DiscountPolicy policy = new DiscountPolicy("test");
         policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
-        Map<ProductInfo, Integer> productsAmount = new HashMap<>();
+        HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
@@ -719,7 +720,7 @@ public class SystemTests extends TestCase {
 
         policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
         store1.setDiscountPolicy(policy);
-        Map<ProductInfo, Integer> productsAmount = new HashMap<>();
+        HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 

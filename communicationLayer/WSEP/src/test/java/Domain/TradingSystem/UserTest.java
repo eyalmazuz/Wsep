@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +14,11 @@ public class UserTest extends TestCase {
 
     @Before
     public void setUp(){
+        DAOManager.clearDatabase();
         guest = new User();
         subscriber = new User();
         subscriber.setState(new Subscriber());
+
     }
 
 

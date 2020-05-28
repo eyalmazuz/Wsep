@@ -42,10 +42,11 @@ public class User {
     }
 
     public void setState(UserState nState) {
-
         if(nState == null){
             throw new NullPointerException();
         }
+
+        if (nState instanceof Subscriber) shoppingCart.setSubscriberId(((Subscriber) nState).getId());
 
         this.state = nState;
         state.setUser(this);
@@ -86,6 +87,7 @@ public class User {
 
 //Usecase 3.1
     public boolean logout() {
+        shoppingCart.setSubscriberId(-1);
         return state.logout();
     }
 

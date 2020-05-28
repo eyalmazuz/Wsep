@@ -350,4 +350,43 @@ public class DatabaseTests extends TestCase {
         Store savedStore = DAOManager.loadAllStores().get(0);
         assertTrue(savedStore.getProducts().isEmpty());
     }
+
+    @Test
+    public void testUserCartNoPersistence() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        int sessionId = test.startSession().getId();
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 40);
+
+        // check that there are no carts and no baskets
+        assertTrue(DAOManager.loadAllShoppingCarts().isEmpty());
+        assertTrue(DAOManager.loadAllShoppingBaskets().isEmpty());
+    }
+
+    @Test
+    public void testUserCartStateChangePersistence() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        int sessionId = test.startSession().getId();
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 40);
+
+        test.getUser(sessionId).setState(new Subscriber());
+
+        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        ShoppingBasket basket = cart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
+
+        // see that we're no longer persisting in guest mode
+        test.logout(sessionId);
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 5);
+        cart = DAOManager.loadAllShoppingCarts().get(0);
+        basket = cart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
+
+        // make sure its re-loaded when logging in
+        test.getUser(sessionId).setState(new Subscriber());
+        cart = DAOManager.loadAllShoppingCarts().get(0);
+        basket = cart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 45);
+    }
 }
