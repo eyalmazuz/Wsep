@@ -45,7 +45,7 @@ public class ShoppingCart {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
         if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
-        getOrCreateBasket(store).addProduct(product, amount);
+        getOrCreateBasket(store).addProduct(product, amount, subscriberId != -1);
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
@@ -58,7 +58,7 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.editProduct(product, newAmount);
+            return basket.editProduct(product, newAmount, subscriberId != -1);
         }
     }
 
@@ -70,7 +70,7 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.removeProduct(product);
+            return basket.removeProduct(product, subscriberId != -1);
         }
     }
 

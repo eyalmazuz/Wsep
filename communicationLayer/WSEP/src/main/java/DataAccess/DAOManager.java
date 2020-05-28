@@ -287,4 +287,12 @@ public class DAOManager {
             e.printStackTrace();
         }
     }
+
+    public static void updateShoppingBasket(ShoppingBasket shoppingBasket) {
+        try {
+            shoppingBasketDao.update(shoppingBasket);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -389,4 +389,67 @@ public class DatabaseTests extends TestCase {
         basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 45);
     }
+
+    @Test
+    public void testUserCartModificationPersistence1() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        int sessionId = test.startSession().getId();
+
+        test.getUser(sessionId).setState(new Subscriber());
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
+        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        ShoppingBasket basket = cart.getBaskets().get(0);
+        assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 20);
+        cart = DAOManager.loadAllShoppingCarts().get(0);
+        basket = cart.getBaskets().get(0);
+        assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 50);
+    }
+
+    @Test
+    public void testUserCartModificationPersistence2() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        int sessionId = test.startSession().getId();
+
+        test.getUser(sessionId).setState(new Subscriber());
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
+        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        ShoppingBasket basket = cart.getBaskets().get(0);
+        assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
+
+        test.getUser(sessionId).editCartProductAmount(test.getStoreById(storeId), test.getProductInfoById(1), 3);
+        cart = DAOManager.loadAllShoppingCarts().get(0);
+        basket = cart.getBaskets().get(0);
+        assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 3);
+    }
+
+    @Test
+    public void testUserCartModificationPersistence3() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 50);
+        int sessionId = test.startSession().getId();
+
+        test.getUser(sessionId).setState(new Subscriber());
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
+        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        ShoppingBasket basket = cart.getBaskets().get(0);
+        assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
+
+        test.getUser(sessionId).removeProductFromCart(test.getStoreById(storeId), test.getProductInfoById(1));
+        cart = DAOManager.loadAllShoppingCarts().get(0);
+        basket = cart.getBaskets().get(0);
+        assertTrue(basket.getProducts().isEmpty());
+    }
+
+    @Test
+    public void testUserLoadCart() {
+
+    }
+
 }
