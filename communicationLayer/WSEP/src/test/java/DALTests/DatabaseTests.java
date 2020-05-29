@@ -448,8 +448,59 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testUserLoadCart() {
+    public void testUserPurchaseHistoryPersistence() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.getStoreById(storeId).addProduct(test.getProductInfoById(1), 40);
+        int sessionId = test.startSession().getId();
 
+        test.getUser(sessionId).setState(new Subscriber());
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 10);
+        test.savePurchaseHistory(sessionId);
+
+        Subscriber subscriber = DAOManager.loadAllSubscribers().get(0);
+        UserPurchaseHistory history = subscriber.getUserPurchaseHistory();
+        assertEquals(history.getStorePurchaseLists().keySet().iterator().next(), test.getStoreById(storeId));
+        assertEquals(history.getStorePurchaseLists().get(test.getStoreById(storeId)).size(), 1);
+        PurchaseDetails details = history.getStorePurchaseLists().get(test.getStoreById(storeId)).get(0);
+        assertEquals(details.getProducts().size(), 1);
+        assertEquals((int)details.getProducts().get(test.getProductInfoById(1)), 10);
+        assertEquals(details.getStore(), test.getStoreById(storeId));
+        assertEquals(details.getPrice(), 300.0); // 30 * 10
+    }
+
+    @Test
+    public void testStorePurchaseHistoryPersistence() {
+        int storeId = test.addStore();
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.getStoreById(storeId).addProduct(test.getProductInfoById(1), 40);
+        int sessionId = test.startSession().getId();
+
+        test.getUser(sessionId).setState(new Subscriber());
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 10);
+        test.savePurchaseHistory(sessionId);
+
+        Store store = DAOManager.loadAllStores().get(0);
+        PurchaseDetails details = store.getStorePurchaseHistory().get(0);
+        assertEquals(details.getProducts().size(), 1);
+        assertEquals((int)details.getProducts().get(test.getProductInfoById(1)), 10);
+        assertEquals(details.getStore(), test.getStoreById(storeId));
+        assertEquals(details.getPrice(), 300.0); // 30 * 10
+    }
+
+    @Test
+    public void testStoreBuyingPolicyPersistency() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        BuyingPolicy buyingPolicy = new BuyingPolicy("None");
+        buyingPolicy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(test.getProductInfoById(1), 5));
+        store.setBuyingPolicy(buyingPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        BuyingPolicy savedPolicy = savedStore.getBuyingPolicy();
+        assertEquals(savedPolicy.getBuyingTypes().size(), 1);
+        assertEquals(savedPolicy.getBuyingTypes().values().iterator().next().toString(), "Cannot purchase less than 5 of what (1)");
     }
 
 }

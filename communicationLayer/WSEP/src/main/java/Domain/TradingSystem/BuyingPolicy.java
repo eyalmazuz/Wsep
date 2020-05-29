@@ -167,4 +167,7 @@ public class BuyingPolicy {
         this.details = details;
     }
 
+    public int getId() {
+        return id;
+    }
 }

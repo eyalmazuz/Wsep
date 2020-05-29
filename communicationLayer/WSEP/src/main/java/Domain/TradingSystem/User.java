@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,9 @@ public class User {
 
         this.state = nState;
         state.setUser(this);
+        state.setCountry(country);
+
+        if (nState instanceof Subscriber) DAOManager.createOrUpdateSubscriber((Subscriber) state);
     }
 
 

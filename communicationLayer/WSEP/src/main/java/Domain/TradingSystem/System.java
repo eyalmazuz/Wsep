@@ -31,19 +31,20 @@ public class System {
     // session id -> (store id -> (product id -> amount))
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
+    String databaseName = "trading_system_test";
+
     public System(){
-        userHandler = new UserHandler();
-        stores = new ConcurrentHashMap<>();
-        logger = new SystemLogger();
-        products = new ConcurrentHashMap<>();
-
-        String databaseName = "trading_system_test";
-
         try {
             DAOManager.init(new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=root&password=weloveshahaf&serverTimezone=UTC"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        userHandler = new UserHandler();
+        stores = new ConcurrentHashMap<>();
+        logger = new SystemLogger();
+        products = new ConcurrentHashMap<>();
+
     }
 
     public static System getInstance(){
@@ -528,7 +529,6 @@ public class System {
         if (subToLogin != null) {
 
             u.setState(subToLogin);
-
 
 
             return true;

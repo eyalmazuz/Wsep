@@ -7,6 +7,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,11 +22,17 @@ public class Store {
     @ForeignCollectionField(eager = true)
     private ForeignCollection<ProductInStore> products = null;
 
-    private List <Subscriber> managers;
+    // persist this
+    private List<Subscriber> managers;
 
-    private List<PurchaseDetails> purchaseHistory;
+    @ForeignCollectionField(eager = true)
+    private ForeignCollection<PurchaseDetails> purchaseHistory = null;
 
+    private PurchaseDetails lastAddedPurchaseHistoryItem = null;
+
+    @DatabaseField (foreign = true)
     private BuyingPolicy buyingPolicy;
+
     private DiscountPolicy discountPolicy;
     private int nextPurchaseId = 0;
     private double rating = -1;
@@ -35,12 +42,12 @@ public class Store {
     public Store(){
         this.id = globalId;
         globalId ++;
-        // FIX for acceptance tests
         managers = new LinkedList<>();
         DAOManager.createProductInStoreListForStore(this);
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy("None");
-        purchaseHistory = new ArrayList<>();
+
+        DAOManager.createPurchaseHistoryForStore(this);
         //storePurchaseHistory = new StorePurchaseHistory(this);
     }
 
@@ -69,6 +76,7 @@ public class Store {
             }
             products.add(newProduct);
         }
+        DAOManager.updateStore(this);
 
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
@@ -84,6 +92,7 @@ public class Store {
                 }
             }
         }
+        DAOManager.updateStore(this);
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Invalid product.");
 
     }
@@ -98,6 +107,7 @@ public class Store {
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
         }
+        DAOManager.updateStore(this);
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Invalid product.");
     }
 
@@ -124,17 +134,19 @@ public class Store {
         return managers_;
     }
     public List<PurchaseDetails> getStorePurchaseHistory(){
-        return purchaseHistory;
+        return new ArrayList<>(purchaseHistory);
     }
 
     public void setBuyingPolicy(BuyingPolicy policy) {
         if(policy!= null)
             this.buyingPolicy = policy;
+        DAOManager.updateStore(this);
     }
 
     public void setDiscountPolicy(DiscountPolicy policy) {
         if (policy != null)
             this.discountPolicy = policy;
+        DAOManager.updateStore(this);
     }
 
     public ActionResultDTO checkPurchaseValidity(User user, ShoppingBasket basket) {
@@ -144,7 +156,7 @@ public class Store {
     public PurchaseDetails savePurchase(User user, HashMap<ProductInfo, Integer> products) {
         double totalPrice = getPrice(user, products).getPrice();
 
-        Map<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
+        HashMap<ProductInfo, Integer> productInfoIntegerMap = new HashMap<>();
         // get the ProductInfo -> integer map
         for (ProductInfo product : products.keySet()) {
             productInfoIntegerMap.put(product, products.get(product));
@@ -154,9 +166,12 @@ public class Store {
         return details;
     }
 
-    public PurchaseDetails addPurchase(int purchaseId, User user, Map<ProductInfo, Integer> products, double price) {
+    public PurchaseDetails addPurchase(int purchaseId, User user, HashMap<ProductInfo, Integer> products, double price) {
         PurchaseDetails details = new PurchaseDetails(purchaseId, user, this, products, price);
         purchaseHistory.add(details);
+        DAOManager.createPurchaseDetails(details);
+        DAOManager.updateStore(this);
+        lastAddedPurchaseHistoryItem = details;
         return details;
     }
 
@@ -169,6 +184,7 @@ public class Store {
 
     public void cancelPurchase(PurchaseDetails purchaseDetails) {
         purchaseHistory.remove(purchaseDetails);
+        DAOManager.updateStore(this);
     }
 
     public int getProductAmount(Integer productId) {
@@ -197,6 +213,7 @@ public class Store {
             else
                 return false;
         }
+        DAOManager.updateStore(this);
         return true;
     }
 
@@ -233,6 +250,7 @@ public class Store {
 
     public void setRating(double rating) {
         this.rating = rating;
+        DAOManager.updateStore(this);
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
@@ -262,12 +280,14 @@ public class Store {
                 }
             }
         }
+        DAOManager.updateStore(this);
     }
 
     //for Testing reasons
     public void clean() {
         managers.clear();
         products.clear();
+        DAOManager.updateStore(this);
     }
 
     public BuyingPolicy getBuyingPolicy() {
@@ -290,7 +310,8 @@ public class Store {
     }
 
     public void removeLastHistoryItem() {
-        purchaseHistory.remove(purchaseHistory.size() - 1);
+        purchaseHistory.remove(lastAddedPurchaseHistoryItem);
+        DAOManager.updateStore(this);
     }
 
     public void setProductPrice(int id, double price) {
@@ -300,6 +321,7 @@ public class Store {
                 return;
             }
         }
+        DAOManager.updateStore(this);
     }
 
     public double getProductPrice(int productId) {
@@ -383,5 +405,14 @@ public class Store {
             if (pis.getProductInfoId() == id) return pis.getInfo();
         }
         return null;
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof Store) return ((Store) other).getId() == id;
+        return false;
+    }
+
+    public int hashCode() {
+        return id;
     }
 }

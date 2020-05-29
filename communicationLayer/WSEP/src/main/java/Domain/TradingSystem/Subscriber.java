@@ -1,29 +1,45 @@
 package Domain.TradingSystem;
 
 import DTOs.Notification;
+import DataAccess.DAOManager;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+@DatabaseTable(tableName = "subscribers")
 public class Subscriber implements UserState {
 
     //FIELDS:
     private static int idCounter = 0;
+
+    @DatabaseField (id = true)
     private int id;
+
     private Map <Integer,Permission> permissions; //StoreId -> Permission
     private User user;
+
+    @DatabaseField(unique = true)
     private String username;
+
+    @DatabaseField
     private String hashedPassword;
+
+    @DatabaseField
     private boolean isAdmin;
+    @DatabaseField
+    private String country;
+
+    @DatabaseField (foreign = true)
     private UserPurchaseHistory userPurchaseHistory;
     private Queue<Notification> notificationQueue ;
     private Object permissionLock;
 
     public Subscriber() {
-        userPurchaseHistory = new UserPurchaseHistory();
+        userPurchaseHistory = new UserPurchaseHistory(id);
         permissions = new HashMap<>();
         permissionLock = new Object();
     }
@@ -36,7 +52,7 @@ public class Subscriber implements UserState {
         idCounter++;
         permissions = new HashMap<>();
         // FIX for acceptance tests
-        userPurchaseHistory = new UserPurchaseHistory();
+        userPurchaseHistory = new UserPurchaseHistory(id);
         permissionLock = new Object();
         notificationQueue = new ConcurrentLinkedDeque<>();
 
@@ -59,11 +75,13 @@ public class Subscriber implements UserState {
 
     public void setAdmin() {
         isAdmin = true;
+        DAOManager.updateSubscriber(this);
     }
 
     public void setUserName(String userName) {
-            this.username = userName;
-        }
+        this.username = userName;
+        DAOManager.updateSubscriber(this);
+   }
 
 
 
@@ -100,6 +118,9 @@ public class Subscriber implements UserState {
         return newStore;
     }
 
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
 
 
@@ -281,5 +302,9 @@ public class Subscriber implements UserState {
 
     public Permission getPermission(int storeId) {
         return permissions.get(storeId);
+    }
+
+    public void setUserPurchaseHistory(UserPurchaseHistory userPurchaseHistory) {
+        this.userPurchaseHistory = userPurchaseHistory;
     }
 }

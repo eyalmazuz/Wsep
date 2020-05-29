@@ -32,4 +32,6 @@ interface UserState {
      boolean isAdmin();
 
      UserPurchaseHistory getUserPurchaseHistory();
+
+    void setCountry(String country);
 }

@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class Guest implements UserState {
 
+    private String country = "Unknown";
+
     /**
      *
      *Unused Methods Of subscriber state
@@ -67,6 +69,11 @@ public class Guest implements UserState {
     @Override
     public UserPurchaseHistory getUserPurchaseHistory() {
         return null;
+    }
+
+    @Override
+    public void setCountry(String country) {
+        this.country = country;
     }
 
 }

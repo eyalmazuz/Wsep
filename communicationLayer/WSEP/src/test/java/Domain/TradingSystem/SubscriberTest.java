@@ -19,7 +19,7 @@ public class SubscriberTest extends TestCase {
     Map<Store, PurchaseDetails> storePurchaseDetails ;
     User user ;
     Store store ;
-    Map<ProductInfo,Integer> products ;
+    HashMap<ProductInfo,Integer> products ;
     ProductInfo productInfo;
     PurchaseDetails details;
 

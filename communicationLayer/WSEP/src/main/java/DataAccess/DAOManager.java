@@ -25,9 +25,12 @@ public class DAOManager {
     private static Dao<Store, String> storeDao;
     private static Dao<ShoppingCart, String> shoppingCartDao;
     private static Dao<ShoppingBasket, String> shoppingBasketDao;
+    private static Dao<Subscriber, String> subscriberDao;
+    private static Dao<UserPurchaseHistory, String> userPurchaseHistoryDao;
+    private static Dao<PurchaseDetails, String> purchaseDetailsDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
-            Store.class, ShoppingCart.class, ShoppingBasket.class};
+            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
@@ -40,6 +43,9 @@ public class DAOManager {
             storeDao = DaoManager.createDao(csrc, Store.class);
             shoppingCartDao = DaoManager.createDao(csrc, ShoppingCart.class);
             shoppingBasketDao = DaoManager.createDao(csrc, ShoppingBasket.class);
+            subscriberDao = DaoManager.createDao(csrc, Subscriber.class);
+            userPurchaseHistoryDao = DaoManager.createDao(csrc, UserPurchaseHistory.class);
+            purchaseDetailsDao = DaoManager.createDao(csrc, PurchaseDetails.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
@@ -110,25 +116,41 @@ public class DAOManager {
         }
     }
 
+    private static void fixBuyingPolicy(BuyingPolicy policy) {
+        HashMap<Integer, String> typeIds = policy.getBuyingTypeIDs();
+        for (Integer typeId : typeIds.keySet()) {
+            String type = typeIds.get(typeId);
+            if (type.equals("simple")) {
+                BuyingType simpleType = loadSimpleBuyingType(typeId);
+                policy.addSimpleBuyingType((SimpleBuying) simpleType);
+            }
+            else policy.addAdvancedBuyingType((AdvancedBuying) loadAdvancedBuyingType(typeId), true);
+        }
+    }
+
     public static List<BuyingPolicy> loadAllBuyingPolicies() {
         List<BuyingPolicy> buyingPolicies = null;
         try {
             buyingPolicies = buyingPolicyDao.queryForAll();
             for (BuyingPolicy policy : buyingPolicies) {
-                HashMap<Integer, String> typeIds = policy.getBuyingTypeIDs();
-                for (Integer typeId : typeIds.keySet()) {
-                    String type = typeIds.get(typeId);
-                    if (type.equals("simple")) {
-                        BuyingType simpleType = loadSimpleBuyingType(typeId);
-                        policy.addSimpleBuyingType((SimpleBuying) simpleType);
-                    }
-                    else policy.addAdvancedBuyingType((AdvancedBuying) loadAdvancedBuyingType(typeId), true);
-                }
+                fixBuyingPolicy(policy);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return buyingPolicies;
+    }
+
+
+    private static BuyingPolicy loadBuyingPolicy(int id) {
+        BuyingPolicy policy = null;
+        try {
+            policy = buyingPolicyDao.queryForId(Integer.toString(id));
+            if (policy!= null) fixBuyingPolicy(policy);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return policy;
     }
 
     private static BuyingType loadSimpleBuyingType(Integer typeId) {
@@ -231,7 +253,12 @@ public class DAOManager {
 
     public static List<Store> loadAllStores() {
         try {
-            return storeDao.queryForAll();
+            List<Store> stores = storeDao.queryForAll();
+            for (Store store : stores) {
+                BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
+                if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
+            }
+            return stores;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -291,6 +318,113 @@ public class DAOManager {
     public static void updateShoppingBasket(ShoppingBasket shoppingBasket) {
         try {
             shoppingBasketDao.update(shoppingBasket);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<Subscriber> loadAllSubscribers() {
+        List<Subscriber> subscribers = null;
+        try {
+            subscribers = subscriberDao.queryForAll();
+            // fix purchase history (loaded primitives, make actual map)
+            for (Subscriber s : subscribers) {
+                UserPurchaseHistory userPurchaseHistory = loadUserPurchaseHistory(s.getId());
+                Map<Integer, List<Integer>> storePurchaseListsPrimitive = userPurchaseHistory.getStorePurchaseListsPrimitive();
+                HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
+                for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
+                    List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
+                    List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
+                    for (Integer purchaseDetailsId : purchaseDetailsIds) purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
+                    storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
+                    userPurchaseHistory.setStorePurchaseLists(storePurchaseLists);
+                }
+                s.setUserPurchaseHistory(userPurchaseHistory);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return subscribers;
+    }
+
+    private static UserPurchaseHistory loadUserPurchaseHistory(int id) {
+        try {
+            return userPurchaseHistoryDao.queryForId(Integer.toString(id));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Store loadStore(Integer storeId) {
+        try {
+            return storeDao.queryForId(Integer.toString(storeId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) {
+        try {
+            return purchaseDetailsDao.queryForId(Integer.toString(purchaseDetailsId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void addSubscriber(Subscriber subscriberState) {
+        try {
+            subscriberDao.create(subscriberState);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateSubscriber(Subscriber subscriber) {
+        try {
+            subscriberDao.update(subscriber);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createOrUpdateUserPurchaseHistory(UserPurchaseHistory userPurchaseHistory) {
+        try {
+            userPurchaseHistoryDao.createOrUpdate(userPurchaseHistory);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createOrUpdateSubscriber(Subscriber state) {
+        try {
+            subscriberDao.createOrUpdate(state);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createPurchaseDetails(PurchaseDetails details) {
+        try {
+            purchaseDetailsDao.createOrUpdate(details);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createManagerListForStore(Store store) {
+        try {
+            storeDao.assignEmptyForeignCollection(store, "managers");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createPurchaseHistoryForStore(Store store) {
+        try {
+            storeDao.assignEmptyForeignCollection(store, "purchaseHistory");
         } catch (SQLException e) {
             e.printStackTrace();
         }
