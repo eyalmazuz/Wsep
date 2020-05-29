@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.crypto.Data;
+
 public class ShopAdministrationTests extends ServiceTest {
 
     /*
@@ -25,6 +27,9 @@ public class ShopAdministrationTests extends ServiceTest {
         appointManager(Database.sessionId, sid_1, Database.userToId.get("dia"));
         appointOwner(Database.sessionId, sid_1, Database.userToId.get("kanan"));
         logout(Database.sessionId);
+
+        login(Database.sessionId,"kanan","12345");
+        appointOwner(Database.sessionId,sid_1,Database.userToId.get("iggy"));
 
         login(Database.sessionId, "dia", "12345");
         appointManager(Database.sessionId, sid_1, Database.userToId.get("ruby"));
@@ -57,6 +62,33 @@ public class ShopAdministrationTests extends ServiceTest {
     public void testAppointAnotherManagerFailureAlreadyManager(){
         assertFalse(appointManager(Database.sessionId,1,Database.userToId.get("dia")));
     }
+
+    // USE CASES 4.4
+
+    @Test
+    public void testRemoveOwnerSucess(){
+        assertTrue(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("kanan")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerNoOwner(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("dia")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerNoGrantedBy(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("iggy")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerInvalidOwnerID(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),-2));
+
+    }
+
 
     // USE CASES 4.5
     @Test

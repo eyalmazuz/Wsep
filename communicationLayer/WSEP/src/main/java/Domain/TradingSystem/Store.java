@@ -371,4 +371,15 @@ public class Store {
         discountPolicy.clearDiscountTypes();
     }
 
+    /*
+        The function recieves a subscriber and return list of store managers who granted by that subscriber
+     */
+    public List<Subscriber> getAllGrantedBy(Subscriber subscriber) {
+        List<Subscriber> result = new ArrayList<>();
+        for(Subscriber manager : getAllManagers()){
+           if( manager.isGrantedBy(getId(),subscriber.getId()))
+            result.add(manager);
+        }
+        return result;
+    }
 }

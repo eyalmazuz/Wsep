@@ -255,4 +255,12 @@ public class ProxyBridge implements Bridge {
         else return false;
     }
 
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        if(rb != null){
+            return rb.removeOwner(sessionId,storeId,userId);
+        }
+        else return false;
+    }
+
 }

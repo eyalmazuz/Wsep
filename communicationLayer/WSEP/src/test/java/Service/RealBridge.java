@@ -182,4 +182,10 @@ public class RealBridge implements Bridge {
         }
     }
 
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.deleteOwner(storeId,userId).getResultCode() == ResultCode.SUCCESS;
+    }
+
 }
