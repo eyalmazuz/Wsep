@@ -22,6 +22,16 @@ public class SystemTests extends TestCase {
     @Before
     public void setUp() {
         test = new System();
+        Publisher publisherMock = new Publisher(new MessageBroker() {
+
+            @Override
+            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
+
+                return null;
+            }
+        });
+        test.setPublisher(publisherMock);
+
     }
 
     @After
@@ -104,7 +114,11 @@ public class SystemTests extends TestCase {
     @Test
     public void testUpdateStoreSupplies() {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        test.register(sessionId, "eyal", "1234");
+        test.login(sessionId, "eyal", "1234");
+        int store1Id = test.openStore(sessionId).getId();
+        Store store1 = test.getStoreById(store1Id);
+
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -770,15 +784,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testAddProductUpdateNotification(){
         int counter;
-        Publisher publisherMock = new Publisher(new MessageBroker() {
 
-            @Override
-            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
-
-                return null;
-            }
-        });
-        test.setPublisher(publisherMock);
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
         test.login(openerSessionId,"Amir","1234");
@@ -792,7 +798,131 @@ public class SystemTests extends TestCase {
         Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
         assertEquals(1,noties.size());
 
+    }
 
+    /**
+     * Simple owner deletion.
+     */
+    @Test
+    public void testDeleteOwnerSingleManager(){
+        //Set up data
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        int managerId = test.register(firstId,"mo","1234").getId();
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(firstId,storeId,ownerId);
+        test.logout(firstId);
+        test.login(firstId,"bob","1234");
+        test.addStoreManager(firstId,storeId,managerId);
+        test.logout(firstId);
+
+        //do action
+        test.login(firstId,"amir","1234");
+        test.deleteOwner(firstId,storeId,ownerId);
+
+        //Test
+        assertEquals(1,store.getAllManagers().size());
+
+
+    }
+
+    /**
+     * Complex Owner deletion (Owner inside Owner)
+     */
+    public void testDeleteOwnerMultyManager(){
+        //Set up data
+        int firstId = test.startSession().getId();
+
+        test.register(firstId,"amir","1234");
+        int bobId = test.register(firstId,"bob","1234").getId();
+        int moId = test.register(firstId,"mo","1234").getId();
+        int larryId = test.register(firstId,"larry","1234").getId();
+
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(firstId,storeId,bobId);
+        test.logout(firstId);
+
+        test.login(firstId,"bob","1234");
+        test.addStoreOwner(firstId,storeId,moId);
+        test.logout(firstId);
+
+        test.login(firstId,"mo","1234");
+        test.addStoreManager(firstId,storeId,larryId);
+        test.logout(firstId);
+
+        //do action
+        test.login(firstId,"amir","1234");
+        test.deleteOwner(firstId,storeId,bobId);
+
+        //Test
+        assertEquals(1,store.getAllManagers().size());
+
+        Subscriber larry = test.getUserHandler().getSubscriber(larryId);
+        assertNull(larry.getPermission(storeId));
+
+
+    }
+
+    /**
+     * Checks that remove not exising manager results in failure
+     */
+    @Test
+    public void testDeleteOwnerNotExisting(){
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        assertEquals(ResultCode.ERROR_STORE_MANAGER_MODIFICATION,test.deleteOwner(firstId,storeId,99).getResultCode());
+
+
+    }
+
+    /**
+     * Checks if notificationQueue of removed manager has been increased
+     */
+    @Test
+    public void testDeleteOwnerNotification(){
+        //Set up data
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        Subscriber bob = test.getUserHandler().getSubscriber(ownerId);
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        test.addStoreOwner(firstId,storeId,ownerId);
+
+        //Do action
+        int preNotifications = bob.getAllNotification().size();
+        test.deleteOwner(firstId,storeId,ownerId);
+        int postNotifications = bob.getAllNotification().size();
+
+        //Test
+        assertEquals(1,postNotifications-preNotifications);
+
+
+    }
+
+    /**
+     * Checks if removing owner not granted by yourself cause error
+     */
+    @Test
+    public void testDeleteOwnerNotGrantedBy(){
+        int firstId = test.startSession().getId();
+        int masterId = test.register(firstId,"amir","1234").getId();
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        test.addStoreOwner(firstId,storeId,ownerId);
+        test.logout(firstId);
+
+        test.login(firstId,"bob","1234");
+        assertEquals(ResultCode.ERROR_DELETE,test.deleteOwner(firstId,storeId,masterId).getResultCode());
 
     }
 }

@@ -92,6 +92,14 @@ public class OwnerController {
         return new OwnerHandler(sessionId).deleteManager(storeId,userId);
     }
 
+    @GetMapping("/deleteOwner")
+    @ResponseBody
+    public ActionResultDTO deleteOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                         @RequestParam(value = "userId", defaultValue = "") int userId){
+        return new OwnerHandler(sessionId).deleteOwner(storeId,userId);
+    }
+
 
     @GetMapping("/viewPurchaseHistory")
     @ResponseBody

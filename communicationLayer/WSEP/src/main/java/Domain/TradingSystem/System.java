@@ -302,7 +302,7 @@ public class System {
 
 
     public ActionResultDTO addStoreOwner (int sessionId, int storeId, int subId) {
-        logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
+        logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
@@ -313,6 +313,11 @@ public class System {
             if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
                 s.addOwner(newOwner);
 
+                List<Integer> id = new ArrayList<>();
+                id.add(newOwner.getId());
+                if(publisher!=null) {
+                   notifyAndUpdate(id,"You are now store owner of store " + storeId);
+                }
                 return new ActionResultDTO(ResultCode.SUCCESS, null);
             }
 
@@ -370,13 +375,16 @@ public class System {
             if (u != null) {
                 Subscriber managerToDelete = userHandler.getSubscriber(userId);
                 if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
-                    Store store = getStoreById(storeId);
-                    if (store != null) {
-                        managerToDelete.removePermission(store, "Manager");
-                        store.removeManger(managerToDelete);
+
+                        managerToDelete.removeManagment(storeId);
+                        List<Integer> id = new ArrayList<>();
+
+                        id.add(managerToDelete.getId());
+                        if(publisher!= null)
+                            notifyAndUpdate(id,"You got deleted from store "+storeId);
 
                         return new ActionResultDTO(ResultCode.SUCCESS, null);
-                    }
+
                 }
                 return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
             }
@@ -510,6 +518,7 @@ public class System {
 
     // Usecase 2.3
     public boolean login(int sessionId, String username, String password) {
+        logger.info(String.format("Login : SeesionId %d , username %s",sessionId,username));
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return false;
 
@@ -879,7 +888,8 @@ public class System {
             List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
             Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
-            publisher.notify(managers,notification);
+            if(publisher!=null)
+                publisher.notify(managers,notification);
         }
     }
 
@@ -1126,4 +1136,40 @@ public class System {
         return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
     }
 
+    public ActionResultDTO deleteOwner(int sessionId, int storeId, int userId) {
+        logger.info("deleteOwner: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
+        User u = userHandler.getUser(sessionId);
+
+        if(isSubscriber(sessionId)) {
+            Subscriber subscriber = (Subscriber) u.getState();
+
+            if (u != null) {
+                Subscriber ownerToDelete = userHandler.getSubscriber(userId);
+                if (ownerToDelete != null && !subscriber.equals(ownerToDelete)) {
+                    if (ownerToDelete.isGrantedBy(storeId, subscriber.getId())) {
+
+                       List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
+                       if(publisher!=null)
+                        notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
+                        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
+                    } else {
+                        return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
+                    }
+                }
+
+            }
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
+    }
+
+    private void notifyAndUpdate(List<Integer> users, String message){
+        Notification notification = new Notification(notificationId++,message);
+        for(Integer subId : users){
+            Subscriber s = userHandler.getSubscriber(subId);
+            if(s!=null){
+                s.setNotification(notification);
+            }
+        }
+        publisher.notify(users,message);
+    }
 }
