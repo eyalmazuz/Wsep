@@ -55,4 +55,6 @@ public interface Bridge {
     void addProductInfo(int sessionId, int id, String name, String category, double basePrice);
 
     boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy);
+
+    boolean removeOwner(int sessionId, int storeId, int userId);
 }

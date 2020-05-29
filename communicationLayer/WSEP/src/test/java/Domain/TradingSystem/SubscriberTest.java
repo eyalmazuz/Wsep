@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -285,10 +286,25 @@ public class SubscriberTest extends TestCase {
     }
 
     @Test
-    public void testRemoveNotificationWrondId(){
+    public void testRemoveNotificationWrongId(){
         Notification notification = new Notification(42,"test");
         subscriber.setNotification(notification);
         subscriber.removeNotification(10);
         assertEquals(1,subscriber.getAllNotification().size());
+    }
+
+    @Test
+    public void testRemoveOwnershipAllIds(){
+        Subscriber s2 = new Subscriber("Bob","123",false);
+        Store store = new Store();
+        subscriber.addPermission(store,null,"Owner");
+        s2.addPermission(store,subscriber,"Manager");
+        store.addOwner(subscriber);
+        store.addOwner(s2);
+
+        List<Integer> result = subscriber.removeOwnership(store.getId());
+
+        assertTrue(result.contains(subscriber.getId()));
+        assertTrue(result.contains(s2.getId()));
     }
 }

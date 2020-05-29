@@ -1151,12 +1151,12 @@ public class System {
                        List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
                        if(publisher!=null)
                         notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
-                        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
+                        return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
                     } else {
                         return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
                     }
                 }
-
+                return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
             }
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
