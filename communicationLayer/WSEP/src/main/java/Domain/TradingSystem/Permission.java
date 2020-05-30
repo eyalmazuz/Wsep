@@ -7,6 +7,9 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "permissions")
 public class Permission {
 
+    @DatabaseField(generatedId = true)
+    private int id;
+
     @DatabaseField(foreign = true)
     Subscriber user;
 
