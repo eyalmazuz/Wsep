@@ -166,7 +166,7 @@ public class System {
         }
     }
 
-    private int getStoreByName(String name) {
+    public int getStoreByName(String name) {
         for(Integer storeId : stores.keySet()){
             if (stores.get(storeId).getName().equals(name)){
                 return storeId;
@@ -901,6 +901,9 @@ public class System {
 
     private int getMaxId() {
         Set<Integer> ids = products.keySet();
+        if(ids.size() == 0){
+            return 0;
+        }
         return Collections.max(ids);
     }
 

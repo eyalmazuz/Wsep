@@ -12,6 +12,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class SystemTests extends TestCase {
@@ -924,5 +927,73 @@ public class SystemTests extends TestCase {
         test.login(firstId,"bob","1234");
         assertEquals(ResultCode.ERROR_DELETE,test.deleteOwner(firstId,storeId,masterId).getResultCode());
 
+    }
+
+
+    @Test
+    public void testSetupConfigFileOpenStore(){
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("register(bob);\nopen-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        test.setup("123","123","testFile.txt");
+        assertTrue(test.getStoreByName("bob-store") >= 0);
+
+
+    }
+
+    @Test
+    public void testSetupConfigFileSyntaxError(){
+
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("registerfsdfsfsd(bob);\nopen-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    @Test
+    public void testSetupConfigFileLogicError(){
+        //Test that commands who fail on the system will fail the setup,
+        // open store with none registered user:
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("open-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    /*
+    a. Register users u1,u2,u3,u4,u5,u6.
+    b. Make u1 admin.
+    c. u2 open store s1.
+    d. u2 add item “diapers” to store s1 with cost 30 and quantity 20.
+    e. u2 appoint u3 to a store manager with permission to manage inventory.
+    f. u3 appoint u5 and u5 appoint u6 to a store manager.
+     */
+    @Test
+    public void testSetupRequirmentsFile(){
+        try {
+            FileWriter file = new FileWriter("initFile.txt",false);
+            file.write("register(u1);\nregister(u2);\nregister(u3);\nregister(u4);\nregister(u5);\nregister(u6);\n"+
+                    "set-admin(u1);\nopen-store(u2,s1);\nadd-product(u2,s1,diapers,20,30);\n"+
+                    "appoint-manager(u2,s1,u3,manage-inventory);\nappoint-manager(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        test.setup("123","123","initFile.txt");
+        assertEquals(4,test.getStoreById(test.getStoreByName("s1")).getAllManagers().size());
     }
 }
