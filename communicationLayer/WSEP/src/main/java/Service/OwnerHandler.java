@@ -246,4 +246,10 @@ public class OwnerHandler {
 
         return s.deleteOwner(sessionId,storeId,userId);
     }
+
+    public ActionResultDTO approveStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        return s.approveStoreOwner(sessionId,storeId,subId);
+    }
 }

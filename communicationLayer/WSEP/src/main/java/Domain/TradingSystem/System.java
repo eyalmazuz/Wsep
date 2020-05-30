@@ -381,27 +381,47 @@ public class System {
     public ActionResultDTO addStoreOwner (int sessionId, int storeId, int subId) {
         logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
+        Subscriber owner = (Subscriber)u.getState();
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
-        Store s = getStoreById(storeId);
-        if(s!=null)
+        Store store = getStoreById(storeId);
+        if(store!=null)
         {
-            if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
-                s.addOwner(newOwner);
-
-                List<Integer> id = new ArrayList<>();
-                id.add(newOwner.getId());
-                if(publisher!=null) {
-                   notifyAndUpdate(id,"You are now store owner of store " + storeId);
+            List<Integer> owners = store.getOwners().stream().map(Subscriber::getId).collect(Collectors.toList());
+            GrantingAgreement agreement = new GrantingAgreement(storeId,owner.getId(),newOwner.getId(),owners);
+            if(agreement.allAproved()){
+            if (setStoreOwner(owner, newOwner, store))
+                return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+            }
+            else{
+                if(store.addAgreement(agreement)) {
+                    notifyAndUpdate(owners, "New Malshab Waits to your approval in store " + storeId);
+                    return new ActionResultDTO(ResultCode.SUCCESS, "Granting agreement has been created");
                 }
-                return new ActionResultDTO(ResultCode.SUCCESS, null);
+                else {
+                    return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "user have already pending agreemant");
+                }
             }
 
         }
 
 
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
+    }
+
+    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+        if(newOwner.addPermission(store, owner, "Owner")){
+            store.addOwner(newOwner);
+
+            List<Integer> id = new ArrayList<>();
+            id.add(newOwner.getId());
+            if(publisher!=null) {
+               notifyAndUpdate(id,"You are now store owner of store " + store.getId());
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean subIsOwner(int subId,int storeId) {
@@ -421,12 +441,17 @@ public class System {
 
     public ActionResultDTO addStoreManager (int sessionId, int storeId, int userId) {
         User u = userHandler.getUser(sessionId);
+        Subscriber subscriber = (Subscriber)u.getState();
+        if(!(subscriber.hasOwnerPermission(storeId) || subscriber.hasManagerPermission(storeId)))
+            return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "grantor is not manager on store! OMG!.");
+
         logger.info("addStoreManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified user is invalid.");
         Store store = getStoreById(storeId);
         if (store != null) {
+
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
 
@@ -1239,7 +1264,8 @@ public class System {
                        List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
                        if(publisher!=null)
                         notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
-                        return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
+                       handleGrantingAgreements(storeId);
+                       return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
                     } else {
                         return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
                     }
@@ -1250,6 +1276,27 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
     }
 
+    /**
+     * check all granting agreements and if any of them is aprroved finish him.
+     * @param storeId
+     */
+    private void handleGrantingAgreements(int storeId) {
+        Store store = getStoreById(storeId);
+        if(store != null){
+            Collection<GrantingAgreement> agreements = store.getAllAgreemnt();
+            for (GrantingAgreement agreement : agreements){
+                if (agreement.allAproved()){
+                    Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());
+                    Subscriber newOwner = userHandler.getSubscriber(agreement.getMalshabId());
+                    if (setStoreOwner(grantor, newOwner, store)) {
+                        store.removeAgreement(agreement.getMalshabId());
+                    }
+
+                }
+            }
+        }
+    }
+
     private void notifyAndUpdate(List<Integer> users, String message){
         Notification notification = new Notification(notificationId++,message);
         for(Integer subId : users){
@@ -1258,6 +1305,32 @@ public class System {
                 s.setNotification(notification);
             }
         }
-        publisher.notify(users,message);
+        if(publisher!=null)
+            publisher.notify(users,message);
+    }
+
+    public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
+        Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
+        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Store store = getStoreById(storeId);
+        if(store != null){
+            if(store.approveMalshab(owner.getId(),subId)){
+                if(store.allAproved(subId)){
+                    if (setStoreOwner(owner, newOwner, store)) {
+                        store.removeAgreement(subId);
+                        return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                    }
+                }
+                else{
+                    return new ActionResultDTO(ResultCode.SUCCESS,"approve succeed, wait for other owners decision");
+                }
+            }
+            else{
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreemant not exist");
+            }
+        }
+
+
+        return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 }

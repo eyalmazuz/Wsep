@@ -3,6 +3,8 @@ package Domain.TradingSystem;
 import DTOs.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -14,6 +16,7 @@ public class Store {
     private String name;
     private List<ProductInStore> products;
     private List <Subscriber> managers;
+    private Map<Integer,GrantingAgreement> malshab2granting;//Id->agreement
 
     private List<PurchaseDetails> purchaseHistory;
 
@@ -34,6 +37,7 @@ public class Store {
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy("None");
         purchaseHistory = new ArrayList<>();
+        malshab2granting = new ConcurrentHashMap<>();
         //storePurchaseHistory = new StorePurchaseHistory(this);
     }
 
@@ -256,6 +260,16 @@ public class Store {
                     break;
                 }
             }
+            for(Integer malshabId : malshab2granting.keySet()){
+                GrantingAgreement agreement = malshab2granting.get(malshabId);
+                if(agreement.getGrantorId()==managerToDelete.getId()){
+                    malshab2granting.remove(malshabId);
+                    continue;
+                }
+                else{
+                    agreement.removeApprove(managerToDelete.getId());
+                }
+            }
         }
     }
 
@@ -391,5 +405,40 @@ public class Store {
 
     public String getName() {
         return name;
+    }
+
+    public boolean addAgreement(GrantingAgreement agreement) {
+        int id =agreement.getMalshabId();
+        if(malshab2granting.get(id) == null) {
+            malshab2granting.put(agreement.getMalshabId(), agreement);
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean approveMalshab(int grantorid, int malshabId) {
+        GrantingAgreement agreement = malshab2granting.get(malshabId);
+        if(agreement!=null){
+           return agreement.approve(grantorid);
+        }
+        return false;
+
+    }
+
+    public boolean allAproved(int malshabId) {
+        GrantingAgreement agreement = malshab2granting.get(malshabId);
+        if(agreement!=null){
+            return agreement.allAproved();
+        }
+        return false;
+    }
+
+    public void removeAgreement(int subId) {
+        malshab2granting.remove(subId);
+    }
+
+    public Collection<GrantingAgreement> getAllAgreemnt(){
+        return malshab2granting.values();
     }
 }
