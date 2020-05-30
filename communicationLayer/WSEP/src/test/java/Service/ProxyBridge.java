@@ -4,9 +4,9 @@ public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig){
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path){
         if (rb != null){
-            return rb.setupSystem(supplyConfig, paymentConfig);
+            return rb.setupSystem(supplyConfig, paymentConfig,path);
         }
         else{
             return false;

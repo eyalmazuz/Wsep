@@ -17,8 +17,9 @@ public class SessionController {
     @GetMapping("/setup")
     @ResponseBody
     public ActionResultDTO setup(@RequestParam(value = "supplyConfig", defaultValue = "") String supplyConfig,
-                                 @RequestParam(value = "paymentConfig", defaultValue = "") String paymentConfig) {
-        return sessionHandler.setup(supplyConfig,paymentConfig);
+                                 @RequestParam(value = "paymentConfig", defaultValue = "") String paymentConfig,
+                                 @RequestParam(value = "path",defaultValue = "") String path) {
+        return sessionHandler.setup(supplyConfig,paymentConfig,path);
 
     }
 

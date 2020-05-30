@@ -2,7 +2,7 @@ package Service;
 
 public interface Bridge {
 
-    boolean setupSystem(String supplyConfig, String paymentConfig);
+    boolean setupSystem(String supplyConfig, String paymentConfig,String path);
 
     boolean login(int sessionId, String username, String password);
 
