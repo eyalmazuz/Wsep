@@ -3,7 +3,6 @@ package DataAccess;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -28,9 +27,10 @@ public class DAOManager {
     private static Dao<Subscriber, String> subscriberDao;
     private static Dao<UserPurchaseHistory, String> userPurchaseHistoryDao;
     private static Dao<PurchaseDetails, String> purchaseDetailsDao;
+    private static Dao<Permission, String> permissionDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
-            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class};
+            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class, Permission.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
@@ -46,6 +46,7 @@ public class DAOManager {
             subscriberDao = DaoManager.createDao(csrc, Subscriber.class);
             userPurchaseHistoryDao = DaoManager.createDao(csrc, UserPurchaseHistory.class);
             purchaseDetailsDao = DaoManager.createDao(csrc, PurchaseDetails.class);
+            permissionDao = DaoManager.createDao(csrc, Permission.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
@@ -425,6 +426,22 @@ public class DAOManager {
     public static void createPurchaseHistoryForStore(Store store) {
         try {
             storeDao.assignEmptyForeignCollection(store, "purchaseHistory");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updatePermission(Permission permission) {
+        try {
+            permissionDao.update(permission);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addPermission(Permission permission) {
+        try {
+            permissionDao.create(permission);
         } catch (SQLException e) {
             e.printStackTrace();
         }

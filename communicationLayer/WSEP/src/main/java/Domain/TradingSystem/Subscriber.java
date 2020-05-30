@@ -2,12 +2,13 @@ package Domain.TradingSystem;
 
 import DTOs.Notification;
 import DataAccess.DAOManager;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @DatabaseTable(tableName = "subscribers")
@@ -197,6 +198,7 @@ public class Subscriber implements UserState {
                     //The line above grants permission will be set only once Or upgrade from manager to owner
                     Permission newPermission = new Permission(this, grantor, type, store);
                     permissions.put(store.getId(), newPermission);
+                    DAOManager.addPermission(newPermission);
                     return true;
                 }
             }

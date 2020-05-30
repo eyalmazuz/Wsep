@@ -1,13 +1,26 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = "permissions")
 public class Permission {
 
+    @DatabaseField(foreign = true)
     Subscriber user;
+
+    @DatabaseField(foreign = true)
     Subscriber grantor;
+
+    @DatabaseField
     String type; //Owner\Manager
+
+    @DatabaseField(foreign = true)
     Store store;
-    String details ;
+
+    @DatabaseField
+    String details;
 
     public Permission(Subscriber user, Subscriber grantor, String type, Store store){
         this.grantor = grantor;
@@ -46,6 +59,7 @@ public class Permission {
 
     public void setDetails(String details) {
         this.details = details;
+        DAOManager.updatePermission(this);
     }
 
 
