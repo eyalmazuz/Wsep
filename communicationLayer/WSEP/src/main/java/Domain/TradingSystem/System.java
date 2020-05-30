@@ -6,8 +6,9 @@ import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
-import org.springframework.aop.interceptor.PerformanceMonitorInterceptor;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -92,14 +93,15 @@ public class System {
     }
 
 
-    public ActionResultDTO setup(String supplyConfig, String paymentConfig){
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig , String filePath){
 
-        // TODO: INITIALIZE PRODUCT INFOS LIST
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
         try {
             setSupply(supplyConfig);
             setPayment(paymentConfig);
+            if(!filePath.equals(""))
+                parseFile(filePath);
         }
         catch(Exception e){
             logger.error(e.getMessage());
@@ -107,6 +109,81 @@ public class System {
         }
 //        instance = this;
         return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
+    }
+
+    private void parseFile(String filePath) throws Exception {
+
+        if (filePath!= null){
+            int sessionId = startSession().getId();
+            int storeId;
+            File file = new File(filePath);
+            Scanner fileScanner = new Scanner(file);
+            while(fileScanner.hasNextLine()){
+                String command = fileScanner.nextLine();
+                String action = command.substring(0,command.indexOf("("));
+                String[] args = command.substring(command.indexOf("(")+1,command.indexOf(")")).split(",");
+                switch (action){
+                    case "register":
+                        register(sessionId,args[0],"123");
+                        break;
+                    case "login":
+                        login(sessionId,args[0],"123");
+                        break;
+                    case "logout" :
+                        logout(sessionId);
+                        break;
+                    case "set-admin":
+                        setAdmin(args[0]);
+                        break;
+                    case "open-store":
+                        login(sessionId,args[0],"123");
+                        storeId = openStore(sessionId).getId();
+                        setStoreName(storeId,args[1]);
+                        break;
+                    case "appoint-manager":
+                        //appoint-manager(<Manager-name>,<Store-name>,<New Manager name>,<Details>);
+                        login(sessionId,args[0],"123");
+                        storeId = getStoreByName(args[1]);
+                        int managerId = userHandler.getSubscriberUser(args[2]).getId();
+                        addStoreManager(sessionId,storeId,managerId);
+                        setManagerDetalis(sessionId,managerId,storeId,args[3]);
+                        break;
+                    case "add-product":
+                        //add-product(<manager-name>,<store-name>,<product-name>,<amount>,<price>);
+                        login(sessionId,args[0],"123");
+                        storeId = getStoreByName(args[1]);
+                        int productInfo = addProductInfo(-1,args[2],"",Integer.valueOf(args[4])).getId();
+                        addProductToStore(sessionId,storeId,productInfo,Integer.valueOf(args[3]));
+                        break;
+
+                    default:
+                        throw new SyntaxException("Wrong syntax");
+
+
+                }
+            }
+
+        }
+    }
+
+    private int getStoreByName(String name) {
+        for(Integer storeId : stores.keySet()){
+            if (stores.get(storeId).getName().equals(name)){
+                return storeId;
+            }
+        }
+        return -1;
+    }
+
+    private void setStoreName(int storeId, String name) {
+        getStoreById(storeId).setName(name);
+    }
+
+    private void setAdmin(String username) {
+        Subscriber subscriber = userHandler.getSubscriberUser(username);
+        if(subscriber!=null){
+            subscriber.setAdmin();
+        }
     }
 
     public IntActionResultDto startSession(){
@@ -809,14 +886,22 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public ActionResultDTO addProductInfo(int id, String name, String category, double basePrice) {
+    public IntActionResultDto addProductInfo(int id, String name, String category, double basePrice) {
+        if(id<0){
+            id = getMaxId()+1;
+        }
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
         if (products.get(id) != null) {
-            return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
+            return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
         }
         products.put(id,productInfo);
-        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
+        return new IntActionResultDto(ResultCode.SUCCESS,"Product "+id+" added to system",id);
+    }
+
+    private int getMaxId() {
+        Set<Integer> ids = products.keySet();
+        return Collections.max(ids);
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {

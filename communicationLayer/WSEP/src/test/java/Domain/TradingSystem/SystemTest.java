@@ -37,8 +37,8 @@ public class SystemTest extends TestCase {
 
     @Test
      public void testSetUp(){
-      assertEquals(ResultCode.ERROR_SETUP,test.setup("Error","Error").getResultCode());
-      assertEquals(ResultCode.SUCCESS,test.setup("123","123").getResultCode());
+      assertEquals(ResultCode.ERROR_SETUP,test.setup("Error","Error","").getResultCode());
+      assertEquals(ResultCode.SUCCESS,test.setup("123","123","").getResultCode());
     }
 
 

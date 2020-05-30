@@ -15,8 +15,8 @@ public class SessionHandler {
 
     }
 
-    public ActionResultDTO setup(String supplyConfig, String paymentConfig) {
-        return system.setup(supplyConfig, paymentConfig);
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig,String path) {
+        return system.setup(supplyConfig, paymentConfig,path);
     }
 
     public IntActionResultDto startSession() {

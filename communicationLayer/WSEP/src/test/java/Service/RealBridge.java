@@ -7,9 +7,9 @@ import DTOs.UserPurchaseHistoryDTO;
 
 public class RealBridge implements Bridge {
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig) {
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path) {
         SessionHandler dc = new SessionHandler();
-        return dc.setup(supplyConfig, paymentConfig).getResultCode() == ResultCode.SUCCESS;
+        return dc.setup(supplyConfig, paymentConfig,path).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean login(int sessionId, String username, String password) {

@@ -11,6 +11,7 @@ public class Store {
     private static int globalId = 0;
 
     private int id;
+    private String name;
     private List<ProductInStore> products;
     private List <Subscriber> managers;
 
@@ -25,6 +26,7 @@ public class Store {
 
     public Store(){
         this.id = globalId;
+        this.name = "";
         globalId ++;
         // FIX for acceptance tests
         managers = new LinkedList<>();
@@ -381,5 +383,13 @@ public class Store {
             result.add(manager);
         }
         return result;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }

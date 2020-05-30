@@ -59,6 +59,14 @@ public class UserHandler {
         return null;
     }
 
+    public Subscriber getSubscriberUser(String username) {
+        for (Subscriber sub: subscribers.values()) {
+            if (sub.getUsername().equals(username))
+                return sub;
+        }
+        return null;
+    }
+
 
     /**
      * get users that are not in owners list

@@ -15,7 +15,7 @@ public abstract class ServiceTest extends TestCase {
 
         Database.sessionId = startSession();
 
-        this.setupSystem("Mock Config", "Mock Config");
+        this.setupSystem("Mock Config", "Mock Config","");
         if(Driver.flag) {
 
             this.setUpUsers();
@@ -112,7 +112,7 @@ public abstract class ServiceTest extends TestCase {
 
     public String viewShopHistory(int sessionId, int storeId){ return bridge.viewShopHistory(sessionId, storeId); }
 
-    public boolean setupSystem(String suppyConfig, String paymentConfig) { return bridge.setupSystem(suppyConfig, paymentConfig); }
+    public boolean setupSystem(String suppyConfig, String paymentConfig,String path) { return bridge.setupSystem(suppyConfig, paymentConfig,path); }
 
     public int startSession() { return this.bridge.startSession(); }
 
