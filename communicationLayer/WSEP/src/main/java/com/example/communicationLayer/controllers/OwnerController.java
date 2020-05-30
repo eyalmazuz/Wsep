@@ -65,6 +65,15 @@ public class OwnerController {
         return new OwnerHandler(sessionId).addStoreOwner(storeId,subId);
     }
 
+    @GetMapping("/approveStoreOwner")
+    @ResponseBody
+    public ActionResultDTO approveStoreOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                         @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new OwnerHandler(sessionId).approveStoreOwner(storeId,subId);
+    }
+
+
     @GetMapping("/addStoreManager")
     @ResponseBody
     public ActionResultDTO addStoreManager(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
