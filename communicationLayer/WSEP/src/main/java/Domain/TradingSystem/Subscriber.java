@@ -30,6 +30,7 @@ public class Subscriber implements UserState {
 
     @DatabaseField
     private boolean isAdmin;
+
     @DatabaseField
     private String country;
 

@@ -330,8 +330,25 @@ public class DAOManager {
 
                 DiscountPolicy fixedDiscountPolicy = loadDiscountPolicy(store.getDiscountPolicy().getId());
                 if (fixedDiscountPolicy != null) store.setDiscountPolicy(fixedDiscountPolicy);
+
+                List<Integer> managerIds = store.getManagerIds();
+                List<Subscriber> managers = new ArrayList<>();
+                for (Integer managerId : managerIds) {
+                    Subscriber manager = loadSubscriber(managerId);
+                    managers.add(manager);
+                }
+                store.setManagers(managers);
             }
             return stores;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Subscriber loadSubscriber(Integer managerId) {
+        try {
+            return subscriberDao.queryForId(Integer.toString(managerId));
         } catch (SQLException e) {
             e.printStackTrace();
         }

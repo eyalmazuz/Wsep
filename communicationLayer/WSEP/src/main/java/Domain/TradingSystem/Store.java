@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import DTOs.*;
 import DataAccess.DAOManager;
 import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -24,7 +25,8 @@ public class Store {
     @ForeignCollectionField(eager = true)
     private ForeignCollection<ProductInStore> products = null;
 
-    // persist this
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private ArrayList<Integer> managerIds;
     private List<Subscriber> managers;
 
     @ForeignCollectionField(eager = true)
@@ -49,7 +51,8 @@ public class Store {
     public Store(){
         this.id = globalId;
         globalId ++;
-        managers = new LinkedList<>();
+        managers = new ArrayList<>();
+        managerIds = new ArrayList<>();
         DAOManager.createProductInStoreListForStore(this);
         buyingPolicy = new BuyingPolicy("None");
         discountPolicy = new DiscountPolicy("None");
@@ -128,8 +131,11 @@ public class Store {
     }
 
     public void addOwner(Subscriber newOwner) {
-        if(newOwner != null)
+        if(newOwner != null) {
             managers.add(newOwner);
+            managerIds.add(newOwner.getId());
+            DAOManager.updateStore(this);
+        }
     }
 
     public List<Subscriber> getManagers() {
@@ -283,6 +289,7 @@ public class Store {
             for(Subscriber s : managers){
                 if (s.getId() == managerToDelete.getId()) {
                     managers.remove(managerToDelete);
+                    managerIds.remove(managerToDelete.getId());
                     break;
                 }
             }
@@ -293,6 +300,7 @@ public class Store {
     //for Testing reasons
     public void clean() {
         managers.clear();
+        managerIds.clear();
         products.clear();
         DAOManager.updateStore(this);
     }
@@ -421,5 +429,13 @@ public class Store {
 
     public int hashCode() {
         return id;
+    }
+
+    public List<Integer> getManagerIds() {
+        return managerIds;
+    }
+
+    public void setManagers(List<Subscriber> managers) {
+        this.managers = managers;
     }
 }
