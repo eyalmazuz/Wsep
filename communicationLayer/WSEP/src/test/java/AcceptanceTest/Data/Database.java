@@ -19,6 +19,7 @@ public class Database {
             {"riko", "12345"},
             {"you", "12345"},
             {"mari", "12345"},
+            {"iggy", "12345"},
     };
 
     public static Map<String, Integer> userToId = new HashMap<String, Integer>();

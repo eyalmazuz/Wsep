@@ -7,8 +7,10 @@ import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,14 +104,15 @@ public class System {
     }
 
 
-    public ActionResultDTO setup(String supplyConfig, String paymentConfig){
+    public ActionResultDTO setup(String supplyConfig, String paymentConfig , String filePath){
 
-        // TODO: INITIALIZE PRODUCT INFOS LIST
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
         userHandler.setAdmin();
         try {
             setSupply(supplyConfig);
             setPayment(paymentConfig);
+            if(!filePath.equals(""))
+                parseFile(filePath);
         }
         catch(Exception e){
             logger.error(e.getMessage());
@@ -117,6 +120,81 @@ public class System {
         }
 //        instance = this;
         return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
+    }
+
+    private void parseFile(String filePath) throws Exception {
+
+        if (filePath!= null){
+            int sessionId = startSession().getId();
+            int storeId;
+            File file = new File(filePath);
+            Scanner fileScanner = new Scanner(file);
+            while(fileScanner.hasNextLine()){
+                String command = fileScanner.nextLine();
+                String action = command.substring(0,command.indexOf("("));
+                String[] args = command.substring(command.indexOf("(")+1,command.indexOf(")")).split(",");
+                switch (action){
+                    case "register":
+                        register(sessionId,args[0],"123");
+                        break;
+                    case "login":
+                        login(sessionId,args[0],"123");
+                        break;
+                    case "logout" :
+                        logout(sessionId);
+                        break;
+                    case "set-admin":
+                        setAdmin(args[0]);
+                        break;
+                    case "open-store":
+                        login(sessionId,args[0],"123");
+                        storeId = openStore(sessionId).getId();
+                        setStoreName(storeId,args[1]);
+                        break;
+                    case "appoint-manager":
+                        //appoint-manager(<Manager-name>,<Store-name>,<New Manager name>,<Details>);
+                        login(sessionId,args[0],"123");
+                        storeId = getStoreByName(args[1]);
+                        int managerId = userHandler.getSubscriberUser(args[2]).getId();
+                        addStoreManager(sessionId,storeId,managerId);
+                        setManagerDetalis(sessionId,managerId,storeId,args[3]);
+                        break;
+                    case "add-product":
+                        //add-product(<manager-name>,<store-name>,<product-name>,<amount>,<price>);
+                        login(sessionId,args[0],"123");
+                        storeId = getStoreByName(args[1]);
+                        int productInfo = addProductInfo(-1,args[2],"",Integer.valueOf(args[4])).getId();
+                        addProductToStore(sessionId,storeId,productInfo,Integer.valueOf(args[3]));
+                        break;
+
+                    default:
+                        throw new SyntaxException("Wrong syntax");
+
+
+                }
+            }
+
+        }
+    }
+
+    public int getStoreByName(String name) {
+        for(Integer storeId : stores.keySet()){
+            if (stores.get(storeId).getName().equals(name)){
+                return storeId;
+            }
+        }
+        return -1;
+    }
+
+    private void setStoreName(int storeId, String name) {
+        getStoreById(storeId).setName(name);
+    }
+
+    private void setAdmin(String username) {
+        Subscriber subscriber = userHandler.getSubscriberUser(username);
+        if(subscriber!=null){
+            subscriber.setAdmin();
+        }
     }
 
     public IntActionResultDto startSession(){
@@ -313,24 +391,49 @@ public class System {
 
 
     public ActionResultDTO addStoreOwner (int sessionId, int storeId, int subId) {
-        logger.info("getAvailableUsersToOwn: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
+        logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
+        Subscriber owner = (Subscriber)u.getState();
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
-        Store s = getStoreById(storeId);
-        if(s!=null)
+        Store store = getStoreById(storeId);
+        if(store!=null)
         {
-            if(newOwner.addPermission(s, (Subscriber) u.getState(), "Owner")){
-                s.addOwner(newOwner);
-
-                return new ActionResultDTO(ResultCode.SUCCESS, null);
+            List<Integer> owners = store.getOwners().stream().map(Subscriber::getId).collect(Collectors.toList());
+            GrantingAgreement agreement = new GrantingAgreement(storeId,owner.getId(),newOwner.getId(),owners);
+            if(agreement.allAproved()){
+            if (setStoreOwner(owner, newOwner, store))
+                return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+            }
+            else{
+                if(store.addAgreement(agreement)) {
+                    notifyAndUpdate(owners, "New Malshab Waits to your approval in store " + storeId);
+                    return new ActionResultDTO(ResultCode.SUCCESS, "Granting agreement has been created");
+                }
+                else {
+                    return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "user have already pending agreemant");
+                }
             }
 
         }
 
 
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
+    }
+
+    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+        if(newOwner.addPermission(store, owner, "Owner")){
+            store.addOwner(newOwner);
+
+            List<Integer> id = new ArrayList<>();
+            id.add(newOwner.getId());
+            if(publisher!=null) {
+               notifyAndUpdate(id,"You are now store owner of store " + store.getId());
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean subIsOwner(int subId,int storeId) {
@@ -350,12 +453,17 @@ public class System {
 
     public ActionResultDTO addStoreManager (int sessionId, int storeId, int userId) {
         User u = userHandler.getUser(sessionId);
+        Subscriber subscriber = (Subscriber)u.getState();
+        if(!(subscriber.hasOwnerPermission(storeId) || subscriber.hasManagerPermission(storeId)))
+            return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "grantor is not manager on store! OMG!.");
+
         logger.info("addStoreManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified user is invalid.");
         Store store = getStoreById(storeId);
         if (store != null) {
+
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
                 store.addOwner(newManager);
 
@@ -381,13 +489,16 @@ public class System {
             if (u != null) {
                 Subscriber managerToDelete = userHandler.getSubscriber(userId);
                 if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
-                    Store store = getStoreById(storeId);
-                    if (store != null) {
-                        managerToDelete.removePermission(store, "Manager");
-                        store.removeManger(managerToDelete);
+
+                        managerToDelete.removeManagment(storeId);
+                        List<Integer> id = new ArrayList<>();
+
+                        id.add(managerToDelete.getId());
+                        if(publisher!= null)
+                            notifyAndUpdate(id,"You got deleted from store "+storeId);
 
                         return new ActionResultDTO(ResultCode.SUCCESS, null);
-                    }
+
                 }
                 return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
             }
@@ -523,6 +634,7 @@ public class System {
 
     // Usecase 2.3
     public boolean login(int sessionId, String username, String password) {
+        logger.info(String.format("Login : SeesionId %d , username %s",sessionId,username));
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return false;
 
@@ -816,15 +928,26 @@ public class System {
         return userHandler.getUser(sessionId);
     }
 
-    public ActionResultDTO addProductInfo(int id, String name, String category, double basePrice) {
+    public IntActionResultDto addProductInfo(int id, String name, String category, double basePrice) {
+        if(id<0){
+            id = getMaxId()+1;
+        }
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
         if (products.get(id) != null) {
-            return new ActionResultDTO(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists");
+            return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
         }
         products.put(id,productInfo);
         DAOManager.createProductInfo(productInfo);
-        return new ActionResultDTO(ResultCode.SUCCESS,"Product "+id+" added to system");
+        return new IntActionResultDto(ResultCode.SUCCESS,"Product "+id+" added to system",id);
+    }
+
+    private int getMaxId() {
+        Set<Integer> ids = products.keySet();
+        if(ids.size() == 0){
+            return 0;
+        }
+        return Collections.max(ids);
     }
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
@@ -896,7 +1019,8 @@ public class System {
             List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
             Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
-            publisher.notify(managers,notification);
+            if(publisher!=null)
+                publisher.notify(managers,notification);
         }
     }
 
@@ -1145,5 +1269,90 @@ public class System {
 
     public void clearDatabase() {
         DAOManager.clearDatabase();
+    }
+
+    public ActionResultDTO deleteOwner(int sessionId, int storeId, int userId) {
+        logger.info("deleteOwner: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
+        User u = userHandler.getUser(sessionId);
+
+        if(isSubscriber(sessionId)) {
+            Subscriber subscriber = (Subscriber) u.getState();
+
+            if (u != null) {
+                Subscriber ownerToDelete = userHandler.getSubscriber(userId);
+                if (ownerToDelete != null && !subscriber.equals(ownerToDelete)) {
+                    if (ownerToDelete.isGrantedBy(storeId, subscriber.getId())) {
+
+                       List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
+                       if(publisher!=null)
+                        notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
+                       handleGrantingAgreements(storeId);
+                       return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
+                    } else {
+                        return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
+                    }
+                }
+                return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
+            }
+        }
+        return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Invalid user.");
+    }
+
+    /**
+     * check all granting agreements and if any of them is aprroved finish him.
+     * @param storeId
+     */
+    private void handleGrantingAgreements(int storeId) {
+        Store store = getStoreById(storeId);
+        if(store != null){
+            Collection<GrantingAgreement> agreements = store.getAllAgreemnt();
+            for (GrantingAgreement agreement : agreements){
+                if (agreement.allAproved()){
+                    Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());
+                    Subscriber newOwner = userHandler.getSubscriber(agreement.getMalshabId());
+                    if (setStoreOwner(grantor, newOwner, store)) {
+                        store.removeAgreement(agreement.getMalshabId());
+                    }
+
+                }
+            }
+        }
+    }
+
+    private void notifyAndUpdate(List<Integer> users, String message){
+        Notification notification = new Notification(notificationId++,message);
+        for(Integer subId : users){
+            Subscriber s = userHandler.getSubscriber(subId);
+            if(s!=null){
+                s.setNotification(notification);
+            }
+        }
+        if(publisher!=null)
+            publisher.notify(users,message);
+    }
+
+    public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
+        Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
+        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Store store = getStoreById(storeId);
+        if(store != null){
+            if(store.approveMalshab(owner.getId(),subId)){
+                if(store.allAproved(subId)){
+                    if (setStoreOwner(owner, newOwner, store)) {
+                        store.removeAgreement(subId);
+                        return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                    }
+                }
+                else{
+                    return new ActionResultDTO(ResultCode.SUCCESS,"approve succeed, wait for other owners decision");
+                }
+            }
+            else{
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreemant not exist");
+            }
+        }
+
+
+        return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 }

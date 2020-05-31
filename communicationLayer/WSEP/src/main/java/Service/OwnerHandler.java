@@ -239,4 +239,17 @@ public class OwnerHandler {
     public DiscountPolicyActionResultDTO viewDiscountPolicies(int sessionId, int storeId) {
         return s.getDiscountPolicyDetails(storeId);
     }
+
+    public ActionResultDTO deleteOwner(int storeId, int userId) {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
+        if (!s.subIsOwner(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+
+        return s.deleteOwner(sessionId,storeId,userId);
+    }
+
+    public ActionResultDTO approveStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        return s.approveStoreOwner(sessionId,storeId,subId);
+    }
 }

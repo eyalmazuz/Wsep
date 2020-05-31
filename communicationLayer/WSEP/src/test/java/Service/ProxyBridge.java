@@ -4,9 +4,9 @@ public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig){
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path){
         if (rb != null){
-            return rb.setupSystem(supplyConfig, paymentConfig);
+            return rb.setupSystem(supplyConfig, paymentConfig,path);
         }
         else{
             return false;
@@ -251,6 +251,14 @@ public class ProxyBridge implements Bridge {
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy) {
         if(rb != null){
             return rb.changeBuyingPolicy(sessionId, flag, storeId, newPolicy);
+        }
+        else return false;
+    }
+
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        if(rb != null){
+            return rb.removeOwner(sessionId,storeId,userId);
         }
         else return false;
     }

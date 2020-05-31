@@ -12,6 +12,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class SystemTests extends TestCase {
@@ -23,6 +26,16 @@ public class SystemTests extends TestCase {
     public void setUp() {
         test = new System();
         DAOManager.clearDatabase();
+        Publisher publisherMock = new Publisher(new MessageBroker() {
+
+            @Override
+            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
+
+                return null;
+            }
+        });
+        test.setPublisher(publisherMock);
+
     }
 
     @After
@@ -105,7 +118,11 @@ public class SystemTests extends TestCase {
     @Test
     public void testUpdateStoreSupplies() {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        test.register(sessionId, "eyal", "1234");
+        test.login(sessionId, "eyal", "1234");
+        int store1Id = test.openStore(sessionId).getId();
+        Store store1 = test.getStoreById(store1Id);
+
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -771,15 +788,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testAddProductUpdateNotification(){
         int counter;
-        Publisher publisherMock = new Publisher(new MessageBroker() {
 
-            @Override
-            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
-
-                return null;
-            }
-        });
-        test.setPublisher(publisherMock);
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
         test.login(openerSessionId,"Amir","1234");
@@ -793,7 +802,199 @@ public class SystemTests extends TestCase {
         Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
         assertEquals(1,noties.size());
 
+    }
+
+    /**
+     * Simple owner deletion.
+     */
+    @Test
+    public void testDeleteOwnerSingleManager(){
+        //Set up data
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        int managerId = test.register(firstId,"mo","1234").getId();
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(firstId,storeId,ownerId);
+        test.logout(firstId);
+        test.login(firstId,"bob","1234");
+        test.addStoreManager(firstId,storeId,managerId);
+        test.logout(firstId);
+
+        //do action
+        test.login(firstId,"amir","1234");
+        test.deleteOwner(firstId,storeId,ownerId);
+
+        //Test
+        assertEquals(1,store.getAllManagers().size());
 
 
+    }
+
+    /**
+     * Complex Owner deletion (Owner inside Owner)
+     */
+    public void testDeleteOwnerMultyManager(){
+        //Set up data
+        int firstId = test.startSession().getId();
+
+        test.register(firstId,"amir","1234");
+        int bobId = test.register(firstId,"bob","1234").getId();
+        int moId = test.register(firstId,"mo","1234").getId();
+        int larryId = test.register(firstId,"larry","1234").getId();
+
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(firstId,storeId,bobId);
+        test.logout(firstId);
+
+        test.login(firstId,"bob","1234");
+        test.addStoreOwner(firstId,storeId,moId);
+        test.logout(firstId);
+
+        test.login(firstId,"mo","1234");
+        test.addStoreManager(firstId,storeId,larryId);
+        test.logout(firstId);
+
+        //do action
+        test.login(firstId,"amir","1234");
+        test.deleteOwner(firstId,storeId,bobId);
+
+        //Test
+        assertEquals(1,store.getAllManagers().size());
+
+        Subscriber larry = test.getUserHandler().getSubscriber(larryId);
+        assertNull(larry.getPermission(storeId));
+
+
+    }
+
+    /**
+     * Checks that remove not exising manager results in failure
+     */
+    @Test
+    public void testDeleteOwnerNotExisting(){
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        Store store = test.getStoreById(storeId);
+        assertEquals(ResultCode.ERROR_STORE_MANAGER_MODIFICATION,test.deleteOwner(firstId,storeId,99).getResultCode());
+
+
+    }
+
+    /**
+     * Checks if notificationQueue of removed manager has been increased
+     */
+    @Test
+    public void testDeleteOwnerNotification(){
+        //Set up data
+        int firstId = test.startSession().getId();
+        test.register(firstId,"amir","1234");
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        Subscriber bob = test.getUserHandler().getSubscriber(ownerId);
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        test.addStoreOwner(firstId,storeId,ownerId);
+
+        //Do action
+        int preNotifications = bob.getAllNotification().size();
+        test.deleteOwner(firstId,storeId,ownerId);
+        int postNotifications = bob.getAllNotification().size();
+
+        //Test
+        assertEquals(1,postNotifications-preNotifications);
+
+
+    }
+
+    /**
+     * Checks if removing owner not granted by yourself cause error
+     */
+    @Test
+    public void testDeleteOwnerNotGrantedBy(){
+        int firstId = test.startSession().getId();
+        int masterId = test.register(firstId,"amir","1234").getId();
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        test.login(firstId,"amir","1234");
+        int storeId = test.openStore(firstId).getId();
+        test.addStoreOwner(firstId,storeId,ownerId);
+        test.logout(firstId);
+
+        test.login(firstId,"bob","1234");
+        assertEquals(ResultCode.ERROR_DELETE,test.deleteOwner(firstId,storeId,masterId).getResultCode());
+
+    }
+
+
+    @Test
+    public void testSetupConfigFileOpenStore(){
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("register(bob);\nopen-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        test.setup("123","123","testFile.txt");
+        assertTrue(test.getStoreByName("bob-store") >= 0);
+
+
+    }
+
+    @Test
+    public void testSetupConfigFileSyntaxError(){
+
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("registerfsdfsfsd(bob);\nopen-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    @Test
+    public void testSetupConfigFileLogicError(){
+        //Test that commands who fail on the system will fail the setup,
+        // open store with none registered user:
+        try {
+            FileWriter file = new FileWriter("testFile.txt",false);
+            file.write("open-store(bob,bob-store);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    /*
+    a. Register users u1,u2,u3,u4,u5,u6.
+    b. Make u1 admin.
+    c. u2 open store s1.
+    d. u2 add item “diapers” to store s1 with cost 30 and quantity 20.
+    e. u2 appoint u3 to a store manager with permission to manage inventory.
+    f. u3 appoint u5 and u5 appoint u6 to a store manager.
+     */
+    @Test
+    public void testSetupRequirmentsFile(){
+        try {
+            FileWriter file = new FileWriter("initFile.txt",false);
+            file.write("register(u1);\nregister(u2);\nregister(u3);\nregister(u4);\nregister(u5);\nregister(u6);\n"+
+                    "set-admin(u1);\nopen-store(u2,s1);\nadd-product(u2,s1,diapers,20,30);\n"+
+                    "appoint-manager(u2,s1,u3,manage-inventory);\nappoint-manager(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        test.setup("123","123","initFile.txt");
+        assertEquals(4,test.getStoreById(test.getStoreByName("s1")).getAllManagers().size());
     }
 }

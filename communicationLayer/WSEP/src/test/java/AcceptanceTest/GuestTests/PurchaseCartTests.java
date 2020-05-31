@@ -40,7 +40,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseSuccessful(){
 
-        setupSystem("Mock Config", "Mock Config");
+        setupSystem("Mock Config", "Mock Config","");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "chika", "12345");
@@ -56,7 +56,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseFailureBadPolicy(){
 
-        setupSystem("Mock Config", "Mock Config");
+        setupSystem("Mock Config", "Mock Config","");
         Database.sessionId = startSession();
 
         login(Database.sessionId, "chika", "12345");
@@ -73,7 +73,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseFailureNotEnoughItemsInStore(){
 
-        setupSystem("Mock Config", "Mock Config");
+        setupSystem("Mock Config", "Mock Config","");
         Database.sessionId = startSession();
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
@@ -85,7 +85,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseFailureInvalidDetails(){
 
-        setupSystem("Mock Config", "Mock Config");
+        setupSystem("Mock Config", "Mock Config","");
         Database.sessionId = startSession();
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
@@ -97,7 +97,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseFailedSupplySystem(){
 
-        setupSystem("No supplies", "Mock Config");
+        setupSystem("No supplies", "Mock Config","");
         Database.sessionId = startSession();
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
@@ -108,7 +108,7 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseFailedPaymentSystem(){
 
-        setupSystem("Mock Config", "No payments");
+        setupSystem("Mock Config", "No payments","");
         Database.sessionId = startSession();
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);

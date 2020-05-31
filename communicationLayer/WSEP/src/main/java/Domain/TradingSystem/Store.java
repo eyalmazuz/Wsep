@@ -8,6 +8,9 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,6 +24,9 @@ public class Store {
 
     @DatabaseField(id = true)
     private int id;
+    private String name;
+    private List<ProductInStore> products;
+    private Map<Integer,GrantingAgreement> malshab2granting;//Id->agreement
 
     @ForeignCollectionField(eager = true)
     private ForeignCollection<ProductInStore> products = null;
@@ -50,6 +56,7 @@ public class Store {
 
     public Store(){
         this.id = globalId;
+        this.name = "";
         globalId ++;
         managers = new ArrayList<>();
         managerIds = new ArrayList<>();
@@ -58,6 +65,7 @@ public class Store {
         discountPolicy = new DiscountPolicy("None");
 
         DAOManager.createPurchaseHistoryForStore(this);
+        malshab2granting = new ConcurrentHashMap<>();
         //storePurchaseHistory = new StorePurchaseHistory(this);
     }
 
@@ -293,6 +301,16 @@ public class Store {
                     break;
                 }
             }
+            for(Integer malshabId : malshab2granting.keySet()){
+                GrantingAgreement agreement = malshab2granting.get(malshabId);
+                if(agreement.getGrantorId()==managerToDelete.getId()){
+                    malshab2granting.remove(malshabId);
+                    continue;
+                }
+                else{
+                    agreement.removeApprove(managerToDelete.getId());
+                }
+            }
         }
         DAOManager.updateStore(this);
     }
@@ -437,5 +455,59 @@ public class Store {
 
     public void setManagers(List<Subscriber> managers) {
         this.managers = managers;
+    }
+    /*
+        The function recieves a subscriber and return list of store managers who granted by that subscriber
+     */
+    public List<Subscriber> getAllGrantedBy(Subscriber subscriber) {
+        List<Subscriber> result = new ArrayList<>();
+        for(Subscriber manager : getAllManagers()){
+           if( manager.isGrantedBy(getId(),subscriber.getId()))
+            result.add(manager);
+        }
+        return result;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean addAgreement(GrantingAgreement agreement) {
+        int id =agreement.getMalshabId();
+        if(malshab2granting.get(id) == null) {
+            malshab2granting.put(agreement.getMalshabId(), agreement);
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean approveMalshab(int grantorid, int malshabId) {
+        GrantingAgreement agreement = malshab2granting.get(malshabId);
+        if(agreement!=null){
+           return agreement.approve(grantorid);
+        }
+        return false;
+
+    }
+
+    public boolean allAproved(int malshabId) {
+        GrantingAgreement agreement = malshab2granting.get(malshabId);
+        if(agreement!=null){
+            return agreement.allAproved();
+        }
+        return false;
+    }
+
+    public void removeAgreement(int subId) {
+        malshab2granting.remove(subId);
+    }
+
+    public Collection<GrantingAgreement> getAllAgreemnt(){
+        return malshab2granting.values();
     }
 }

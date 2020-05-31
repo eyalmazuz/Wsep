@@ -16,7 +16,7 @@ public abstract class ServiceTest extends TestCase {
 
         Database.sessionId = startSession();
 
-        this.setupSystem("Mock Config", "Mock Config");
+        this.setupSystem("Mock Config", "Mock Config","");
         DAOManager.clearDatabase();
         if(Driver.flag) {
 
@@ -88,6 +88,8 @@ public abstract class ServiceTest extends TestCase {
 
     public boolean removeManager(int sessionId, int storeId, int userId) { return bridge.removeManager(sessionId, storeId, userId); }
 
+    public boolean removeOwner(int sessionId, int storeId, int userId) { return bridge.removeOwner(sessionId, storeId, userId); }
+
     public boolean editManagerOptions(int sessionId, int storeId, int userId, String option){ return bridge.editManagerOptions(sessionId, storeId, userId, option); }
 
     public String searchProducts(int sessionId, String productName, String category, String[] keywords, int productRating, int storeRating, int priceFrom, int priceTo){
@@ -112,7 +114,7 @@ public abstract class ServiceTest extends TestCase {
 
     public String viewShopHistory(int sessionId, int storeId){ return bridge.viewShopHistory(sessionId, storeId); }
 
-    public boolean setupSystem(String suppyConfig, String paymentConfig) { return bridge.setupSystem(suppyConfig, paymentConfig); }
+    public boolean setupSystem(String suppyConfig, String paymentConfig,String path) { return bridge.setupSystem(suppyConfig, paymentConfig,path); }
 
     public int startSession() { return this.bridge.startSession(); }
 

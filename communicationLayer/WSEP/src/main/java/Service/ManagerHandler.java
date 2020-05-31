@@ -23,7 +23,7 @@ public class ManagerHandler {
 
     public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount, double basePrice) {
         if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
-            ActionResultDTO addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
+            IntActionResultDto addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }

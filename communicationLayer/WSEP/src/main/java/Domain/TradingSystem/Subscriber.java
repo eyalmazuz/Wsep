@@ -228,7 +228,7 @@ public class Subscriber implements UserState {
     public boolean isGrantedBy(int storeId, int grantorId) {
 
         Permission permission = permissions.get(storeId);
-        return permission!=null && permission.getGrantor().getId() == grantorId;
+        return permission!=null && permission.getGrantor()!=null && permission.getGrantor().getId() == grantorId;
 
     }
 
@@ -348,5 +348,30 @@ public class Subscriber implements UserState {
 
     public void setStorePurchaseLists(HashMap<Store, List<PurchaseDetails>> storePurchaseLists) {
         this.storePurchaseLists = storePurchaseLists;
+    }
+
+    public List<Integer> removeOwnership(int storeId) {
+        Store store = getPermission(storeId).getStore();
+        List<Integer> removed = new ArrayList<>();
+        List<Subscriber> grantedBy = store.getAllGrantedBy(this);
+        for(Subscriber manager: grantedBy){
+            if(manager.hasOwnerPermission(storeId)){
+                removed.addAll(manager.removeOwnership(storeId));
+            }
+            else if(manager.hasManagerPermission(storeId)){
+                manager.removeManagment(storeId);
+                removed.add(manager.getId());
+            }
+        }
+        removePermission(store,"Owner");
+        store.removeManger(this);
+        removed.add(this.getId());
+        return removed;
+    }
+
+    public void removeManagment(int storeId) {
+        Store store = getPermission(storeId).getStore();
+        removePermission(store,"Manager");
+        store.removeManger(this);
     }
 }

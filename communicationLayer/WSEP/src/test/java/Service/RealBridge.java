@@ -7,9 +7,9 @@ import DTOs.UserPurchaseHistoryDTO;
 
 public class RealBridge implements Bridge {
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig) {
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path) {
         SessionHandler dc = new SessionHandler();
-        return dc.setup(supplyConfig, paymentConfig).getResultCode() == ResultCode.SUCCESS;
+        return dc.setup(supplyConfig, paymentConfig,path).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean login(int sessionId, String username, String password) {
@@ -180,6 +180,12 @@ public class RealBridge implements Bridge {
             ManagerHandler mh = new ManagerHandler(sessionId);
             return mh.changeBuyingPolicy(storeId, newPolicy).getResultCode() == ResultCode.SUCCESS;
         }
+    }
+
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.deleteOwner(storeId,userId).getResultCode() == ResultCode.SUCCESS;
     }
 
 }
