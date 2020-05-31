@@ -250,4 +250,8 @@ public class ShoppingCart {
         }
         else nonPersistentShoppingBaskets = new ArrayList<>(persistentShoppingBaskets);
     }
+
+    public void setUser(User u) {
+        this.user = u;
+    }
 }

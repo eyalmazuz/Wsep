@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class DatabaseTests extends TestCase {
@@ -370,7 +371,7 @@ public class DatabaseTests extends TestCase {
         int sessionId = test.startSession().getId();
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 40);
 
-        test.getUser(sessionId).setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
 
         ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
         ShoppingBasket basket = cart.getBaskets().get(0);
@@ -383,9 +384,9 @@ public class DatabaseTests extends TestCase {
         basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
 
-        // make sure its re-loaded when logging in
-        test.getUser(sessionId).setState(new Subscriber());
-        cart = DAOManager.loadAllShoppingCarts().get(0);
+        // make sure its still there
+        test.login(sessionId, "user", "passw0rd");
+        cart = test.getUser(sessionId).getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 45);
     }
@@ -454,15 +455,16 @@ public class DatabaseTests extends TestCase {
         test.getStoreById(storeId).addProduct(test.getProductInfoById(1), 40);
         int sessionId = test.startSession().getId();
 
-        test.getUser(sessionId).setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 10);
         test.savePurchaseHistory(sessionId);
 
         Subscriber subscriber = DAOManager.loadAllSubscribers().get(0);
-        UserPurchaseHistory history = subscriber.getUserPurchaseHistory();
-        assertEquals(history.getStorePurchaseLists().keySet().iterator().next(), test.getStoreById(storeId));
-        assertEquals(history.getStorePurchaseLists().get(test.getStoreById(storeId)).size(), 1);
-        PurchaseDetails details = history.getStorePurchaseLists().get(test.getStoreById(storeId)).get(0);
+        Map<Store, List<PurchaseDetails>> history = subscriber.getStorePurchaseLists();
+        assertEquals(history.keySet().iterator().next(), test.getStoreById(storeId));
+        assertEquals(history.get(test.getStoreById(storeId)).size(), 1);
+        PurchaseDetails details = history.get(test.getStoreById(storeId)).get(0);
         assertEquals(details.getProducts().size(), 1);
         assertEquals((int)details.getProducts().get(test.getProductInfoById(1)), 10);
         assertEquals(details.getStore(), test.getStoreById(storeId));
@@ -655,5 +657,59 @@ public class DatabaseTests extends TestCase {
         assertTrue(innerSimple2 instanceof ProductDiscount.CategorySaleDiscount);
         assertEquals(innerSimple1.toString(), "20.0% sale on product ID 1");
         assertEquals(innerSimple2.toString(), "70.0% sale on the whatcategory category");
+    }
+
+    @Test
+    public void testSubscriberPermissionPersistence1() {
+        int sessionId = test.startSession().getId();
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+
+        int sessionId2 = test.startSession().getId();
+        User u2 = test.getUser(sessionId2);
+        u2.setState(new Subscriber());
+        Subscriber subState = (Subscriber) u2.getState();
+        subState.addPermission(store, (Subscriber) u.getState(), "Manager");
+
+        List<Subscriber> subscribers = DAOManager.loadAllSubscribers();
+        Subscriber storeOwner = subscribers.get(0);
+        Subscriber storeManager = subscribers.get(1);
+
+        Permission ownerPermission = storeOwner.getPermission(storeId);
+        assertNotNull(ownerPermission);
+        assertEquals(ownerPermission.getType(), "Owner");
+        assertNull(ownerPermission.getGrantor());
+        assertEquals(ownerPermission.getStore().getId(), storeId);
+        assertEquals(ownerPermission.getDetails(), "Simple");
+
+        Permission managerPermission = storeManager.getPermission(storeId);
+        assertNotNull(managerPermission);
+        assertEquals(managerPermission.getType(), "Manager");
+        assertEquals(managerPermission.getGrantor(), u.getState());
+        assertEquals(managerPermission.getStore().getId(), storeId);
+        assertEquals(managerPermission.getDetails(), "Simple");
+    }
+
+    @Test
+    public void testSubscriberPermissionPersistence2() {
+        int sessionId = test.startSession().getId();
+        User u = test.getUser(sessionId);
+        u.setState(new Subscriber());
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+
+        int sessionId2 = test.startSession().getId();
+        User u2 = test.getUser(sessionId2);
+        u2.setState(new Subscriber());
+        Subscriber subState = (Subscriber) u2.getState();
+        subState.addPermission(store, (Subscriber) u.getState(), "Manager");
+        subState.removePermission(store, "Manager");
+
+        Subscriber storeManager = DAOManager.loadAllSubscribers().get(1);
+
+        Permission managerPermission = storeManager.getPermission(storeId);
+        assertNull(managerPermission);
     }
 }

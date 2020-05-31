@@ -110,8 +110,8 @@ public class User {
         return shoppingCart;
     }
 
-    public UserPurchaseHistory getHistory () {
-        return state.getHistory();
+    public String getHistory () {
+        return state.getPurchaseHistory();
     }
 
 /*TODO:Fix test to be on system only
@@ -159,10 +159,6 @@ public class User {
         state.addPurchase(storePurchaseDetailsMap);
     }
 
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return state.getUserPurchaseHistory();
-    }
-
     public boolean updateStoreSupplies() {
         return shoppingCart.updateStoreSupplies();
     }
@@ -189,6 +185,10 @@ public class User {
 
     public String getCountry() {
         return country;
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return state.getStorePurchaseLists();
     }
 }
 

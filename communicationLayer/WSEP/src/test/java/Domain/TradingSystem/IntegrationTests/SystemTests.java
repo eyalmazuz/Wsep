@@ -89,7 +89,7 @@ public class SystemTests extends TestCase {
 
         u.setState(new Subscriber());  // so it should indeed be saved
         u.saveCurrentCartAsPurchase();
-        Map<Store, List<PurchaseDetails>> map = u.getUserPurchaseHistory().getStorePurchaseLists();
+        Map<Store, List<PurchaseDetails>> map = u.getStorePurchaseLists();
         assertNotNull(map.get(store1));
         assertEquals(map.get(store1).size(), 1);
         PurchaseDetails details = map.get(store1).get(0);
@@ -189,7 +189,7 @@ public class SystemTests extends TestCase {
         test.savePurchaseHistory(sessionId); // this saves history, now we wanna see it gone
 
         test.restoreHistories(sessionId);
-        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+        assertTrue(u.getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -277,10 +277,10 @@ public class SystemTests extends TestCase {
         test.removeOngoingPurchase(sessionId);
 
         // check state
-        assertTrue(!u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+        assertTrue(!u.getStorePurchaseLists().isEmpty() &&
                 !store1.getStorePurchaseHistory().isEmpty() &&
                 store1.getProductAmount(4) == 1 &&
-                 u.getShoppingCart().isEmpty() && !u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+                 u.getShoppingCart().isEmpty() && !u.getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -354,7 +354,7 @@ public class SystemTests extends TestCase {
     }
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
-        return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+        return u.getStorePurchaseLists().isEmpty() &&
             store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
             u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;

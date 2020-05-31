@@ -2,13 +2,11 @@ package Domain.TradingSystem;
 
 import DTOs.Notification;
 import DataAccess.DAOManager;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @DatabaseTable(tableName = "subscribers")
@@ -21,6 +19,7 @@ public class Subscriber implements UserState {
     private int id;
 
     private Map <Integer,Permission> permissions; //StoreId -> Permission
+
     private User user;
 
     @DatabaseField(unique = true)
@@ -34,29 +33,27 @@ public class Subscriber implements UserState {
     @DatabaseField
     private String country;
 
-    @DatabaseField (foreign = true)
-    private UserPurchaseHistory userPurchaseHistory;
+    private HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
+
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private HashMap<Integer, List<Integer>> storePurchaseListsPrimitive = new HashMap<>();
+
     private Queue<Notification> notificationQueue ;
     private Object permissionLock;
 
     public Subscriber() {
-        userPurchaseHistory = new UserPurchaseHistory(id);
+        notificationQueue = new ConcurrentLinkedDeque<>();
         permissions = new HashMap<>();
         permissionLock = new Object();
+        this.id = idCounter;
+        idCounter++;
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
+        this();
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.isAdmin = isAdmin;
-        this.id = idCounter;
-        idCounter++;
-        permissions = new HashMap<>();
-        // FIX for acceptance tests
-        userPurchaseHistory = new UserPurchaseHistory(id);
-        permissionLock = new Object();
-        notificationQueue = new ConcurrentLinkedDeque<>();
-
 
     }
 
@@ -98,8 +95,16 @@ public class Subscriber implements UserState {
 
     }
 
-    public UserPurchaseHistory getHistory() {
-        return userPurchaseHistory;
+    public String getPurchaseHistory() {
+        String output = "";
+        for (Map.Entry<Store, List<PurchaseDetails>> purchase: storePurchaseLists.entrySet()) {
+            output += "Basket Purchase for store ID: " + purchase.getKey().getId() + "\n";
+            for(PurchaseDetails p: purchase.getValue()){
+                output += p.toString() + "\n";
+            }
+
+        }
+        return output;
     }
 
     @Override
@@ -123,6 +128,10 @@ public class Subscriber implements UserState {
         this.country = country;
     }
 
+    @Override
+    public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
+        return storePurchaseListsPrimitive;
+    }
 
 
     /**
@@ -138,13 +147,7 @@ public class Subscriber implements UserState {
         Permission p = permissions.get(store_id);
 
         return (p!=null && p.hasPrivilage(type));
-        
-
     }
-
-
-
-
 
     public void removePermission(Store store, String type) {
 
@@ -155,6 +158,9 @@ public class Subscriber implements UserState {
                 permissions.remove(store.getId());
             }
         }
+
+        DAOManager.updateSubscriber(this);
+        DAOManager.removePermission(permission);
 
     }
 
@@ -199,6 +205,7 @@ public class Subscriber implements UserState {
                     Permission newPermission = new Permission(this, grantor, type, store);
                     permissions.put(store.getId(), newPermission);
                     DAOManager.addPermission(newPermission);
+                    DAOManager.updateSubscriber(this);
                     return true;
                 }
             }
@@ -234,12 +241,24 @@ public class Subscriber implements UserState {
     }
 
 
-
-
-
     @Override
     public void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails) {
-        userPurchaseHistory.addPurchase(storePurchaseDetails);
+        for (Store store : storePurchaseDetails.keySet()) {
+            PurchaseDetails purchaseDetails = storePurchaseDetails.get(store);
+
+            if (storePurchaseLists.containsKey(store)) {
+                storePurchaseLists.get(store).add(purchaseDetails);
+                storePurchaseListsPrimitive.get(store.getId()).add(purchaseDetails.getId());
+            } else {
+                List<PurchaseDetails> detailsList = new ArrayList<>();
+                detailsList.add(purchaseDetails);
+                storePurchaseLists.put(store, detailsList);
+                List<Integer> detailsListIds = new ArrayList<>();
+                for (PurchaseDetails details : detailsList) detailsListIds.add(details.getId());
+                storePurchaseListsPrimitive.put(store.getId(), detailsListIds);
+            }
+        }
+        DAOManager.updateSubscriber(this);
     }
 
     public void overridePermission(String type, Store store, String details) {
@@ -248,22 +267,30 @@ public class Subscriber implements UserState {
             permission = permissions.get(store.getId()); //in case that another process removes the permission
             if (permission != null && permission.getType().equals(type)) {
                 permission.setDetails(details);
+                DAOManager.updatePermission(permission);
             }
         }
+        DAOManager.updateSubscriber(this);
+
     }
 
 
     public void removeLastHistoryItem(List<Store> stores) {
-        userPurchaseHistory.removeLastItem(stores);
+        for (Store store : stores) {
+            List<PurchaseDetails> detailsList = storePurchaseLists.get(store);
+            if (detailsList != null) {
+                detailsList.remove(detailsList.size() - 1);
+                if (detailsList.isEmpty()) {
+                    storePurchaseLists.remove(store);
+                    storePurchaseListsPrimitive.remove(store.getId());
+                }
+            }
+        }
+        DAOManager.updateSubscriber(this);
     }
 
     public String getHashedPassword() {
         return hashedPassword;
-    }
-
-    @Override
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return userPurchaseHistory;
     }
 
 
@@ -306,7 +333,19 @@ public class Subscriber implements UserState {
         return permissions.get(storeId);
     }
 
-    public void setUserPurchaseHistory(UserPurchaseHistory userPurchaseHistory) {
-        this.userPurchaseHistory = userPurchaseHistory;
+    public void setPermissions(Map<Integer, Permission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public boolean equals(Object o) {
+        return (o instanceof Subscriber) && ((Subscriber) o).getId() == id;
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return storePurchaseLists;
+    }
+
+    public void setStorePurchaseLists(HashMap<Store, List<PurchaseDetails>> storePurchaseLists) {
+        this.storePurchaseLists = storePurchaseLists;
     }
 }

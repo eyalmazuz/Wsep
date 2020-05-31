@@ -25,7 +25,6 @@ public class DAOManager {
     private static Dao<ShoppingCart, String> shoppingCartDao;
     private static Dao<ShoppingBasket, String> shoppingBasketDao;
     private static Dao<Subscriber, String> subscriberDao;
-    private static Dao<UserPurchaseHistory, String> userPurchaseHistoryDao;
     private static Dao<PurchaseDetails, String> purchaseDetailsDao;
     private static Dao<Permission, String> permissionDao;
     private static Dao<AdvancedDiscountDTO, String> advancedDiscountDao;
@@ -33,7 +32,7 @@ public class DAOManager {
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
-            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class, Permission.class,
+            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
             AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class};
 
     public static void init(ConnectionSource csrc) {
@@ -48,7 +47,6 @@ public class DAOManager {
             shoppingCartDao = DaoManager.createDao(csrc, ShoppingCart.class);
             shoppingBasketDao = DaoManager.createDao(csrc, ShoppingBasket.class);
             subscriberDao = DaoManager.createDao(csrc, Subscriber.class);
-            userPurchaseHistoryDao = DaoManager.createDao(csrc, UserPurchaseHistory.class);
             purchaseDetailsDao = DaoManager.createDao(csrc, PurchaseDetails.class);
             permissionDao = DaoManager.createDao(csrc, Permission.class);
             advancedDiscountDao = DaoManager.createDao(csrc, AdvancedDiscountDTO.class);
@@ -404,31 +402,30 @@ public class DAOManager {
             subscribers = subscriberDao.queryForAll();
             // fix purchase history (loaded primitives, make actual map)
             for (Subscriber s : subscribers) {
-                UserPurchaseHistory userPurchaseHistory = loadUserPurchaseHistory(s.getId());
-                Map<Integer, List<Integer>> storePurchaseListsPrimitive = userPurchaseHistory.getStorePurchaseListsPrimitive();
+                Map<Integer, List<Integer>> storePurchaseListsPrimitive = s.getStorePurchaseListsPrimitive();
                 HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
                 for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
                     List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
                     List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
                     for (Integer purchaseDetailsId : purchaseDetailsIds) purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
                     storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
-                    userPurchaseHistory.setStorePurchaseLists(storePurchaseLists);
                 }
-                s.setUserPurchaseHistory(userPurchaseHistory);
+                s.setStorePurchaseLists(storePurchaseLists);
+            }
+
+            List<Permission> allPermissions = loadAllPermissions();
+            // fix permissions
+            for (Subscriber s : subscribers) {
+                Map<Integer, Permission> permissionMap = new HashMap<>();
+                for (Permission permission : allPermissions) {
+                    if (permission.getUser().getId() == s.getId()) permissionMap.put(permission.getStore().getId(), permission);
+                }
+                s.setPermissions(permissionMap);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return subscribers;
-    }
-
-    private static UserPurchaseHistory loadUserPurchaseHistory(int id) {
-        try {
-            return userPurchaseHistoryDao.queryForId(Integer.toString(id));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private static Store loadStore(Integer storeId) {
@@ -460,14 +457,6 @@ public class DAOManager {
     public static void updateSubscriber(Subscriber subscriber) {
         try {
             subscriberDao.update(subscriber);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void createOrUpdateUserPurchaseHistory(UserPurchaseHistory userPurchaseHistory) {
-        try {
-            userPurchaseHistoryDao.createOrUpdate(userPurchaseHistory);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -562,6 +551,23 @@ public class DAOManager {
     public static List<Permission> loadAllPermissions() {
         try {
             return permissionDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void removePermission(Permission permission) {
+        try {
+            permissionDao.delete(permission);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ShoppingCart loadShoppingCartBySubscriberId(int subscriberId) {
+        try {
+            return shoppingCartDao.queryForId(Integer.toString(subscriberId));
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -174,7 +174,7 @@ public class System {
         logger.info("getUserHistory: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
-            UserPurchaseHistory history = u.getHistory();
+            Map<Store, List<PurchaseDetails>> history = u.getState().getStorePurchaseLists();
             if(history!=null) {
                 return new UserPurchaseHistoryDTO(ResultCode.SUCCESS, "got User History", getHistoryMap(history));
             }
@@ -514,6 +514,8 @@ public class System {
             if (subId == -1) {
                 return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
             }
+            u.getShoppingCart().setSubscriberId(subId);
+            DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
             return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
         }
        return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
@@ -530,6 +532,10 @@ public class System {
 
             u.setState(subToLogin);
 
+            // fix user shopping cart
+            ShoppingCart cart = DAOManager.loadShoppingCartBySubscriberId(subToLogin.getId());
+            cart.setUser(u);
+            u.setShoppingCart(cart);
 
             return true;
         }
@@ -651,8 +657,8 @@ public class System {
         logger.info("getUserHistory: SubscriberId "+subId);
             Subscriber subscriber = userHandler.getSubscriber(subId);
             if (subscriber != null) {
-                UserPurchaseHistory history = subscriber.getHistory();
-                return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history",getHistoryMap(history));
+                Map<Store, List<PurchaseDetails>> history = subscriber.getStorePurchaseLists();
+                return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history", getHistoryMap(history));
 
             }
             return new UserPurchaseHistoryDTO(ResultCode.ERROR_SUBID,"Invalid subscriber Id",null);
@@ -660,11 +666,11 @@ public class System {
     }
 
     //Functions that turns Objects Into DTO's
-    private Map<Integer,List<PurchaseDetailsDTO>> getHistoryMap(UserPurchaseHistory history){
+    private Map<Integer,List<PurchaseDetailsDTO>> getHistoryMap(Map<Store, List<PurchaseDetails>> history){
 
         Map<Integer,List<PurchaseDetailsDTO>> historyMap = new HashMap<>();
-        for(Store store : history.getStorePurchaseLists().keySet()) {
-            List<PurchaseDetails> details = history.getStorePurchaseLists().get(store);
+        for(Store store : history.keySet()) {
+            List<PurchaseDetails> details = history.get(store);
 
             historyMap.put(store.getId(),getPurchasesDto(details));
         }

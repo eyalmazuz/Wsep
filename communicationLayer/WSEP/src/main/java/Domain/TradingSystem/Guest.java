@@ -27,7 +27,12 @@ public class Guest implements UserState {
         return false;
     }
 
-    public UserPurchaseHistory getHistory() {
+    public String getPurchaseHistory() {
+        return null;
+    }
+
+    @Override
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
         return null;
     }
 
@@ -60,20 +65,19 @@ public class Guest implements UserState {
 
     }
 
-
     @Override
     public boolean isAdmin() {
         return false;
     }
 
     @Override
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return null;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     @Override
-    public void setCountry(String country) {
-        this.country = country;
+    public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
+        return null;
     }
 
 }

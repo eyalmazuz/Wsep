@@ -410,12 +410,6 @@ class UserMock extends User{
         return type.equals("Guest");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        if (type.equals("Guest"))
-            return null;
-        return new UserPurchaseHistory();
-    }
 
     @Override
     public boolean isAdmin() {
@@ -459,10 +453,6 @@ class SubscriberMock extends Subscriber{
         return type.equals("Owner");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        return new UserPurchaseHistory();
-    }
 }
 
 class GuestMock extends Guest{}

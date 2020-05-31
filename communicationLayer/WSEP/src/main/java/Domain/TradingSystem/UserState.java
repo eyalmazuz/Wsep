@@ -17,12 +17,13 @@ interface UserState {
 
      boolean logout();
 
-     UserPurchaseHistory getHistory();
+     String getPurchaseHistory();
+
+     Map<Store, List<PurchaseDetails>> getStorePurchaseLists();
 
      void setUser(User user);
 
      Store openStore();
-
 
 
      void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails);
@@ -31,7 +32,7 @@ interface UserState {
 
      boolean isAdmin();
 
-     UserPurchaseHistory getUserPurchaseHistory();
-
     void setCountry(String country);
+
+     Map<Integer, List<Integer>> getStorePurchaseListsPrimitive();
 }
