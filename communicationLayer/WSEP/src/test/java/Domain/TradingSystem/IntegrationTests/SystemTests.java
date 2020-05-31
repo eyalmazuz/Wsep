@@ -600,7 +600,7 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
 
         DiscountPolicy policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
         HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
@@ -615,7 +615,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
@@ -624,8 +624,8 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
@@ -634,8 +634,8 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
@@ -647,7 +647,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
@@ -659,7 +659,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
@@ -671,9 +671,9 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
 
         //java.lang.System.out.println(policy);
 
@@ -718,7 +718,7 @@ public class SystemTests extends TestCase {
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
 
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND), false);
         store1.setDiscountPolicy(policy);
         HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
@@ -737,7 +737,7 @@ public class SystemTests extends TestCase {
 
         AdvancedDiscount.LogicalDiscount hi = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
 
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR), false);
 
         //java.lang.System.out.println(policy);
         store1.setDiscountPolicy(policy);
@@ -754,7 +754,7 @@ public class SystemTests extends TestCase {
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR), false);
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);

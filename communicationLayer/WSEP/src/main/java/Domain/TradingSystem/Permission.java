@@ -11,19 +11,21 @@ public class Permission {
     private int id;
 
     @DatabaseField(foreign = true)
-    Subscriber user;
+    private Subscriber user;
 
     @DatabaseField(foreign = true)
-    Subscriber grantor;
+    private Subscriber grantor;
 
     @DatabaseField
-    String type; //Owner\Manager
+    private String type; //Owner\Manager
 
     @DatabaseField(foreign = true)
-    Store store;
+    private Store store;
 
     @DatabaseField
-    String details;
+    private String details;
+
+    public Permission () {}
 
     public Permission(Subscriber user, Subscriber grantor, String type, Store store){
         this.grantor = grantor;
@@ -31,9 +33,7 @@ public class Permission {
         this.type = type;
         this.store = store;
         this.details = "Simple";
-
     }
-
 
     public Store getStore() {
         return store;

@@ -7,8 +7,10 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @DatabaseTable(tableName = "stores")
@@ -381,15 +383,15 @@ public class Store {
 
 
     public int addSimpleProductDiscount(int productId, double salePercentage) {
-        return discountPolicy.addDiscountType(new ProductDiscount.ProductSaleDiscount(productId, salePercentage));
+        return discountPolicy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(productId, salePercentage));
     }
 
     public int addSimpleCategoryDiscount(String categoryName, double salePercentage) {
-        return discountPolicy.addDiscountType(new ProductDiscount.CategorySaleDiscount(categoryName, salePercentage));
+        return discountPolicy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount(categoryName, salePercentage));
     }
 
     public IntActionResultDto addAdvancedDiscountType(List<Integer> discountTypeIDs, String logicalOperation) {
-        return discountPolicy.addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+        return discountPolicy.createAdvancedDiscountTypeFromExisting(discountTypeIDs, logicalOperation);
     }
 
     public void removeDiscountType(int discountTypeID) {

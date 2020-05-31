@@ -28,9 +28,13 @@ public class DAOManager {
     private static Dao<UserPurchaseHistory, String> userPurchaseHistoryDao;
     private static Dao<PurchaseDetails, String> purchaseDetailsDao;
     private static Dao<Permission, String> permissionDao;
+    private static Dao<AdvancedDiscountDTO, String> advancedDiscountDao;
+    private static Dao<DiscountPolicy, String> discountPolicyDao;
+    private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
-            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class, Permission.class};
+            Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, UserPurchaseHistory.class, PurchaseDetails.class, Permission.class,
+            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
@@ -47,6 +51,9 @@ public class DAOManager {
             userPurchaseHistoryDao = DaoManager.createDao(csrc, UserPurchaseHistory.class);
             purchaseDetailsDao = DaoManager.createDao(csrc, PurchaseDetails.class);
             permissionDao = DaoManager.createDao(csrc, Permission.class);
+            advancedDiscountDao = DaoManager.createDao(csrc, AdvancedDiscountDTO.class);
+            discountPolicyDao = DaoManager.createDao(csrc, DiscountPolicy.class);
+            simpleDiscountDao = DaoManager.createDao(csrc, SimpleDiscountDTO.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
@@ -445,5 +452,52 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void addDiscountTypeToPolicy(DiscountPolicy policy, DiscountType type) {
+        if (type instanceof AdvancedDiscount) {
+            HashMap<Integer, String> discountTypeIdTypeMap = new HashMap<>();
+            ArrayList<Integer> orderedDiscountIds = new ArrayList<>();
+            for (DiscountType subType : ((AdvancedDiscount) type).getDiscounts()) {
+                discountTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedBuying ? "advanced" : "simple");
+                orderedDiscountIds.add(subType.getId());
+            }
+            try {
+                advancedDiscountDao.create(new AdvancedDiscountDTO(type.getId(), ((AdvancedDiscount) type).getLogicalOperation(), discountTypeIdTypeMap, orderedDiscountIds));
+                discountPolicyDao.createOrUpdate(policy);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // save via Type Per Hierarchy
+            String discountTypeStr = "";
+            int productId = -1;
+            double salePercentage = -1.0;
+            String categoryName = null;
+
+            if (type instanceof ProductDiscount) {
+                discountTypeStr = "product";
+                productId = ((ProductDiscount) type).getProductId();
+                salePercentage = ((ProductDiscount) type).getSalePercentage();
+                categoryName = ((ProductDiscount) type).getCategoryName();
+            }
+
+            try {
+                simpleDiscountDao.create(new SimpleDiscountDTO(type.getId(), discountTypeStr, productId, categoryName, salePercentage));
+                discountPolicyDao.createOrUpdate(policy);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static List<Permission> loadAllPermissions() {
+        try {
+            return permissionDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
