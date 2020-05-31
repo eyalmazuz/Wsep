@@ -35,8 +35,13 @@ public class Store {
     @DatabaseField (foreign = true)
     private BuyingPolicy buyingPolicy;
 
+    @DatabaseField (foreign = true)
     private DiscountPolicy discountPolicy;
+
+    @DatabaseField
     private int nextPurchaseId = 0;
+
+    @DatabaseField
     private double rating = -1;
 
 

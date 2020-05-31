@@ -57,6 +57,10 @@ public class DiscountPolicy {
         return details;
     }
 
+    public Map<Integer, DiscountType> getDiscountTypes() {
+        return discountTypes;
+    }
+
     @Override
     public String toString() {
         String output = "";
@@ -166,7 +170,11 @@ public class DiscountPolicy {
     }
 
 
+    public int getId() {
+        return id;
+    }
 
-
-
+    public HashMap<Integer, String> getDiscountTypeIDs() {
+        return discountTypeIDs;
+    }
 }

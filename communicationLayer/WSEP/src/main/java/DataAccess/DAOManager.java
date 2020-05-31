@@ -186,14 +186,6 @@ public class DAOManager {
         return result;
     }
 
-    private static ProductInfo loadProductInfo(int productInfoId) {
-        try {
-            return productInfoDao.queryForId(Integer.toString(productInfoId));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private static BuyingType loadAdvancedBuyingType(Integer typeId) {
         AdvancedBuyingDTO dto = null;
@@ -215,6 +207,78 @@ public class DAOManager {
         advancedBuying.setId(dto.getId());
         return advancedBuying;
     }
+
+    private static DiscountPolicy loadDiscountPolicy(int id) {
+        DiscountPolicy policy = null;
+        try {
+            policy = discountPolicyDao.queryForId(Integer.toString(id));
+            if (policy!= null) fixDiscountPolicy(policy);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return policy;
+    }
+
+    private static void fixDiscountPolicy(DiscountPolicy policy) {
+        HashMap<Integer, String> typeIds = policy.getDiscountTypeIDs();
+        for (Integer typeId : typeIds.keySet()) {
+            String type = typeIds.get(typeId);
+            if (type.equals("simple")) {
+                DiscountType simpleType = loadSimpleDiscountType(typeId);
+                policy.addSimpleDiscountType((SimpleDiscount) simpleType);
+            }
+            else policy.addAdvancedDiscountType((AdvancedDiscount) loadAdvancedDiscountType(typeId), true);
+        }
+    }
+
+    private static DiscountType loadSimpleDiscountType(Integer typeId) {
+        SimpleDiscountDTO dto = null;
+        try {
+            dto = simpleDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (dto == null) System.err.println("Could not find simple discount type " + typeId + " in database");
+        SimpleDiscount result = null;
+        if (dto.getTypeStr().equals("product")) {
+            if (dto.getCategoryName() == null) result = new ProductDiscount.ProductSaleDiscount(dto.getProductId(), dto.getSalePercentage());
+            else result = new ProductDiscount.CategorySaleDiscount(dto.getCategoryName(), dto.getSalePercentage());
+        }
+        result.setId(dto.getId());
+
+        return result;
+    }
+
+    private static DiscountType loadAdvancedDiscountType(Integer typeId) {
+        AdvancedDiscountDTO dto = null;
+        try {
+            dto = advancedDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        List<DiscountType> discounts = new ArrayList<>();
+        for (Integer subTypeId : dto.getOrderedDiscountTypeIds()) {
+            String typeStr = dto.getDiscountTypeIdTypeMap().get(subTypeId);
+            DiscountType resultingDiscountType = typeStr.equals("simple") ? loadSimpleDiscountType(subTypeId) : loadAdvancedDiscountType(subTypeId);
+            resultingDiscountType.setId(subTypeId);
+            discounts.add(resultingDiscountType);
+        }
+
+        AdvancedDiscount advancedDiscount = new AdvancedDiscount.LogicalDiscount(discounts, dto.getLogicalOperation());
+        advancedDiscount.setId(dto.getId());
+        return advancedDiscount;
+    }
+
+    private static ProductInfo loadProductInfo(int productInfoId) {
+        try {
+            return productInfoDao.queryForId(Integer.toString(productInfoId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public static List<ProductInfo> loadAllProductInfos() {
         try {
@@ -265,6 +329,9 @@ public class DAOManager {
             for (Store store : stores) {
                 BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
                 if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
+
+                DiscountPolicy fixedDiscountPolicy = loadDiscountPolicy(store.getDiscountPolicy().getId());
+                if (fixedDiscountPolicy != null) store.setDiscountPolicy(fixedDiscountPolicy);
             }
             return stores;
         } catch (SQLException e) {
@@ -459,7 +526,7 @@ public class DAOManager {
             HashMap<Integer, String> discountTypeIdTypeMap = new HashMap<>();
             ArrayList<Integer> orderedDiscountIds = new ArrayList<>();
             for (DiscountType subType : ((AdvancedDiscount) type).getDiscounts()) {
-                discountTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedBuying ? "advanced" : "simple");
+                discountTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedDiscount ? "advanced" : "simple");
                 orderedDiscountIds.add(subType.getId());
             }
             try {

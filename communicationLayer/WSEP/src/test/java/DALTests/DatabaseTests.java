@@ -503,4 +503,157 @@ public class DatabaseTests extends TestCase {
         assertEquals(savedPolicy.getBuyingTypes().values().iterator().next().toString(), "Cannot purchase less than 5 of what (1)");
     }
 
+    @Test
+    public void testSimpleDiscountPolicyPersistence1() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        discountPolicy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(1, 0.3));
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().values().iterator().next().toString(), "30.0% sale on product ID 1");
+    }
+
+
+    @Test
+    public void testSimpleDiscountPolicyPersistence2() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        discountPolicy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("whatcategory", 0.3));
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().values().iterator().next().toString(), "30.0% sale on the whatcategory category");
+    }
+
+    @Test
+    public void testAdvancedDiscountPolicyPersistence1() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        List<DiscountType> discounts = new ArrayList<>();
+        discounts.add(new ProductDiscount.ProductSaleDiscount(1, 0.3));
+        discounts.add(new ProductDiscount.CategorySaleDiscount("whatcategory", 0.4));
+        AdvancedDiscount advancedDiscount = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
+        discountPolicy.addAdvancedDiscountType(advancedDiscount, false);
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().size(), 1);
+        DiscountType savedDiscount = savedPolicy.getDiscountTypes().values().iterator().next();
+        assertTrue(savedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        AdvancedDiscount.LogicalDiscount discount = (AdvancedDiscount.LogicalDiscount) savedDiscount;
+        assertEquals(discount.toString(), "30.0% sale on product ID 1 OR 40.0% sale on the whatcategory category");
+    }
+
+    @Test
+    public void testAdvancedDiscountPolicyPersistence2() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        List<DiscountType> discounts = new ArrayList<>();
+        discounts.add(new ProductDiscount.ProductSaleDiscount(1, 0.3));
+
+        List<DiscountType> innerDiscounts = new ArrayList<>();
+        innerDiscounts.add(new ProductDiscount.ProductSaleDiscount(1, 0.2));
+        innerDiscounts.add(new ProductDiscount.CategorySaleDiscount("whatcategory", 0.7));
+        AdvancedDiscount innerAdvanced = new AdvancedDiscount.LogicalDiscount(innerDiscounts, AdvancedDiscount.LogicalOperation.XOR);
+        discounts.add(innerAdvanced);
+        AdvancedDiscount advancedDiscount = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
+
+        discountPolicy.addAdvancedDiscountType(advancedDiscount, false);
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().size(), 1);
+        DiscountType savedDiscount = savedPolicy.getDiscountTypes().values().iterator().next();
+        assertTrue(savedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        AdvancedDiscount discount = (AdvancedDiscount) savedDiscount;
+        assertEquals(discount.toString(), "30.0% sale on product ID 1 OR 20.0% sale on product ID 1 XOR 70.0% sale on the whatcategory category");
+        assertEquals(discount.getLogicalOperation(), AdvancedDiscount.LogicalOperation.OR);
+        List<DiscountType> savedDiscounts = discount.getDiscounts();
+        DiscountType simpleSavedDiscount = savedDiscounts.get(0);
+        assertTrue(simpleSavedDiscount instanceof ProductDiscount.ProductSaleDiscount);
+        DiscountType advancedSavedDiscount = savedDiscounts.get(1);
+        assertTrue(advancedSavedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        assertEquals(((AdvancedDiscount) advancedSavedDiscount).getLogicalOperation(), AdvancedDiscount.LogicalOperation.XOR);
+        List<DiscountType> savedInnerSimple = ((AdvancedDiscount) advancedSavedDiscount).getDiscounts();
+        DiscountType innerSimple1 = savedInnerSimple.get(0);
+        assertTrue(innerSimple1 instanceof ProductDiscount.ProductSaleDiscount);
+        DiscountType innerSimple2 = savedInnerSimple.get(1);
+        assertTrue(innerSimple2 instanceof ProductDiscount.CategorySaleDiscount);
+        assertEquals(innerSimple1.toString(), "20.0% sale on product ID 1");
+        assertEquals(innerSimple2.toString(), "70.0% sale on the whatcategory category");
+    }
+
+    @Test
+    public void testAdvancedDiscountPolicyPersistence3() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        List<Integer> discountTypeIds = new ArrayList<>();
+        discountTypeIds.add(discountPolicy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(1, 0.3)));
+        discountTypeIds.add(discountPolicy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("whatcategory", 0.4)));
+        discountPolicy.createAdvancedDiscountTypeFromExisting(discountTypeIds, "or");
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().size(), 1);
+        DiscountType savedDiscount = savedPolicy.getDiscountTypes().values().iterator().next();
+        assertTrue(savedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        AdvancedDiscount.LogicalDiscount discount = (AdvancedDiscount.LogicalDiscount) savedDiscount;
+        assertEquals(discount.toString(), "30.0% sale on product ID 1 OR 40.0% sale on the whatcategory category");
+    }
+
+    @Test
+    public void testAdvancedDiscountPolicyPersistence4() {
+        int storeId = test.addStore();
+        Store store = test.getStoreById(storeId);
+        test.addProductInfo(1, "what", "whatcategory", 50);
+        DiscountPolicy discountPolicy = new DiscountPolicy("None");
+        List<Integer> discountTypeIds = new ArrayList<>();
+        discountTypeIds.add(discountPolicy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(1, 0.3)));
+
+        List<Integer> innerDiscountIds = new ArrayList<>();
+        innerDiscountIds.add(discountPolicy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(1, 0.2)));
+        innerDiscountIds.add(discountPolicy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("whatcategory", 0.7)));
+        discountTypeIds.add(discountPolicy.createAdvancedDiscountTypeFromExisting(innerDiscountIds, "xor").getId());
+
+        discountPolicy.createAdvancedDiscountTypeFromExisting(discountTypeIds, "or");
+        store.setDiscountPolicy(discountPolicy);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        DiscountPolicy savedPolicy = savedStore.getDiscountPolicy();
+        assertEquals(savedPolicy.getDiscountTypes().size(), 1);
+        DiscountType savedDiscount = savedPolicy.getDiscountTypes().values().iterator().next();
+        assertTrue(savedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        AdvancedDiscount discount = (AdvancedDiscount) savedDiscount;
+        assertEquals(discount.toString(), "30.0% sale on product ID 1 OR 20.0% sale on product ID 1 XOR 70.0% sale on the whatcategory category");
+        assertEquals(discount.getLogicalOperation(), AdvancedDiscount.LogicalOperation.OR);
+        List<DiscountType> savedDiscounts = discount.getDiscounts();
+        DiscountType simpleSavedDiscount = savedDiscounts.get(0);
+        assertTrue(simpleSavedDiscount instanceof ProductDiscount.ProductSaleDiscount);
+        DiscountType advancedSavedDiscount = savedDiscounts.get(1);
+        assertTrue(advancedSavedDiscount instanceof AdvancedDiscount.LogicalDiscount);
+        assertEquals(((AdvancedDiscount) advancedSavedDiscount).getLogicalOperation(), AdvancedDiscount.LogicalOperation.XOR);
+        List<DiscountType> savedInnerSimple = ((AdvancedDiscount) advancedSavedDiscount).getDiscounts();
+        DiscountType innerSimple1 = savedInnerSimple.get(0);
+        assertTrue(innerSimple1 instanceof ProductDiscount.ProductSaleDiscount);
+        DiscountType innerSimple2 = savedInnerSimple.get(1);
+        assertTrue(innerSimple2 instanceof ProductDiscount.CategorySaleDiscount);
+        assertEquals(innerSimple1.toString(), "20.0% sale on product ID 1");
+        assertEquals(innerSimple2.toString(), "70.0% sale on the whatcategory category");
+    }
 }
