@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class Subscriber implements UserState {
 
     //FIELDS:
-    private static int idCounter = 0;
+    public static int idCounter = 0;
 
     @DatabaseField (id = true)
     private int id;

@@ -2,6 +2,9 @@ package AcceptanceTest;
 
 import AcceptanceTest.Data.Database;
 import DataAccess.DAOManager;
+import Domain.TradingSystem.Store;
+import Domain.TradingSystem.Subscriber;
+import Domain.TradingSystem.User;
 import Service.Bridge;
 import junit.framework.TestCase;
 
@@ -18,6 +21,7 @@ public abstract class ServiceTest extends TestCase {
 
         this.setupSystem("Mock Config", "Mock Config","");
         DAOManager.clearDatabase();
+
         if(Driver.flag) {
 
             this.setUpUsers();

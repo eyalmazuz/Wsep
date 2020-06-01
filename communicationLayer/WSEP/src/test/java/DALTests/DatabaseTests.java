@@ -712,4 +712,106 @@ public class DatabaseTests extends TestCase {
         Permission managerPermission = storeManager.getPermission(storeId);
         assertNull(managerPermission);
     }
+
+    @Test
+    public void testGrantingAgreementPersistence() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+
+        List<Integer> ownerIds = new ArrayList<>();
+        Subscriber mainOwner = (Subscriber) test.getUser(sessionId).getState();
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        ownerIds.add(mainOwner.getId());
+
+        int sessionId2 = test.startSession().getId();
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
+
+        Subscriber owner2 = (Subscriber) test.getUser(sessionId2).getState();
+        store.addOwner(owner2);
+        ownerIds.add(owner2.getId());
+
+        int sessionId3 = test.startSession().getId();
+        test.register(sessionId3, "user3", "passw0rd");
+        test.login(sessionId3, "user3", "passw0rd");
+
+        Subscriber owner3 = (Subscriber) test.getUser(sessionId3).getState();
+        store.addOwner(owner3);
+        ownerIds.add(owner3.getId());
+
+        int sessionId4 = test.startSession().getId();
+        test.register(sessionId4, "user4", "passw0rd");
+        test.login(sessionId4, "user4", "passw0rd");
+
+        Subscriber candidate = (Subscriber) test.getUser(sessionId4).getState();
+
+        GrantingAgreement agreement = new GrantingAgreement(storeId, mainOwner.getId(), candidate.getId(), ownerIds);
+
+        store.addAgreement(agreement);
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        GrantingAgreement savedAgreement = savedStore.getAllGrantingAgreements().iterator().next();
+
+        assertEquals(savedAgreement.getMalshabId(), candidate.getId());
+        assertEquals(savedAgreement.getGrantorId(), mainOwner.getId());
+        assertEquals(savedAgreement.getStoreId(), storeId);
+
+        Map<Integer, Boolean> owner2approve = savedAgreement.getOwner2approve();
+        assertFalse(owner2approve.get(owner2.getId()));
+        assertFalse(owner2approve.get(owner3.getId()));
+    }
+
+    @Test
+    public void testGrantingAgreementPersistence2() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+
+        List<Integer> ownerIds = new ArrayList<>();
+        Subscriber mainOwner = (Subscriber) test.getUser(sessionId).getState();
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        ownerIds.add(mainOwner.getId());
+
+        int sessionId2 = test.startSession().getId();
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
+
+        Subscriber owner2 = (Subscriber) test.getUser(sessionId2).getState();
+        store.addOwner(owner2);
+        ownerIds.add(owner2.getId());
+
+        int sessionId3 = test.startSession().getId();
+        test.register(sessionId3, "user3", "passw0rd");
+        test.login(sessionId3, "user3", "passw0rd");
+
+        Subscriber owner3 = (Subscriber) test.getUser(sessionId3).getState();
+        store.addOwner(owner3);
+        ownerIds.add(owner3.getId());
+
+        int sessionId4 = test.startSession().getId();
+        test.register(sessionId4, "user4", "passw0rd");
+        test.login(sessionId4, "user4", "passw0rd");
+
+        Subscriber candidate = (Subscriber) test.getUser(sessionId4).getState();
+
+        GrantingAgreement agreement = new GrantingAgreement(storeId, mainOwner.getId(), candidate.getId(), ownerIds);
+
+        store.addAgreement(agreement);
+
+        test.approveStoreOwner(sessionId2, storeId, candidate.getId());
+
+        Store savedStore = DAOManager.loadAllStores().get(0);
+        GrantingAgreement savedAgreement = savedStore.getAllGrantingAgreements().iterator().next();
+
+        Map<Integer, Boolean> map = savedAgreement.getOwner2approve();
+        assertTrue(map.get(owner2.getId()));
+        assertFalse(map.get(owner3.getId()));
+
+        test.approveStoreOwner(sessionId3, storeId, candidate.getId());
+        savedStore = DAOManager.loadAllStores().get(0);
+        assertTrue(savedStore.getAllGrantingAgreements().isEmpty());
+    }
 }

@@ -10,7 +10,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,13 +19,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @DatabaseTable(tableName = "stores")
 public class Store {
 
-    private static int globalId = 0;
+    public static int globalId = 0;
 
     @DatabaseField(id = true)
     private int id;
+
+    @DatabaseField
     private String name;
-    private List<ProductInStore> products;
-    private Map<Integer,GrantingAgreement> malshab2granting;//Id->agreement
+
+
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private ConcurrentHashMap<Integer,GrantingAgreement> malshab2granting; //Id->agreement
 
     @ForeignCollectionField(eager = true)
     private ForeignCollection<ProductInStore> products = null;
@@ -297,7 +300,7 @@ public class Store {
             for(Subscriber s : managers){
                 if (s.getId() == managerToDelete.getId()) {
                     managers.remove(managerToDelete);
-                    managerIds.remove(managerToDelete.getId());
+                    managerIds.remove((Integer) managerToDelete.getId());
                     break;
                 }
             }
@@ -470,6 +473,7 @@ public class Store {
 
     public void setName(String name) {
         this.name = name;
+        DAOManager.updateStore(this);
     }
 
     public String getName() {
@@ -480,6 +484,7 @@ public class Store {
         int id =agreement.getMalshabId();
         if(malshab2granting.get(id) == null) {
             malshab2granting.put(agreement.getMalshabId(), agreement);
+            DAOManager.updateStore(this);
             return true;
         }
         return false;
@@ -489,7 +494,9 @@ public class Store {
     public boolean approveMalshab(int grantorid, int malshabId) {
         GrantingAgreement agreement = malshab2granting.get(malshabId);
         if(agreement!=null){
-           return agreement.approve(grantorid);
+           boolean success = agreement.approve(grantorid);
+           DAOManager.updateStore(this);
+           return success;
         }
         return false;
 
@@ -505,9 +512,11 @@ public class Store {
 
     public void removeAgreement(int subId) {
         malshab2granting.remove(subId);
+        DAOManager.updateStore(this);
     }
 
-    public Collection<GrantingAgreement> getAllAgreemnt(){
+    public Collection<GrantingAgreement> getAllGrantingAgreements(){
         return malshab2granting.values();
     }
+
 }

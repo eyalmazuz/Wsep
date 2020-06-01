@@ -238,6 +238,7 @@ public class System {
             Store newStore = u.openStore();
             if (newStore != null) {
                 stores.put(newStore.getId(),newStore);
+                DAOManager.addStore(newStore);
 
                 return new IntActionResultDto(ResultCode.SUCCESS,"Open new store",newStore.getId());
             }
@@ -1305,7 +1306,7 @@ public class System {
     private void handleGrantingAgreements(int storeId) {
         Store store = getStoreById(storeId);
         if(store != null){
-            Collection<GrantingAgreement> agreements = store.getAllAgreemnt();
+            Collection<GrantingAgreement> agreements = store.getAllGrantingAgreements();
             for (GrantingAgreement agreement : agreements){
                 if (agreement.allAproved()){
                     Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());

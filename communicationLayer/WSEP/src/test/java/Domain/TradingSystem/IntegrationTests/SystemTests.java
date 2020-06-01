@@ -26,6 +26,7 @@ public class SystemTests extends TestCase {
     public void setUp() {
         test = new System();
         DAOManager.clearDatabase();
+
         Publisher publisherMock = new Publisher(new MessageBroker() {
 
             @Override

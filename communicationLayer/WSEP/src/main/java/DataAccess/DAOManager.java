@@ -30,10 +30,11 @@ public class DAOManager {
     private static Dao<AdvancedDiscountDTO, String> advancedDiscountDao;
     private static Dao<DiscountPolicy, String> discountPolicyDao;
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
+    private static Dao<GrantingAgreement, String> grantingAgreementDao;
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
-            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class};
+            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
 
     public static void init(ConnectionSource csrc) {
         connectionSource = csrc;
@@ -52,6 +53,7 @@ public class DAOManager {
             advancedDiscountDao = DaoManager.createDao(csrc, AdvancedDiscountDTO.class);
             discountPolicyDao = DaoManager.createDao(csrc, DiscountPolicy.class);
             simpleDiscountDao = DaoManager.createDao(csrc, SimpleDiscountDTO.class);
+            grantingAgreementDao = DaoManager.createDao(csrc, GrantingAgreement.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
 
@@ -589,5 +591,13 @@ public class DAOManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void updateGrantingAgreement(GrantingAgreement grantingAgreement) {
+        try {
+            grantingAgreementDao.update(grantingAgreement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

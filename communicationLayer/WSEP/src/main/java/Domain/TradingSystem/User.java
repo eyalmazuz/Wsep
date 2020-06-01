@@ -16,7 +16,7 @@ public class User {
     private String paymentDetails;
     private UserState state;
     private ShoppingCart shoppingCart;
-    private static int idCounter = 0;
+    public static int idCounter = 0;
     private int id;
     private String country = "Unknown";
 
