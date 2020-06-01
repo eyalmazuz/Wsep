@@ -4,6 +4,7 @@ package Domain.TradingSystem;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
 import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +26,6 @@ public class ShoppingCartTest extends TestCase {
     public void setUp() {
         System.testing = true;
 
-        DAOManager.clearDatabase();
         user = new User();
 
         shoppingCart = new ShoppingCart(user);
@@ -40,7 +40,11 @@ public class ShoppingCartTest extends TestCase {
         productInfo10 = new ProductInfo(10,"ten","ten", 10);
         productInfo40 = new ProductInfo(40,"fourty","fourty", 10);
         found = false;
+    }
 
+    @After
+    public void tearDown() {
+        DAOManager.clearDatabase();
     }
 
 

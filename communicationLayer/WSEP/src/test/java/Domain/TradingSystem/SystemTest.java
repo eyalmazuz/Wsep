@@ -20,7 +20,6 @@ public class SystemTest extends TestCase {
     public void setUp(){
         System.testing = true;
 
-        DAOManager.clearDatabase();
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));
         }});
@@ -38,6 +37,7 @@ public class SystemTest extends TestCase {
     @After
     public void tearDown(){
         test.deleteStores();
+        DAOManager.clearDatabase();
     }
 
     @Test

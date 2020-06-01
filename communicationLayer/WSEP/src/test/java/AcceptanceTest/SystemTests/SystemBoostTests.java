@@ -1,6 +1,7 @@
 package AcceptanceTest.SystemTests;
 
 import AcceptanceTest.ServiceTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,8 +14,11 @@ public class SystemBoostTests extends ServiceTest {
     public void setUp(){
         super.setUp();
 
+    }
 
-
+    @After
+    public void tearDown() {
+        super.tearDown();
     }
 
     //USE CASES 1.1

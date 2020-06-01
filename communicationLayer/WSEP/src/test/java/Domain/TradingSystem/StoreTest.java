@@ -19,8 +19,6 @@ public class StoreTest extends TestCase {
         System.testing = true;
         new System();
 
-        DAOManager.clearDatabase();
-
         store = new Store();
         s = new Subscriber();
         bamba = new ProductInfo(1,"bamba","sanck", 10);
@@ -33,6 +31,7 @@ public class StoreTest extends TestCase {
     @After
     public void tearDown(){
         store.clean();
+        DAOManager.clearDatabase();
     }
 
     @Test

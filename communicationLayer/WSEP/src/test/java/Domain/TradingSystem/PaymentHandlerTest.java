@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DataAccess.DAOManager;
 import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +28,13 @@ public class PaymentHandlerTest extends TestCase {
         Map<Integer, Integer> productAmounts = new HashMap<>();
         productAmounts.put(4, 5);
         map.put(1, productAmounts);
-
     }
+
+    @After
+    public void tearDown() {
+        DAOManager.clearDatabase();
+    }
+
     @Test
     public void testMakePaymentFailure() {
         // bad payment details

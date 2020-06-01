@@ -8,6 +8,7 @@ import Domain.TradingSystem.System;
 import Domain.TradingSystem.User;
 import Service.Bridge;
 import junit.framework.TestCase;
+import org.junit.After;
 
 
 public abstract class ServiceTest extends TestCase {
@@ -23,7 +24,6 @@ public abstract class ServiceTest extends TestCase {
         Database.sessionId = startSession();
 
         this.setupSystem("Mock Config", "Mock Config","");
-        DAOManager.clearDatabase();
 
         if(Driver.flag) {
 
@@ -37,18 +37,16 @@ public abstract class ServiceTest extends TestCase {
 
     }
 
+    @After
+    public void tearDown() {
+        DAOManager.clearDatabase();
+    }
+
     private void setUpUsers() {
         for(String[] userData : Database.Users){
             int userId = register(Database.sessionId, userData[0], userData[1]);
             Database.userToId.put(userData[0], userId);
         }
-
-
-
-    }
-
-    private void clearDatabase(){
-
     }
 
     public boolean login (int sessionId, String username , String password){

@@ -18,11 +18,14 @@ public class UserHandlerTest extends TestCase {
     @Before
     public void setUp() {
         System.testing = true;
-
-        DAOManager.clearDatabase();
-
-
     }
+
+    @After
+    public void tearDown(){
+        uh.deleteUsers();
+        DAOManager.clearDatabase();
+    }
+
 
     public void registerSubs(){
         uh.register("test","123");
@@ -39,11 +42,6 @@ public class UserHandlerTest extends TestCase {
             output.add(uh.getSubscriber(id));
         }
         return output;
-    }
-
-    @After
-    public void tearDown(){
-        uh.deleteUsers();
     }
 
     @Test

@@ -52,6 +52,8 @@ public class ViewInfoTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
         Database.Stores = null;

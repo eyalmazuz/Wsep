@@ -27,7 +27,6 @@ public class SystemTests extends TestCase {
         System.testing = true;
 
         test = new System();
-        DAOManager.clearDatabase();
 
         Publisher publisherMock = new Publisher(new MessageBroker() {
 
@@ -45,6 +44,7 @@ public class SystemTests extends TestCase {
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        DAOManager.clearDatabase();
     }
 
 

@@ -20,13 +20,13 @@ public class DatabaseTests extends TestCase {
     public void setUp() {
         System.testing = true;
         test = new System();
-        test.clearDatabase();
     }
 
     @After
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        DAOManager.clearDatabase();
     }
 
     @Test

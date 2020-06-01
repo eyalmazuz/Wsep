@@ -28,8 +28,6 @@ public class SubscriberTest extends TestCase {
     public void setUp() {
         System.testing = true;
 
-        DAOManager.clearDatabase();
-
         subscriber = new Subscriber("hava nagila", "1234", false);
         subscriber.setUser(new User());
     }
@@ -37,6 +35,7 @@ public class SubscriberTest extends TestCase {
     @After
     public void tearDown(){
         subscriber.getAllNotification().clear();
+        DAOManager.clearDatabase();
     }
 
     @Test
