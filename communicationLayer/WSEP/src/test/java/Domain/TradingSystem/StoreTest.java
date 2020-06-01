@@ -9,14 +9,22 @@ import org.junit.Test;
 
 public class StoreTest extends TestCase {
 
-    Store store = new Store();
-    Subscriber s = new Subscriber();
-    ProductInfo bamba = new ProductInfo(1,"bamba","sanck", 10);
-    ProductInfo bisly = new ProductInfo(2,"bisly","sanck", 10);
+    Store store;
+    Subscriber s;
+    ProductInfo bamba;
+    ProductInfo bisly;
 
     @Before
     public void setUp(){
+        System.testing = true;
+        new System();
+
         DAOManager.clearDatabase();
+
+        store = new Store();
+        s = new Subscriber();
+        bamba = new ProductInfo(1,"bamba","sanck", 10);
+        bisly = new ProductInfo(2,"bisly","sanck", 10);
 
         store.addProduct(bamba,10);
         store.addOwner(s);

@@ -14,6 +14,8 @@ public class UserTest extends TestCase {
 
     @Before
     public void setUp(){
+        System.testing = true;
+
         DAOManager.clearDatabase();
         guest = new User();
         subscriber = new User();

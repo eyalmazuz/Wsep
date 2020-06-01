@@ -26,6 +26,8 @@ public class SubscriberTest extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
+
         DAOManager.clearDatabase();
 
         subscriber = new Subscriber("hava nagila", "1234", false);

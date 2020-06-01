@@ -33,14 +33,11 @@ public class System {
     // session id -> (store id -> (product id -> amount))
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
-    String databaseName = "trading_system_test";
+    public static boolean testing = false;
 
-    public System(){
-        try {
-            DAOManager.init(new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=root&password=weloveshahaf&serverTimezone=UTC"));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public System() {
+        String databaseName = testing? "trading_system_test" : "trading_system";
+        DAOManager.init(databaseName, "root", "weloveshahaf");
 
         userHandler = new UserHandler();
         stores = new ConcurrentHashMap<>();

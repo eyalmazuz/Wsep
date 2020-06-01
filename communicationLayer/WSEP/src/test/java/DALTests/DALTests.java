@@ -1,5 +1,6 @@
 package DALTests;
 
+import Domain.TradingSystem.System;
 import junit.framework.TestSuite;
 import junit.framework.Test;
 

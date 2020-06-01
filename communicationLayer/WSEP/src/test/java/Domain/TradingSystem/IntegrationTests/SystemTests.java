@@ -24,6 +24,8 @@ public class SystemTests extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
+
         test = new System();
         DAOManager.clearDatabase();
 

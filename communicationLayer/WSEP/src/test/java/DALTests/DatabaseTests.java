@@ -18,6 +18,7 @@ public class DatabaseTests extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
         test = new System();
         test.clearDatabase();
     }

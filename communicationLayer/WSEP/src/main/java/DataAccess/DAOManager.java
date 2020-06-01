@@ -3,6 +3,7 @@ package DataAccess;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -36,26 +37,27 @@ public class DAOManager {
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
             AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
 
-    public static void init(ConnectionSource csrc) {
-        connectionSource = csrc;
+    public static void init(String databaseName, String username, String password) {
         try {
-            productInfoDao = DaoManager.createDao(csrc, ProductInfo.class);
-            buyingPolicyDao = DaoManager.createDao(csrc, BuyingPolicy.class);
-            simpleBuyingDao = DaoManager.createDao(csrc, SimpleBuyingDTO.class);
-            advancedBuyingDao = DaoManager.createDao(csrc, AdvancedBuyingDTO.class);
-            productInStoreDao = DaoManager.createDao(csrc, ProductInStore.class);
-            storeDao = DaoManager.createDao(csrc, Store.class);
-            shoppingCartDao = DaoManager.createDao(csrc, ShoppingCart.class);
-            shoppingBasketDao = DaoManager.createDao(csrc, ShoppingBasket.class);
-            subscriberDao = DaoManager.createDao(csrc, Subscriber.class);
-            purchaseDetailsDao = DaoManager.createDao(csrc, PurchaseDetails.class);
-            permissionDao = DaoManager.createDao(csrc, Permission.class);
-            advancedDiscountDao = DaoManager.createDao(csrc, AdvancedDiscountDTO.class);
-            discountPolicyDao = DaoManager.createDao(csrc, DiscountPolicy.class);
-            simpleDiscountDao = DaoManager.createDao(csrc, SimpleDiscountDTO.class);
-            grantingAgreementDao = DaoManager.createDao(csrc, GrantingAgreement.class);
+            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=UTC");
 
-            for (Class c : persistentClasses) TableUtils.createTableIfNotExists(csrc, c);
+            productInfoDao = DaoManager.createDao(connectionSource, ProductInfo.class);
+            buyingPolicyDao = DaoManager.createDao(connectionSource, BuyingPolicy.class);
+            simpleBuyingDao = DaoManager.createDao(connectionSource, SimpleBuyingDTO.class);
+            advancedBuyingDao = DaoManager.createDao(connectionSource, AdvancedBuyingDTO.class);
+            productInStoreDao = DaoManager.createDao(connectionSource, ProductInStore.class);
+            storeDao = DaoManager.createDao(connectionSource, Store.class);
+            shoppingCartDao = DaoManager.createDao(connectionSource, ShoppingCart.class);
+            shoppingBasketDao = DaoManager.createDao(connectionSource, ShoppingBasket.class);
+            subscriberDao = DaoManager.createDao(connectionSource, Subscriber.class);
+            purchaseDetailsDao = DaoManager.createDao(connectionSource, PurchaseDetails.class);
+            permissionDao = DaoManager.createDao(connectionSource, Permission.class);
+            advancedDiscountDao = DaoManager.createDao(connectionSource, AdvancedDiscountDTO.class);
+            discountPolicyDao = DaoManager.createDao(connectionSource, DiscountPolicy.class);
+            simpleDiscountDao = DaoManager.createDao(connectionSource, SimpleDiscountDTO.class);
+            grantingAgreementDao = DaoManager.createDao(connectionSource, GrantingAgreement.class);
+
+            for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -2,6 +2,7 @@ import AcceptanceTest.AcceptanceTests;
 import DALTests.DALTests;
 import DataAccess.DAOManager;
 import Domain.TradingSystem.IntegrationTests.IntegrationTests;
+import Domain.TradingSystem.System;
 import Domain.TradingSystem.UnitTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;

@@ -18,6 +18,8 @@ public class SystemTest extends TestCase {
 
     @Before
     public void setUp(){
+        System.testing = true;
+
         DAOManager.clearDatabase();
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));

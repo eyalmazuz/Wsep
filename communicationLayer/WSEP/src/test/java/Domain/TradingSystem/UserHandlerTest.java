@@ -17,6 +17,8 @@ public class UserHandlerTest extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
+
         DAOManager.clearDatabase();
 
 

@@ -15,6 +15,8 @@ public class PaymentHandlerTest extends TestCase {
 
     @Before
     public void setUp(){
+        System.testing = true;
+
         try {
             handler = new PaymentHandler("Mock Config");
         } catch (Exception e) {

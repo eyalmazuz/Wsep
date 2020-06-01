@@ -4,6 +4,7 @@ import AcceptanceTest.Data.Database;
 import DataAccess.DAOManager;
 import Domain.TradingSystem.Store;
 import Domain.TradingSystem.Subscriber;
+import Domain.TradingSystem.System;
 import Domain.TradingSystem.User;
 import Service.Bridge;
 import junit.framework.TestCase;
@@ -15,6 +16,8 @@ public abstract class ServiceTest extends TestCase {
 
 
     public void setUp(){
+        System.testing = true;
+
         this.bridge = Driver.getBridge();
 
         Database.sessionId = startSession();

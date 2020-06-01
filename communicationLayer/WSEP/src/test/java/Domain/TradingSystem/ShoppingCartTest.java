@@ -23,6 +23,8 @@ public class ShoppingCartTest extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
+
         DAOManager.clearDatabase();
         user = new User();
 

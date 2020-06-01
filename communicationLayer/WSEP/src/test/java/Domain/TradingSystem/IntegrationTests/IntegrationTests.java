@@ -1,6 +1,7 @@
 package Domain.TradingSystem.IntegrationTests;
 
 
+import Domain.TradingSystem.System;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
