@@ -441,4 +441,13 @@ public class Store {
     public Collection<GrantingAgreement> getAllAgreemnt(){
         return malshab2granting.values();
     }
+
+    public List<GrantingAgreement> getAgreementsOf(int subId) {
+        List<GrantingAgreement> agreements = new ArrayList<>();
+        for(GrantingAgreement agreement : getAllAgreemnt()){
+            if(agreement.getGrantorId()==subId || agreement.getOwner2approve().keySet().contains(subId))
+                agreements.add(agreement);
+        }
+        return agreements;
+    }
 }

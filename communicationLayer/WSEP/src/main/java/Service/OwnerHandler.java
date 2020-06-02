@@ -252,4 +252,8 @@ public class OwnerHandler {
         if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
         return s.approveStoreOwner(sessionId,storeId,subId);
     }
+
+    public GrantingResultDTO getAllGrantings(int subId) {
+        return s.getAllGrantings(sessionId,subId);
+    }
 }

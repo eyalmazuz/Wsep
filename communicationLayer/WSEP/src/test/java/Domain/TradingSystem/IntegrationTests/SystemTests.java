@@ -25,14 +25,7 @@ public class SystemTests extends TestCase {
     @Before
     public void setUp() {
         test = new System();
-        Publisher publisherMock = new Publisher(new MessageBroker() {
-
-            @Override
-            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
-
-                return null;
-            }
-        });
+        Publisher publisherMock = new Publisher((subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
     }
