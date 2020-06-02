@@ -1326,7 +1326,7 @@ public class System {
                 }
             }
             else{
-                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreemant not exist");
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreement not exist");
             }
         }
 
