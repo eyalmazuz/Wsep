@@ -175,9 +175,9 @@
         </div>
 
 
-        <!-- The Delete manager Model -->
-        <div id="deleteManagerToStoreForm" class="modal">
-            <span onclick="document.getElementById('deleteManagerToStoreForm').style.display='none'"
+        <!-- The remove Manager Model -->
+        <div id="removeManagerForm" class="modal">
+            <span onclick="document.getElementById('removeManagerForm').style.display='none'"
             class="close" title="Close Modal">&times;</span>
 
             <!-- Modal Content -->
@@ -185,15 +185,15 @@
 
                 <div class="container">
                 
-                    <label for="id"><b>Manager Id</b></label>
-                    <input id='deleteManagerIdText' type="number" placeholder="Manager ID" name="managerId" required>
+                    <label for="id"><b>Choose User</b></label>
+                    <select id='removeManagerSelect'>
 
-
-                    <button type="button" onclick="removeManager()">FIRE!!</button>
+                    </select>
+                    <button type="button" onclick="removeManagerFromStore()">FIRE Manager</button>
                 </div>
 
                 <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('deleteManagerToStoreForm').style.display='none'" class="cancelbtn">Cancel</button>
+                <button type="button" onclick="document.getElementById('removeManagerForm').style.display='none'" class="cancelbtn">Cancel</button>
                 </div>
             </form>
         </div> 
