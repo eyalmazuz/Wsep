@@ -27,15 +27,7 @@ public class SystemTests extends TestCase {
         System.testing = true;
 
         test = new System();
-
-        Publisher publisherMock = new Publisher(new MessageBroker() {
-
-            @Override
-            public List<Integer> sendTo(List<Integer> subscribers, Object message) {
-
-                return null;
-            }
-        });
+        Publisher publisherMock = new Publisher((subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
     }
@@ -807,6 +799,8 @@ public class SystemTests extends TestCase {
 
     }
 
+    //tests for usecase 4.5
+
     /**
      * Simple owner deletion.
      */
@@ -934,6 +928,7 @@ public class SystemTests extends TestCase {
     }
 
 
+    //Test for usecase 1.1
     @Test
     public void testSetupConfigFileOpenStore(){
         try {
@@ -1000,4 +995,165 @@ public class SystemTests extends TestCase {
         test.setup("123","123","initFile.txt");
         assertEquals(4,test.getStoreById(test.getStoreByName("s1")).getAllManagers().size());
     }
+
+
+    //Test for new usecase 4.3
+
+    /**
+     * Amir appoints two owners, therfore the second one should br approved
+     * test id there are 3 managers after approval
+     */
+    @Test
+    public void testApproveStoreOwnerSuccess(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.logout(sessionId);
+        test.login(sessionId,"bob","1234");
+        test.approveStoreOwner(sessionId,storeId,ownerId2);
+
+        assertEquals(3, store.getAllManagers().size());
+
+    }
+
+    /**
+     * Amir appoints two owners, therfore the second one should br approved
+     * test id there are no pending agreemant after approval
+     */
+    @Test
+    public void testApproveStoreOwnerAgreementRemoved(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.logout(sessionId);
+        test.login(sessionId,"bob","1234");
+        test.approveStoreOwner(sessionId,storeId,ownerId2);
+
+        assertEquals(0, store.getAllGrantingAgreements().size());
+
+    }
+
+    /**
+     * Check if the need to approve Manager got notification after appoint new manager
+     */
+    @Test
+    public void testApproveStoreOwnerNotificationSent(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        Subscriber bob = test.getUserHandler().getSubscriber(ownerId1);
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        int before = bob.getAllNotification().size();
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        int after = bob.getAllNotification().size();
+
+        assertEquals(1,after-before);
+
+
+
+
+    }
+    /**
+     * Amir appoints two owners, therfore the second one should br approved
+     * test id there are 2 managers before approval
+     */
+    @Test
+    public void testNoApproveStoreOwner(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+
+
+        assertEquals(2, store.getAllManagers().size());
+
+    }
+
+    /**
+     * Amir appoints two owners, therfore the second one should br approved
+     * test id there are no pending agreemants after approval
+     */
+    @Test
+    public void testNoApproveStoreOwnerAgremantExist(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+
+
+
+        assertEquals(1, store.getAllGrantingAgreements().size());
+
+    }
+
+    /**
+     * try to approve owner with non existing agreement;
+     */
+    @Test
+    public void testApproveStoreOwnerNoAgreemant(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+
+        assertEquals(ResultCode.ERROR_STORE_OWNER_MODIFICATION
+                    ,test.approveStoreOwner(sessionId,storeId,ownerId1).getResultCode());
+
+    }
+
+    /**
+     * Test if by removal all pending owners to approve, owning request gets approved.
+     */
+    @Test
+    public void testDeleteOwnerToApprove(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.deleteOwner(sessionId,storeId,ownerId1);
+
+        List<Subscriber> managers = store.getAllManagers();
+        boolean own1=false,own2=false;
+        for(Subscriber subscriber : managers){
+            if(subscriber.getId()==ownerId1)
+                own1 = true;
+            if(subscriber.getId() == ownerId2)
+                own2=true;
+        }
+        assertTrue(own2 && !own1);
+
+    }
+
+
 }

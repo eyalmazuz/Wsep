@@ -52,11 +52,6 @@ async function viewManagers(){
     }
 }
 
-function showDeleteManager(){
-    document.getElementById('deleteManagerToStoreForm').style.display='block'
-
-}
-
 async function showAddManager(){
 
     var urlParams = new URLSearchParams(window.location.search);
@@ -98,7 +93,7 @@ async function showRemoveManager(){
         manager = possibleManagers['subscribers'][managerIdx]
         console.log(manager)
         if(manager['type'] === 'Manager'){
-            var x = document.getElementById("employeeSelect");
+            var x = document.getElementById("removeManagerSelect");
             var option = document.createElement("option");
             option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
             x.add(option);
@@ -172,7 +167,7 @@ async function removeManagerFromStore(){
 
     removeManagerURL += 'sessionId=' + sessionStorage['sessionId']
     removeManagerURL += "&storeId=" + storeId;
-    var user = document.getElementById('employeeSelect').value.split(' ')
+    var user = document.getElementById('removeManagerSelect').value.split(' ')
     console.log(user)
     removeManagerURL += "&userId=" + user[1];
 

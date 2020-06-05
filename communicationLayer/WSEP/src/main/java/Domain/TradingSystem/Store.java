@@ -519,4 +519,13 @@ public class Store {
         return malshab2granting.values();
     }
 
+
+    public List<GrantingAgreement> getAgreementsOf(int subId) {
+        List<GrantingAgreement> agreements = new ArrayList<>();
+        for(GrantingAgreement agreement : getAllGrantingAgreements()){
+            if(agreement.getGrantorId()==subId || agreement.getOwner2approve().keySet().contains(subId))
+                agreements.add(agreement);
+        }
+        return agreements;
+    }
 }

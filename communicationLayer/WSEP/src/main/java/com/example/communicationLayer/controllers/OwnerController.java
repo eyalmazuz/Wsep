@@ -73,6 +73,14 @@ public class OwnerController {
         return new OwnerHandler(sessionId).approveStoreOwner(storeId,subId);
     }
 
+    @GetMapping("/getGrantings")
+    @ResponseBody
+    public GrantingResultDTO getGrantings(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                          @RequestParam(value = "subId", defaultValue = "") int subId)
+    {
+        return new OwnerHandler(sessionId).getAllGrantings(subId);
+    }
+
 
     @GetMapping("/addStoreManager")
     @ResponseBody

@@ -374,4 +374,13 @@ public class Subscriber implements UserState {
         removePermission(store,"Manager");
         store.removeManger(this);
     }
+
+    public List<Store> getAllOwnedStores() {
+        List<Store> stores = new ArrayList<>();
+        for( Permission permission : permissions.values()){
+            if(permission.getType().equals("Owner"))
+                stores.add(permission.getStore());
+        }
+        return stores;
+    }
 }

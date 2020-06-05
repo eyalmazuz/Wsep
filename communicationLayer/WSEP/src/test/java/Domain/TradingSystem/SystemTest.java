@@ -13,12 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemTest extends TestCase {
     //System Unitesting
-    System test = new System();
-    UserHandler mockHandler = new userHandlerMock();
+    System test;
+    UserHandler mockHandler;
 
     @Before
     public void setUp(){
         System.testing = true;
+        test = new System();
+        mockHandler = new userHandlerMock();
 
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));

@@ -1346,11 +1346,46 @@ public class System {
                 }
             }
             else{
-                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreemant not exist");
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreement not exist");
             }
         }
 
 
         return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
+    }
+
+    public GrantingResultDTO getAllGrantings(int sessionId, int subId) {
+        User user = userHandler.getUser(sessionId);
+        if(user==null)
+            return new GrantingResultDTO(ResultCode.ERROR_SESSIONID,"Invalid sessionId",null);
+        Subscriber subscriber = (Subscriber) user.getState();
+        if(subscriber.getId()!=subId){
+            return new GrantingResultDTO(ResultCode.ERROR_SUBID,"this is not your Id!",null);
+        }
+
+        List<Store> ownerIn = subscriber.getAllOwnedStores();
+        List<GrantingAgreement> agreements = new ArrayList<>();
+
+        for(Store store:ownerIn){
+            agreements.addAll(store.getAgreementsOf(subId));
+        }
+        List<GrantingAgreementDTO> output = new ArrayList<>();
+        for(GrantingAgreement agreement: agreements){
+            output.add(agreement2DTO(agreement));
+        }
+        return new GrantingResultDTO(ResultCode.SUCCESS,"List of granting agreements of "+subId,output);
+    }
+
+    private GrantingAgreementDTO agreement2DTO(GrantingAgreement agreement) {
+        int grantorId = agreement.getGrantorId();
+        String grantorName = userHandler.getSubscriber(grantorId).getUsername();
+        int candidateId = agreement.getMalshabId();
+        String candidateName = userHandler.getSubscriber(candidateId).getUsername();
+        return new GrantingAgreementDTO(
+                agreement.getStoreId(),
+                new SubscriberDTO(grantorId,grantorName),
+                new SubscriberDTO(candidateId,candidateName),
+                agreement.getOwner2approve()
+        );
     }
 }
