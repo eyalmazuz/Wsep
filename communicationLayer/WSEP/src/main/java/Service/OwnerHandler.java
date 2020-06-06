@@ -256,4 +256,10 @@ public class OwnerHandler {
     public GrantingResultDTO getAllGrantings(int subId) {
         return s.getAllGrantings(sessionId,subId);
     }
+
+    public ActionResultDTO declineStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        return s.declineStoreOwner(sessionId,storeId,subId);
+    }
 }

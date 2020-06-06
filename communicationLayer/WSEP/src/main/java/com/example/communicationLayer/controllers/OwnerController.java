@@ -73,6 +73,14 @@ public class OwnerController {
         return new OwnerHandler(sessionId).approveStoreOwner(storeId,subId);
     }
 
+    @GetMapping("/declineStoreOwner")
+    @ResponseBody
+    public ActionResultDTO declineStoreOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                             @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new OwnerHandler(sessionId).declineStoreOwner(storeId,subId);
+    }
+
     @GetMapping("/getGrantings")
     @ResponseBody
     public GrantingResultDTO getGrantings(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,

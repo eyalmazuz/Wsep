@@ -4,7 +4,6 @@ import DTOs.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -449,5 +448,16 @@ public class Store {
                 agreements.add(agreement);
         }
         return agreements;
+    }
+
+    /**
+     * checks if there is grantingAgreement for subId and grantorID is in the agreement.
+     */
+    public boolean agreementExist(int grantorId, int subId) {
+        GrantingAgreement agreement = malshab2granting.get(subId);
+        if(agreement!=null){
+            return agreement.hasApprove(grantorId);
+        }
+        return false;
     }
 }

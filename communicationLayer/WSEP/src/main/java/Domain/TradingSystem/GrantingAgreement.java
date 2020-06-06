@@ -78,4 +78,8 @@ public class GrantingAgreement {
     public void removeApprove(int id) {
         owner2approve.remove(id);
     }
+
+    public boolean hasApprove(int grantorId) {
+        return owner2approve.get(grantorId)!=null;
+    }
 }
