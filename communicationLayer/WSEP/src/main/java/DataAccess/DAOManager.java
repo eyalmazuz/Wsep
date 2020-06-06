@@ -10,13 +10,13 @@ import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import org.languagetool.rules.AdvancedWordRepeatRule;
 
+import java.io.IOException;
 import java.lang.System;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class DAOManager {
 
@@ -37,6 +37,9 @@ public class DAOManager {
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
     private static Dao<GrantingAgreement, String> grantingAgreementDao;
 
+    // private static boolean isOn;
+    private static Queue<Runnable> toDo = new LinkedBlockingQueue<>();
+
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
             AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
@@ -44,7 +47,6 @@ public class DAOManager {
     public static void init(String databaseName, String username, String password) {
         try {
             connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=UTC");
-
             productInfoDao = DaoManager.createDao(connectionSource, ProductInfo.class);
             buyingPolicyDao = DaoManager.createDao(connectionSource, BuyingPolicy.class);
             simpleBuyingDao = DaoManager.createDao(connectionSource, SimpleBuyingDTO.class);
@@ -63,6 +65,7 @@ public class DAOManager {
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
 
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,14 +75,68 @@ public class DAOManager {
     public static void createProductInfo(ProductInfo productInfo) {
         try {
             productInfoDao.create(productInfo);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createProductInfo(productInfo);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    public static boolean executeTodos() {
+        // isOn = true;
+        boolean ret = false;
+        while (!toDo.isEmpty()) {
+            toDo.poll().run();
+            ret = true;
+        }
+        return ret;
+    }
+
     public static void createProductInStore(ProductInStore pis) {
         try {
             productInStoreDao.create(pis);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createProductInStore(pis);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void advancedBuyingDaoCreate(AdvancedBuyingDTO buyingDTO) {
+        try {
+            advancedBuyingDao.create(buyingDTO);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> advancedBuyingDaoCreate(buyingDTO);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void buyingPolicyDaoCreateOrUpdate(BuyingPolicy policy) {
+        try {
+            buyingPolicyDao.createOrUpdate(policy);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> buyingPolicyDaoCreateOrUpdate(policy);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void simpleBuyingDaoCreate(SimpleBuyingDTO buyingDTO) {
+        try {
+            simpleBuyingDao.create(buyingDTO);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> simpleBuyingDaoCreate(buyingDTO);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -93,12 +150,9 @@ public class DAOManager {
                 buyingTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedBuying ? "advanced" : "simple");
                 orderedBuyingIds.add(subType.getId());
             }
-            try {
-                advancedBuyingDao.create(new AdvancedBuyingDTO(type.getId(), ((AdvancedBuying) type).getLogicalOperation(), buyingTypeIdTypeMap, orderedBuyingIds));
-                buyingPolicyDao.createOrUpdate(policy);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            advancedBuyingDaoCreate(new AdvancedBuyingDTO(type.getId(), ((AdvancedBuying) type).getLogicalOperation(), buyingTypeIdTypeMap, orderedBuyingIds));
+            buyingPolicyDaoCreateOrUpdate(policy);
+
         } else {
             // save via Type Per Hierarchy
             String constraintTypeStr = "";
@@ -119,12 +173,8 @@ public class DAOManager {
                 validCountry = ((UserBuyingConstraint) type).getValidCountry();
             }
 
-            try {
-                simpleBuyingDao.create(new SimpleBuyingDTO(type.getId(), constraintTypeStr, productId, minAmount, maxAmount, validCountry, dayOfWeek));
-                buyingPolicyDao.createOrUpdate(policy);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            simpleBuyingDaoCreate(new SimpleBuyingDTO(type.getId(), constraintTypeStr, productId, minAmount, maxAmount, validCountry, dayOfWeek));
+            buyingPolicyDaoCreateOrUpdate(policy);
         }
     }
 
@@ -300,6 +350,10 @@ public class DAOManager {
     public static void updateProductInfo(ProductInfo productInfo) {
         try {
             productInfoDao.update(productInfo);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateProductInfo(productInfo);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -309,6 +363,10 @@ public class DAOManager {
     public static void createProductInStoreListForStore(Store store) {
         try {
             storeDao.assignEmptyForeignCollection(store, "products");
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createProductInStoreListForStore(store);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -317,6 +375,10 @@ public class DAOManager {
     public static void addStore(Store store) {
         try {
             storeDao.create(store);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addStore(store);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -326,9 +388,14 @@ public class DAOManager {
     public static void clearDatabase() {
         try {
             for (Class c : persistentClasses) TableUtils.clearTable(connectionSource, c);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> clearDatabase();
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     public static List<Store> loadAllStores() {
@@ -405,6 +472,10 @@ public class DAOManager {
     public static void updateStore(Store store) {
         try {
             storeDao.update(store);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateStore(store);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -413,6 +484,10 @@ public class DAOManager {
     public static void updateProductInStore(ProductInStore product) {
         try {
             productInStoreDao.update(product);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateProductInStore(product);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -421,6 +496,10 @@ public class DAOManager {
     public static void createBasketListForCart(ShoppingCart shoppingCart) {
         try {
             shoppingCartDao.assignEmptyForeignCollection(shoppingCart, "persistentShoppingBaskets");
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createBasketListForCart(shoppingCart);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -447,6 +526,10 @@ public class DAOManager {
     public static void createOrUpdateShoppingCart(ShoppingCart shoppingCart) {
         try {
             shoppingCartDao.createOrUpdate(shoppingCart);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createOrUpdateShoppingCart(shoppingCart);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -455,6 +538,10 @@ public class DAOManager {
     public static void updateShoppingBasket(ShoppingBasket shoppingBasket) {
         try {
             shoppingBasketDao.update(shoppingBasket);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateShoppingBasket(shoppingBasket);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -493,14 +580,23 @@ public class DAOManager {
     public static void addSubscriber(Subscriber subscriberState) {
         try {
             subscriberDao.create(subscriberState);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addSubscriber(subscriberState);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     public static void updateSubscriber(Subscriber subscriber) {
         try {
             subscriberDao.update(subscriber);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateSubscriber(subscriber);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -509,6 +605,10 @@ public class DAOManager {
     public static void createOrUpdateSubscriber(Subscriber state) {
         try {
             subscriberDao.createOrUpdate(state);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createOrUpdateSubscriber(state);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -517,6 +617,10 @@ public class DAOManager {
     public static void createPurchaseDetails(PurchaseDetails details) {
         try {
             purchaseDetailsDao.createOrUpdate(details);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createPurchaseDetails(details);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -525,6 +629,10 @@ public class DAOManager {
     public static void createManagerListForStore(Store store) {
         try {
             storeDao.assignEmptyForeignCollection(store, "managers");
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createManagerListForStore(store);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -533,6 +641,10 @@ public class DAOManager {
     public static void createPurchaseHistoryForStore(Store store) {
         try {
             storeDao.assignEmptyForeignCollection(store, "purchaseHistory");
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> createPurchaseHistoryForStore(store);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -541,6 +653,10 @@ public class DAOManager {
     public static void updatePermission(Permission permission) {
         try {
             permissionDao.update(permission);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updatePermission(permission);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -549,6 +665,46 @@ public class DAOManager {
     public static void addPermission(Permission permission) {
         try {
             permissionDao.create(permission);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addPermission(permission);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void advancedDiscountDaoCreate(AdvancedDiscountDTO discountDTO) {
+        try {
+            advancedDiscountDao.create(discountDTO);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> advancedDiscountDaoCreate(discountDTO);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void discountPolicyDaoCreateOrUpdate(DiscountPolicy policy) {
+        try {
+            discountPolicyDao.create(policy);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> discountPolicyDaoCreateOrUpdate(policy);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void simpleDiscountDaoCreate(SimpleDiscountDTO discountDTO) {
+        try {
+            simpleDiscountDao.create(discountDTO);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> simpleDiscountDaoCreate(discountDTO);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -562,12 +718,10 @@ public class DAOManager {
                 discountTypeIdTypeMap.put(subType.getId(), subType instanceof AdvancedDiscount ? "advanced" : "simple");
                 orderedDiscountIds.add(subType.getId());
             }
-            try {
-                advancedDiscountDao.create(new AdvancedDiscountDTO(type.getId(), ((AdvancedDiscount) type).getLogicalOperation(), discountTypeIdTypeMap, orderedDiscountIds));
-                discountPolicyDao.createOrUpdate(policy);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+
+            advancedDiscountDaoCreate(new AdvancedDiscountDTO(type.getId(), ((AdvancedDiscount) type).getLogicalOperation(), discountTypeIdTypeMap, orderedDiscountIds));
+            discountPolicyDaoCreateOrUpdate(policy);
+
         } else {
             // save via Type Per Hierarchy
             String discountTypeStr = "";
@@ -582,14 +736,9 @@ public class DAOManager {
                 categoryName = ((ProductDiscount) type).getCategoryName();
             }
 
-            try {
-                simpleDiscountDao.create(new SimpleDiscountDTO(type.getId(), discountTypeStr, productId, categoryName, salePercentage));
-                discountPolicyDao.createOrUpdate(policy);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            simpleDiscountDaoCreate(new SimpleDiscountDTO(type.getId(), discountTypeStr, productId, categoryName, salePercentage));
+            discountPolicyDaoCreateOrUpdate(policy);
         }
-
     }
 
     public static List<Permission> loadAllPermissions() {
@@ -604,6 +753,10 @@ public class DAOManager {
     public static void removePermission(Permission permission) {
         try {
             permissionDao.delete(permission);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> removePermission(permission);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -621,6 +774,10 @@ public class DAOManager {
     public static void updateGrantingAgreement(GrantingAgreement grantingAgreement) {
         try {
             grantingAgreementDao.update(grantingAgreement);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateGrantingAgreement(grantingAgreement);
+            toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
         }
