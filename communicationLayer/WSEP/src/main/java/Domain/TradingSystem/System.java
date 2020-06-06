@@ -644,6 +644,7 @@ public class System {
             }
             u.getShoppingCart().setSubscriberId(subId);
             DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
+            java.lang.System.out.println(DAOManager.loadShoppingCartBySubscriberId(subId));
             return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
         }
         return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);

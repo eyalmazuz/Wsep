@@ -679,22 +679,19 @@ public class DAOManager {
         return false;
     }
 
-    public static Subscriber getSubscriberByUsernameAndPassword(String username, String hashedPassword) {
+    public static Subscriber getSubscriberByUsername(String username) {
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
-        SelectArg selectArg1 = new SelectArg();
-        selectArg1.setValue(hashedPassword);
         Where<Subscriber, String> where = queryBuilder.where();
         try {
             where.eq("username", selectArg);
-            where.and();
-            where.eq("hashedPassword", selectArg1);
             PreparedQuery<Subscriber> query = queryBuilder.prepare();
             List<Subscriber> subscribers = subscriberDao.query(query);
             if (subscribers.isEmpty()) return null;
             Subscriber subscriber = subscribers.get(0);
             fixSubscriber(subscriber);
+            return subscriber;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -716,4 +713,5 @@ public class DAOManager {
         }
         return false;
     }
+
 }

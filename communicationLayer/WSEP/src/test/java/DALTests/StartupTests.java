@@ -169,6 +169,25 @@ public class StartupTests extends TestCase {
 
     @Test
     public void testSubscriberShoppingCartStartup() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+
+        test.addProductInfo(1, "lambda", "snacks", 20.0);
+        test.addProductToStore(sessionId, storeId, 1, 30);
+
+        test.addToCart(sessionId, storeId, 1, 10);
+
+        test = new System();
+
+        sessionId = test.startSession().getId();
+        test.login(sessionId, "user", "passw0rd");
+
+        ShoppingCart savedCart = test.getUser(sessionId).getShoppingCart();
+        assertEquals(savedCart.getBaskets().size(), 1);
+        ShoppingBasket basket = savedCart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 10);
 
     }
 }
