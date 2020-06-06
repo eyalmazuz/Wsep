@@ -50,7 +50,7 @@ public class Store {
     private DiscountPolicy discountPolicy;
 
     @DatabaseField
-    private int nextPurchaseId = 0;
+    public static int nextPurchaseId = 0;
 
     @DatabaseField
     private double rating = -1;

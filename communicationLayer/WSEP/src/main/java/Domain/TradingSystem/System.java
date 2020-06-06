@@ -59,6 +59,9 @@ public class System {
         }
 
         User.idCounter = DAOManager.getMaxSubscriberId() + 1;
+        Store.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
+        BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
+        DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
     }
 
     public static System getInstance(){
@@ -112,7 +115,7 @@ public class System {
     }
 
     private void setPayment(String config) throws Exception {
-       paymentHandler = new PaymentHandler(config);
+        paymentHandler = new PaymentHandler(config);
     }
 
 
@@ -137,7 +140,7 @@ public class System {
     private void parseFile(String filePath) throws Exception {
 
         if (filePath!= null){
-            int sessionId = -1;
+            int sessionId = startSession().getId();
             int storeId;
             File file = new File(filePath);
             Scanner fileScanner = new Scanner(file);
@@ -147,11 +150,9 @@ public class System {
                 String[] args = command.substring(command.indexOf("(")+1,command.indexOf(")")).split(",");
                 switch (action){
                     case "register":
-                        sessionId = startSession().getId();
                         register(sessionId,args[0],"123");
                         break;
                     case "login":
-                        sessionId = startSession().getId();
                         login(sessionId,args[0],"123");
                         break;
                     case "logout" :
@@ -302,6 +303,7 @@ public class System {
         logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, amount, productId, storeId));
         ProductInfo info = getProductInfoById(productId);
         if(info != null) {
+
             Store store = getStoreById(storeId);
             if (store != null) {
                 ActionResultDTO result = store.addProduct(info, amount);
@@ -351,7 +353,7 @@ public class System {
         if(getProductInfoById(productId) != null) {
             Store store = getStoreById(storeId);
             if (store != null) {
-               ActionResultDTO result =  store.deleteProduct(productId);
+                ActionResultDTO result =  store.deleteProduct(productId);
                 //Publisher Update
                 if(result.getResultCode()==ResultCode.SUCCESS){
                     if(publisher != null)
@@ -382,26 +384,26 @@ public class System {
 
         List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
 
-           Store store = getStoreById(storeId);
-           if (store!=null) {
-               owners = store.getAllManagers();
-               List<Subscriber> filterd = userHandler.getAvailableUsersToOwn(owners); // return only available subs
+        Store store = getStoreById(storeId);
+        if (store!=null) {
+            owners = store.getAllManagers();
+            List<Subscriber> filterd = userHandler.getAvailableUsersToOwn(owners); // return only available subs
 
-               return new SubscriberActionResultDTO(ResultCode.SUCCESS, "List of optional managers", getSubsDtos(filterd));
-           }
-           return  new SubscriberActionResultDTO(ResultCode.ERROR_STOREID,"Store Id doesn't exist",null);
-
-
+            return new SubscriberActionResultDTO(ResultCode.SUCCESS, "List of optional managers", getSubsDtos(filterd));
         }
+        return  new SubscriberActionResultDTO(ResultCode.ERROR_STOREID,"Store Id doesn't exist",null);
 
-        private List<SubscriberDTO> getSubsDtos(List<Subscriber> lst){
-            List<SubscriberDTO> subscriberDTOS = new ArrayList<>();
-            for (Subscriber subscriber : lst) {
-                SubscriberDTO subscriberDTO = new SubscriberDTO(subscriber.getId(), subscriber.getUsername());
-                subscriberDTOS.add(subscriberDTO);
-            }
-            return subscriberDTOS;
+
+    }
+
+    private List<SubscriberDTO> getSubsDtos(List<Subscriber> lst){
+        List<SubscriberDTO> subscriberDTOS = new ArrayList<>();
+        for (Subscriber subscriber : lst) {
+            SubscriberDTO subscriberDTO = new SubscriberDTO(subscriber.getId(), subscriber.getUsername());
+            subscriberDTOS.add(subscriberDTO);
         }
+        return subscriberDTOS;
+    }
 
 
 
@@ -418,8 +420,8 @@ public class System {
             List<Integer> owners = store.getOwners().stream().map(Subscriber::getId).collect(Collectors.toList());
             GrantingAgreement agreement = new GrantingAgreement(storeId,owner.getId(),newOwner.getId(),owners);
             if(agreement.allAproved()){
-            if (setStoreOwner(owner, newOwner, store))
-                return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                if (setStoreOwner(owner, newOwner, store))
+                    return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
             }
             else{
                 if(store.addAgreement(agreement)) {
@@ -444,7 +446,7 @@ public class System {
             List<Integer> id = new ArrayList<>();
             id.add(newOwner.getId());
             if(publisher!=null) {
-               notifyAndUpdate(id,"You are now store owner of store " + store.getId());
+                notifyAndUpdate(id,"You are now store owner of store " + store.getId());
             }
             return true;
         }
@@ -505,14 +507,14 @@ public class System {
                 Subscriber managerToDelete = userHandler.getSubscriber(userId);
                 if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
 
-                        managerToDelete.removeManagment(storeId);
-                        List<Integer> id = new ArrayList<>();
+                    managerToDelete.removeManagment(storeId);
+                    List<Integer> id = new ArrayList<>();
 
-                        id.add(managerToDelete.getId());
-                        if(publisher!= null)
-                            notifyAndUpdate(id,"You got deleted from store "+storeId);
+                    id.add(managerToDelete.getId());
+                    if(publisher!= null)
+                        notifyAndUpdate(id,"You got deleted from store "+storeId);
 
-                        return new ActionResultDTO(ResultCode.SUCCESS, null);
+                    return new ActionResultDTO(ResultCode.SUCCESS, null);
 
                 }
                 return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager must exist and not be yourself.");
@@ -545,7 +547,7 @@ public class System {
         else
             return null;
 
-}
+    }
 
     /**
      *
@@ -644,7 +646,7 @@ public class System {
             DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
             return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
         }
-       return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
+        return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
     }
 
     // Usecase 2.3
@@ -657,7 +659,9 @@ public class System {
 
         if (subToLogin != null) {
 
+            userHandler.subscribers.put(subToLogin.getId(), subToLogin);
             u.setState(subToLogin);
+            setState(sessionId, subToLogin.getId());
 
             // fix user shopping cart
             ShoppingCart cart = DAOManager.loadShoppingCartBySubscriberId(subToLogin.getId());
@@ -782,13 +786,13 @@ public class System {
     }
     public UserPurchaseHistoryDTO getUserHistory(int subId){
         logger.info("getUserHistory: SubscriberId "+subId);
-            Subscriber subscriber = userHandler.getSubscriber(subId);
-            if (subscriber != null) {
-                Map<Store, List<PurchaseDetails>> history = subscriber.getStorePurchaseLists();
-                return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history", getHistoryMap(history));
+        Subscriber subscriber = userHandler.getSubscriber(subId);
+        if (subscriber != null) {
+            Map<Store, List<PurchaseDetails>> history = subscriber.getStorePurchaseLists();
+            return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history", getHistoryMap(history));
 
-            }
-            return new UserPurchaseHistoryDTO(ResultCode.ERROR_SUBID,"Invalid subscriber Id",null);
+        }
+        return new UserPurchaseHistoryDTO(ResultCode.ERROR_SUBID,"Invalid subscriber Id",null);
 
     }
 
@@ -822,7 +826,7 @@ public class System {
 
 
     public Store getStoreById(int storeId){
-       return stores.get(storeId);
+        return stores.get(storeId);
     }
 
     private ActionResultDTO checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
@@ -952,6 +956,7 @@ public class System {
         if (products.get(id) != null) {
             return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
         }
+
         products.put(id,productInfo);
         DAOManager.createProductInfo(productInfo);
         return new IntActionResultDto(ResultCode.SUCCESS,"Product "+id+" added to system",id);
@@ -1246,7 +1251,7 @@ public class System {
         if ( permission == null){
             return new PermissionActionResultDTO(ResultCode.ERROR_STOREID,"permission in store "+ storeId+"Not exist!",null);
         }
-         PermissionDTO permissionDTO = getPermissionDTO(permission);
+        PermissionDTO permissionDTO = getPermissionDTO(permission);
         return new PermissionActionResultDTO(ResultCode.SUCCESS,"got user permissions",permissionDTO);
     }
 
@@ -1298,11 +1303,11 @@ public class System {
                 if (ownerToDelete != null && !subscriber.equals(ownerToDelete)) {
                     if (ownerToDelete.isGrantedBy(storeId, subscriber.getId())) {
 
-                       List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
-                       if(publisher!=null)
-                        notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
-                       handleGrantingAgreements(storeId);
-                       return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
+                        List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
+                        if(publisher!=null)
+                            notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
+                        handleGrantingAgreements(storeId);
+                        return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
                     } else {
                         return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
                     }

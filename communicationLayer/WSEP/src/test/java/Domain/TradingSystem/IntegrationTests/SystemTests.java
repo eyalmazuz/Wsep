@@ -257,7 +257,8 @@ public class SystemTests extends TestCase {
         info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         u = test.getUser(sessionId);
-        u.setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
         u.addProductToCart(store1, info, 4);
 
         try {

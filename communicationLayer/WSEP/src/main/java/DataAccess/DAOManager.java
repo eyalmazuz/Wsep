@@ -111,12 +111,10 @@ public class DAOManager {
                 if (info != null) productId = info.getId();
                 minAmount = ((BasketBuyingConstraint) type).getMinAmount();
                 maxAmount = ((BasketBuyingConstraint) type).getMaxAmount();
-            }
-            else if (type instanceof SystemBuyingConstraint) {
+            } else if (type instanceof SystemBuyingConstraint) {
                 constraintTypeStr = "system";
                 dayOfWeek = ((SystemBuyingConstraint) type).getForbiddenDay();
-            }
-            else if (type instanceof UserBuyingConstraint) {
+            } else if (type instanceof UserBuyingConstraint) {
                 constraintTypeStr = "user";
                 validCountry = ((UserBuyingConstraint) type).getValidCountry();
             }
@@ -137,8 +135,7 @@ public class DAOManager {
             if (type.equals("simple")) {
                 BuyingType simpleType = loadSimpleBuyingType(typeId);
                 policy.addSimpleBuyingType((SimpleBuying) simpleType);
-            }
-            else policy.addAdvancedBuyingType((AdvancedBuying) loadAdvancedBuyingType(typeId), true);
+            } else policy.addAdvancedBuyingType((AdvancedBuying) loadAdvancedBuyingType(typeId), true);
         }
     }
 
@@ -160,7 +157,7 @@ public class DAOManager {
         BuyingPolicy policy = null;
         try {
             policy = buyingPolicyDao.queryForId(Integer.toString(id));
-            if (policy!= null) fixBuyingPolicy(policy);
+            if (policy != null) fixBuyingPolicy(policy);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -178,14 +175,19 @@ public class DAOManager {
         SimpleBuying result = null;
         if (dto.getTypeStr().equals("basket")) {
             if (dto.getProductInfoId() == -1) {
-                if (dto.getMinAmount() != -1) result = new BasketBuyingConstraint.MinProductAmountConstraint(dto.getMinAmount());
+                if (dto.getMinAmount() != -1)
+                    result = new BasketBuyingConstraint.MinProductAmountConstraint(dto.getMinAmount());
                 else result = new BasketBuyingConstraint.MaxProductAmountConstraint(dto.getMaxAmount());
             } else {
-                if (dto.getMinAmount() != -1) result = new BasketBuyingConstraint.MinAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMinAmount());
-                else result = new BasketBuyingConstraint.MaxAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMaxAmount());
+                if (dto.getMinAmount() != -1)
+                    result = new BasketBuyingConstraint.MinAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMinAmount());
+                else
+                    result = new BasketBuyingConstraint.MaxAmountForProductConstraint(loadProductInfo(dto.getProductInfoId()), dto.getMaxAmount());
             }
-        } else if (dto.getTypeStr().equals("user")) result = new UserBuyingConstraint.NotOutsideCountryConstraint(dto.getValidCountry());
-        else if (dto.getTypeStr().equals("system")) result = new SystemBuyingConstraint.NotOnDayConstraint(dto.getDayOfWeek());
+        } else if (dto.getTypeStr().equals("user"))
+            result = new UserBuyingConstraint.NotOutsideCountryConstraint(dto.getValidCountry());
+        else if (dto.getTypeStr().equals("system"))
+            result = new SystemBuyingConstraint.NotOnDayConstraint(dto.getDayOfWeek());
 
         result.setId(dto.getId());
 
@@ -218,7 +220,7 @@ public class DAOManager {
         DiscountPolicy policy = null;
         try {
             policy = discountPolicyDao.queryForId(Integer.toString(id));
-            if (policy!= null) fixDiscountPolicy(policy);
+            if (policy != null) fixDiscountPolicy(policy);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -232,8 +234,7 @@ public class DAOManager {
             if (type.equals("simple")) {
                 DiscountType simpleType = loadSimpleDiscountType(typeId);
                 policy.addSimpleDiscountType((SimpleDiscount) simpleType);
-            }
-            else policy.addAdvancedDiscountType((AdvancedDiscount) loadAdvancedDiscountType(typeId), true);
+            } else policy.addAdvancedDiscountType((AdvancedDiscount) loadAdvancedDiscountType(typeId), true);
         }
     }
 
@@ -247,7 +248,8 @@ public class DAOManager {
         if (dto == null) System.err.println("Could not find simple discount type " + typeId + " in database");
         SimpleDiscount result = null;
         if (dto.getTypeStr().equals("product")) {
-            if (dto.getCategoryName() == null) result = new ProductDiscount.ProductSaleDiscount(dto.getProductId(), dto.getSalePercentage());
+            if (dto.getCategoryName() == null)
+                result = new ProductDiscount.ProductSaleDiscount(dto.getProductId(), dto.getSalePercentage());
             else result = new ProductDiscount.CategorySaleDiscount(dto.getCategoryName(), dto.getSalePercentage());
         }
         result.setId(dto.getId());
@@ -360,7 +362,8 @@ public class DAOManager {
         for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
             List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
             List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
-            for (Integer purchaseDetailsId : purchaseDetailsIds) purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
+            for (Integer purchaseDetailsId : purchaseDetailsIds)
+                purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
             storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
         }
         subscriber.setStorePurchaseLists(storePurchaseLists);
@@ -632,6 +635,34 @@ public class DAOManager {
         return -1;
     }
 
+    public static int getMaxPurchaseDetailsId() {
+        try {
+            return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchasedetails");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getMaxBuyingPolicyId() {
+        try {
+            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingpolicies");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getMaxDiscountPolicyId() {
+        try {
+            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountpolicies");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
     public static boolean subscriberExists(String username) {
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
@@ -645,6 +676,44 @@ public class DAOManager {
             e.printStackTrace();
         }
 
+        return false;
+    }
+
+    public static Subscriber getSubscriberByUsernameAndPassword(String username, String hashedPassword) {
+        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(username);
+        SelectArg selectArg1 = new SelectArg();
+        selectArg1.setValue(hashedPassword);
+        Where<Subscriber, String> where = queryBuilder.where();
+        try {
+            where.eq("username", selectArg);
+            where.and();
+            where.eq("hashedPassword", selectArg1);
+            PreparedQuery<Subscriber> query = queryBuilder.prepare();
+            List<Subscriber> subscribers = subscriberDao.query(query);
+            if (subscribers.isEmpty()) return null;
+            Subscriber subscriber = subscribers.get(0);
+            fixSubscriber(subscriber);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean hasAdmin() {
+        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(true);
+        Where<Subscriber, String> where = queryBuilder.where();
+        try {
+            where.eq("isAdmin", selectArg);
+            PreparedQuery<Subscriber> query = queryBuilder.prepare();
+            List<Subscriber> subscribers = subscriberDao.query(query);
+            return !subscribers.isEmpty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 }

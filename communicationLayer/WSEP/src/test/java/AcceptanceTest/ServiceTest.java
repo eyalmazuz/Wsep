@@ -2,10 +2,7 @@ package AcceptanceTest;
 
 import AcceptanceTest.Data.Database;
 import DataAccess.DAOManager;
-import Domain.TradingSystem.Store;
-import Domain.TradingSystem.Subscriber;
 import Domain.TradingSystem.System;
-import Domain.TradingSystem.User;
 import Service.Bridge;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -26,7 +23,7 @@ public abstract class ServiceTest extends TestCase {
         this.setupSystem("Mock Config", "Mock Config","");
 
         if(Driver.flag) {
-
+            DAOManager.clearDatabase(); // start tests with a clean database
             this.setUpUsers();
             login(Database.sessionId, "admin", "admin");
             addProductInfo(Database.sessionId, 1, "UO", "KB", 10);
@@ -39,7 +36,7 @@ public abstract class ServiceTest extends TestCase {
 
     @After
     public void tearDown() {
-        DAOManager.clearDatabase();
+
     }
 
     private void setUpUsers() {
@@ -81,7 +78,7 @@ public abstract class ServiceTest extends TestCase {
 
     public int openStore(int sessionId){ return bridge.openStore(sessionId); }
 
-    public boolean addProdcut(boolean flag, int sessionId, int productId, int storeId, int amount) { return bridge.addProduct(flag, sessionId, productId, storeId, amount); }
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount) { return bridge.addProductToStore(flag, sessionId, productId, storeId, amount); }
 
     public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) { return bridge.editProduct(flag, sessionId, storeId, productId, productInfo); }
 

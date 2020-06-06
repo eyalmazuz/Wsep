@@ -42,6 +42,7 @@ public class OwnerHandler {
 
     //uscase 4.1.3
     public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
+        //java.lang.System.out.println("asdasd");
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }

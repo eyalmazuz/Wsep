@@ -45,6 +45,7 @@ public class StartupTests extends TestCase {
         assertEquals(info.getDefaultPrice(), 40.0);
     }
 
+
     @Test
     public void testStoreStartup() {
         int sessionId = test.startSession().getId();
@@ -60,7 +61,7 @@ public class StartupTests extends TestCase {
         test.register(sessionId2, "user2", "passw0rd");
         test.login(sessionId2, "user2", "passw0rd");
 
-        java.lang.System.out.println(test.addStoreOwner(sessionId, storeId, sessionId2).getDetails());
+        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
 
         test = new System();
 

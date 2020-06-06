@@ -23,6 +23,7 @@ public class UserHandler {
         if(!hasAdmin()){
             Subscriber admin = new Subscriber("admin", Security.getHash("admin"), true);
             subscribers.put(admin.getId(),admin);
+            DAOManager.createOrUpdateSubscriber(admin);
         }
     }
 
@@ -64,7 +65,7 @@ public class UserHandler {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
         }
-        return null;
+        return DAOManager.getSubscriberByUsernameAndPassword(username, hashedPassword);
     }
 
     public Subscriber getSubscriberUser(String username) {

@@ -23,7 +23,7 @@ public class DiscountPolicy {
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private HashMap<Integer, String> discountTypeIDs = new HashMap<>();
     private Map<Integer, DiscountType> discountTypes = new HashMap<>();
-    private static int nextId = 0;
+    public static int nextId = 0;
 
     public DiscountPolicy () { }
 

@@ -27,7 +27,7 @@ public class BuyingPolicy {
     private HashMap<Integer, String> buyingTypeIDs = new HashMap<>();
 
     private Map<Integer, BuyingType> buyingTypes = new HashMap<>();
-    private static int nextId = 0;
+    public static int nextId = 0;
 
     public BuyingPolicy () { }
 

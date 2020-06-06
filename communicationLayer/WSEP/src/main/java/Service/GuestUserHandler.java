@@ -9,13 +9,14 @@ public class GuestUserHandler {
     System s = System.getInstance();
 
     public IntActionResultDto login(int sessionId , String username, String password) {
+
         //check if guest - userHandler
         if (s.isGuest(sessionId)){
             int subId = s.getSubscriber(username, password);
             if(subId != -1){
-                s.setState(sessionId, subId);
+                boolean success = s.login(sessionId, username, password);
 //                s.pullNotifications(subId);
-                return new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId);
+                return success ? new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId) : new IntActionResultDto(ResultCode.ERROR_LOGIN, "Login failed", -1);
             }
             return new IntActionResultDto(ResultCode.ERROR_LOGIN, "No such username.",-1);
         }

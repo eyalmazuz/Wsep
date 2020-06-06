@@ -2,8 +2,6 @@ package AcceptanceTest.AdminTests;
 
 import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
-import Domain.TradingSystem.Store;
-import Domain.TradingSystem.Subscriber;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +19,8 @@ public class AdminSearchTests extends ServiceTest {
 
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "123456");

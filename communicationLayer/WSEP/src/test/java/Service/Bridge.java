@@ -32,7 +32,7 @@ public interface Bridge {
 
     String searchUserHistory(int sessionId, int userId);
 
-    boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount);
+    boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount);
 
     boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo);
 
