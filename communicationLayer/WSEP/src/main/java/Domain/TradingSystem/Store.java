@@ -49,8 +49,6 @@ public class Store {
     @DatabaseField (foreign = true)
     private DiscountPolicy discountPolicy;
 
-    @DatabaseField
-    public static int nextPurchaseId = 0;
 
     @DatabaseField
     private double rating = -1;
@@ -185,13 +183,12 @@ public class Store {
         for (ProductInfo product : products.keySet()) {
             productInfoIntegerMap.put(product, products.get(product));
         }
-        PurchaseDetails details = addPurchase(nextPurchaseId, user, productInfoIntegerMap, totalPrice);
-        nextPurchaseId++;
+        PurchaseDetails details = addPurchase(user, productInfoIntegerMap, totalPrice);
         return details;
     }
 
-    public PurchaseDetails addPurchase(int purchaseId, User user, HashMap<ProductInfo, Integer> products, double price) {
-        PurchaseDetails details = new PurchaseDetails(purchaseId, user, this, products, price);
+    public PurchaseDetails addPurchase(User user, HashMap<ProductInfo, Integer> products, double price) {
+        PurchaseDetails details = new PurchaseDetails(user, this, products, price);
         purchaseHistory.add(details);
         DAOManager.createPurchaseDetails(details);
         DAOManager.updateStore(this);
@@ -527,5 +524,16 @@ public class Store {
                 agreements.add(agreement);
         }
         return agreements;
+    }
+
+    /**
+     * checks if there is grantingAgreement for subId and grantorID is in the agreement.
+     */
+    public boolean agreementExist(int grantorId, int subId) {
+        GrantingAgreement agreement = malshab2granting.get(subId);
+        if(agreement!=null){
+            return agreement.hasApprove(grantorId);
+        }
+        return false;
     }
 }

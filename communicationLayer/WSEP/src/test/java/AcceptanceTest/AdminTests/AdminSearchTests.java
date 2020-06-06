@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AdminSearchTests extends ServiceTest {
+
+
     /*
      * USE CASES 6.4.1-6.4.2
      *

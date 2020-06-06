@@ -59,7 +59,7 @@ public class System {
         }
 
         User.idCounter = DAOManager.getMaxSubscriberId() + 1;
-        Store.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
+        PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
     }
@@ -644,6 +644,7 @@ public class System {
             }
             u.getShoppingCart().setSubscriberId(subId);
             DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
+            java.lang.System.out.println(DAOManager.loadShoppingCartBySubscriberId(subId));
             return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
         }
         return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
@@ -1409,5 +1410,23 @@ public class System {
                 new SubscriberDTO(candidateId,candidateName),
                 agreement.getOwner2approve()
         );
+    }
+
+    public ActionResultDTO declineStoreOwner(int sessionId, int storeId, int subId) {
+        Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
+        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Store store = getStoreById(storeId);
+        if(store != null){
+            if(store.agreementExist(owner.getId(),subId)) {
+                store.removeAgreement(subId);
+                return new ActionResultDTO(ResultCode.SUCCESS, "agreement is declined.");
+            }
+            else{
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreement not exist");
+            }
+        }
+
+
+        return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 }

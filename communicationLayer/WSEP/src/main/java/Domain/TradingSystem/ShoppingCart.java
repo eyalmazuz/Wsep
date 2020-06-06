@@ -254,4 +254,9 @@ public class ShoppingCart {
     public void setUser(User u) {
         this.user = u;
     }
+
+    public int getId() {
+        return subscriberId;
+    }
+
 }

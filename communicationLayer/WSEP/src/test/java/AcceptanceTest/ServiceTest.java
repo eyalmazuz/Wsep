@@ -20,10 +20,10 @@ public abstract class ServiceTest extends TestCase {
 
         Database.sessionId = startSession();
 
-        this.setupSystem("Mock Config", "Mock Config","");
 
         if(Driver.flag) {
             DAOManager.clearDatabase(); // start tests with a clean database
+            this.setupSystem("Mock Config", "Mock Config","");
             this.setUpUsers();
             login(Database.sessionId, "admin", "admin");
             addProductInfo(Database.sessionId, 1, "UO", "KB", 10);

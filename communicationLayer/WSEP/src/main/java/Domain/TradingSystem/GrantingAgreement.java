@@ -113,4 +113,8 @@ public class GrantingAgreement implements Serializable {
         }
         return output;
     }
+
+    public boolean hasApprove(int grantorId) {
+        return owner2approve.get(grantorId)!=null;
+    }
 }
