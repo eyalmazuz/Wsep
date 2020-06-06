@@ -266,7 +266,7 @@ public class SubscriberTest extends TestCase {
         products = new HashMap<>();
         productInfo = new ProductInfo(3,"bamba","hatif", 10);
         products.put(productInfo,2);
-        details = new PurchaseDetails(3,user,store,products,13.8);
+        details = new PurchaseDetails(user,store,products,13.8);
         storePurchaseDetails.put(store,details);
         subscriber.addPurchase(storePurchaseDetails);
         //Assert.assertEquals(subscriber.getPurchaseHistory());

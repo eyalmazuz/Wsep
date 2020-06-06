@@ -33,12 +33,14 @@ public class PurchaseDetails {
     @DatabaseField
     private double price;
 
+    public static int nextPurchaseId = 0;
+
     public PurchaseDetails () {}
 
-    public PurchaseDetails(int id, User user, Store store, HashMap<ProductInfo, Integer> products, double price) {
-//        this.dateTime = LocalDateTime.now();
+    public PurchaseDetails(User user, Store store, HashMap<ProductInfo, Integer> products, double price) {
         this.dateTime = new Timestamp(java.lang.System.currentTimeMillis());
-        this.id = id;
+        this.id = nextPurchaseId;
+        nextPurchaseId++;
         this.user = user;
         if (user.getState() instanceof Subscriber) subscriberId = ((Subscriber) user.getState()).getId();
         this.store = store;

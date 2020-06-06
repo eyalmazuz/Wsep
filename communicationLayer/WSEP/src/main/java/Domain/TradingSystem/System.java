@@ -59,7 +59,7 @@ public class System {
         }
 
         User.idCounter = DAOManager.getMaxSubscriberId() + 1;
-        Store.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
+        PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
     }
