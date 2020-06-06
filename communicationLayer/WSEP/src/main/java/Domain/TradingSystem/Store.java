@@ -525,4 +525,15 @@ public class Store {
         }
         return agreements;
     }
+
+    /**
+     * checks if there is grantingAgreement for subId and grantorID is in the agreement.
+     */
+    public boolean agreementExist(int grantorId, int subId) {
+        GrantingAgreement agreement = malshab2granting.get(subId);
+        if(agreement!=null){
+            return agreement.hasApprove(grantorId);
+        }
+        return false;
+    }
 }

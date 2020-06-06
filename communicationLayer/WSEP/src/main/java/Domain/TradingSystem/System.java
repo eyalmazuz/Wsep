@@ -1411,4 +1411,22 @@ public class System {
                 agreement.getOwner2approve()
         );
     }
+
+    public ActionResultDTO declineStoreOwner(int sessionId, int storeId, int subId) {
+        Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
+        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Store store = getStoreById(storeId);
+        if(store != null){
+            if(store.agreementExist(owner.getId(),subId)) {
+                store.removeAgreement(subId);
+                return new ActionResultDTO(ResultCode.SUCCESS, "agreement is declined.");
+            }
+            else{
+                return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION,"agreement not exist");
+            }
+        }
+
+
+        return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
+    }
 }
