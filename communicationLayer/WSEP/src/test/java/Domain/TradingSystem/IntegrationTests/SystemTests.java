@@ -1152,5 +1152,23 @@ public class SystemTests extends TestCase {
 
     }
 
+    @Test
+    public void testDeclineStoreOwnerSuccess(){
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
+        int ownerId1 = test.register(sessionId,"bob","1234").getId();
+        int ownerId2 = test.register(sessionId,"mo","1234").getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.logout(sessionId);
+        test.login(sessionId,"bob","1234");
+        test.declineStoreOwner(sessionId,storeId,ownerId2);
+
+        assertEquals(2, store.getAllManagers().size());
+    }
+
 
 }
