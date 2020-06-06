@@ -809,22 +809,18 @@ public class SystemTests extends TestCase {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
-        int sessionId = test.startSession().getId();
-        int ownerId = test.register(sessionId,"bob","1234").getId();
-        sessionId = test.startSession().getId();
-        int managerId = test.register(sessionId,"mo","1234").getId();
+        int ownerId = test.register(firstId,"bob","1234").getId();
+        int managerId = test.register(firstId,"mo","1234").getId();
         test.login(firstId,"amir","1234");
         int storeId = test.openStore(firstId).getId();
         Store store = test.getStoreById(storeId);
         test.addStoreOwner(firstId,storeId,ownerId);
         test.logout(firstId);
-        sessionId = test.startSession().getId();
-        test.login(sessionId,"bob","1234");
-        test.addStoreManager(sessionId,storeId,managerId);
-        test.logout(sessionId);
+        test.login(firstId,"bob","1234");
+        test.addStoreManager(firstId,storeId,managerId);
+        test.logout(firstId);
 
         //do action
-        firstId = test.startSession().getId();
         test.login(firstId,"amir","1234");
         test.deleteOwner(firstId,storeId,ownerId);
 
@@ -842,12 +838,9 @@ public class SystemTests extends TestCase {
         int firstId = test.startSession().getId();
 
         test.register(firstId,"amir","1234");
-        int sessionId = test.startSession().getId();
-        int bobId = test.register(sessionId,"bob","1234").getId();
-        sessionId = test.startSession().getId();
-        int moId = test.register(sessionId,"mo","1234").getId();
-        sessionId = test.startSession().getId();
-        int larryId = test.register(sessionId,"larry","1234").getId();
+        int bobId = test.register(firstId,"bob","1234").getId();
+        int moId = test.register(firstId,"mo","1234").getId();
+        int larryId = test.register(firstId,"larry","1234").getId();
 
         test.login(firstId,"amir","1234");
         int storeId = test.openStore(firstId).getId();
@@ -855,16 +848,15 @@ public class SystemTests extends TestCase {
         test.addStoreOwner(firstId,storeId,bobId);
         test.logout(firstId);
 
-        test.login(bobId,"bob","1234");
-        test.addStoreOwner(bobId,storeId,moId);
-        test.logout(bobId);
+        test.login(firstId,"bob","1234");
+        test.addStoreOwner(firstId,storeId,moId);
+        test.logout(firstId);
 
-        test.login(moId,"mo","1234");
-        test.addStoreManager(moId,storeId,larryId);
-        test.logout(moId);
+        test.login(firstId,"mo","1234");
+        test.addStoreManager(firstId,storeId,larryId);
+        test.logout(firstId);
 
         //do action
-        firstId = test.startSession().getId();
         test.login(firstId,"amir","1234");
         test.deleteOwner(firstId,storeId,bobId);
 
@@ -900,8 +892,7 @@ public class SystemTests extends TestCase {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
-        int sessionId = test.startSession().getId();
-        int ownerId = test.register(sessionId,"bob","1234").getId();
+        int ownerId = test.register(firstId,"bob","1234").getId();
         Subscriber bob = test.getUserHandler().getSubscriber(ownerId);
         test.login(firstId,"amir","1234");
         int storeId = test.openStore(firstId).getId();
@@ -925,15 +916,14 @@ public class SystemTests extends TestCase {
     public void testDeleteOwnerNotGrantedBy(){
         int firstId = test.startSession().getId();
         int masterId = test.register(firstId,"amir","1234").getId();
-        int sessionId = test.startSession().getId();
-        int ownerId = test.register(sessionId,"bob","1234").getId();
+        int ownerId = test.register(firstId,"bob","1234").getId();
         test.login(firstId,"amir","1234");
         int storeId = test.openStore(firstId).getId();
         test.addStoreOwner(firstId,storeId,ownerId);
         test.logout(firstId);
 
-        test.login(sessionId,"bob","1234");
-        assertEquals(ResultCode.ERROR_DELETE, test.deleteOwner(sessionId,storeId,masterId).getResultCode());
+        test.login(firstId,"bob","1234");
+        assertEquals(ResultCode.ERROR_DELETE,test.deleteOwner(firstId,storeId,masterId).getResultCode());
 
     }
 
@@ -1015,23 +1005,18 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testApproveStoreOwnerSuccess(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
-
-        sessionId = test.startSession().getId();
+        int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
-        test.addStoreOwner(amirSessionId,storeId,ownerId1);
-        test.addStoreOwner(amirSessionId,storeId,ownerId2);
-        test.logout(amirSessionId);
-        test.login(ownerId1,"bob","1234");
-        test.approveStoreOwner(ownerId1,storeId,ownerId2);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.logout(sessionId);
+        test.login(sessionId,"bob","1234");
+        test.approveStoreOwner(sessionId,storeId,ownerId2);
 
         assertEquals(3, store.getAllManagers().size());
 
@@ -1045,22 +1030,14 @@ public class SystemTests extends TestCase {
     public void testApproveStoreOwnerAgreementRemoved(){
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
-
-        sessionId = test.startSession().getId();
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-
-        sessionId = test.startSession().getId();
         test.login(sessionId,"amir","1234");
         int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
         test.addStoreOwner(sessionId,storeId,ownerId1);
         test.addStoreOwner(sessionId,storeId,ownerId2);
         test.logout(sessionId);
-
-        sessionId = test.startSession().getId();
         test.login(sessionId,"bob","1234");
         test.approveStoreOwner(sessionId,storeId,ownerId2);
 
@@ -1073,22 +1050,22 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testApproveStoreOwnerNotificationSent(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
         int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
         Subscriber bob = test.getUserHandler().getSubscriber(ownerId1);
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
-        test.addStoreOwner(amirSessionId,storeId,ownerId1);
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
+        test.addStoreOwner(sessionId,storeId,ownerId1);
         int before = bob.getAllNotification().size();
-        test.addStoreOwner(amirSessionId,storeId,ownerId2);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
         int after = bob.getAllNotification().size();
 
         assertEquals(1,after-before);
+
+
+
 
     }
     /**
@@ -1097,17 +1074,15 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testNoApproveStoreOwner(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
         int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
-        test.addStoreOwner(amirSessionId,storeId,ownerId1);
-        test.addStoreOwner(amirSessionId,storeId,ownerId2);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
 
 
         assertEquals(2, store.getAllManagers().size());
@@ -1120,17 +1095,15 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testNoApproveStoreOwnerAgremantExist(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
         int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
-        test.addStoreOwner(amirSessionId,storeId,ownerId1);
-        test.addStoreOwner(amirSessionId,storeId,ownerId2);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
 
 
 
@@ -1143,15 +1116,14 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testApproveStoreOwnerNoAgreemant(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
         int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
 
         assertEquals(ResultCode.ERROR_STORE_OWNER_MODIFICATION
-                    ,test.approveStoreOwner(amirSessionId,storeId,ownerId1).getResultCode());
+                    ,test.approveStoreOwner(sessionId,storeId,ownerId1).getResultCode());
 
     }
 
@@ -1160,18 +1132,16 @@ public class SystemTests extends TestCase {
      */
     @Test
     public void testDeleteOwnerToApprove(){
-        int amirSessionId = test.startSession().getId();
-        test.register(amirSessionId,"amir","1234");
         int sessionId = test.startSession().getId();
+        test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
-        sessionId = test.startSession().getId();
         int ownerId2 = test.register(sessionId,"mo","1234").getId();
-        test.login(amirSessionId,"amir","1234");
-        int storeId = test.openStore(amirSessionId).getId();
+        test.login(sessionId,"amir","1234");
+        int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
-        test.addStoreOwner(amirSessionId,storeId,ownerId1);
-        test.addStoreOwner(amirSessionId,storeId,ownerId2);
-        test.deleteOwner(amirSessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId1);
+        test.addStoreOwner(sessionId,storeId,ownerId2);
+        test.deleteOwner(sessionId,storeId,ownerId1);
 
         List<Subscriber> managers = store.getAllManagers();
         boolean own1=false,own2=false;

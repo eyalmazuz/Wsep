@@ -29,6 +29,26 @@ public class DatabaseTests extends TestCase {
         DAOManager.clearDatabase();
     }
 
+
+    @Test
+    public void testLoginLogoutSequence() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.register(sessionId, "user2", "passw0rd");
+
+        assertTrue(test.login(sessionId, "user", "passw0rd"));
+
+        test.logout(sessionId);
+
+        assertTrue(test.login(sessionId, "user2", "passw0rd"));
+
+        test.logout(sessionId);
+
+        test.register(sessionId, "user3", "passw0rd");
+        assertTrue(test.login(sessionId, "user3", "passw0rd"));
+        test.logout(sessionId);
+    }
+
     @Test
     public void testProductInfoPersistence() {
         test.addProductInfo(1, "what", "whatcategory", 40);

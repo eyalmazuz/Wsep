@@ -636,7 +636,7 @@ public class System {
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
         if (u!=null) {
-            int subId = userHandler.register(sessionId, username, Security.getHash(password));
+            int subId = userHandler.register(username, Security.getHash(password));
             if (subId == -1) {
                 return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
             }

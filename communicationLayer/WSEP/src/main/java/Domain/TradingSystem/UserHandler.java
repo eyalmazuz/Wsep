@@ -36,7 +36,7 @@ public class UserHandler {
         return found;
     }
 
-    public int register(int sessionId, String username, String password) {
+    public int register(String username, String password) {
         if(username==null || password == null){
             return -1;
         }
@@ -49,7 +49,7 @@ public class UserHandler {
         if (DAOManager.subscriberExists(username)) return -1;
 
         Subscriber subscriberState = new Subscriber(username, password, false);
-        subscriberState.setId(sessionId);
+        subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
         subscribers.put(subscriberState.getId(),subscriberState);
         DAOManager.addSubscriber(subscriberState);
         return subscriberState.getId();

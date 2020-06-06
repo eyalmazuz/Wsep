@@ -21,26 +21,24 @@ public class ShopAdministrationTests extends ServiceTest {
     public void setUp(){
         super.setUp();
 
-        int sessionId = startSession();
-
-        login(sessionId, "chika", "12345");
-        int sid_1 = openStore(sessionId);
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
 
-        addProdcut(true,sessionId, 1, sid_1, 5);
-        addProdcut(true,sessionId, 2, sid_1, 5);
-        appointManager(sessionId, sid_1, Database.userToId.get("dia"));
-        appointOwner(sessionId, sid_1, Database.userToId.get("kanan"));
-        logout(sessionId);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        appointManager(Database.sessionId, sid_1, Database.userToId.get("dia"));
+        appointOwner(Database.sessionId, sid_1, Database.userToId.get("kanan"));
+        logout(Database.sessionId);
 
-        login(sessionId,"kanan","12345");
-        appointOwner(sessionId,sid_1,Database.userToId.get("iggy"));
+        login(Database.sessionId,"kanan","12345");
+        appointOwner(Database.sessionId,sid_1,Database.userToId.get("iggy"));
 
-        login(sessionId, "dia", "12345");
-        appointManager(sessionId, sid_1, Database.userToId.get("ruby"));
-        logout(sessionId);
+        login(Database.sessionId, "dia", "12345");
+        appointManager(Database.sessionId, sid_1, Database.userToId.get("ruby"));
+        logout(Database.sessionId);
 
-        login(sessionId,"chika", "12345");
+        login(Database.sessionId,"chika", "12345");
 
 
     }
@@ -57,56 +55,42 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.3
     @Test
     public void testAppointAnotherManagerSuccessful(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertTrue(appointManager(sessionId, Database.userToStore.get("chika"), Database.userToId.get("you")));
+        assertTrue(appointManager(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("you")));
     }
 
     @Test
     public void testAppointAnotherManagerFailureNonExistingUser(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(appointManager(sessionId, Database.userToStore.get("chika"), -5));
+        assertFalse(appointManager(Database.sessionId, Database.userToStore.get("chika"), -5));
     }
 
     @Test
     public void testAppointAnotherManagerFailureAlreadyManager(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(appointManager(sessionId,1,Database.userToId.get("dia")));
+        assertFalse(appointManager(Database.sessionId,1,Database.userToId.get("dia")));
     }
 
     // USE CASES 4.4
 
     @Test
     public void testRemoveOwnerSucess(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertTrue(removeOwner(sessionId,Database.userToStore.get("chika"),Database.userToId.get("kanan")));
+        assertTrue(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("kanan")));
 
     }
 
     @Test
     public void testRemoveOwnerNoOwner(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(removeOwner(sessionId,Database.userToStore.get("chika"),Database.userToId.get("dia")));
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("dia")));
 
     }
 
     @Test
     public void testRemoveOwnerNoGrantedBy(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(removeOwner(sessionId,Database.userToStore.get("chika"),Database.userToId.get("iggy")));
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("iggy")));
 
     }
 
     @Test
     public void testRemoveOwnerInvalidOwnerID(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(removeOwner(sessionId,Database.userToStore.get("chika"),-2));
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),-2));
 
     }
 
@@ -114,43 +98,34 @@ public class ShopAdministrationTests extends ServiceTest {
     // USE CASES 4.5
     @Test
     public void testAppointAnotherOwnerSuccessful(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertTrue(appointOwner(sessionId, Database.userToStore.get("chika"),Database.userToId.get("mari")));
+        assertTrue(appointOwner(Database.sessionId, Database.userToStore.get("chika"),Database.userToId.get("mari")));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureNonExistingUser(){
-        int sessionId = startSession();
-        assertFalse(appointOwner(sessionId, Database.userToStore.get("chika"),-7));
+        assertFalse(appointOwner(Database.sessionId, Database.userToStore.get("chika"),-7));
     }
 
     @Test
     public void testAppointAnotherOwnerFailureAlreadyManager(){
-        int sessionId = startSession();
-        assertFalse(appointOwner(sessionId, Database.userToStore.get("chika"),Database.userToId.get("kanan")));
+        assertFalse(appointOwner(Database.sessionId, Database.userToStore.get("chika"),Database.userToId.get("kanan")));
     }
 
     // USE CASES 4.7
     @Test
     public void testRemoveManagerSuccessful(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertTrue(removeManager(sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia")));
+        assertTrue(removeManager(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia")));
     }
 
     @Test
     public void testRemoveManagerFailureNonExistingUser(){
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        assertFalse(removeManager(sessionId, Database.userToStore.get("chika"), -7));
+        assertFalse(removeManager(Database.sessionId, Database.userToStore.get("chika"), -7));
     }
 
     //USE CASE 4.10
     @Test
     public void testViewShopHistory(){
-        int sessionId = startSession();
-        String shopHistory = viewShopHistory(sessionId, Database.userToStore.get("chika"));
+        String shopHistory = viewShopHistory(Database.sessionId, Database.userToStore.get("chika"));
         assertNotNull(shopHistory);
     }
 

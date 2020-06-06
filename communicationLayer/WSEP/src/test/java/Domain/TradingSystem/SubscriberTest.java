@@ -105,6 +105,7 @@ public class SubscriberTest extends TestCase {
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
         assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
+
     }
 
 

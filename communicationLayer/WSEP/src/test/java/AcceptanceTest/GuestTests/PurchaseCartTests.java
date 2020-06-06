@@ -15,19 +15,18 @@ public class PurchaseCartTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        int sid_1 = openStore(sessionId);
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,sessionId, 1, sid_1, 5);
-        addProdcut(true,sessionId, 2, sid_1, 5);
-        logout(sessionId);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        logout(Database.sessionId);
 
-        login(sessionId, "hanamaru", "12345");
-        int sid_2 = openStore(sessionId);
+        login(Database.sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(Database.sessionId);
         Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(true,sessionId, 2, sid_2, 10);
-        logout(sessionId);
+        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        logout(Database.sessionId);
     }
 
     @After
@@ -43,34 +42,33 @@ public class PurchaseCartTests extends ServiceTest {
     @Test
     public void testPurchaseSuccessful(){
 
-        int sessionId = startSession();
         setupSystem("Mock Config", "Mock Config","");
-        sessionId = startSession();
+        Database.sessionId = startSession();
 
-        login(sessionId, "chika", "12345");
-        changeBuyingPolicy(sessionId, true, Database.userToStore.get("chika"),"Any");
+        login(Database.sessionId, "chika", "12345");
+        changeBuyingPolicy(Database.sessionId, true, Database.userToStore.get("chika"),"Any");
 
-        logout(sessionId);
+        logout(Database.sessionId);
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(sessionId, Database.userToStore.get("chika"),2, 5);
-        assertTrue(buyCart(sessionId, "Good payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertTrue(buyCart(Database.sessionId, "Good payment details"));
     }
 
     @Test
     public void testPurchaseFailureBadPolicy(){
 
         setupSystem("Mock Config", "Mock Config","");
-        int sessionId = startSession();
+        Database.sessionId = startSession();
 
-        login(sessionId, "chika", "12345");
-        changeBuyingPolicy(sessionId, true, Database.userToStore.get("chika"),"No one is allowed");
+        login(Database.sessionId, "chika", "12345");
+        changeBuyingPolicy(Database.sessionId, true, Database.userToStore.get("chika"),"No one is allowed");
 
-        logout(sessionId);
+        logout(Database.sessionId);
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(sessionId, "Good payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
 
     }
 
@@ -78,11 +76,11 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureNotEnoughItemsInStore(){
 
         setupSystem("Mock Config", "Mock Config","");
-        int sessionId = startSession();
+        Database.sessionId = startSession();
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 500);
-        addToCart(sessionId, Database.userToStore.get("chika"),2, 500);
-        assertFalse(buyCart(sessionId, "Good payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 500);
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
 
     }
 
@@ -90,11 +88,11 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailureInvalidDetails(){
 
         setupSystem("Mock Config", "Mock Config","");
-        int sessionId = startSession();
+        Database.sessionId = startSession();
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(sessionId, Database.userToStore.get("chika"),3, 5);
-        assertFalse(buyCart(sessionId, "Bad payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
+        assertFalse(buyCart(Database.sessionId, "Bad payment details"));
 
     }
 
@@ -102,22 +100,22 @@ public class PurchaseCartTests extends ServiceTest {
     public void testPurchaseFailedSupplySystem(){
 
         setupSystem("No supplies", "Mock Config","");
-        int sessionId = startSession();
+        Database.sessionId = startSession();
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(sessionId, "Good payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
     }
 
     @Test
     public void testPurchaseFailedPaymentSystem(){
 
         setupSystem("Mock Config", "No payments","");
-        int sessionId = startSession();
+        Database.sessionId = startSession();
 
-        addToCart(sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(sessionId, "Good payment details"));
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
+        addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
+        assertFalse(buyCart(Database.sessionId, "Good payment details"));
     }
 
 

@@ -16,15 +16,14 @@ public class AddToCartTests extends ServiceTest {
     public void setUp(){
         super.setUp();
 
-        int sessionId = startSession();
-        login(sessionId, "chika", "12345");
-        int sid_1 = openStore(sessionId);
+        login(Database.sessionId, "chika", "12345");
+        int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,sessionId, 1, sid_1, 5);
-        addProdcut(true,sessionId, 2, sid_1, 5);
-        logout(sessionId);
+        addProdcut(true,Database.sessionId, 1, sid_1, 5);
+        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        logout(Database.sessionId);
 
-        login(sessionId, "you", "12345");
+        login(Database.sessionId, "you", "12345");
 
     }
 
@@ -40,15 +39,13 @@ public class AddToCartTests extends ServiceTest {
 
     @Test
     public void testAddToCartSuccessful(){
-        int sessionId = startSession();
-        assertTrue(addToCart(sessionId, Database.userToStore.get("chika"),1, 5));
-        assertTrue(addToCart(sessionId, Database.userToStore.get("chika"),2, 5));
+        assertTrue(addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5));
+        assertTrue(addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5));
     }
 
     @Test
     public void testAddToCartFailure(){
-        int sessionId = startSession();
-        assertFalse(addToCart(sessionId, Database.userToStore.get("chika"),2, 0));
-        assertFalse(addToCart(sessionId, Database.userToStore.get("chika"),2, -5));
+        assertFalse(addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 0));
+        assertFalse(addToCart(Database.sessionId, Database.userToStore.get("chika"),2, -5));
     }
 }

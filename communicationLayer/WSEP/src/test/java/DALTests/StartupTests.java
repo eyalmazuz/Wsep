@@ -46,35 +46,6 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberStartupUserRegisteration() {
-        int sessionId = test.startSession().getId();
-        int sessionId2 = test.startSession().getId();
-
-        test.register(sessionId, "user1", "passw0rd");
-        test.register(sessionId2, "user2", "passw0rd");
-
-        test = new System();
-
-        int sessionId3 = test.startSession().getId();
-        assertTrue(sessionId3 > sessionId2);
-
-        test = new System();
-
-        int sessionId4 = test.startSession().getId();
-        assertEquals(sessionId4, sessionId3);
-
-        test.startSession();
-        test.startSession();
-        int sessionId7 = test.startSession().getId();
-        test.register(sessionId7, "user", "passw0rd");
-
-        test = new System();
-
-        int sessionId8 = test.startSession().getId();
-        assertEquals(sessionId8, sessionId7 + 1);
-    }
-
-    @Test
     public void testStoreStartup() {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
