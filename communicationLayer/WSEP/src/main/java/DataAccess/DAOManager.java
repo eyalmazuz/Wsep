@@ -4,6 +4,10 @@ import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -350,9 +354,45 @@ public class DAOManager {
         return null;
     }
 
+    private static void fixSubscriber(Subscriber subscriber) {
+        Map<Integer, List<Integer>> storePurchaseListsPrimitive = subscriber.getStorePurchaseListsPrimitive();
+        HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
+        for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
+            List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
+            List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
+            for (Integer purchaseDetailsId : purchaseDetailsIds) purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
+            storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
+        }
+        subscriber.setStorePurchaseLists(storePurchaseLists);
+
+        Map<Integer, Permission> permissionMap = new HashMap<>();
+        for (Permission permission : loadSubscriberPermissions(subscriber.getId())) {
+            permissionMap.put(permission.getStore().getId(), permission);
+        }
+        subscriber.setPermissions(permissionMap);
+    }
+
+    private static List<Permission> loadSubscriberPermissions(int id) {
+        QueryBuilder<Permission, String> queryBuilder = permissionDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(id);
+        Where<Permission, String> where = queryBuilder.where();
+        try {
+            where.eq("user_id", selectArg);
+            PreparedQuery<Permission> query = queryBuilder.prepare();
+            return permissionDao.query(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private static Subscriber loadSubscriber(Integer managerId) {
         try {
-            return subscriberDao.queryForId(Integer.toString(managerId));
+            Subscriber subscriber = subscriberDao.queryForId(Integer.toString(managerId));
+            fixSubscriber(subscriber);
+            return subscriber;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -421,28 +461,8 @@ public class DAOManager {
         List<Subscriber> subscribers = null;
         try {
             subscribers = subscriberDao.queryForAll();
-            // fix purchase history (loaded primitives, make actual map)
-            for (Subscriber s : subscribers) {
-                Map<Integer, List<Integer>> storePurchaseListsPrimitive = s.getStorePurchaseListsPrimitive();
-                HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
-                for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
-                    List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
-                    List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
-                    for (Integer purchaseDetailsId : purchaseDetailsIds) purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
-                    storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
-                }
-                s.setStorePurchaseLists(storePurchaseLists);
-            }
+            for (Subscriber s : subscribers) fixSubscriber(s);
 
-            List<Permission> allPermissions = loadAllPermissions();
-            // fix permissions
-            for (Subscriber s : subscribers) {
-                Map<Integer, Permission> permissionMap = new HashMap<>();
-                for (Permission permission : allPermissions) {
-                    if (permission.getUser().getId() == s.getId()) permissionMap.put(permission.getStore().getId(), permission);
-                }
-                s.setPermissions(permissionMap);
-            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -601,5 +621,30 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static int getMaxSubscriberId() {
+        try {
+            return subscriberDao.countOf() == 0 ? -1 : (int) subscriberDao.queryRawValue("SELECT MAX(id) FROM subscribers");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static boolean subscriberExists(String username) {
+        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(username);
+        Where<Subscriber, String> where = queryBuilder.where();
+        try {
+            where.eq("username", selectArg);
+            PreparedQuery<Subscriber> query = queryBuilder.prepare();
+            return !subscriberDao.query(query).isEmpty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

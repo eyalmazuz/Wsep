@@ -44,6 +44,21 @@ public class System {
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
 
+        List<ProductInfo> allProductInfos = DAOManager.loadAllProductInfos();
+        if (allProductInfos != null) {
+            for (ProductInfo productInfo : allProductInfos) {
+                products.put(productInfo.getId(), productInfo);
+            }
+        }
+
+        List<Store> allStores = DAOManager.loadAllStores();
+        if (allStores != null) {
+            for (Store store : allStores) {
+                stores.put(store.getId(), store);
+            }
+        }
+
+        User.idCounter = DAOManager.getMaxSubscriberId() + 1;
     }
 
     public static System getInstance(){
@@ -122,7 +137,7 @@ public class System {
     private void parseFile(String filePath) throws Exception {
 
         if (filePath!= null){
-            int sessionId = startSession().getId();
+            int sessionId = -1;
             int storeId;
             File file = new File(filePath);
             Scanner fileScanner = new Scanner(file);
@@ -132,9 +147,11 @@ public class System {
                 String[] args = command.substring(command.indexOf("(")+1,command.indexOf(")")).split(",");
                 switch (action){
                     case "register":
+                        sessionId = startSession().getId();
                         register(sessionId,args[0],"123");
                         break;
                     case "login":
+                        sessionId = startSession().getId();
                         login(sessionId,args[0],"123");
                         break;
                     case "logout" :
@@ -619,7 +636,7 @@ public class System {
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
         if (u!=null) {
-            int subId = userHandler.register(username, Security.getHash(password));
+            int subId = userHandler.register(sessionId, username, Security.getHash(password));
             if (subId == -1) {
                 return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
             }

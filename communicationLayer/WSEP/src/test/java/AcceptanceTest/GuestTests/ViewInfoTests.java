@@ -16,18 +16,19 @@ public class ViewInfoTests extends ServiceTest {
     public void setUp(){
         super.setUp();
 
-        login(Database.sessionId, "chika", "12345");
-        int sid_1 = openStore(Database.sessionId);
+        int sessionId = startSession();
+        login(sessionId, "chika", "12345");
+        int sid_1 = openStore(sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
-        logout(Database.sessionId);
+        addProdcut(true,sessionId, 1, sid_1, 5);
+        addProdcut(true,sessionId, 2, sid_1, 5);
+        logout(sessionId);
 
-        login(Database.sessionId, "hanamaru", "12345");
-        int sid_2 = openStore(Database.sessionId);
+        login(sessionId, "hanamaru", "12345");
+        int sid_2 = openStore(sessionId);
         Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(true,Database.sessionId, 2, sid_2, 10);
-        logout(Database.sessionId);
+        addProdcut(true,sessionId, 2, sid_2, 10);
+        logout(sessionId);
 
         Database.Stores = "Store ID: " + String.valueOf(Database.userToStore.get("chika")) + "\n" +
                 "Buying policy: \n" +
@@ -61,7 +62,8 @@ public class ViewInfoTests extends ServiceTest {
 
     @Test
     public void testGetAllInfoSuccessful(){
-        String stores = getAllInfo(Database.sessionId);
+        int sessionId = startSession();
+        String stores = getAllInfo(sessionId);
         assertEquals(stores, Database.Stores);
     }
 }

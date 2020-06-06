@@ -6,8 +6,6 @@ import java.util.Map;
 public class Database {
 
 
-    public static int sessionId;
-
     public static String[][] Users = {
             //USERNAME, PASSWORD
             {"hanamaru", "12345"},

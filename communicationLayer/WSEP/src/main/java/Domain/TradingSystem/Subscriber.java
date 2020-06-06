@@ -383,4 +383,8 @@ public class Subscriber implements UserState {
         }
         return stores;
     }
+
+    public void setId(int sessionId) {
+        this.id = sessionId;
+    }
 }

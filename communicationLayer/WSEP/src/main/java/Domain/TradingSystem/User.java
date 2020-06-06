@@ -21,8 +21,8 @@ public class User {
     private String country = "Unknown";
 
     public User() {
-        this.id = idCounter;
-        idCounter++;
+        this.id = Math.max(DAOManager.getMaxSubscriberId() + 1, idCounter);
+        idCounter = id + 1;
         this.state = new Guest();
         // FIX for acceptance testing
         this.shoppingCart = new ShoppingCart(this);

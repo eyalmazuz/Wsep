@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AdminSearchTests extends ServiceTest {
+
     /*
      * USE CASES 6.4.1-6.4.2
      *
@@ -17,19 +18,21 @@ public class AdminSearchTests extends ServiceTest {
     public void setUp(){
         super.setUp();
 
-        login(Database.sessionId, "chika", "12345");
+        int sessionId = startSession();
 
-        int sid_1 = openStore(Database.sessionId);
+        login(sessionId, "chika", "12345");
+
+        int sid_1 = openStore(sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
-        logout(Database.sessionId);
+        addProdcut(true,sessionId, 1, sid_1, 5);
+        addProdcut(true,sessionId, 2, sid_1, 5);
+        logout(sessionId);
 
-        login(Database.sessionId, "hanamaru", "123456");
-        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 3);
-        buyCart(Database.sessionId, "Good payment details");
-        logout(Database.sessionId);
-        login(Database.sessionId, "admin", "admin");
+        login(sessionId, "hanamaru", "123456");
+        addToCart(sessionId, Database.userToStore.get("chika"),1, 3);
+        buyCart(sessionId, "Good payment details");
+        logout(sessionId);
+        login(sessionId, "admin", "admin");
 
 
     }
@@ -46,25 +49,33 @@ public class AdminSearchTests extends ServiceTest {
     //USE CASES 6.4.1
     @Test
     public void testSearchUserHistorySuccessful(){
-        assertNotNull(searchUserHistory(Database.sessionId, Database.userToId.get("hanamaru")));
+        int sessionId = startSession();
+        login(sessionId, "admin", "admin");
+        assertNotNull(searchUserHistory(sessionId, Database.userToId.get("hanamaru")));
     }
 
     @Test
     public void testSearchUserHistoryFailure(){
-        assertNull(searchUserHistory(Database.sessionId, -1));
+        int sessionId = startSession();
+        login(sessionId, "admin", "admin");
+        assertNull(searchUserHistory(sessionId, -1));
     }
 
 
     //USE CASES 6.4.2
     @Test
     public void testSearchStoreHistorySuccessful(){
-        String history = getStoreHistory(Database.sessionId, Database.userToStore.get("chika"));
+        int sessionId = startSession();
+        login(sessionId, "admin", "admin");
+        String history = getStoreHistory(sessionId, Database.userToStore.get("chika"));
         assertNotNull(history);
     }
 
     @Test
     public void testSearchStoreHistoryFailure(){
-        String storeHistory = getStoreHistory(Database.sessionId, -2);
+        int sessionId = startSession();
+        login(sessionId, "admin", "admin");
+        String storeHistory = getStoreHistory(sessionId, -2);
         assertNull(storeHistory);
     }
 

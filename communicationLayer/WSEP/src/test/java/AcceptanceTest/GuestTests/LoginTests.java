@@ -14,7 +14,6 @@ public class LoginTests extends ServiceTest {
     @Before
     public void setUp(){
         super.setUp();
-        logout(Database.sessionId);
     }
 
     @After
@@ -28,35 +27,40 @@ public class LoginTests extends ServiceTest {
 
     @Test
     public void testLoginSuccessful(){
-        assertTrue(login(Database.sessionId, "hanamaru", "12345"));
-        logout(Database.sessionId);
+        int sessionId = startSession();
+        assertTrue(login(sessionId, "hanamaru", "12345"));
+        logout(sessionId);
 
     }
 
     @Test
     public void testLoginFailureWrongPassword(){
-        assertFalse(login(Database.sessionId, "hanamaru", "12345657"));
+        int sessionId = startSession();
+        assertFalse(login(sessionId, "hanamaru", "12345657"));
 
     }
 
     @Test
     public void testLoginFailureNonExistingUser(){
-        assertFalse(login(Database.sessionId, "yohariko", "1234"));
+        int sessionId = startSession();
+        assertFalse(login(sessionId, "yohariko", "1234"));
 
     }
 
     @Test
     public void testLoginFailureBreakingSystem(){
-        assertFalse(login(Database.sessionId, "", ""));
-        assertFalse(login(Database.sessionId, "", null));
-        assertFalse(login(Database.sessionId, null, ""));
-        assertFalse(login(Database.sessionId, null, null));
+        int sessionId = startSession();
+        assertFalse(login(sessionId, "", ""));
+        assertFalse(login(sessionId, "", null));
+        assertFalse(login(sessionId, null, ""));
+        assertFalse(login(sessionId, null, null));
     }
 
     @Test
     public void testLoginFailureAlreadyLoggedin(){
-        login(Database.sessionId, "chika", "12345");
-        assertFalse(login(Database.sessionId, "chika", "12345"));
+        int sessionId = startSession();
+        login(sessionId, "chika", "12345");
+        assertFalse(login(sessionId, "chika", "12345"));
     }
 
 }

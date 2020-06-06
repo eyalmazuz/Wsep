@@ -18,6 +18,7 @@ public class UserHandlerTest extends TestCase {
     @Before
     public void setUp() {
         System.testing = true;
+        new System();
     }
 
     @After
@@ -28,17 +29,17 @@ public class UserHandlerTest extends TestCase {
 
 
     public void registerSubs(){
-        uh.register("test","123");
-        uh.register("1test","123");
-        uh.register("2test","123");
-        uh.register("3test","123");
+        uh.register(0, "test","123");
+        uh.register(1, "1test","123");
+        uh.register(2, "2test","123");
+        uh.register(3, "3test","123");
     }
 
 
     private List<Subscriber> prepareSubsList() {
         List<Subscriber> output = new LinkedList<>();
         for(int i = 1; i<4 ; i++){
-            int id = uh.register("own_test"+i,"1234");
+            int id = uh.register(i, "own_test"+i,"1234");
             output.add(uh.getSubscriber(id));
         }
         return output;
@@ -61,7 +62,7 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testRegisterSucsessID() {
         int prev = uh.subscribers.size();
-        int id1 = uh.register("Bob","123");
+        int id1 = uh.register(0, "Bob","123");
         assertTrue(id1>=0);
 
     }
@@ -69,7 +70,7 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testRegisterSucsessSize() {
         int prev = uh.subscribers.size();
-        int id1 = uh.register("Bob","123");
+        int id1 = uh.register(1, "Bob","123");
         assertEquals(prev+1,uh.subscribers.size());
 
     }
@@ -77,31 +78,31 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testRegisterDifferentIds() {
 
-        int id1 = uh.register("Bob","123");
-        int id2 = uh.register("Moshe","234");
+        int id1 = uh.register(0, "Bob","123");
+        int id2 = uh.register(1, "Moshe","234");
         assertTrue(id1 != id2);
     }
 
 
     @Test
     public void testRegisterBadValues1() {
-        assertEquals(-1, uh.register(null, "123"));
+        assertEquals(-1, uh.register(0, null, "123"));
     }
 
     @Test
     public void testRegisterBadValues2() {
-        assertEquals(-1, uh.register("Yaron", null));
+        assertEquals(-1, uh.register(0, "Yaron", null));
     }
 
     @Test
     public void testRegisterBadValues3() {
-        assertEquals(-1,uh.register(null,null));
+        assertEquals(-1,uh.register(0, null,null));
     }
 
     @Test
     public void testRegisterSameUsername() {
-        uh.register("bob","123");
-        assertEquals(-1,uh.register("bob","456"));
+        uh.register(0, "bob","123");
+        assertEquals(-1,uh.register(0, "bob","456"));
     }
 
     @Test
@@ -130,7 +131,7 @@ public class UserHandlerTest extends TestCase {
 
     @Test
     public void testGetSubscriber() {
-        int id = uh.register("a","a");
+        int id = uh.register(0, "a","a");
         assertNotNull(uh.getSubscriber(id));
     }
 
@@ -166,7 +167,7 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testGetAvailableUsersToOwn() {
         List<Subscriber> list = prepareSubsList();
-        registerSubs();
+        //registerSubs();
         List<Subscriber> result = uh.getAvailableUsersToOwn(list);
         List<Integer> ids = result.stream().map(Subscriber::getId).collect(Collectors.toList());
         for(Subscriber s : list){

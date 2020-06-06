@@ -21,17 +21,17 @@ public abstract class ServiceTest extends TestCase {
 
         this.bridge = Driver.getBridge();
 
-        Database.sessionId = startSession();
+        int sessionId = startSession();
 
         this.setupSystem("Mock Config", "Mock Config","");
 
         if(Driver.flag) {
 
             this.setUpUsers();
-            login(Database.sessionId, "admin", "admin");
-            addProductInfo(Database.sessionId, 1, "UO", "KB", 10);
-            addProductInfo(Database.sessionId, 2, "Famichiki", "Food", 10);
-            logout(Database.sessionId);
+            login(sessionId, "admin", "admin");
+            addProductInfo(sessionId, 1, "UO", "KB", 10);
+            addProductInfo(sessionId, 2, "Famichiki", "Food", 10);
+            logout(sessionId);
             Driver.flag = false;
         }
 
@@ -44,8 +44,10 @@ public abstract class ServiceTest extends TestCase {
 
     private void setUpUsers() {
         for(String[] userData : Database.Users){
-            int userId = register(Database.sessionId, userData[0], userData[1]);
-            Database.userToId.put(userData[0], userId);
+            int id = startSession();
+            register(id, userData[0], userData[1]);
+            Database.userToId.put(userData[0], id);
+
         }
     }
 
