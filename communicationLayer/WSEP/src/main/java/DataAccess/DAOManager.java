@@ -4,6 +4,8 @@ import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.jdbc.JdbcDatabaseConnection;
+import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
@@ -14,13 +16,14 @@ import org.languagetool.rules.AdvancedWordRepeatRule;
 
 import java.io.IOException;
 import java.lang.System;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DAOManager {
 
-    private static ConnectionSource connectionSource;
+    private static JdbcConnectionSource connectionSource;
     private static Dao<ProductInfo, String> productInfoDao;
     private static Dao<BuyingPolicy, String> buyingPolicyDao;
     private static Dao<SimpleBuyingDTO, String> simpleBuyingDao;
@@ -37,16 +40,28 @@ public class DAOManager {
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
     private static Dao<GrantingAgreement, String> grantingAgreementDao;
 
-    // private static boolean isOn;
+    private static boolean isOn;
     private static Queue<Runnable> toDo = new LinkedBlockingQueue<>();
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
             AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
 
+    public static void close() {
+        isOn = false;
+    }
+
+    public static void open() {
+        isOn = true;
+        executeTodos();
+    }
+
     public static void init(String databaseName, String username, String password) {
         try {
             connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=UTC");
+
+            isOn = true;
+
             productInfoDao = DaoManager.createDao(connectionSource, ProductInfo.class);
             buyingPolicyDao = DaoManager.createDao(connectionSource, BuyingPolicy.class);
             simpleBuyingDao = DaoManager.createDao(connectionSource, SimpleBuyingDTO.class);
@@ -74,6 +89,7 @@ public class DAOManager {
 
     public static void createProductInfo(ProductInfo productInfo) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInfoDao.create(productInfo);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -96,6 +112,7 @@ public class DAOManager {
 
     public static void advancedBuyingDaoCreate(AdvancedBuyingDTO buyingDTO) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             advancedBuyingDao.create(buyingDTO);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -108,6 +125,7 @@ public class DAOManager {
 
     public static void buyingPolicyDaoCreateOrUpdate(BuyingPolicy policy) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             buyingPolicyDao.createOrUpdate(policy);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -120,6 +138,7 @@ public class DAOManager {
 
     public static void simpleBuyingDaoCreate(SimpleBuyingDTO buyingDTO) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             simpleBuyingDao.create(buyingDTO);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -337,6 +356,7 @@ public class DAOManager {
 
     public static void updateProductInfo(ProductInfo productInfo) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInfoDao.update(productInfo);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -350,6 +370,7 @@ public class DAOManager {
 
     public static void createProductInStoreListForStore(Store store) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.assignEmptyForeignCollection(store, "products");
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -362,6 +383,7 @@ public class DAOManager {
 
     public static void addStore(Store store) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.create(store);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -375,6 +397,7 @@ public class DAOManager {
 
     public static void clearDatabase() {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             for (Class c : persistentClasses) TableUtils.clearTable(connectionSource, c);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -459,6 +482,7 @@ public class DAOManager {
 
     public static void updateStore(Store store) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.update(store);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -471,6 +495,7 @@ public class DAOManager {
 
     public static void updateProductInStore(ProductInStore product) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInStoreDao.update(product);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -483,6 +508,7 @@ public class DAOManager {
 
     public static void createBasketListForCart(ShoppingCart shoppingCart) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingCartDao.assignEmptyForeignCollection(shoppingCart, "persistentShoppingBaskets");
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -513,6 +539,7 @@ public class DAOManager {
 
     public static void createOrUpdateShoppingCart(ShoppingCart shoppingCart) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingCartDao.createOrUpdate(shoppingCart);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -525,6 +552,7 @@ public class DAOManager {
 
     public static void updateShoppingBasket(ShoppingBasket shoppingBasket) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingBasketDao.update(shoppingBasket);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -567,6 +595,7 @@ public class DAOManager {
 
     public static void addSubscriber(Subscriber subscriberState) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             subscriberDao.create(subscriberState);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -580,6 +609,7 @@ public class DAOManager {
 
     public static void updateSubscriber(Subscriber subscriber) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             subscriberDao.update(subscriber);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -592,6 +622,7 @@ public class DAOManager {
 
     public static void createOrUpdateSubscriber(Subscriber state) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             subscriberDao.createOrUpdate(state);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -604,6 +635,7 @@ public class DAOManager {
 
     public static void createPurchaseDetails(PurchaseDetails details) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             purchaseDetailsDao.createOrUpdate(details);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -616,6 +648,7 @@ public class DAOManager {
 
     public static void createManagerListForStore(Store store) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.assignEmptyForeignCollection(store, "managers");
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -628,6 +661,7 @@ public class DAOManager {
 
     public static void createPurchaseHistoryForStore(Store store) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.assignEmptyForeignCollection(store, "purchaseHistory");
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -640,6 +674,7 @@ public class DAOManager {
 
     public static void updatePermission(Permission permission) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.update(permission);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -652,6 +687,7 @@ public class DAOManager {
 
     public static void addPermission(Permission permission) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.create(permission);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -664,6 +700,7 @@ public class DAOManager {
 
     public static void advancedDiscountDaoCreate(AdvancedDiscountDTO discountDTO) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             advancedDiscountDao.create(discountDTO);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -676,6 +713,7 @@ public class DAOManager {
 
     public static void discountPolicyDaoCreateOrUpdate(DiscountPolicy policy) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             discountPolicyDao.create(policy);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -688,6 +726,7 @@ public class DAOManager {
 
     public static void simpleDiscountDaoCreate(SimpleDiscountDTO discountDTO) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             simpleDiscountDao.create(discountDTO);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -740,6 +779,7 @@ public class DAOManager {
 
     public static void removePermission(Permission permission) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.delete(permission);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
@@ -761,6 +801,7 @@ public class DAOManager {
 
     public static void updateGrantingAgreement(GrantingAgreement grantingAgreement) {
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             grantingAgreementDao.update(grantingAgreement);
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
