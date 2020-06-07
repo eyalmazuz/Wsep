@@ -9,6 +9,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 public class StartupTests extends TestCase {
     System test;
 
@@ -48,7 +50,7 @@ public class StartupTests extends TestCase {
 
 
     @Test
-    public void testStoreStartup() {
+    public void testStoreProductsAndOwnersStartup() {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -188,6 +190,58 @@ public class StartupTests extends TestCase {
         assertEquals(savedCart.getBaskets().size(), 1);
         ShoppingBasket basket = savedCart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 10);
+    }
+
+    @Test
+    public void testSubscriberPermissionsStartup() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+
+        int newManagerSessionId = test.startSession().getId();
+        int newManagerId = test.register(newManagerSessionId, "user2", "passw0rd").getId();
+
+        test.addStoreManager(sessionId, storeId, newManagerId);
+
+        test = new System();
+
+        Store store = test.getStoreById(storeId);
+        List<Subscriber> managers = store.getManagers();
+
+        assertEquals(managers.size(), 1);
+        Subscriber savedNewManager = managers.get(0);
+        assertEquals(savedNewManager.getUsername(), "user2");
+
+        List<Subscriber> owners = store.getOwners();
+        Subscriber savedNewOwner = owners.get(0);
+        assertEquals(savedNewOwner.getUsername(), "user");
+    }
+
+    @Test
+    public void testSubscriberPurchaseHistoryStartup() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.addProductToStore(sessionId, storeId, 1, 5);
+        test.addToCart(sessionId, storeId, 1, 3);
+        test.saveOngoingPurchaseForUser(sessionId);
+        test.savePurchaseHistory(sessionId);
+
+        test = new System();
+
+        sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+
+        Subscriber subscriber = (Subscriber) test.getUser(sessionId).getState();
+
+        PurchaseDetails details = subscriber.getStorePurchaseLists().get(test.getStoreById(storeId)).get(0);
+        assertEquals(details.getPrice(), 90.0);
+        assertEquals((int) details.getProducts().get(test.getProductInfoById(1)), 3);
 
     }
 }

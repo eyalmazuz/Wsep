@@ -65,7 +65,6 @@ public class UserHandler {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
         }
-        java.lang.System.out.println(DAOManager.loadAllSubscribers());
         Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
         if (subscriber == null) return null;
         if (subscriber.getHashedPassword().equals(hashedPassword)) return subscriber;

@@ -94,18 +94,6 @@ public class DAOManager {
         return ret;
     }
 
-    public static void createProductInStore(ProductInStore pis) {
-        try {
-            productInStoreDao.create(pis);
-            executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> createProductInStore(pis);
-            toDo.add(action);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void advancedBuyingDaoCreate(AdvancedBuyingDTO buyingDTO) {
         try {
             advancedBuyingDao.create(buyingDTO);
