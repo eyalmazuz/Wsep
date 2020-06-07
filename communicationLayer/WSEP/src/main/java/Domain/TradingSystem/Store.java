@@ -536,4 +536,12 @@ public class Store {
         }
         return false;
     }
+
+    public int getAgreementGrantor(int malshabId) {
+        GrantingAgreement agreement = malshab2granting.get(malshabId);
+        if(agreement!=null){
+            return agreement.getGrantorId();
+        }
+        return -1;
+    }
 }

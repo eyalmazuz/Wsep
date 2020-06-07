@@ -1358,7 +1358,8 @@ public class System {
         if(store != null){
             if(store.approveMalshab(owner.getId(),subId)){
                 if(store.allAproved(subId)){
-                    if (setStoreOwner(owner, newOwner, store)) {
+                    int grantorId = store.getAgreementGrantor(subId);
+                    if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
                         store.removeAgreement(subId);
                         return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
                     }
