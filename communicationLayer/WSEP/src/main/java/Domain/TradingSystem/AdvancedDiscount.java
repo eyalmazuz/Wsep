@@ -4,11 +4,40 @@ import java.util.List;
 
 public class AdvancedDiscount implements DiscountType {
 
+    protected int id = -1;
+
     public enum LogicalOperation {
         OR,
         AND,
         XOR
     }
+
+    protected List<DiscountType> discounts;
+    protected AdvancedDiscount.LogicalOperation type;
+
+    public AdvancedDiscount(List<DiscountType> discounts, AdvancedDiscount.LogicalOperation type) {
+        this.discounts = discounts;
+        this.type = type;
+    }
+
+    public List<DiscountType> getDiscounts() {
+        return discounts;
+    }
+
+    public AdvancedDiscount.LogicalOperation getLogicalOperation() {
+        return type;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
 
     @Override
     public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
@@ -16,12 +45,9 @@ public class AdvancedDiscount implements DiscountType {
     }
 
     public static class LogicalDiscount extends AdvancedDiscount {
-        private List<DiscountType> discounts;
-        private LogicalOperation type;
 
         public LogicalDiscount(List<DiscountType> discounts, LogicalOperation type) {
-            this.discounts = discounts;
-            this.type = type;
+            super(discounts, type);
         }
 
         @Override

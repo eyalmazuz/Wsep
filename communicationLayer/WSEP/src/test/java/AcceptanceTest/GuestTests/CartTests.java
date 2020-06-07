@@ -19,8 +19,8 @@ public class CartTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
@@ -34,6 +34,8 @@ public class CartTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }

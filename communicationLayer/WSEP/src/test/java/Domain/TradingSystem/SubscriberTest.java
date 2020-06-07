@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.Notification;
+import DataAccess.DAOManager;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -19,12 +20,13 @@ public class SubscriberTest extends TestCase {
     Map<Store, PurchaseDetails> storePurchaseDetails ;
     User user ;
     Store store ;
-    Map<ProductInfo,Integer> products ;
+    HashMap<ProductInfo,Integer> products ;
     ProductInfo productInfo;
     PurchaseDetails details;
 
     @Before
     public void setUp() {
+        System.testing = true;
 
         subscriber = new Subscriber("hava nagila", "1234", false);
         subscriber.setUser(new User());
@@ -33,6 +35,7 @@ public class SubscriberTest extends TestCase {
     @After
     public void tearDown(){
         subscriber.getAllNotification().clear();
+        DAOManager.clearDatabase();
     }
 
     @Test
@@ -263,7 +266,7 @@ public class SubscriberTest extends TestCase {
         products = new HashMap<>();
         productInfo = new ProductInfo(3,"bamba","hatif", 10);
         products.put(productInfo,2);
-        details = new PurchaseDetails(3,user,store,products,13.8);
+        details = new PurchaseDetails(user,store,products,13.8);
         storePurchaseDetails.put(store,details);
         subscriber.addPurchase(storePurchaseDetails);
         //Assert.assertEquals(subscriber.getPurchaseHistory());

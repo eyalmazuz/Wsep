@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AdminSearchTests extends ServiceTest {
+
+
     /*
      * USE CASES 6.4.1-6.4.2
      *
@@ -16,10 +18,11 @@ public class AdminSearchTests extends ServiceTest {
         super.setUp();
 
         login(Database.sessionId, "chika", "12345");
+
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "123456");
@@ -34,6 +37,7 @@ public class AdminSearchTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }

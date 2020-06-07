@@ -18,14 +18,14 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "12345");
         int sid_2 = openStore(Database.sessionId);
         Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        addProductToStore(true,Database.sessionId, 2, sid_2, 10);
         logout(Database.sessionId);
 
         login(Database.sessionId, "you", "12345");
@@ -37,6 +37,8 @@ public class UserActionsTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }

@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 import Domain.Logger.SystemLogger;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -12,11 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemTest extends TestCase {
     //System Unitesting
-    System test = new System();
-    UserHandler mockHandler = new userHandlerMock();
+    System test;
+    UserHandler mockHandler;
 
     @Before
     public void setUp(){
+        System.testing = true;
+        test = new System();
+        mockHandler = new userHandlerMock();
+
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));
         }});
@@ -28,11 +33,13 @@ public class SystemTest extends TestCase {
         stores.put(1,new StoreMock(1));
         stores.put(2,new StoreMock(2));
         test.setStores(stores);
+
     }
 
     @After
     public void tearDown(){
         test.deleteStores();
+        DAOManager.clearDatabase();
     }
 
     @Test
@@ -262,11 +269,11 @@ public class SystemTest extends TestCase {
 
         boolean problem = false;
         for (ProductInStore pis : store1.getProducts()) {
-            if (pis.getId() == 4 && pis.getAmount() != 3) {
+            if (pis.getProductInfoId() == 4 && pis.getAmount() != 3) {
                 problem = true;
                 break;
             }
-            if (pis.getId() == 5) {
+            if (pis.getProductInfoId() == 5) {
                 problem = true;
                 break;
             }
@@ -317,7 +324,7 @@ class StoreMock extends Store{
     @Override
     public int getProductAmount(Integer productId) {
         for (ProductInStore product : getProducts()) {
-            if (productId == product.getId()) {
+            if (productId == product.getProductInfoId()) {
                 return product.getAmount();
             }
         }
@@ -327,7 +334,7 @@ class StoreMock extends Store{
     @Override
     public void removeProductAmount(Integer productId, Integer amount) {
         for (ProductInStore product : getProducts()) {
-            int id = product.getId();
+            int id = product.getProductInfoId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
                 if (newAmount == 0) {
@@ -407,12 +414,6 @@ class UserMock extends User{
         return type.equals("Guest");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        if (type.equals("Guest"))
-            return null;
-        return new UserPurchaseHistory();
-    }
 
     @Override
     public boolean isAdmin() {
@@ -456,10 +457,6 @@ class SubscriberMock extends Subscriber{
         return type.equals("Owner");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        return new UserPurchaseHistory();
-    }
 }
 
 class GuestMock extends Guest{}

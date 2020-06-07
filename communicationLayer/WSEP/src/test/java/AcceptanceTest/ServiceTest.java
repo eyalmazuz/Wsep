@@ -1,8 +1,11 @@
 package AcceptanceTest;
 
 import AcceptanceTest.Data.Database;
+import DataAccess.DAOManager;
+import Domain.TradingSystem.System;
 import Service.Bridge;
 import junit.framework.TestCase;
+import org.junit.After;
 
 
 public abstract class ServiceTest extends TestCase {
@@ -11,13 +14,16 @@ public abstract class ServiceTest extends TestCase {
 
 
     public void setUp(){
+        System.testing = true;
+
         this.bridge = Driver.getBridge();
 
         Database.sessionId = startSession();
 
-        this.setupSystem("Mock Config", "Mock Config","");
-        if(Driver.flag) {
 
+        if(Driver.flag) {
+            DAOManager.clearDatabase(); // start tests with a clean database
+            this.setupSystem("Mock Config", "Mock Config","");
             this.setUpUsers();
             login(Database.sessionId, "admin", "admin");
             addProductInfo(Database.sessionId, 1, "UO", "KB", 10);
@@ -28,18 +34,16 @@ public abstract class ServiceTest extends TestCase {
 
     }
 
+    @After
+    public void tearDown() {
+
+    }
+
     private void setUpUsers() {
         for(String[] userData : Database.Users){
             int userId = register(Database.sessionId, userData[0], userData[1]);
             Database.userToId.put(userData[0], userId);
         }
-
-
-
-    }
-
-    private void clearDatabase(){
-
     }
 
     public boolean login (int sessionId, String username , String password){
@@ -74,7 +78,7 @@ public abstract class ServiceTest extends TestCase {
 
     public int openStore(int sessionId){ return bridge.openStore(sessionId); }
 
-    public boolean addProdcut(boolean flag, int sessionId, int productId, int storeId, int amount) { return bridge.addProduct(flag, sessionId, productId, storeId, amount); }
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount) { return bridge.addProductToStore(flag, sessionId, productId, storeId, amount); }
 
     public boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo) { return bridge.editProduct(flag, sessionId, storeId, productId, productInfo); }
 

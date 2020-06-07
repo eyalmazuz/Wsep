@@ -5,16 +5,24 @@ import DTOs.ResultCode;
 
 public class UserBuyingConstraint extends SimpleBuying {
 
+    protected String validCountry;
+
+    public UserBuyingConstraint(String validCountry) {
+        this.validCountry = validCountry;
+    }
+
+    public String getValidCountry() {
+        return validCountry;
+    }
+
     public ActionResultDTO canBuy(String country) {
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
     public static class NotOutsideCountryConstraint extends UserBuyingConstraint {
 
-        private String validCountry;
-
         public NotOutsideCountryConstraint(String validCountry) {
-            this.validCountry = validCountry;
+            super(validCountry);
         }
 
         public ActionResultDTO canBuy(String country) {

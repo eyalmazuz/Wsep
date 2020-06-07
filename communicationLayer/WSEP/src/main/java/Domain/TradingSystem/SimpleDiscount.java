@@ -2,6 +2,8 @@ package Domain.TradingSystem;
 
 public class SimpleDiscount implements DiscountType {
 
+    protected int id = -1;
+
     public SimpleDiscount() {
 
     }
@@ -15,4 +17,15 @@ public class SimpleDiscount implements DiscountType {
 
         return discountBasket;
     }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
 }

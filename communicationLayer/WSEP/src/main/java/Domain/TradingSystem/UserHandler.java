@@ -1,5 +1,6 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
 import Domain.Security.Security;
 
 import java.util.*;
@@ -13,6 +14,8 @@ public class UserHandler {
 
     public UserHandler(){
         subscribers = new HashMap<>();
+        //List<Subscriber> subscriberList = DAOManager.loadAllSubscribers();
+        //for (Subscriber subscriber : subscriberList) subscribers.put(subscriber.getId(), subscriber);
         users = new HashMap<>();
     }
 
@@ -20,6 +23,7 @@ public class UserHandler {
         if(!hasAdmin()){
             Subscriber admin = new Subscriber("admin", Security.getHash("admin"), true);
             subscribers.put(admin.getId(),admin);
+            DAOManager.createOrUpdateSubscriber(admin);
         }
     }
 
@@ -38,12 +42,17 @@ public class UserHandler {
             return -1;
         }
 
-        for (Subscriber sub: subscribers.values())
+        for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username))
                 return -1;
+        }
+
+        if (DAOManager.subscriberExists(username)) return -1;
 
         Subscriber subscriberState = new Subscriber(username, password, false);
+        subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
         subscribers.put(subscriberState.getId(),subscriberState);
+        DAOManager.addSubscriber(subscriberState);
         return subscriberState.getId();
     }
 
@@ -56,6 +65,9 @@ public class UserHandler {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
         }
+        Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
+        if (subscriber == null) return null;
+        if (subscriber.getHashedPassword().equals(hashedPassword)) return subscriber;
         return null;
     }
 

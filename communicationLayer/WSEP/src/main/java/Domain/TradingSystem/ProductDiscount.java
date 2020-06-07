@@ -5,6 +5,28 @@ import java.util.List;
 
 public class ProductDiscount extends SimpleDiscount {
 
+    protected int productId;
+    protected double salePercentage;
+    protected String categoryName;
+
+    public ProductDiscount(int productId, double salePercentage, String categoryName) {
+        this.productId = productId;
+        this.salePercentage = salePercentage;
+        this.categoryName = categoryName;
+    }
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public double getSalePercentage() {
+        return salePercentage;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
     @Override
     public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
         return discountBasket;
@@ -12,12 +34,8 @@ public class ProductDiscount extends SimpleDiscount {
 
     public static class ProductSaleDiscount extends ProductDiscount {
 
-        private int productId;
-        private double salePercentage;
-
         public ProductSaleDiscount(int productId, double salePercentage) {
-            this.productId = productId;
-            this.salePercentage = salePercentage;
+            super(productId, salePercentage, null);
         }
 
         public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {
@@ -48,12 +66,8 @@ public class ProductDiscount extends SimpleDiscount {
 
     public static class CategorySaleDiscount extends ProductDiscount {
 
-        private String categoryName;
-        private double salePercentage;
-
         public CategorySaleDiscount(String categoryName, double salePercentage) {
-            this.categoryName = categoryName;
-            this.salePercentage = salePercentage;
+            super(-1, salePercentage, categoryName);
         }
 
         public DiscountBasket getDiscountedBasket(User user, DiscountBasket discountBasket) {

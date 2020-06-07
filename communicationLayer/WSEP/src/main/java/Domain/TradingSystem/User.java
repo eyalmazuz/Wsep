@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,13 @@ public class User {
     private String paymentDetails;
     private UserState state;
     private ShoppingCart shoppingCart;
-    private static int idCounter = 0;
+    public static int idCounter = 0;
     private int id;
     private String country = "Unknown";
 
     public User() {
-        this.id = idCounter;
-        idCounter++;
+        this.id = Math.max(DAOManager.getMaxSubscriberId() + 1, idCounter);
+        idCounter = id + 1;
         this.state = new Guest();
         // FIX for acceptance testing
         this.shoppingCart = new ShoppingCart(this);
@@ -42,13 +43,17 @@ public class User {
     }
 
     public void setState(UserState nState) {
-
         if(nState == null){
             throw new NullPointerException();
         }
 
+        if (nState instanceof Subscriber) shoppingCart.setSubscriberId(((Subscriber) nState).getId());
+
         this.state = nState;
         state.setUser(this);
+        state.setCountry(country);
+
+        if (nState instanceof Subscriber) DAOManager.createOrUpdateSubscriber((Subscriber) state);
     }
 
 
@@ -86,6 +91,7 @@ public class User {
 
 //Usecase 3.1
     public boolean logout() {
+        shoppingCart.setSubscriberId(-1);
         return state.logout();
     }
 
@@ -104,8 +110,8 @@ public class User {
         return shoppingCart;
     }
 
-    public UserPurchaseHistory getHistory () {
-        return state.getHistory();
+    public String getHistory () {
+        return state.getPurchaseHistory();
     }
 
 
@@ -135,10 +141,6 @@ public class User {
         state.addPurchase(storePurchaseDetailsMap);
     }
 
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return state.getUserPurchaseHistory();
-    }
-
     public boolean updateStoreSupplies() {
         return shoppingCart.updateStoreSupplies();
     }
@@ -165,6 +167,10 @@ public class User {
 
     public String getCountry() {
         return country;
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return state.getStorePurchaseLists();
     }
 }
 

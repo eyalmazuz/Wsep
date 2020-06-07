@@ -93,7 +93,7 @@ public class RealBridge implements Bridge {
             return null;
     }
 
-    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
             return oh.addProductToStore(storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;

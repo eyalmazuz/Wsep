@@ -144,9 +144,9 @@ public class ProxyBridge implements Bridge {
     }
 
 
-    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount){
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount){
         if(rb != null){
-            return rb.addProduct(flag, sessionId, productId, storeId, amount);
+            return rb.addProductToStore(flag, sessionId, productId, storeId, amount);
         }
         else{
             return false;

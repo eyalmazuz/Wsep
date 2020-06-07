@@ -6,8 +6,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.xml.crypto.Data;
-
 public class ShopAdministrationTests extends ServiceTest {
 
     /*
@@ -22,8 +20,9 @@ public class ShopAdministrationTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         appointManager(Database.sessionId, sid_1, Database.userToId.get("dia"));
         appointOwner(Database.sessionId, sid_1, Database.userToId.get("kanan"));
         logout(Database.sessionId);
@@ -42,6 +41,8 @@ public class ShopAdministrationTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }

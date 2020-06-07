@@ -1,8 +1,8 @@
 package Domain.TradingSystem.IntegrationTests;
 
-import DTOs.ActionResultDTO;
 import DTOs.Notification;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -24,6 +24,8 @@ public class SystemTests extends TestCase {
 
     @Before
     public void setUp() {
+        System.testing = true;
+
         test = new System();
         Publisher publisherMock = new Publisher((subscribers, message) -> null);
         test.setPublisher(publisherMock);
@@ -34,6 +36,7 @@ public class SystemTests extends TestCase {
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        DAOManager.clearDatabase();
     }
 
 
@@ -94,7 +97,7 @@ public class SystemTests extends TestCase {
 
         u.setState(new Subscriber());  // so it should indeed be saved
         u.saveCurrentCartAsPurchase();
-        Map<Store, List<PurchaseDetails>> map = u.getUserPurchaseHistory().getStorePurchaseLists();
+        Map<Store, List<PurchaseDetails>> map = u.getStorePurchaseLists();
         assertNotNull(map.get(store1));
         assertEquals(map.get(store1).size(), 1);
         PurchaseDetails details = map.get(store1).get(0);
@@ -198,7 +201,7 @@ public class SystemTests extends TestCase {
         test.savePurchaseHistory(sessionId); // this saves history, now we wanna see it gone
 
         test.restoreHistories(sessionId);
-        assertTrue(u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+        assertTrue(u.getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -254,7 +257,8 @@ public class SystemTests extends TestCase {
         info = test.getProductInfoById(4);
         store1.addProduct(info, 5);
         u = test.getUser(sessionId);
-        u.setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
         u.addProductToCart(store1, info, 4);
 
         try {
@@ -286,10 +290,10 @@ public class SystemTests extends TestCase {
         test.removeOngoingPurchase(sessionId);
 
         // check state
-        assertTrue(!u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+        assertTrue(!u.getStorePurchaseLists().isEmpty() &&
                 !store1.getStorePurchaseHistory().isEmpty() &&
                 store1.getProductAmount(4) == 1 &&
-                 u.getShoppingCart().isEmpty() && !u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty());
+                 u.getShoppingCart().isEmpty() && !u.getStorePurchaseLists().isEmpty());
     }
 
     @Test
@@ -363,7 +367,7 @@ public class SystemTests extends TestCase {
     }
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
-        return u.getUserPurchaseHistory().getStorePurchaseLists().isEmpty() &&
+        return u.getStorePurchaseLists().isEmpty() &&
             store.getStorePurchaseHistory().isEmpty() &&
             store.getProductAmount(4) == 5 &&
             u.getShoppingCart().getStoreProductsIds().get(store.getId()).get(4) == 4;
@@ -478,30 +482,30 @@ public class SystemTests extends TestCase {
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         // bad
-        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
+        policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // good
-        policy.addBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
+        policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // bad
-        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 3));
+        policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 3));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // good
-        policy.addBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 4));
+        policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 4));
         store1.setBuyingPolicy(policy);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // bad
-        policy.addBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
+        policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
         u.addProductToCart(store1, info, 39);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
@@ -513,17 +517,17 @@ public class SystemTests extends TestCase {
         policy.clearBuyingTypes();
         // bad
         int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
+        policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // good
-        policy.addBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
+        policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
         policy.clearBuyingTypes();
         // bad
-        policy.addBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
+        policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
         u.setCountry("Brazil");
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
@@ -549,7 +553,7 @@ public class SystemTests extends TestCase {
         List<BuyingType> buyingConstraints = new ArrayList<>();
         buyingConstraints.add(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
         buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 10));
-        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.AND));
+        policy.addAdvancedBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.AND), false);
 
         // 4 is not 5 <= x <= 10
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
@@ -574,7 +578,7 @@ public class SystemTests extends TestCase {
         buyingConstraints.add(new SystemBuyingConstraint.NotOnDayConstraint(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
         buyingConstraints.add(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 20));
         //policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.OR));
-        policy.addBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.IMPLIES));
+        policy.addAdvancedBuyingType(new AdvancedBuying.LogicalBuying(buyingConstraints, AdvancedBuying.LogicalOperation.IMPLIES), false);
 
         // its today and user wants more than 20 - ok
         u.editCartProductAmount(store1, info, 30);
@@ -609,9 +613,9 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
 
         DiscountPolicy policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
-        Map<ProductInfo, Integer> productsAmount = new HashMap<>();
+        HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
@@ -624,7 +628,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
@@ -633,8 +637,8 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 1);
@@ -643,8 +647,8 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
         store1.setDiscountPolicy(policy);
 
         productsAmount = new HashMap<>();
@@ -656,7 +660,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
@@ -668,7 +672,7 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
         store1.setDiscountPolicy(policy);
 
@@ -680,9 +684,9 @@ public class SystemTests extends TestCase {
 
 
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
-        policy.addDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
-        policy.addDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
+        policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(5, 0.75));
+        policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.5));
 
         //java.lang.System.out.println(policy);
 
@@ -727,9 +731,9 @@ public class SystemTests extends TestCase {
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
 
 
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.AND), false);
         store1.setDiscountPolicy(policy);
-        Map<ProductInfo, Integer> productsAmount = new HashMap<>();
+        HashMap<ProductInfo, Integer> productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         productsAmount.put(infoApple, 10);
 
@@ -746,7 +750,7 @@ public class SystemTests extends TestCase {
 
         AdvancedDiscount.LogicalDiscount hi = new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR);
 
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.OR), false);
 
         //java.lang.System.out.println(policy);
         store1.setDiscountPolicy(policy);
@@ -763,7 +767,7 @@ public class SystemTests extends TestCase {
         discounts.add(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
         discounts.add(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         policy = new DiscountPolicy("test");
-        policy.addDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR));
+        policy.addAdvancedDiscountType(new AdvancedDiscount.LogicalDiscount(discounts, AdvancedDiscount.LogicalOperation.XOR), false);
         store1.setDiscountPolicy(policy);
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
@@ -1038,7 +1042,7 @@ public class SystemTests extends TestCase {
         test.login(sessionId,"bob","1234");
         test.approveStoreOwner(sessionId,storeId,ownerId2);
 
-        assertEquals(0, store.getAllAgreemnt().size());
+        assertEquals(0, store.getAllGrantingAgreements().size());
 
     }
 
@@ -1104,7 +1108,7 @@ public class SystemTests extends TestCase {
 
 
 
-        assertEquals(1, store.getAllAgreemnt().size());
+        assertEquals(1, store.getAllGrantingAgreements().size());
 
     }
 

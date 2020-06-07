@@ -16,15 +16,19 @@ public class EditStoreInventoryTests extends ServiceTest {
         super.setUp();
 
         login(Database.sessionId, "chika", "12345");
+
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
+
 
     }
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }
@@ -33,17 +37,17 @@ public class EditStoreInventoryTests extends ServiceTest {
     //USE CASES 4.1.1
     @Test
     public void testAddProductSuccessful(){
-        assertTrue(addProdcut(true,Database.sessionId, 1, Database.userToStore.get("chika"),4));
-        assertTrue(addProdcut(true,Database.sessionId, 2, Database.userToStore.get("chika"),6));
+        assertTrue(addProductToStore(true,Database.sessionId, 1, Database.userToStore.get("chika"),4));
+        assertTrue(addProductToStore(true,Database.sessionId, 2, Database.userToStore.get("chika"),6));
 
     }
 
 
     @Test
     public void testAddProductFailureInvalidCount(){
-        assertFalse(addProdcut(true,Database.sessionId, 1, Database.userToStore.get("chika"),-4));
-        assertFalse(addProdcut(true,Database.sessionId, 1, Database.userToStore.get("chika"), 0));
-        assertFalse(addProdcut(true,Database.sessionId, 2, Database.userToStore.get("chika"),-200));
+        assertFalse(addProductToStore(true,Database.sessionId, 1, Database.userToStore.get("chika"),-4));
+        assertFalse(addProductToStore(true,Database.sessionId, 1, Database.userToStore.get("chika"), 0));
+        assertFalse(addProductToStore(true,Database.sessionId, 2, Database.userToStore.get("chika"),-200));
     }
 
 
