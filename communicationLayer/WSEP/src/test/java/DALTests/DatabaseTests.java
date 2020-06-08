@@ -381,8 +381,8 @@ public class DatabaseTests extends TestCase {
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 40);
 
         // check that there are no carts and no baskets
-        assertTrue(DAOManager.loadAllShoppingCarts().isEmpty());
-        assertTrue(DAOManager.loadAllShoppingBaskets().isEmpty());
+       assertEquals(DAOManager.getNumShoppingCarts(), 0);
+        assertEquals(DAOManager.getNumShoppingBaskets(), 0);
     }
 
     @Test
@@ -390,24 +390,47 @@ public class DatabaseTests extends TestCase {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
+
+        test.register(sessionId, "user", "passw0rd").getId();
+        test.login(sessionId, "user", "passw0rd");
+
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 40);
 
-        test.register(sessionId, "user", "passw0rd");
-
-        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        Subscriber sub = DAOManager.loadAllSubscribers().get(0);
+        ShoppingCart cart = sub.getShoppingCart();
         ShoppingBasket basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
 
         // see that we're no longer persisting in guest mode
         test.logout(sessionId);
+
+        assertTrue(test.getUser(sessionId).getShoppingCart().isEmpty());
+
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 5);
-        cart = DAOManager.loadAllShoppingCarts().get(0);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
 
         // make sure its still there
         test.login(sessionId, "user", "passw0rd");
-        cart = test.getUser(sessionId).getShoppingCart();
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
+        basket = cart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 40);
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 5);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
+        basket = cart.getBaskets().get(0);
+        assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 45);
+
+        test.logout(sessionId);
+        assertTrue(test.getUser(sessionId).getShoppingCart().isEmpty());
+
+        test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 5);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertEquals((int) basket.getProducts().get(test.getProductInfoById(1)), 45);
     }
@@ -418,15 +441,18 @@ public class DatabaseTests extends TestCase {
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
 
-        test.getUser(sessionId).setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
 
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
-        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        Subscriber sub = DAOManager.loadAllSubscribers().get(0);
+        ShoppingCart cart = sub.getShoppingCart();
         ShoppingBasket basket = cart.getBaskets().get(0);
         assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
 
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 20);
-        cart = DAOManager.loadAllShoppingCarts().get(0);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 50);
     }
@@ -437,15 +463,18 @@ public class DatabaseTests extends TestCase {
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
 
-        test.getUser(sessionId).setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
 
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
-        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        Subscriber sub = DAOManager.loadAllSubscribers().get(0);
+        ShoppingCart cart = sub.getShoppingCart();
         ShoppingBasket basket = cart.getBaskets().get(0);
         assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
 
         test.getUser(sessionId).editCartProductAmount(test.getStoreById(storeId), test.getProductInfoById(1), 3);
-        cart = DAOManager.loadAllShoppingCarts().get(0);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 3);
     }
@@ -456,15 +485,18 @@ public class DatabaseTests extends TestCase {
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
 
-        test.getUser(sessionId).setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
 
         test.getUser(sessionId).addProductToCart(test.getStoreById(storeId), test.getProductInfoById(1), 30);
-        ShoppingCart cart = DAOManager.loadAllShoppingCarts().get(0);
+        Subscriber sub = DAOManager.loadAllSubscribers().get(0);
+        ShoppingCart cart = sub.getShoppingCart();
         ShoppingBasket basket = cart.getBaskets().get(0);
         assertEquals((int)basket.getProducts().get(test.getProductInfoById(1)), 30);
 
         test.getUser(sessionId).removeProductFromCart(test.getStoreById(storeId), test.getProductInfoById(1));
-        cart = DAOManager.loadAllShoppingCarts().get(0);
+        sub = DAOManager.loadAllSubscribers().get(0);
+        cart = sub.getShoppingCart();
         basket = cart.getBaskets().get(0);
         assertTrue(basket.getProducts().isEmpty());
     }

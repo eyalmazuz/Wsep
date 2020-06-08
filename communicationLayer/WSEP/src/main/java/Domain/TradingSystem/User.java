@@ -15,7 +15,6 @@ public class User {
 
     private String paymentDetails;
     private UserState state;
-    private ShoppingCart shoppingCart;
     public static int idCounter = 0;
     private int id;
     private String country = "Unknown";
@@ -23,9 +22,8 @@ public class User {
     public User() {
         this.id = Math.max(DAOManager.getMaxSubscriberId() + 1, idCounter);
         idCounter = id + 1;
-        this.state = new Guest();
+        this.state = new Guest(this);
         // FIX for acceptance testing
-        this.shoppingCart = new ShoppingCart(this);
     }
 
 
@@ -47,8 +45,6 @@ public class User {
             throw new NullPointerException();
         }
 
-        if (nState instanceof Subscriber) shoppingCart.setSubscriberId(((Subscriber) nState).getId());
-
         this.state = nState;
         state.setUser(this);
         state.setCountry(country);
@@ -64,34 +60,33 @@ public class User {
      */
     public void setShoppingCart(ShoppingCart cart) {
         if(cart!=null) {
-            this.shoppingCart = cart;
+            state.setShoppingCart(cart);
         }
     }
 
     public ActionResultDTO addProductToCart(Store store, ProductInfo product, int amount) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.addProduct(store, product, amount);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().addProduct(store, product, amount);
     }
 
     public ActionResultDTO editCartProductAmount(Store store, ProductInfo product, int newAmount) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.editProduct(store, product, newAmount);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().editProduct(store, product, newAmount);
     }
 
     public ActionResultDTO removeProductFromCart(Store store, ProductInfo product) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.removeProductFromCart(store, product);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().removeProductFromCart(store, product);
     }
 
     public ActionResultDTO removeAllProductsFromCart() {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        shoppingCart.removeAllProducts();
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        state.getShoppingCart().removeAllProducts();
         return new ActionResultDTO(ResultCode.SUCCESS, "Shopping cart cleared.");
     }
 
 //Usecase 3.1
     public boolean logout() {
-        shoppingCart.setSubscriberId(-1);
         return state.logout();
     }
 
@@ -107,7 +102,7 @@ public class User {
     }
 
     public ShoppingCart getShoppingCart () {
-        return shoppingCart;
+        return state.getShoppingCart();
     }
 
     public String getHistory () {
@@ -125,32 +120,32 @@ public class User {
 
 
     public boolean isCartEmpty() {
-        return shoppingCart.isEmpty();
+        return state.getShoppingCart().isEmpty();
     }
 
     public boolean checkStoreSupplies() {
-        return shoppingCart.checkStoreSupplies();
+        return state.getShoppingCart().checkStoreSupplies();
     }
 
     public DoubleActionResultDTO getShoppingCartPrice() {
-        return shoppingCart.getPrice();
+        return state.getShoppingCart().getPrice();
     }
 
     public void saveCurrentCartAsPurchase() {
-        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
+        Map<Store, PurchaseDetails> storePurchaseDetailsMap = state.getShoppingCart().saveAndGetStorePurchaseDetails();
         state.addPurchase(storePurchaseDetailsMap);
     }
 
     public boolean updateStoreSupplies() {
-        return shoppingCart.updateStoreSupplies();
+        return state.getShoppingCart().updateStoreSupplies();
     }
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveCartDetails() {
-        return shoppingCart.getPrimitiveDetails();
+        return state.getShoppingCart().getPrimitiveDetails();
     }
 
     public void emptyCart() {
-        shoppingCart.removeAllProducts();
+        state.getShoppingCart().removeAllProducts();
     }
 
     public void removeLastHistoryItem(List<Store> stores) {
@@ -158,7 +153,7 @@ public class User {
     }
 
     public List<Integer> getStoresInCart() {
-        return shoppingCart.getStores();
+        return state.getShoppingCart().getStores();
     }
 
     public void setCountry(String country) {

@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @DatabaseTable(tableName ="shoppingCarts")
 public class ShoppingCart {
 
-    @DatabaseField (id = true)
-    private int subscriberId = -1;
+    @DatabaseField (generatedId = true)
+    private int id;
 
     private User user;
 
@@ -45,7 +45,7 @@ public class ShoppingCart {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
         if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
-        getOrCreateBasket(store).addProduct(product, amount, subscriberId != -1);
+        getOrCreateBasket(store).addProduct(product, amount, user.getState() instanceof Subscriber);
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
@@ -58,7 +58,7 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.editProduct(product, newAmount, subscriberId != -1);
+            return basket.editProduct(product, newAmount, user.getState() instanceof Subscriber);
         }
     }
 
@@ -70,7 +70,7 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.removeProduct(product, subscriberId != -1);
+            return basket.removeProduct(product, user.getState() instanceof Subscriber);
         }
     }
 
@@ -79,7 +79,8 @@ public class ShoppingCart {
     }
 
     private Collection<ShoppingBasket> getCurrentBasketCollection() {
-        return subscriberId == -1 ? nonPersistentShoppingBaskets : persistentShoppingBaskets;
+        if (user == null) return persistentShoppingBaskets; // no user? cart loaded from db
+        return user.getState() instanceof Subscriber ? persistentShoppingBaskets : nonPersistentShoppingBaskets;
     }
 
     private Map<Integer,Integer> covertInfoToIds(Map <ProductInfo,Integer> infos){
@@ -241,22 +242,8 @@ public class ShoppingCart {
         return storeIds;
     }
 
-    public void setSubscriberId(int id) {
-        this.subscriberId = id;
-        if (id != -1) {
-            DAOManager.createOrUpdateShoppingCart(this);
-            persistentShoppingBaskets.clear();
-            persistentShoppingBaskets.addAll(nonPersistentShoppingBaskets);
-        }
-        else nonPersistentShoppingBaskets = new ArrayList<>(persistentShoppingBaskets);
-    }
-
     public void setUser(User u) {
         this.user = u;
-    }
-
-    public int getId() {
-        return subscriberId;
     }
 
 }

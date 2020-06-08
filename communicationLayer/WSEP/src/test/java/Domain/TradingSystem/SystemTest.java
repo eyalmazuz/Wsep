@@ -390,7 +390,7 @@ class UserMock extends User{
         if(type.equals("Owner"))
             return new SubscriberMock("Owner");
         else
-            return new GuestMock();
+            return new GuestMock(new User());
     }
 
     public UserMock(String type) {
@@ -459,4 +459,8 @@ class SubscriberMock extends Subscriber{
 
 }
 
-class GuestMock extends Guest{}
+class GuestMock extends Guest{
+    public GuestMock(User user) {
+        super(user);
+    }
+}

@@ -39,6 +39,9 @@ public class Subscriber implements UserState {
     @DatabaseField (dataType = DataType.SERIALIZABLE)
     private HashMap<Integer, List<Integer>> storePurchaseListsPrimitive = new HashMap<>();
 
+    @DatabaseField (foreign = true)
+    private ShoppingCart shoppingCart;
+
     private Queue<Notification> notificationQueue ;
     private Object permissionLock;
 
@@ -46,6 +49,7 @@ public class Subscriber implements UserState {
         notificationQueue = new ConcurrentLinkedDeque<>();
         permissions = new HashMap<>();
         permissionLock = new Object();
+        shoppingCart = new ShoppingCart(user);
         this.id = idCounter;
         idCounter++;
     }
@@ -55,7 +59,6 @@ public class Subscriber implements UserState {
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.isAdmin = isAdmin;
-
     }
 
 
@@ -91,7 +94,7 @@ public class Subscriber implements UserState {
      */
     public boolean logout () {
 
-        user.setState(new Guest());
+        user.setState(new Guest(user));
         return true;
 
     }
@@ -114,6 +117,7 @@ public class Subscriber implements UserState {
             throw new NullPointerException();
         }
         this.user = user;
+        shoppingCart.setUser(user);
     }
 
 
@@ -132,6 +136,11 @@ public class Subscriber implements UserState {
     @Override
     public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
         return storePurchaseListsPrimitive;
+    }
+
+    @Override
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
 
@@ -387,4 +396,10 @@ public class Subscriber implements UserState {
     public void setId(int sessionId) {
         this.id = sessionId;
     }
+
+    @Override
+    public void setShoppingCart(ShoppingCart cart) {
+        this.shoppingCart = cart;
+    }
+
 }
