@@ -4,19 +4,13 @@ import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.jdbc.JdbcDatabaseConnection;
-import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
-import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import org.languagetool.rules.AdvancedWordRepeatRule;
 
-import java.io.IOException;
 import java.lang.System;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -519,15 +513,6 @@ public class DAOManager {
         }
     }
 
-    public static List<ShoppingCart> loadAllShoppingCarts() {
-        try {
-            return shoppingCartDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static List<ShoppingBasket> loadAllShoppingBaskets() {
         try {
             return shoppingBasketDao.queryForAll();
@@ -898,6 +883,24 @@ public class DAOManager {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static int getNumShoppingCarts() {
+        try {
+            return shoppingCartDao.queryForAll().size();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getNumShoppingBaskets() {
+        try {
+            return shoppingBasketDao.queryForAll().size();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 }

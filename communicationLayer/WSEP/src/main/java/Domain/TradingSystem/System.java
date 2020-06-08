@@ -642,7 +642,6 @@ public class System {
             if (subId == -1) {
                 return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
             }
-            u.getShoppingCart().setSubscriberId(subId);
             DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
             return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
         }
@@ -664,9 +663,8 @@ public class System {
             setState(sessionId, subToLogin.getId());
 
             // fix user shopping cart
-            ShoppingCart cart = DAOManager.loadShoppingCartBySubscriberId(subToLogin.getId());
+            ShoppingCart cart = subToLogin.getShoppingCart();
             cart.setUser(u);
-            u.setShoppingCart(cart);
 
             return true;
         }

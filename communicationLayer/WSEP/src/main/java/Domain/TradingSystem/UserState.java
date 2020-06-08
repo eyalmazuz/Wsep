@@ -35,4 +35,8 @@ interface UserState {
     void setCountry(String country);
 
      Map<Integer, List<Integer>> getStorePurchaseListsPrimitive();
+
+     ShoppingCart getShoppingCart();
+
+     void setShoppingCart(ShoppingCart cart);
 }

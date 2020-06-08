@@ -6,6 +6,15 @@ import java.util.Map;
 
 public class Guest implements UserState {
 
+    private User user;
+
+    private ShoppingCart shoppingCart;
+
+    public Guest(User user) {
+        this.user = user;
+        shoppingCart = new ShoppingCart(user);
+    }
+
     private String country = "Unknown";
 
     /**
@@ -78,6 +87,16 @@ public class Guest implements UserState {
     @Override
     public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
         return null;
+    }
+
+    @Override
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    @Override
+    public void setShoppingCart(ShoppingCart cart) {
+        this.shoppingCart = cart;
     }
 
 }

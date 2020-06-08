@@ -92,10 +92,13 @@ public class SystemTests extends TestCase {
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
+
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+
         User u = test.getUser(sessionId);
         u.addProductToCart(store1, info, 4);
 
-        u.setState(new Subscriber());  // so it should indeed be saved
         u.saveCurrentCartAsPurchase();
         Map<Store, List<PurchaseDetails>> map = u.getStorePurchaseLists();
         assertNotNull(map.get(store1));
