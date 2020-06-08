@@ -1,5 +1,5 @@
 async function viewStoreDiscountPolicies(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

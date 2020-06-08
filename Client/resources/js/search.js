@@ -108,6 +108,7 @@ async function addToCart(idx) {
 }
 
 async function loadSearchPage(){
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

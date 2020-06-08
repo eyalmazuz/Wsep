@@ -2,6 +2,7 @@
 
 
 async function viewStores(){
+    hideButtons();
     storesURL = 'https://localhost:8443/viewStoreProductInfo'
 
     var stores = await fetch(storesURL, headers)

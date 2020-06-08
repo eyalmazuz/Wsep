@@ -91,6 +91,7 @@ async function logout(){
             alert("successfully logged out")
             sessionStorage['loggedin'] = false
             sessionStorage['username'] = ''
+            sessionStorage['subId'] = '-1'
 
         }
         location.reload()
@@ -143,5 +144,20 @@ async function moveToAdminPage(){
     }
     else{
         alert("admins only")
+    }
+}
+
+
+function hideButtons(){
+    if(sessionStorage['loggedin'] === 'true'){
+        document.getElementById('logoutButton').style.visibility = '';
+        document.getElementById('registerButton').style.visibility = 'hidden';
+        document.getElementById('loginButton').style.visibility = 'hidden';
+    }
+    else{
+
+        document.getElementById('logoutButton').style.visibility = 'hidden';
+        document.getElementById('registerButton').style.visibility = '';
+        document.getElementById('loginButton').style.visibility = '';
     }
 }
