@@ -1,6 +1,6 @@
 
 async function viewStoreProducts(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

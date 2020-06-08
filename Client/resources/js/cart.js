@@ -1,5 +1,6 @@
 
 async function loadpage(){
+    hideButtons();
     viewCart()
     getHisotry();
     if(sessionStorage['loggedin'] === 'true'){

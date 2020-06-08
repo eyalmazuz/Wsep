@@ -1,5 +1,6 @@
 
 async function startSystem(){
+    hideButtons();
     
     if(!('sessionId' in sessionStorage)){
         getSessionId()

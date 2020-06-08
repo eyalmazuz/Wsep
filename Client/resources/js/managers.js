@@ -8,7 +8,7 @@ function returnToStore(){
 
 
 async function viewManagers(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

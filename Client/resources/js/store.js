@@ -2,7 +2,7 @@
 
 
 async function viewStore(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
@@ -190,7 +190,7 @@ async function isManager(storeId, subId){
     permissionURL += '&subId=' + parseInt(subId)
     await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response) 
     console.log(permissions)
-    return permissions['permission']['type']
+    return permissions['permission'] != null ? permissions['permission']['type'] : '' 
 }
 
 

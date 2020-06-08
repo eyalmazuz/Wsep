@@ -8,7 +8,7 @@ function returnToStore(){
 
 
 async function viewOwners(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
@@ -64,10 +64,16 @@ async function showAddOwner(){
     possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
+    
+    var x = document.getElementById("ownerSelect");
+
+    for(i = x.length-1; i >= 0; i--) {
+        x.remove(i);
+     }
+
     for(managerIdx in possibleManagers['subscribers']){
         manager = possibleManagers['subscribers'][managerIdx]
         console.log(manager)
-        var x = document.getElementById("ownerSelect");
         var option = document.createElement("option");
         option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
         x.add(option); 
@@ -114,11 +120,17 @@ async function showRemoveOwner(){
     possibleManagersURL += '&storeId=' + storeId
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
+
+    var x = document.getElementById("removeOwnerSelect");
+
+    for(i = x.length-1; i >= 0; i--) {
+        x.remove(i);
+     }
+
     for(managerIdx in possibleManagers['subscribers']){
         manager = possibleManagers['subscribers'][managerIdx]
         console.log(manager)
         if(manager['type'] === 'Owner'){
-            var x = document.getElementById("removeOwnerSelect");
             var option = document.createElement("option");
             option.innerHTML = "Id: " + manager['id'] + " Name: "+ manager['username']
             x.add(option);
