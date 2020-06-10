@@ -735,14 +735,14 @@ public class DatabaseTests extends TestCase {
         assertEquals(ownerPermission.getType(), "Owner");
         assertNull(ownerPermission.getGrantor());
         assertEquals(ownerPermission.getStore().getId(), storeId);
-        assertEquals(ownerPermission.getDetails(), "Simple");
+        assertEquals(ownerPermission.getDetails().get(0), "Simple");
 
         Permission managerPermission = storeManager.getPermission(storeId);
         assertNotNull(managerPermission);
         assertEquals(managerPermission.getType(), "Manager");
         assertEquals(managerPermission.getGrantor(), u.getState());
         assertEquals(managerPermission.getStore().getId(), storeId);
-        assertEquals(managerPermission.getDetails(), "Simple");
+        assertEquals(managerPermission.getDetails().get(0), "Simple");
     }
 
     @Test
