@@ -1,14 +1,16 @@
 package DTOs.SimpleDTOS;
 
+import java.util.ArrayList;
+
 public class PermissionDTO {
     int storeId;
     SubscriberDTO user;
     SubscriberDTO grantor;
     String type;
-    String details;
+    ArrayList<String> details;
 
 
-    public PermissionDTO(int storeId, SubscriberDTO user, SubscriberDTO grantor, String type, String details) {
+    public PermissionDTO(int storeId, SubscriberDTO user, SubscriberDTO grantor, String type, ArrayList<String> details) {
         this.storeId = storeId;
         this.user = user;
         this.grantor = grantor;
@@ -48,11 +50,11 @@ public class PermissionDTO {
         this.type = type;
     }
 
-    public String getDetails() {
+    public ArrayList<String> getDetails() {
         return details;
     }
 
-    public void setDetails(String details) {
+    public void setDetails(ArrayList<String> details) {
         this.details = details;
     }
 
