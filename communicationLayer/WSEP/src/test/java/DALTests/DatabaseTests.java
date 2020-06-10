@@ -914,12 +914,4 @@ public class DatabaseTests extends TestCase {
         assertTrue(savedStore.getAllGrantingAgreements().isEmpty());
     }
 
-    @Test
-    public void testRemovePersistentProductInfo() {
-        test.addProductInfo(1, "lambda", "snacks", 30.0);
-
-        test = new System();
-        test.removeProduct(1);
-        assertEquals(test.getProducts().size(), 0);
-    }
 }

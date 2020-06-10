@@ -17,7 +17,7 @@ public class BuyingPolicy {
 
     // This class defines a purchase policy for a store
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId=  true)
     private int id;
 
     @DatabaseField

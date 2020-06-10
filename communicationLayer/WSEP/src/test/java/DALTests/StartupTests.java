@@ -242,6 +242,44 @@ public class StartupTests extends TestCase {
         PurchaseDetails details = subscriber.getStorePurchaseLists().get(test.getStoreById(storeId)).get(0);
         assertEquals(details.getPrice(), 90.0);
         assertEquals((int) details.getProducts().get(test.getProductInfoById(1)), 3);
+    }
+
+
+    @Test
+    public void testRemovePersistentProductInfo() {
+        test.addProductInfo(1, "lambda", "snacks", 30.0);
+
+        test = new System();
+        test.removeProduct(1);
+        assertEquals(test.getProducts().size(), 0);
+    }
+
+    @Test
+    public void testUpdatePersistentStore() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.addProductToStore(sessionId, storeId, 1, 40);
+
+        test = new System();
+
+        sessionId = test.startSession().getId();
+        test.login(sessionId, "user", "passw0rd");
+        test.addProductToStore(sessionId, storeId, 1, 10);
+
+        assertEquals(test.getStoreById(storeId).getProducts().get(0).getAmount(), 50);
+
+        test = new System();
+
+        sessionId = test.startSession().getId();
+        test.login(sessionId, "user", "passw0rd");
+        test.addProductToStore(sessionId, storeId, 1, 10);
+        test.addSimpleBuyingTypeBasketConstraint(storeId, 1, "min", 20);
+
+        assertEquals(test.getStoreById(storeId).getProducts().get(0).getAmount(), 60);
+        assertEquals(((BasketBuyingConstraint.MinAmountForProductConstraint) test.getStoreById(storeId).getBuyingPolicy().getBuyingTypes().values().iterator().next()).getMinAmount(), 20);
 
     }
 }

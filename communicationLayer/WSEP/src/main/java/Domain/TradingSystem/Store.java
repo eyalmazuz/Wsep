@@ -41,6 +41,7 @@ public class Store {
     @ForeignCollectionField(eager = true)
     private ForeignCollection<PurchaseDetails> purchaseHistory = null;
 
+    @DatabaseField (foreign = true)
     private PurchaseDetails lastAddedPurchaseHistoryItem = null;
 
     @DatabaseField (foreign = true)
@@ -63,7 +64,9 @@ public class Store {
         managerIds = new ArrayList<>();
         DAOManager.createProductInStoreListForStore(this);
         buyingPolicy = new BuyingPolicy("None");
+        DAOManager.buyingPolicyDaoCreateOrUpdate(buyingPolicy);
         discountPolicy = new DiscountPolicy("None");
+        DAOManager.discountPolicyDaoCreateOrUpdate(discountPolicy);
 
         DAOManager.createPurchaseHistoryForStore(this);
         malshab2granting = new ConcurrentHashMap<>();
@@ -190,9 +193,9 @@ public class Store {
     public PurchaseDetails addPurchase(User user, HashMap<ProductInfo, Integer> products, double price) {
         PurchaseDetails details = new PurchaseDetails(user, this, products, price);
         purchaseHistory.add(details);
+        lastAddedPurchaseHistoryItem = details;
         DAOManager.createPurchaseDetails(details);
         DAOManager.updateStore(this);
-        lastAddedPurchaseHistoryItem = details;
         return details;
     }
 
