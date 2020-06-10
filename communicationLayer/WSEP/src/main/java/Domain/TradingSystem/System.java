@@ -44,20 +44,6 @@ public class System {
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
 
-        List<ProductInfo> allProductInfos = DAOManager.loadAllProductInfos();
-        if (allProductInfos != null) {
-            for (ProductInfo productInfo : allProductInfos) {
-                products.put(productInfo.getId(), productInfo);
-            }
-        }
-
-        List<Store> allStores = DAOManager.loadAllStores();
-        if (allStores != null) {
-            for (Store store : allStores) {
-                stores.put(store.getId(), store);
-            }
-        }
-
         User.idCounter = DAOManager.getMaxSubscriberId() + 1;
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
@@ -70,11 +56,18 @@ public class System {
     }
 
     public ProductInfo getProductInfoById(int id) {
-        return products.get(id);
+        ProductInfo info = products.get(id);
+        if (info == null) info = DAOManager.loadProductInfoById(id);
+        return info;
     }
 
     public Map<Integer, ProductInfo> getProducts() {
-        return products;
+        List<ProductInfo> productInfos = DAOManager.loadAllProductInfos();
+        Map<Integer, ProductInfo> allProducts = new HashMap<>();
+        for (ProductInfo info : productInfos) {
+            allProducts.put(info.getId(), info);
+        }
+        return allProducts;
     }
 
     //For Testing Purpose only:
@@ -198,7 +191,10 @@ public class System {
                 return storeId;
             }
         }
-        return -1;
+        // not found in memory, look in database
+        Store store = DAOManager.loadStoreByName(name);
+
+        return store == null ? -1 : store.getId();
     }
 
     private void setStoreName(int storeId, String name) {
@@ -824,7 +820,9 @@ public class System {
 
 
     public Store getStoreById(int storeId){
-        return stores.get(storeId);
+        Store store = stores.get(storeId);
+        if (store == null) store = DAOManager.loadStoreById(storeId);
+        return store;
     }
 
     private ActionResultDTO checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
@@ -938,7 +936,10 @@ public class System {
     }
 
     public Map<Integer, Store> getStores(){
-        return stores;
+        List<Store> stores = DAOManager.loadAllStores();
+        Map<Integer, Store> map = new HashMap<>();
+        for (Store store : stores) map.put(store.getId(), store);
+        return map;
     }
 
     public User getUser(int sessionId) {
@@ -951,7 +952,7 @@ public class System {
         }
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
-        if (products.get(id) != null) {
+        if (getProductInfoById(id) != null) {
             return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
         }
 
@@ -1161,11 +1162,8 @@ public class System {
     }
 
     public void removeProduct(int productId) {
-        products.remove(productId);
-    }
-
-    public void setProducts(Map<Integer, ProductInfo> products) {
-        this.products = products;
+        if (products.containsKey(productId)) products.remove(productId);
+        DAOManager.removeProductInfo(productId);
     }
 
     public void removeNotification(int subId, int notificationId) {
@@ -1426,5 +1424,10 @@ public class System {
 
 
         return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
+    }
+
+    // for use only in test (SystemTest)
+    public Map<Integer, Store> getStoresMemory() {
+        return stores;
     }
 }

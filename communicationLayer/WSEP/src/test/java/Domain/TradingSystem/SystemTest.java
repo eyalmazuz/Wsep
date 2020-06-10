@@ -51,9 +51,9 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testAddStoreTest() {
-        int size = test.getStores().size();
+        int size = test.getStoresMemory().size();
         test.addStore();
-        assertEquals(size+1,test.getStores().size());
+        assertEquals(size+1,test.getStoresMemory().size());
     }
 
     @Test
@@ -82,11 +82,11 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testOpenStoreFailureTest() {
-        int size = test.getStores().size();
+        int size = test.getStoresMemory().size();
         assertEquals(-1,test.openStore(-1).getId());
         assertEquals(-1,test.openStore(1).getId());
 //        assertTrue(test.openStore(2).getId()>=0);
-  //      assertEquals(size+1,test.getStores().size());
+  //      assertEquals(size+1,test.getStoresMemory().size());
     }
 
 
@@ -102,7 +102,7 @@ public class SystemTest extends TestCase {
 
     @Test
     public void testSearchProducts() {
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
 
         stores.get(1).setRating(3);
         stores.get(2).setRating(4);
@@ -179,7 +179,7 @@ public class SystemTest extends TestCase {
     public void testAddProductToCart() {
         List<Integer> userSessionIDs = new ArrayList<>();
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -205,7 +205,7 @@ public class SystemTest extends TestCase {
     @Test
     public void testEditProductInCart() {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -234,7 +234,7 @@ public class SystemTest extends TestCase {
     @Test
     public void testRemoveProductFromCart() {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -258,7 +258,7 @@ public class SystemTest extends TestCase {
     // usecase 2.8.4
     @Test
     public void testUpdateStoreProductSupplies() {
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
 
         Store store1 = stores.get(1);
         // this store contains 10 bamba (id 4), 2 apple (id 5)

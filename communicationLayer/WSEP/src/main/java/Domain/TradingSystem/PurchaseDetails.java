@@ -88,4 +88,8 @@ public class PurchaseDetails {
         if (other instanceof PurchaseDetails) return ((PurchaseDetails) other).getId() == id;
         return false;
     }
+
+    public int hashCode() {
+        return id;
+    }
 }
