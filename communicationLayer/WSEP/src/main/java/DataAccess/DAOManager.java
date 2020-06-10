@@ -403,24 +403,26 @@ public class DAOManager {
 
     }
 
+    private static void fixStore(Store store) {
+        BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
+        if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
+
+        DiscountPolicy fixedDiscountPolicy = loadDiscountPolicy(store.getDiscountPolicy().getId());
+        if (fixedDiscountPolicy != null) store.setDiscountPolicy(fixedDiscountPolicy);
+
+        List<Integer> managerIds = store.getManagerIds();
+        List<Subscriber> managers = new ArrayList<>();
+        for (Integer managerId : managerIds) {
+            Subscriber manager = loadSubscriber(managerId);
+            managers.add(manager);
+        }
+        store.setManagers(managers);
+    }
+
     public static List<Store> loadAllStores() {
         try {
             List<Store> stores = storeDao.queryForAll();
-            for (Store store : stores) {
-                BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
-                if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
-
-                DiscountPolicy fixedDiscountPolicy = loadDiscountPolicy(store.getDiscountPolicy().getId());
-                if (fixedDiscountPolicy != null) store.setDiscountPolicy(fixedDiscountPolicy);
-
-                List<Integer> managerIds = store.getManagerIds();
-                List<Subscriber> managers = new ArrayList<>();
-                for (Integer managerId : managerIds) {
-                    Subscriber manager = loadSubscriber(managerId);
-                    managers.add(manager);
-                }
-                store.setManagers(managers);
-            }
+            for (Store store : stores) fixStore(store);
             return stores;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -901,6 +903,50 @@ public class DAOManager {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public static ProductInfo loadProductInfoById(int id) {
+        try {
+            return productInfoDao.queryForId(Integer.toString(id));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Store loadStoreById(int storeId) {
+        try {
+            Store store = storeDao.queryForId(Integer.toString(storeId));
+            if (store != null) fixStore(store);
+
+            return store;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void removeProductInfo(int productId) {
+        try {
+            productInfoDao.deleteById(Integer.toString(productId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Store loadStoreByName(String name) {
+        QueryBuilder<Store, String> queryBuilder = storeDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(name);
+        Where<Store, String> where = queryBuilder.where();
+        try {
+            where.eq("name", selectArg);
+            PreparedQuery<Store> query = queryBuilder.prepare();
+            return storeDao.query(query).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

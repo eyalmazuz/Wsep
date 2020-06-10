@@ -273,8 +273,6 @@ public class DatabaseTests extends TestCase {
         assertEquals(((AdvancedBuying) constraint2).getLogicalOperation(), AdvancedBuying.LogicalOperation.AND);
         List<BuyingType> subConstraints = ((AdvancedBuying) savedConstraints.get(1)).getBuyingConstraints();
 
-        java.lang.System.out.println(subConstraints);
-
         assertTrue(subConstraints.size() == 2 && subConstraints.get(0).getClass() == BasketBuyingConstraint.MinAmountForProductConstraint.class &&
                 ((BasketBuyingConstraint) subConstraints.get(0)).getMaxAmount() == -1 && ((BasketBuyingConstraint) subConstraints.get(0)).getMinAmount() == 5 &&
                 ((BasketBuyingConstraint) subConstraints.get(0)).getProductInfo().getId() == 1 && subConstraints.get(1).getClass() == BasketBuyingConstraint.MaxAmountForProductConstraint.class &&
@@ -914,6 +912,14 @@ public class DatabaseTests extends TestCase {
 
         Store savedStore = DAOManager.loadAllStores().get(0);
         assertTrue(savedStore.getAllGrantingAgreements().isEmpty());
+    }
 
+    @Test
+    public void testRemovePersistentProductInfo() {
+        test.addProductInfo(1, "lambda", "snacks", 30.0);
+
+        test = new System();
+        test.removeProduct(1);
+        assertEquals(test.getProducts().size(), 0);
     }
 }
