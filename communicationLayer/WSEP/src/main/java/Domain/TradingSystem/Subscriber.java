@@ -241,7 +241,7 @@ public class Subscriber implements UserState {
 
     }
 
-    public String getManagerDetails(int storeId) {
+    public ArrayList<String> getManagerDetails(int storeId) {
 
         Permission permission = permissions.get(storeId);
         if (permission!=null){
