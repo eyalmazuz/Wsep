@@ -17,7 +17,7 @@ public class MessageBrokerImpl implements MessageBroker {
     public List<Integer> sendTo(List<Integer> subscribers, Object message) {
         for(Integer sessionId : subscribers) {
             messageTemplate.convertAndSend("/storeUpdate/" + sessionId, message);
-            System.out.println("Notified User" + sessionId);
+            System.out.println("Notified User" + sessionId + " in address: " + "/storeUpdate/" + sessionId);
         } return new ArrayList<>();
     }
 }

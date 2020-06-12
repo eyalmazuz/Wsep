@@ -252,8 +252,8 @@ async function checkPermission(storeId, perm){
     permissionURL += 'storeId=' + parseInt(storeId)
     permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
     await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
-    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
-    var isManager = (permissions['permission']['details'] === perm || permissions['permission']['details'] === 'any') && permissions['permission']['type'] === 'Manager' 
+    var isOwner = permissions['permission']['details'].includes('Simple') && permissions['permission']['type'] === 'Owner'
+    var isManager = (permissions['permission']['details'].includes(perm) || permissions['permission']['details'].includes('any')) && permissions['permission']['type'] === 'Manager' 
 
      return isOwner || isManager  
 }
