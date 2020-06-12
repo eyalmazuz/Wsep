@@ -1,8 +1,11 @@
 package Domain.TradingSystem;
 
 import DataAccess.DAOManager;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.util.ArrayList;
 
 @DatabaseTable(tableName = "permissions")
 public class Permission {
@@ -22,8 +25,8 @@ public class Permission {
     @DatabaseField(foreign = true)
     private Store store;
 
-    @DatabaseField
-    private String details;
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private ArrayList<String> details;
 
     public Permission () {}
 
@@ -32,7 +35,8 @@ public class Permission {
         this.user = user;
         this.type = type;
         this.store = store;
-        this.details = "Simple";
+        this.details = new ArrayList<>();
+        details.add("Simple");
     }
 
     public Store getStore() {
@@ -56,18 +60,24 @@ public class Permission {
         return grantor;
     }
 
-    public String getDetails() {
+    public ArrayList<String> getDetails() {
         return details;
     }
 
     public void setDetails(String details) {
-        this.details = details;
+        if(details.equals("manage-inventory")){
+            this.details.add("add product");
+            this.details.add("edit product");
+            this.details.add("remove product");
+        }
+        else
+            this.details.add(details);
         DAOManager.updatePermission(this);
     }
 
 
     public boolean hasPrivilage(String type) {
-        return details.equals(type);
+        return details.contains(type);
     }
 
     public Subscriber getUser() {

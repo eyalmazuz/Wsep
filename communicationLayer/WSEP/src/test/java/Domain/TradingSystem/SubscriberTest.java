@@ -208,7 +208,7 @@ public class SubscriberTest extends TestCase {
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
-        assertEquals(newSubscriber.getManagerDetails(store.getId()),"any");
+        assertTrue(newSubscriber.getManagerDetails(store.getId()).contains("any"));
      }
 
     @Test
@@ -226,7 +226,7 @@ public class SubscriberTest extends TestCase {
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
-        assertEquals(newSubscriber.getManagerDetails(store.getId()),"any");
+        assertTrue(newSubscriber.getManagerDetails(store.getId()).contains("any"));
 
     }
 

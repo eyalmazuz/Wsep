@@ -112,7 +112,7 @@ public class UserHandler {
         return ans;
     }
 
-    public String getManagerDetails(int managerId, int storeId) {
+    public ArrayList<String> getManagerDetails(int managerId, int storeId) {
         for (Subscriber user: subscribers.values()){
             if (user.getId() == managerId)
                 return user.getManagerDetails(storeId);
