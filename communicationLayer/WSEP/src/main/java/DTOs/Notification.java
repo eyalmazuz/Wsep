@@ -1,6 +1,8 @@
 package DTOs;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable {
     int id;
     String massage;
 

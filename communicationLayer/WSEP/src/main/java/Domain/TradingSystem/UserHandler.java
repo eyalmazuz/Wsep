@@ -50,7 +50,9 @@ public class UserHandler {
                 return -1;
         }
 
-        if (DAOManager.subscriberExists(username)) return -1;
+        if (DAOManager.subscriberExists(username)) {
+            return -1;
+        }
 
         Subscriber subscriberState = new Subscriber(username, password, false);
         subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
@@ -79,7 +81,9 @@ public class UserHandler {
             if (sub.getUsername().equals(username))
                 return sub;
         }
-        return null;
+        Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
+        if(subscriber != null) subscribers.put(subscriber.getId(), subscriber);
+        return subscriber;
     }
 
 
