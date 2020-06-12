@@ -13,6 +13,7 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,8 @@ public class System {
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
+
+        instance = this;
     }
 
     public static System getInstance(){
@@ -1426,8 +1429,15 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 
-    // for use only in test (SystemTest)
+    public ActionResultDTO runTransaction(Callable<ActionResultDTO> callable) {
+        return DAOManager.runTransaction(callable);
+    }
+
     public Map<Integer, Store> getStoresMemory() {
         return stores;
+    }
+
+    public Map<Integer, Subscriber> getSubscribersMemory() {
+        return userHandler.subscribers;
     }
 }

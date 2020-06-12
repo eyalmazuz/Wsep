@@ -1,12 +1,21 @@
 package Service;
 
 import DTOs.*;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.System;
+
+import java.sql.SQLException;
 
 
 public class GuestUserHandler {
 
     System s = System.getInstance();
+
+    public GuestUserHandler () {}
+
+    public GuestUserHandler(System sys) {
+        s = sys;
+    }
 
     public IntActionResultDto login(int sessionId , String username, String password) {
 
@@ -63,32 +72,39 @@ public class GuestUserHandler {
     public ActionResultDTO confirmPurchase(int sessionId, String paymentDetails) {
         ActionResultDTO result = s.makePayment(sessionId, paymentDetails);
         if (result.getResultCode() != ResultCode.SUCCESS) return result;
-        s.savePurchaseHistory(sessionId);
-        s.saveOngoingPurchaseForUser(sessionId);
 
-        if (s.updateStoreSupplies(sessionId)) {
+        return s.runTransaction(() -> {
 
-            s.emptyCart(sessionId);
-        }
-        else {
-            s.requestRefund(sessionId);
-            s.restoreHistories(sessionId);
+            s.savePurchaseHistory(sessionId);
+            s.saveOngoingPurchaseForUser(sessionId);
+
+            // for testing purposes only
+            if (DAOManager.crashTransactions) throw new SQLException();
+
+            if (s.updateStoreSupplies(sessionId)) {
+
+                s.emptyCart(sessionId);
+            } else {
+                s.requestRefund(sessionId);
+                s.restoreHistories(sessionId);
+                s.removeOngoingPurchase(sessionId);
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
+            }
+
+            if (!s.requestSupply(sessionId)) {
+                s.requestRefund(sessionId);
+                s.restoreSupplies(sessionId);
+                s.restoreHistories(sessionId);
+                s.restoreCart(sessionId);
+                s.removeOngoingPurchase(sessionId);
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Supply system could not deliver products. State restored.");
+            }
+
             s.removeOngoingPurchase(sessionId);
-            return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
-        }
 
-        if (!s.requestSupply(sessionId)) {
-            s.requestRefund(sessionId);
-            s.restoreSupplies(sessionId);
-            s.restoreHistories(sessionId);
-            s.restoreCart(sessionId);
-            s.removeOngoingPurchase(sessionId);
-            return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Supply system could not deliver products. State restored.");
-        }
+            return new ActionResultDTO(ResultCode.SUCCESS, "Purchase successful.");
+        });
 
-        s.removeOngoingPurchase(sessionId);
-
-        return new ActionResultDTO(ResultCode.SUCCESS, "Purchase successful.");
     }
 
 
