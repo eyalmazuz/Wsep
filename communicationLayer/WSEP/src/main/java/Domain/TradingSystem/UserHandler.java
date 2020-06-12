@@ -29,6 +29,9 @@ public class UserHandler {
 
     private boolean hasAdmin() {
         boolean found = false;
+        if(DAOManager.getSubscriberByUsername("admin") != null){
+            return true;
+        }
         for(Subscriber sub : subscribers.values()){
             if(sub.isAdmin()){
                 found = true;
