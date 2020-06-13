@@ -999,7 +999,97 @@ public class DAOManager {
             e.printStackTrace();
         }
 
-        // TODO: refresh the memory
-        return null;
+        for (Subscriber subscriber : Domain.TradingSystem.System.getInstance().getSubscribersMemory().values()) {
+            try {
+                subscriberDao.refresh(subscriber);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Could not register, please try again later.", -1);
+    }
+
+    public static ActionResultDTO runAddProductToStoreTransaction(Callable<ActionResultDTO> callable) {
+        try {
+            return TransactionManager.callInTransaction(connectionSource, callable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        for (Store store : Domain.TradingSystem.System.getInstance().getStoresMemory().values()) {
+            try {
+                storeDao.refresh(store);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // notifications
+        for (Subscriber subscriber : Domain.TradingSystem.System.getInstance().getSubscribersMemory().values()) {
+            try {
+                subscriberDao.refresh(subscriber);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Could not add product to store, please try again later.");
+    }
+
+    public static ActionResultDTO runEditProductInStoreTransaction(Callable<ActionResultDTO> callable) {
+        try {
+            return TransactionManager.callInTransaction(connectionSource, callable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        for (Store store : Domain.TradingSystem.System.getInstance().getStoresMemory().values()) {
+            try {
+                storeDao.refresh(store);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // notifications
+        for (Subscriber subscriber : Domain.TradingSystem.System.getInstance().getSubscribersMemory().values()) {
+            try {
+                subscriberDao.refresh(subscriber);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Could not edit product in store, please try again later.");
+
+    }
+
+    public static ActionResultDTO runDeleteProductFromStoreTransaction(Callable<ActionResultDTO> callable) {
+        try {
+            return TransactionManager.callInTransaction(connectionSource, callable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        for (Store store : Domain.TradingSystem.System.getInstance().getStoresMemory().values()) {
+            try {
+                storeDao.refresh(store);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // notifications
+        for (Subscriber subscriber : Domain.TradingSystem.System.getInstance().getSubscribersMemory().values()) {
+            try {
+                subscriberDao.refresh(subscriber);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Could not delete product from store, please try again later.");
+
     }
 }

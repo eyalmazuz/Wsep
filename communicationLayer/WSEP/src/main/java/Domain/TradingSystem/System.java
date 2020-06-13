@@ -301,73 +301,81 @@ public class System {
 
         logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, amount, productId, storeId));
         ProductInfo info = getProductInfoById(productId);
-        if(info != null) {
 
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                ActionResultDTO result = store.addProduct(info, amount);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null) {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+        return DAOManager.runAddProductToStoreTransaction(() -> {
+            if (info != null) {
+
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    ActionResultDTO result = store.addProduct(info, amount);
+                    //Publisher Update
+                    if (result.getResultCode() == ResultCode.SUCCESS) {
+                        if (publisher != null) {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            Notification notification = new Notification(notificationId++, "Store " + storeId + " has been updated");
+                            updateAllUsers(store.getAllManagers(), notification);
+                            publisher.notify(managers, notification);
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
-        }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     //UseCase 4.1.2
     public ActionResultDTO editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
-        if(getProductInfoById(productId) != null) {
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                ActionResultDTO result =  store.editProduct(productId, newInfo);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null) {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        String message = "Store " + storeId + " has been updated: product has been edited";
-                        Notification notification = new Notification(notificationId++,message);
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+
+        return DAOManager.runEditProductInStoreTransaction(() -> {
+            if (getProductInfoById(productId) != null) {
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    ActionResultDTO result = store.editProduct(productId, newInfo);
+                    //Publisher Update
+                    if (result.getResultCode() == ResultCode.SUCCESS) {
+                        if (publisher != null) {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            String message = "Store " + storeId + " has been updated: product has been edited";
+                            Notification notification = new Notification(notificationId++, message);
+                            updateAllUsers(store.getAllManagers(), notification);
+                            publisher.notify(managers, notification);
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
-        }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     //UseCase 4.1.3
     public ActionResultDTO deleteProductFromStore(int sessionId, int storeId, int productId){
         logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
-        if(getProductInfoById(productId) != null) {
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                ActionResultDTO result =  store.deleteProduct(productId);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null)
-                    {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+
+        return DAOManager.runDeleteProductFromStoreTransaction(() ->{
+            if (getProductInfoById(productId) != null) {
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    ActionResultDTO result = store.deleteProduct(productId);
+                    //Publisher Update
+                    if (result.getResultCode() == ResultCode.SUCCESS) {
+                        if (publisher != null) {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            Notification notification = new Notification(notificationId++, "Store " + storeId + " has been updated: product delete");
+                            updateAllUsers(store.getAllManagers(), notification);
+                            publisher.notify(managers, notification);
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
-        }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     // UseCase 4.3
