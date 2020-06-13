@@ -5,8 +5,8 @@ async function startSystem(){
     if(!('sessionId' in sessionStorage)){
         getSessionId()
     }
-    await fetch("https://localhost:8443/setup?supplyConfig=supplyConfig&paymentConfig=paymentConfig")
-        if(!('loggedin' in sessionStorage)){
+    
+    if(!('loggedin' in sessionStorage)){
         sessionStorage['loggedin'] = false
     }
 

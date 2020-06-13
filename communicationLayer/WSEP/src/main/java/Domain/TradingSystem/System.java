@@ -554,7 +554,7 @@ public class System {
      * @param storeId
      * @return
      */
-    public String getManagerDetails(int sessionId, int managerId, int storeId){
+    public ArrayList<String> getManagerDetails(int sessionId, int managerId, int storeId){
         User u = userHandler.getUser(sessionId);
         if (u.getState().hasOwnerPermission(storeId)) {
             return userHandler.getManagerDetails(managerId, storeId);
@@ -579,7 +579,7 @@ public class System {
             Store store = getStoreById(storeId);
             if(store!=null) {
 
-                String[] validDetailes = {"any", "add product", "edit product", "delete product"};
+                String[] validDetailes = {"any", "add product", "edit product", "delete product","manage-inventory"};
 
                 if (Arrays.asList(validDetailes).contains(details)) {
                     manager.overridePermission("Manager", store, details);

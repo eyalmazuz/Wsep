@@ -203,15 +203,19 @@ async function checkPermission(storeId, page){
     permissionURL += 'storeId=' + parseInt(storeId)
     permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
     await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
-    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
+    var isOwner = permissions['permission']['details'].includes('Simple') && permissions['permission']['type'] === 'Owner'
     var isManager;
     if(page === 'products'){
-      isManager = ['any', 'add product', 'edit product', 'delete product'].includes(permissions['permission']['details']) && permissions['permission']['type'] === 'Manager' 
+      isManager = checkProductPremissions(permissions['permission']['details']) && permissions['permission']['type'] === 'Manager' 
     }
     if(page === 'buyingPolicy' || page === 'buyingPolicy'){
         isManager = permissions['permission']['details'] === 'any' && permissions['permission']['type'] === 'Manager' 
     }
      return isOwner || isManager  
+}
+
+function checkProductPremissions(premissions){
+    return premissions.reduce((acc, curr) => acc || ['any', 'add product', 'edit product', 'delete product', 'manage-inventory'].includes(curr), false)
 }
 
 async function viewStoreHistory(){

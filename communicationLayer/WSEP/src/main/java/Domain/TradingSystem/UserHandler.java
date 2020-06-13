@@ -29,6 +29,9 @@ public class UserHandler {
 
     private boolean hasAdmin() {
         boolean found = false;
+        if(DAOManager.getSubscriberByUsername("admin") != null){
+            return true;
+        }
         for(Subscriber sub : subscribers.values()){
             if(sub.isAdmin()){
                 found = true;
@@ -47,7 +50,9 @@ public class UserHandler {
                 return -1;
         }
 
-        if (DAOManager.subscriberExists(username)) return -1;
+        if (DAOManager.subscriberExists(username)) {
+            return -1;
+        }
 
         Subscriber subscriberState = new Subscriber(username, password, false);
         subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
@@ -76,7 +81,9 @@ public class UserHandler {
             if (sub.getUsername().equals(username))
                 return sub;
         }
-        return null;
+        Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
+        if(subscriber != null) subscribers.put(subscriber.getId(), subscriber);
+        return subscriber;
     }
 
 
@@ -112,7 +119,7 @@ public class UserHandler {
         return ans;
     }
 
-    public String getManagerDetails(int managerId, int storeId) {
+    public ArrayList<String> getManagerDetails(int managerId, int storeId) {
         for (Subscriber user: subscribers.values()){
             if (user.getId() == managerId)
                 return user.getManagerDetails(storeId);

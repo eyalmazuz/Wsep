@@ -48,7 +48,7 @@ async function login(){
             sessionStorage['loggedin'] = true
             sessionStorage['username'] = username
             sessionStorage['subId'] = result['id']
-            connect()
+            await connect() //.then(result => sendReadyForNotificaitons())
             if(username === 'admin' && password === "admin"){
                 sessionStorage['isAdmin'] = true
             }
@@ -56,7 +56,8 @@ async function login(){
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
             alert("successfully logged in")
-            sendReadyForNotificaitons();
+            
+            ;
 
         
         }

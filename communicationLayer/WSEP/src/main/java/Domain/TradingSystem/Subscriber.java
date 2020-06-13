@@ -42,7 +42,8 @@ public class Subscriber implements UserState {
     @DatabaseField (foreign = true)
     private ShoppingCart shoppingCart;
 
-    private Queue<Notification> notificationQueue ;
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private ConcurrentLinkedDeque<Notification> notificationQueue ;
     private Object permissionLock;
 
     public Subscriber() {
@@ -241,7 +242,7 @@ public class Subscriber implements UserState {
 
     }
 
-    public String getManagerDetails(int storeId) {
+    public ArrayList<String> getManagerDetails(int storeId) {
 
         Permission permission = permissions.get(storeId);
         if (permission!=null){
@@ -318,6 +319,7 @@ public class Subscriber implements UserState {
 
     public void setNotification(Notification message){
         notificationQueue.add(message);
+        DAOManager.updateSubscriber(this);
     }
 
     public Queue<Notification> getAllNotification(){
@@ -336,6 +338,8 @@ public class Subscriber implements UserState {
         }
         if(toRemove!=null){
             notificationQueue.remove(toRemove);
+            DAOManager.updateSubscriber(this);
+
         }
     }
 
