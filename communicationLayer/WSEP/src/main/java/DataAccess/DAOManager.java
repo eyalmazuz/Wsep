@@ -1,6 +1,7 @@
 package DataAccess;
 
 import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 import DTOs.ResultCode;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
@@ -954,7 +955,8 @@ public class DAOManager {
     }
 
     public static boolean crashTransactions = false;
-    public static ActionResultDTO runTransaction(Callable<ActionResultDTO> callable) {
+
+    public static ActionResultDTO runPurchaseTransaction(Callable<ActionResultDTO> callable) {
         try {
             return TransactionManager.callInTransaction(connectionSource, callable);
         } catch (SQLException e) {
@@ -988,5 +990,16 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static IntActionResultDto runRegisterTransaction(Callable<IntActionResultDto> callable) {
+        try {
+            return TransactionManager.callInTransaction(connectionSource, callable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // TODO: refresh the memory
+        return null;
     }
 }

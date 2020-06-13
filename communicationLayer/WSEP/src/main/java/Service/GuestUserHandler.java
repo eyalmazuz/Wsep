@@ -73,7 +73,7 @@ public class GuestUserHandler {
         ActionResultDTO result = s.makePayment(sessionId, paymentDetails);
         if (result.getResultCode() != ResultCode.SUCCESS) return result;
 
-        return s.runTransaction(() -> {
+        return s.runPurchaseTransaction(() -> {
 
             s.savePurchaseHistory(sessionId);
             s.saveOngoingPurchaseForUser(sessionId);

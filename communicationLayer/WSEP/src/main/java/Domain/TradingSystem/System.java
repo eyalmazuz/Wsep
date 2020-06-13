@@ -636,15 +636,18 @@ public class System {
         if (username == null || password == null|| username.equals("") || password.equals("")) return new IntActionResultDto(ResultCode.ERROR_REGISTER,"invalid username/password",-1);;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-        if (u!=null) {
-            int subId = userHandler.register(username, Security.getHash(password));
-            if (subId == -1) {
-                return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
+
+        return DAOManager.runRegisterTransaction(() -> {
+            if (u != null) {
+                int subId = userHandler.register(username, Security.getHash(password));
+                if (subId == -1) {
+                    return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
+                }
+                DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
+                return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
             }
-            DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
-            return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
-        }
-        return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
+            return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Session id not exist", -1);
+        });
     }
 
     // Usecase 2.3
@@ -1429,8 +1432,8 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 
-    public ActionResultDTO runTransaction(Callable<ActionResultDTO> callable) {
-        return DAOManager.runTransaction(callable);
+    public ActionResultDTO runPurchaseTransaction(Callable<ActionResultDTO> callable) {
+        return DAOManager.runPurchaseTransaction(callable);
     }
 
     public Map<Integer, Store> getStoresMemory() {
