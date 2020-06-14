@@ -112,11 +112,63 @@
         </div>
         
         <div>
-            <button type="button" id='buyCartButton' onclick="purchaseCart()">Buy Cart</button>
-            <input type="text" id="paymentDetailsBox" placeholder="Payment details" required>
+            <button type="button" id='buyCartButton' onclick="openPurchaseCart()">Buy Cart</button>
 
         </div>
-        
+
+        <!-- The Register Model -->
+        <div id="purchaseForm" class="modal">
+            <span onclick="document.getElementById('purchaseForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+                <label for="cardNumber"><b>Card Number</b></label>
+                <input id='cardNumberText' type="text" placeholder="Card Number" name="cardNumber" required>
+
+                <label for="month"><b>Month</b></label>
+                <input id='cardMonthText' type="number" placeholder="Month" name="month" required>
+
+                <label for="year"><b>Year</b></label>
+                <input id='cardYearText' type="number" placeholder="Year" name="year" required>
+
+                <label for="cardHolder"><b>Card Holder</b></label>
+                <input id='cardHolderText' type="text" placeholder="Card Holder" name="cardHolder" required>
+                
+                <label for="cardCcv"><b>Card ccv</b></label>
+                <input id='cardCcvText' type="text" placeholder="Card ccv" name="cardCcv" required>
+                
+                <label for="personId"><b>ID</b></label>
+                <input id='idText' type="text" placeholder="ID" name="personId" required>
+
+                <label for="buyerName"><b>Buyer Name</b></label>
+                <input id='buyerNameText' type="text" placeholder="Name" name="buyerName" required>
+
+                <label for="address"><b>Address</b></label>
+                <input id='addressText' type="text" placeholder="Address" name="address" required>
+                
+                <label for="city"><b>City</b></label>
+                <input id='cityText' type="text" placeholder="City" name="city" required>
+                
+                <label for="country"><b>Country</b></label>
+                <input id='countryText' type="text" placeholder="Country" name="country" required>
+
+                <label for="zip"><b>Zip Code</b></label>
+                <input id='zipText' type="text" placeholder="Zip Code" name="zip" required>
+
+
+                <button type="button" onclick="purchaseCart()">Buy</button>
+                <label id='registerPasswordText'></label>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('purchaseForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+            
         <div>
             <br>
             <br>

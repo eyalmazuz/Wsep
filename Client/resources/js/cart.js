@@ -170,47 +170,68 @@ async function clearCart(){
 
 async function purchaseCart(){
 
-    if(document.getElementById('paymentDetailsBox').value === ""){
-        alert('to purchase the cart, enter your payment details')
-    }
-    else{
-        requestPurchaseURL = 'https://localhost:8443/requestPurchase?'
+    console.log(confirmPurchaseURL)
 
-        var sessionId = sessionStorage['sessionId']
+    requestPurchaseURL = 'https://localhost:8443/requestPurchase?'
 
-        requestPurchaseURL += 'sessionId=' + sessionId
+    var sessionId = sessionStorage['sessionId']
 
-        var result;
-        await fetch(requestPurchaseURL, headers).then(response => response.json()).then(response => result = response)
-        console.log(result)
-        if(result['resultCode'] === 'SUCCESS'){
-            if(confirm(result['details'])){
-                confirmPurchaseURL = 'https://localhost:8443/confirmPurchase?'
-                confirmPurchaseURL += 'sessionId=' + sessionId
-                var paymentDetails = document.getElementById("paymentDetailsBox").value;
+    requestPurchaseURL += 'sessionId=' + sessionId
 
-                confirmPurchaseURL += '&paymentDetails=' + paymentDetails
-                console.log(confirmPurchaseURL)
-                await fetch(confirmPurchaseURL, headers).then(response => response.json()).then(response => result = response)
-                console.log(result)
-                if(result['resultCode'] === 'SUCCESS'){
-                    alert('purchase successfull')
-                    location.reload()
+    var result;
+    await fetch(requestPurchaseURL, headers).then(response => response.json()).then(response => result = response)
+    console.log(result)
+    if(result['resultCode'] === 'SUCCESS'){
+        if(confirm(result['details'])){
+            confirmPurchaseURL = 'https://localhost:8443/confirmPurchase?'
+            confirmPurchaseURL += 'sessionId=' + sessionId
+            
+            var cardNumber = document.getElementById('cardNumberText').value
+            var cardMonth = document.getElementById('cardMonthText').innerHTML
+            var cardYear = document.getElementById('cardYearText').innerHTML
+            var cardHolder = document.getElementById('cardHolderText').value
+            var cardCcv = document.getElementById('cardCcvText').value
+            var id = document.getElementById('idText').value
+        
+            var buyerNamer = document.getElementById('buyerNameText').value
+            var address = document.getElementById('addressText').value
+            var city = document.getElementById('cityText').value
+            var country = document.getElementById('countryText').value
+            var zip = document.getElementById('zipText').value
+        
+            confirmPurchaseURL += "&cardNumber=" + cardNumber
+            confirmPurchaseURL += "&cardMonth=" + cardMonth
+            confirmPurchaseURL += "&cardYear=" + cardYear
+            confirmPurchaseURL += "&cardHolder=" + cardHolder
+            confirmPurchaseURL += "&cardCcv=" + cardCcv
+            confirmPurchaseURL += "&cardId=" + id
+            confirmPurchaseURL += "&buyerName=" + buyerNamer
+            confirmPurchaseURL += "&address=" + address
+            confirmPurchaseURL += "&city=" + city
+            confirmPurchaseURL += "&country=" + country
+            confirmPurchaseURL += "&zip=" + zip
 
-                }
-                else{
-                    alert(result['details'])
-                }
+            console.log(confirmPurchaseURL)
+            await fetch(confirmPurchaseURL, headers).then(response => response.json()).then(response => result = response)
+            console.log(result)
+            if(result['resultCode'] === 'SUCCESS'){
+                alert('purchase successfull')
+                location.reload()
+
             }
             else{
-                alert('purchase canceled')
+                alert(result['details'])
             }
-
         }
         else{
-            alert(result['details'])
+            alert('purchase canceled')
         }
+
     }
+    else{
+        alert(result['details'])
+    }
+
 
 }
 
@@ -276,5 +297,10 @@ async function getHisotry(){
         }
 
     }
+
+}
+
+function openPurchaseCart(){
+    document.getElementById('purchaseForm').style.display='block'
 
 }

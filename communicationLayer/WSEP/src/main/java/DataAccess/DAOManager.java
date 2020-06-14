@@ -819,7 +819,7 @@ public class DAOManager {
 
     public static int getMaxBuyingPolicyId() {
         try {
-            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingpolicies");
+            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -828,7 +828,7 @@ public class DAOManager {
 
     public static int getMaxDiscountPolicyId() {
         try {
-            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountpolicies");
+            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
