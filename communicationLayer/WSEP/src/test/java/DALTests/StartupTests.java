@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
@@ -281,5 +282,23 @@ public class StartupTests extends TestCase {
         assertEquals(test.getStoreById(storeId).getProducts().get(0).getAmount(), 60);
         assertEquals(((BasketBuyingConstraint.MinAmountForProductConstraint) test.getStoreById(storeId).getBuyingPolicy().getBuyingTypes().values().iterator().next()).getMinAmount(), 20);
 
+    }
+
+    @Test
+    public void testStoreProductInfoStartup() {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.addProductToStore(sessionId, storeId, 1, 40);
+
+        test = new System();
+
+        Store store = test.getStoreById(storeId);
+        ProductInfo savedProductInfo = store.getProducts().get(0).getProductInfo();
+        assertEquals(savedProductInfo.getCategory(), "snacks");
+        assertEquals(savedProductInfo.getName(), "lambda");
+        assertEquals(savedProductInfo.getDefaultPrice(), 30.0);
     }
 }
