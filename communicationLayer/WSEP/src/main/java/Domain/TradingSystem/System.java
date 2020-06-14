@@ -60,7 +60,10 @@ public class System {
         ProductInfo info = products.get(id);
         if (info == null) {
             info = DAOManager.loadProductInfoById(id);
-            products.put(info.getId(),info);
+            if(info != null)
+                products.put(info.getId(),info);
+            else
+                return null;
         }
         return info;
     }
@@ -687,7 +690,7 @@ public class System {
         logger.info("searchProducts: no arguments");
         List<StoreDTO> result = new ArrayList<>();
         String info = "";
-        for (Store store: stores.values()) {
+        for (Store store: DAOManager.loadAllStores()) {
             result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
                     store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
         }
