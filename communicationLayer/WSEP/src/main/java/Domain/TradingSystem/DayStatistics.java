@@ -89,4 +89,12 @@ public class DayStatistics {
     }
 
 
+    public void reset() {
+        this.guests.set(0);
+        this.regularSubs.set(0);
+        this.managersOwners.set(0);
+        this.managersNotOwners.set(0);
+        this.admins.set(0);
+
+    }
 }

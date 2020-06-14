@@ -37,6 +37,7 @@ public class System {
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
     public static boolean testing = false;
+    private boolean init = false;
 
     public System() {
         String databaseName = testing? "trading_system_test" : "trading_system";
@@ -133,6 +134,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_SETUP,"e.getMessage");
         }
 //        instance = this;
+        init =true;
         return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
     }
 
@@ -223,6 +225,9 @@ public class System {
     }
 
     private void updateStats(int sessionId) {
+        if(!init)
+            return;
+
         if(!dailyStats.isToday())
             dailyStats = new DayStatistics(LocalDate.now());
         User user = userHandler.getUser(sessionId);
@@ -274,10 +279,18 @@ public class System {
     public boolean logout(int sessionId){
         logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
-        if(u!=null)
-            return u.logout();
+        if(u!=null){
+            boolean result =u.logout();
+            if(result){
+                updateStats(sessionId);
+                return true;
+            }
+            return false;
 
-        updateStats(sessionId);
+        }
+
+
+
         return false;
     }
 
@@ -1475,5 +1488,27 @@ public class System {
     // for use only in test (SystemTest)
     public Map<Integer, Store> getStoresMemory() {
         return stores;
+    }
+
+    public StatisticsResultsDTO getStatistics(String from, String to) {
+        //TODO:Add function that query DB and return Proper DTO
+        //Tmp function for tests
+        List<DayStatistics> lst = new ArrayList<>();
+        lst.add(dailyStats);
+        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
+        //
+    }
+
+    private List<DailyStatsDTO> convertStatsToDTO(List<DayStatistics> list){
+      return  list.stream().map((stat)->new DailyStatsDTO(stat.getDate(),stat.getGuests(),stat.getRegularSubs()
+        ,stat.getManagersNotOwners(),stat.getManagersOwners(),stat.getAdmins())).collect(Collectors.toList());
+    }
+
+    public DayStatistics getDailyStats() {
+        return dailyStats;
+    }
+
+    public void clearStats() {
+        dailyStats.reset();
     }
 }

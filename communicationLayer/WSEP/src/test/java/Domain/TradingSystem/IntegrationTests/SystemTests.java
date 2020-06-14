@@ -21,6 +21,12 @@ public class SystemTests extends TestCase {
 
     //System Unitesting
     System test;
+    private int sessionId;
+    private int store1Id;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
 
     @Before
     public void setUp() {
@@ -36,6 +42,7 @@ public class SystemTests extends TestCase {
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        test.clearStats();
         DAOManager.clearDatabase();
     }
 
@@ -245,12 +252,7 @@ public class SystemTests extends TestCase {
     }
 
 
-    private int sessionId;
-    private int store1Id;
-    private ProductInfo info;
-    private User u;
-    private PaymentHandler paymentHandler = null;
-    private SupplyHandler supplyHandler = null;
+
 
     private void setUpPurchase() {
         sessionId = test.startSession().getId();
@@ -785,7 +787,6 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testAddProductUpdateNotification(){
-        int counter;
 
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
@@ -973,6 +974,12 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
         assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    @Test
+    public void testSetupNonExistFile(){
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","2Boys1Test.txt").getResultCode());
 
     }
 
@@ -1175,6 +1182,54 @@ public class SystemTests extends TestCase {
 
         assertEquals(2, store.getAllManagers().size());
     }
+
+    public void setUpStatsTests(){
+        sessionId =test.startSession().getId();
+        test.register(sessionId,"a","a");
+        test.register(sessionId,"b","b");
+    }
+
+    @Test
+    public void testStatisticsGuestLogin(){
+        setUpStatsTests();
+        assertEquals(1,test.getDailyStats().getGuests());
+    }
+
+    @Test
+    public void testStatisticsSubscriberLogin(){
+        setUpStatsTests();
+        test.login(sessionId,"a","a");
+        assertEquals(1,test.getDailyStats().getRegularSubs());
+    }
+
+    @Test
+    public void testStatisticsOwnerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        test.login(sessionId,"a","a");
+        test.openStore(sessionId);
+        test.logout(sessionId);
+        test.login(sessionId,"a","a");
+        assertEquals(1,test.getDailyStats().getManagersOwners());
+
+    }
+
+    @Test
+    public void testStatisticsManagerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        test.login(sessionId,"a","a");
+        int storeId =test.openStore(sessionId).getId();
+        test.logout(sessionId);
+        test.login(sessionId,"a","a");
+        int subId = test.getSubscriber("b","b");
+        test.addStoreManager(sessionId,storeId,subId);
+        test.logout(sessionId);
+        test.login(sessionId,"b","b");
+        assertEquals(1,test.getDailyStats().getManagersNotOwners());
+    }
+
+
 
 
 }
