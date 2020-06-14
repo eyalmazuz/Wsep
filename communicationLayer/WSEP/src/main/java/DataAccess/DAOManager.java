@@ -404,6 +404,10 @@ public class DAOManager {
     }
 
     private static void fixStore(Store store) {
+       for (ProductInStore pis : store.getProducts()) {
+           pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
+       }
+
         BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
         if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
 
