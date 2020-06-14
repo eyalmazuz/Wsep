@@ -27,7 +27,7 @@ public class SystemTests extends TestCase {
         System.testing = true;
 
         test = new System();
-        Publisher publisherMock = new Publisher((subscribers, message) -> null);
+        Publisher publisherMock = new Publisher((path,subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
     }

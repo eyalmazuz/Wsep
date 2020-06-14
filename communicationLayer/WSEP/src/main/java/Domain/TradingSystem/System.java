@@ -12,6 +12,8 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ public class System {
     private static System instance = null;
     private static int notificationId = 0;
 
+    private DayStatistics dailyStats;
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
@@ -48,6 +51,9 @@ public class System {
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
+
+        //TODO:If DB contains stats of current day load it
+        dailyStats = new DayStatistics(LocalDate.now());
     }
 
     public static System getInstance(){
@@ -210,7 +216,43 @@ public class System {
 
     public IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
-        return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
+        int sessionId =userHandler.createSession();
+        updateStats(sessionId);
+        
+        return new IntActionResultDto(ResultCode.SUCCESS,"start session",sessionId);
+    }
+
+    private void updateStats(int sessionId) {
+        if(!dailyStats.isToday())
+            dailyStats = new DayStatistics(LocalDate.now());
+        User user = userHandler.getUser(sessionId);
+        if(user.isGuest()){
+            dailyStats.increaseGuest();
+        }
+        else{
+            Subscriber subscriber = (Subscriber) user.getState();
+            dailyStats.decreaseGuest();
+            if(subscriber.isAdmin())
+                dailyStats.increaseAdmin();
+            else if(subscriber.isOwner())
+                dailyStats.increaseOwner();
+            else if(subscriber.isManager())
+                dailyStats.increaseManager();
+            else
+                dailyStats.increaseRegular();
+        }
+
+        //TODO:update DAOManager
+        notifyAdmins();
+    }
+
+    private void notifyAdmins() {
+        DailyStatsDTO dto = new DailyStatsDTO(dailyStats.getDate(),dailyStats.getGuests(),
+                dailyStats.getRegularSubs(),dailyStats.getManagersNotOwners(),
+                dailyStats.getManagersOwners(),dailyStats.getAdmins());
+        if(publisher!=null){
+            publisher.notify("/statsUpdate",null,dto);
+        }
     }
 
     public int addStore (){
@@ -234,6 +276,8 @@ public class System {
         User u = userHandler.getUser(sessionId);
         if(u!=null)
             return u.logout();
+
+        updateStats(sessionId);
         return false;
     }
 
@@ -309,7 +353,7 @@ public class System {
                         List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                         Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
                         updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+                        publisher.notify("/storeUpdate/",managers,notification);
                     }
                 }
                 return result;
@@ -333,7 +377,7 @@ public class System {
                         String message = "Store " + storeId + " has been updated: product has been edited";
                         Notification notification = new Notification(notificationId++,message);
                         updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+                        publisher.notify("/storeUpdate/",managers,notification);
                     }
                 }
                 return result;
@@ -357,7 +401,7 @@ public class System {
                         List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                         Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
                         updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+                        publisher.notify("/storeUpdate/",managers,notification);
                     }
                 }
                 return result;
@@ -661,6 +705,8 @@ public class System {
             // fix user shopping cart
             ShoppingCart cart = subToLogin.getShoppingCart();
             cart.setUser(u);
+
+            updateStats(sessionId);
 
             return true;
         }
@@ -1039,7 +1085,7 @@ public class System {
             Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
             if(publisher!=null)
-                publisher.notify(managers,notification);
+                publisher.notify("/storeUpdate/",managers,notification);
         }
     }
 
@@ -1182,7 +1228,7 @@ public class System {
             user.add(subToLogin.getId());
             synchronized (notifications) {
                 for(Notification notification:notifications){
-                    publisher.notify(user,notification);
+                    publisher.notify("/storeUpdate/",user,notification);
                 }
             }
         }
@@ -1344,7 +1390,7 @@ public class System {
             }
         }
         if(publisher!=null)
-            publisher.notify(users,message);
+            publisher.notify("/storeUpdate/",users,message);
     }
 
     public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
