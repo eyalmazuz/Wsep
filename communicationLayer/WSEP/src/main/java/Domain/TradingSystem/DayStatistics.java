@@ -1,5 +1,8 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
 import org.apache.tomcat.jni.Local;
 
 import java.time.LocalDate;
@@ -9,13 +12,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DayStatistics {
 
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private LocalDate date;
 
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger guests;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger regularSubs;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger managersNotOwners;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger managersOwners;
+
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger admins;
+
+    public DayStatistics() {}
 
     public DayStatistics(LocalDate date) {
         this.date = date;
@@ -28,26 +46,32 @@ public class DayStatistics {
 
     public void increaseGuest() {
         guests.incrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public void decreaseGuest() {
         guests.decrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public void increaseAdmin() {
         admins.incrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public void increaseOwner() {
         managersOwners.incrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public void increaseManager() {
         managersNotOwners.incrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public void increaseRegular() {
         regularSubs.incrementAndGet();
+        DAOManager.updateDayStatistics(this);
     }
 
     public boolean isToday() {
@@ -96,5 +120,6 @@ public class DayStatistics {
         this.managersNotOwners.set(0);
         this.admins.set(0);
 
+        DAOManager.updateDayStatistics(this);
     }
 }
