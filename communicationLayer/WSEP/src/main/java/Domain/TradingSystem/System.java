@@ -55,7 +55,10 @@ public class System {
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
 
         //TODO:If DB contains stats of current day load it
-        dailyStats = new DayStatistics(LocalDate.now());
+        dailyStats = DAOManager.getDayStatisticsByDay(LocalDate.now());
+
+        if (dailyStats == null)
+            dailyStats = new DayStatistics(LocalDate.now());
     }
 
     public static System getInstance(){
@@ -261,7 +264,6 @@ public class System {
                 dailyStats.increaseRegular();
         }
 
-        //TODO:update DAOManager
         notifyAdmins();
     }
 

@@ -12,6 +12,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -997,5 +998,22 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static DayStatistics getDayStatisticsByDay(LocalDate date) {
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(date);
+        Where<DayStatistics, String> where = queryBuilder.where();
+        try {
+            where.eq("date", selectArg);
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> dayStatistics = dayStatisticsDao.query(query);
+            if (dayStatistics.isEmpty()) return null;
+            return dayStatistics.get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

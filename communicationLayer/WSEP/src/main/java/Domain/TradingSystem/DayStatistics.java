@@ -3,11 +3,8 @@ package Domain.TradingSystem;
 import DataAccess.DAOManager;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import org.apache.tomcat.jni.Local;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DayStatistics {
