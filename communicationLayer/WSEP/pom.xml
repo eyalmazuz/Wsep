@@ -94,11 +94,6 @@
 
 
 		<dependency>
-			<groupId>org.languagetool</groupId>
-			<artifactId>language-en</artifactId>
-			<version>4.9</version>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.10.0.pr2</version>
@@ -148,6 +143,19 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.20</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sf.jazzy/jazzy-core -->
+		<dependency>
+			<groupId>net.sf.jazzy</groupId>
+			<artifactId>jazzy-core</artifactId>
+			<version>0.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.9</version>
+			<scope>test</scope>
 		</dependency>
 
 
