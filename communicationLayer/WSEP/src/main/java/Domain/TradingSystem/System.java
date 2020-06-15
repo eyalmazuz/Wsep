@@ -54,11 +54,12 @@ public class System {
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
 
-        //TODO:If DB contains stats of current day load it
         dailyStats = DAOManager.getDayStatisticsByDay(LocalDate.now());
 
-        if (dailyStats == null)
+        if (dailyStats == null) {
             dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
     }
 
     public static System getInstance(){
@@ -245,8 +246,10 @@ public class System {
         if(!init)
             return;
 
-        if(!dailyStats.isToday())
+        if(!dailyStats.isToday()) {
             dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
         User user = userHandler.getUser(sessionId);
         if(user.isGuest()){
             dailyStats.increaseGuest();
@@ -263,6 +266,7 @@ public class System {
             else
                 dailyStats.increaseRegular();
         }
+
 
         notifyAdmins();
     }

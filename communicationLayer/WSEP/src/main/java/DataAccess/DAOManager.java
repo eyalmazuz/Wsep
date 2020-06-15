@@ -1000,7 +1000,8 @@ public class DAOManager {
         }
     }
 
-    public static DayStatistics getDayStatisticsByDay(LocalDate date) {
+    public static DayStatistics getDayStatisticsByDay(LocalDate localDate) {
+        Date date = java.sql.Date.valueOf(localDate);
         QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(date);
@@ -1015,5 +1016,18 @@ public class DAOManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void addDayStatistics(DayStatistics stats) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.create(stats);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addDayStatistics(stats);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

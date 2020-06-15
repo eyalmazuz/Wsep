@@ -3,17 +3,20 @@ package Domain.TradingSystem;
 import DataAccess.DAOManager;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@DatabaseTable(tableName = "daystatistics")
 public class DayStatistics {
 
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private LocalDate date;
+    @DatabaseField
+    private Date date;
 
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private AtomicInteger guests;
@@ -33,7 +36,7 @@ public class DayStatistics {
     public DayStatistics() {}
 
     public DayStatistics(LocalDate date) {
-        this.date = date;
+        this.date = java.sql.Date.valueOf(date);
         this.guests = new AtomicInteger(0);
         this.regularSubs = new AtomicInteger(0);
         this.managersNotOwners = new AtomicInteger(0);
@@ -72,7 +75,7 @@ public class DayStatistics {
     }
 
     public boolean isToday() {
-        return date.isEqual(LocalDate.now());
+        return date.equals(java.sql.Date.valueOf(LocalDate.now()));
     }
 
     public String getDate() {
