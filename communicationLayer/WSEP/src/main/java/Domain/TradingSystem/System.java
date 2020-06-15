@@ -7,6 +7,7 @@ import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
+import com.j256.ormlite.dao.DaoManager;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
@@ -64,7 +65,10 @@ public class System {
 
     public ProductInfo getProductInfoById(int id) {
         ProductInfo info = products.get(id);
-        if (info == null) info = DAOManager.loadProductInfoById(id);
+        if (info == null) {
+            info = DAOManager.loadProductInfoById(id);
+            products.put(info.getId(),info);
+        }
         return info;
     }
 
@@ -163,9 +167,12 @@ public class System {
                         setAdmin(args[0]);
                         break;
                     case "open-store":
-                        login(sessionId,args[0],"123");
-                        storeId = openStore(sessionId).getId();
-                        setStoreName(storeId,args[1]);
+                        if(getStoreByName(args[1]) == -1) {
+                            login(sessionId, args[0], "123");
+                            storeId = openStore(sessionId).getId();
+                            setStoreName(storeId, args[1]);
+                            logout(sessionId);
+                        }
                         break;
                     case "appoint-manager":
                         //appoint-manager(<Manager-name>,<Store-name>,<New Manager name>,<Details>);
@@ -174,13 +181,20 @@ public class System {
                         int managerId = userHandler.getSubscriberUser(args[2]).getId();
                         addStoreManager(sessionId,storeId,managerId);
                         setManagerDetalis(sessionId,managerId,storeId,args[3]);
+                        logout(sessionId);
                         break;
                     case "add-product":
                         //add-product(<manager-name>,<store-name>,<product-name>,<amount>,<price>);
                         login(sessionId,args[0],"123");
                         storeId = getStoreByName(args[1]);
-                        int productInfo = addProductInfo(-1,args[2],"",Integer.valueOf(args[4])).getId();
+                        int productInfo;
+                        ProductInfo pInfo  =DAOManager.loadProductInfoByName(args[2]);
+                        if( pInfo == null)
+                            productInfo = addProductInfo(-1,args[2],"",Integer.valueOf(args[4])).getId();
+                        else
+                            productInfo = pInfo.getId();
                         addProductToStore(sessionId,storeId,productInfo,Integer.valueOf(args[3]));
+                        logout(sessionId);
                         break;
 
                     default:
@@ -1007,7 +1021,7 @@ public class System {
 
     public IntActionResultDto addProductInfo(int id, String name, String category, double basePrice) {
         if(id<0){
-            id = getMaxId()+1;
+            id = DAOManager.getMaxProductInfoId()+1;
         }
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
@@ -1020,13 +1034,7 @@ public class System {
         return new IntActionResultDto(ResultCode.SUCCESS,"Product "+id+" added to system",id);
     }
 
-    private int getMaxId() {
-        Set<Integer> ids = products.keySet();
-        if(ids.size() == 0){
-            return 0;
-        }
-        return Collections.max(ids);
-    }
+
 
     public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
         Store store = getStoreById(storeId);

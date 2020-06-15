@@ -406,6 +406,10 @@ public class DAOManager {
     }
 
     private static void fixStore(Store store) {
+       for (ProductInStore pis : store.getProducts()) {
+           pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
+       }
+
         BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
         if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
 
@@ -810,6 +814,16 @@ public class DAOManager {
         return -1;
     }
 
+    public static int getMaxProductInfoId() {
+        try {
+            return productInfoDao.countOf() == 0 ? -1 : (int) productInfoDao.queryRawValue("SELECT MAX(id) FROM productinfos");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
     public static int getMaxPurchaseDetailsId() {
         try {
             return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchasedetails");
@@ -947,6 +961,27 @@ public class DAOManager {
             return storeDao.query(query).get(0);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        catch (IndexOutOfBoundsException e){
+            return null;
+        }
+        return null;
+    }
+
+    public static ProductInfo loadProductInfoByName(String name) {
+        QueryBuilder<ProductInfo, String> queryBuilder = productInfoDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(name);
+        Where<ProductInfo, String> where = queryBuilder.where();
+        try {
+            where.eq("name", selectArg);
+            PreparedQuery<ProductInfo> query = queryBuilder.prepare();
+            return productInfoDao.query(query).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        catch (IndexOutOfBoundsException e){
+            return null;
         }
         return null;
     }

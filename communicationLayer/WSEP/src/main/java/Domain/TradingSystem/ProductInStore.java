@@ -80,4 +80,8 @@ public class ProductInStore {
         this.price = price;
         DAOManager.updateProductInStore(this);
     }
+
+    public void setProductInfo(ProductInfo productInfo) {
+        this.productInfo = productInfo;
+    }
 }
