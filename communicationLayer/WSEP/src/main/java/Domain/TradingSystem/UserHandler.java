@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.Security.Security;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public class UserHandler {
         users = new HashMap<>();
     }
 
-    public void setAdmin() {
+    public void setAdmin() throws DatabaseFetchException {
         if(!hasAdmin()){
             Subscriber admin = new Subscriber("admin", Security.getHash("admin"), true);
             subscribers.put(admin.getId(),admin);
@@ -27,7 +28,7 @@ public class UserHandler {
         }
     }
 
-    private boolean hasAdmin() {
+    private boolean hasAdmin() throws DatabaseFetchException {
         boolean found = false;
         if(DAOManager.getSubscriberByUsername("admin") != null){
             return true;
@@ -65,7 +66,7 @@ public class UserHandler {
         return users.get(sessionId);
     }
 
-    public Subscriber getSubscriberUser(String username, String hashedPassword) {
+    public Subscriber getSubscriberUser(String username, String hashedPassword) throws DatabaseFetchException {
         for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
                 return sub;
@@ -76,7 +77,7 @@ public class UserHandler {
         return null;
     }
 
-    public Subscriber getSubscriberUser(String username) {
+    public Subscriber getSubscriberUser(String username) throws DatabaseFetchException {
         for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username))
                 return sub;

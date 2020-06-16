@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DTOs.*;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -220,7 +221,7 @@ public class Store {
         return 0;
     }
 
-    public boolean setProductAmount(Integer productId, int amount) {
+    public boolean setProductAmount(Integer productId, int amount) throws DatabaseFetchException {
         synchronized (products) {
             if (amount == 0) products.removeIf(pis -> pis.getProductInfoId() == productId);
             else if (amount>0) {

@@ -1,6 +1,7 @@
 package DALTests;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.*;
 import Domain.TradingSystem.System;
 import junit.framework.TestCase;
@@ -29,7 +30,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testProductInfoStartup() {
+    public void testProductInfoStartup() throws DatabaseFetchException {
         test.addProductInfo(1, "lambda", "snacks", 30);
         test.addProductInfo(2, "snickers", "snacks", 40);
 
@@ -51,7 +52,7 @@ public class StartupTests extends TestCase {
 
 
     @Test
-    public void testStoreProductsAndOwnersStartup() {
+    public void testStoreProductsAndOwnersStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -83,7 +84,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStorePoliciesStartup() {
+    public void testStorePoliciesStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -119,7 +120,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStorePurchaseHistoryStartup() {
+    public void testStorePurchaseHistoryStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -140,7 +141,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStoreGrantingAgreementStartup() {
+    public void testStoreGrantingAgreementStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -171,7 +172,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberShoppingCartStartup() {
+    public void testSubscriberShoppingCartStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -194,7 +195,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPermissionsStartup() {
+    public void testSubscriberPermissionsStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -220,7 +221,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPurchaseHistoryStartup() {
+    public void testSubscriberPurchaseHistoryStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -247,7 +248,7 @@ public class StartupTests extends TestCase {
 
 
     @Test
-    public void testRemovePersistentProductInfo() {
+    public void testRemovePersistentProductInfo() throws DatabaseFetchException {
         test.addProductInfo(1, "lambda", "snacks", 30.0);
 
         test = new System();
@@ -256,7 +257,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testUpdatePersistentStore() {
+    public void testUpdatePersistentStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -285,7 +286,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductInfoStartup() {
+    public void testStoreProductInfoStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
