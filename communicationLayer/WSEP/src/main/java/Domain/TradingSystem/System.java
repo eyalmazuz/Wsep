@@ -734,7 +734,7 @@ public class System {
     }
 
     // Usecase 2.4
-    public StoreActionResultDTO viewStoreProductInfo() {
+    public StoreActionResultDTO viewStoreProductInfo() throws DatabaseFetchException{
         logger.info("searchProducts: no arguments");
         List<StoreDTO> result = new ArrayList<>();
         String info = "";
