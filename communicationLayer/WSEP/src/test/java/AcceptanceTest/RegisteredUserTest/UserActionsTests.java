@@ -31,7 +31,8 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId, "Good payment details");
+        buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345");
 
     }
 
@@ -85,7 +86,8 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId, "Good payment details");
+        buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345");
         assertNotNull(viewPurchaseHistory(Database.sessionId));
     }
 

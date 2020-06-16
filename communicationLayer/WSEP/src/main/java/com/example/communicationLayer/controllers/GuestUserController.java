@@ -84,8 +84,19 @@ public class GuestUserController {
     @GetMapping("/confirmPurchase")
     @ResponseBody
     public ActionResultDTO confirmPurchase(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId,
-                                           @RequestParam(value = "paymentDetails", defaultValue = "") String paymentDetails) {
-       return guestUserHandler.confirmPurchase(sessionId,paymentDetails);
+                                           @RequestParam(value = "cardNumber", defaultValue = "") String cardNumber,
+                                           @RequestParam(value = "cardMonth", defaultValue = "") String cardMonth,
+                                           @RequestParam(value = "cardYear", defaultValue = "") String cardYear,
+                                           @RequestParam(value = "cardHolder", defaultValue = "") String cardHolder,
+                                           @RequestParam(value = "cardCcv", defaultValue = "") String cardCcv,
+                                           @RequestParam(value = "cardId", defaultValue = "") String cardId,
+                                           @RequestParam(value = "buyerName", defaultValue = "") String buyerName,
+                                           @RequestParam(value = "address", defaultValue = "") String address,
+                                           @RequestParam(value = "city", defaultValue = "") String city,
+                                           @RequestParam(value = "country", defaultValue = "") String country,
+                                           @RequestParam(value = "zip", defaultValue = "") String zip
+                                           ) {
+       return guestUserHandler.confirmPurchase(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId, buyerName, address, city, country, zip);
         }
 
 

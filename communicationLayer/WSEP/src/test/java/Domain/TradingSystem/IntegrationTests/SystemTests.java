@@ -1,9 +1,12 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.IntActionResultDto;
 import DTOs.Notification;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
 import DataAccess.DatabaseFetchException;
+import Domain.BGUExternalSystems.SupplySystem;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -31,6 +34,11 @@ public class SystemTests extends TestCase {
         Publisher publisherMock = new Publisher((subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
+        PaymentSystemProxy.testing = true;
+        PaymentSystemProxy.succedPurchase = true;
+
+        SupplySystemProxy.testing = true;
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @After
@@ -167,11 +175,11 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        supplyHandler.setProxySupplySuccess(false);
-        assertFalse(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = false;
+        assertNotSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
 
-        supplyHandler.setProxySupplySuccess(true);
-        assertTrue(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = true;
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -283,13 +291,14 @@ public class SystemTests extends TestCase {
         double price = test.checkSuppliesAndGetPrice(sessionId);
         assertFalse(price < 0);
 
-        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123").getResultCode(), ResultCode.SUCCESS);
         test.savePurchaseHistory(sessionId);
         test.saveOngoingPurchaseForUser(sessionId);
 
         assertTrue(test.updateStoreSupplies(sessionId));
         test.emptyCart(sessionId);
-        assertTrue(test.requestSupply(sessionId));
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
         test.removeOngoingPurchase(sessionId);
 
         // check state
@@ -322,7 +331,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testPurchaseFailPaymentSystem() throws DatabaseFetchException {
         setUpPurchase();
-        paymentHandler.setProxyPurchaseSuccess(false);
+        PaymentSystemProxy.succedPurchase = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
     }
@@ -330,9 +339,10 @@ public class SystemTests extends TestCase {
     @Test
     public void testPurchaseFailSupplySystem() throws DatabaseFetchException {
         setUpPurchase();
-        supplyHandler.setProxySupplySuccess(false);
+        SupplySystemProxy.succeedSupply = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @Test
@@ -344,29 +354,33 @@ public class SystemTests extends TestCase {
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) throws DatabaseFetchException {
-        if (test.makePayment(sessionId, "details").getResultCode() == ResultCode.SUCCESS) {
-            test.savePurchaseHistory(sessionId);
-            test.saveOngoingPurchaseForUser(sessionId);
+        IntActionResultDto result = test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123");
+        if (result.getResultCode() != ResultCode.SUCCESS) return;
+        int transactionId = result.getId();
 
-            // updateStoreSupplies would fail only if there is a sync problem
-            if (!syncProblem) {
-                test.updateStoreSupplies(sessionId);
-                test.emptyCart(sessionId);
-            } else {
-                test.requestRefund(sessionId);
-                test.restoreHistories(sessionId);
-                test.removeOngoingPurchase(sessionId);
-                return;
-            }
-            if (!test.requestSupply(sessionId)) {
-                test.requestRefund(sessionId);
-                test.restoreSupplies(sessionId);
-                test.restoreHistories(sessionId);
-                test.restoreCart(sessionId);
-            }
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
 
+        // updateStoreSupplies would fail only if there is a sync problem
+        if (!syncProblem) {
+            test.updateStoreSupplies(sessionId);
+            test.emptyCart(sessionId);
+        } else {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreHistories(sessionId);
             test.removeOngoingPurchase(sessionId);
+            return;
         }
+        if (test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode() != ResultCode.SUCCESS) {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreSupplies(sessionId);
+            test.restoreHistories(sessionId);
+            test.restoreCart(sessionId);
+        }
+
+        test.removeOngoingPurchase(sessionId);
+
     }
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
