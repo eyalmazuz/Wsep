@@ -1,28 +1,49 @@
 package Domain.TradingSystem;
 
+import Domain.IPaymentSystem;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PaymentSystemProxy implements IPaymentSystem {
 
     private IPaymentSystem paymentSystem = null;
 
-    public boolean succeedPurchase = true;
-    private static Map<Integer, Map<Integer, Map<Integer, Integer>>> userPurchases = new HashMap<>();
+    public static boolean testing = false;
+    public static boolean succedPurchase = true;
 
+    private static int fakeTransactionId = 10000;
 
-    public boolean attemptPurchase(int sessionId, String paymentDetails, Map<Integer, Map<Integer, Integer>> storeProductDetails, double price) {
-        if (paymentSystem != null) return paymentSystem.attemptPurchase(sessionId, paymentDetails, storeProductDetails, price);
-
-        if (paymentDetails.equals("Bad payment details")) return false;
-        if (succeedPurchase) userPurchases.put(sessionId, storeProductDetails);
-        return succeedPurchase;
+    @Override
+    public boolean handshake() {
+        if (paymentSystem == null) return true;
+        return paymentSystem.handshake();
     }
 
-    public boolean requestRefund(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductDetails) {
-        if (paymentSystem != null) return paymentSystem.requestRefund(sessionId, storeProductDetails);
+    public int attemptPurchase(String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
+        if (testing) {
+            int transactionId = -1;
+            if (succedPurchase) {
+                transactionId = fakeTransactionId;
+                fakeTransactionId++;
+            }
+            return transactionId;
+        }
 
-        return userPurchases.get(sessionId).equals(storeProductDetails);
+        if (paymentSystem != null && paymentSystem.handshake()) return paymentSystem.attemptPurchase(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
+        return -1;
+    }
+
+    public boolean requestRefund(int transactionId) {
+        if (testing) {
+            return true;
+        }
+
+        if (paymentSystem != null && paymentSystem.handshake()) return paymentSystem.requestRefund(transactionId);
+
+        return false;
     }
 
     public void setPaymentSystem(IPaymentSystem paymentSystem) {

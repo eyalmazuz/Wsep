@@ -60,8 +60,10 @@ public class GuestUserHandler {
     }
 
     // 2.8.3, 2.8.4
-    public ActionResultDTO confirmPurchase(int sessionId, String paymentDetails) {
-        ActionResultDTO result = s.makePayment(sessionId, paymentDetails);
+    public ActionResultDTO confirmPurchase(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
+        IntActionResultDto result = s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId);
+        int transactionId = result.getId();
         if (result.getResultCode() != ResultCode.SUCCESS) return result;
         s.savePurchaseHistory(sessionId);
         s.saveOngoingPurchaseForUser(sessionId);
@@ -71,14 +73,14 @@ public class GuestUserHandler {
             s.emptyCart(sessionId);
         }
         else {
-            s.requestRefund(sessionId);
+            s.requestRefund(sessionId, transactionId);
             s.restoreHistories(sessionId);
             s.removeOngoingPurchase(sessionId);
             return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
         }
 
         if (!s.requestSupply(sessionId)) {
-            s.requestRefund(sessionId);
+            s.requestRefund(sessionId, transactionId);
             s.restoreSupplies(sessionId);
             s.restoreHistories(sessionId);
             s.restoreCart(sessionId);

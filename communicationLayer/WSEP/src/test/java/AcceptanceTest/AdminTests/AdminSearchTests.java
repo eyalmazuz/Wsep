@@ -27,7 +27,8 @@ public class AdminSearchTests extends ServiceTest {
 
         login(Database.sessionId, "hanamaru", "123456");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 3);
-        buyCart(Database.sessionId, "Good payment details");
+        buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345");
         logout(Database.sessionId);
         login(Database.sessionId, "admin", "admin");
 

@@ -3,6 +3,8 @@ package Domain.TradingSystem;
 import DTOs.*;
 import DTOs.SimpleDTOS.*;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
+import Domain.BGUExternalSystems.SupplySystem;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
@@ -60,7 +62,7 @@ public class System {
         ProductInfo info = products.get(id);
         if (info == null) {
             info = DAOManager.loadProductInfoById(id);
-            products.put(info.getId(),info);
+            if (info != null) products.put(info.getId(),info);
         }
         return info;
     }
@@ -106,13 +108,14 @@ public class System {
     public void setLogger(SystemLogger log){
         this.logger = log;
     }
+
     //Usecase 1.1
     private void setSupply(String config) throws Exception {
-        supplyHandler = new SupplyHandler(config);
+        supplyHandler = new SupplyHandler(config, new SupplySystem());
     }
 
     private void setPayment(String config) throws Exception {
-        paymentHandler = new PaymentHandler(config);
+        paymentHandler = new PaymentHandler(config, new PaymentSystem());
     }
 
 
@@ -614,20 +617,13 @@ public class System {
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
-    public boolean setPaymentDetails(int sessionId, String details) {
-        logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
-        User u = userHandler.getUser(sessionId);
-        return u.setPaymentDetails(details);
-    }
-
     // usecase 2.8.3
-    public ActionResultDTO makePayment(int sessionId, String paymentDetails) {
+    public IntActionResultDto makePayment(int sessionId, String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
-        Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts, u.getShoppingCartPrice().getPrice());
-        logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
-        return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
+        int transactionId = paymentHandler.makePayment(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
+        logger.info("makePayment: sessionId " + sessionId + ", status: " + (transactionId > 0 ? "SUCCESS" : "FAIL"));
+        return transactionId > 0 ? new IntActionResultDto(ResultCode.SUCCESS, null, transactionId) : new IntActionResultDto(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.", -1);
 
     }
 
@@ -1078,9 +1074,9 @@ public class System {
         return ongoingPurchases;
     }
 
-    public boolean requestRefund(int sessionId) {
-        logger.info("requestRefund: sessionId " + sessionId);
-        return paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
+    public boolean requestRefund(int sessionId, int transactionId) {
+        logger.info("requestRefund: sessionId " + sessionId + ", transactionId " + transactionId);
+        return paymentHandler.requestRefund(transactionId);
     }
 
     public void restoreSupplies(int sessionId) {

@@ -1,5 +1,7 @@
 package Domain.TradingSystem;
 
+import Domain.ISupplySystem;
+
 import java.util.Map;
 
 public class SupplySystemProxy implements ISupplySystem {

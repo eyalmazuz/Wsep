@@ -1,4 +1,4 @@
-package Domain.TradingSystem;
+package Domain;
 
 import java.util.Map;
 
