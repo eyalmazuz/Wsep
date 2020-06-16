@@ -671,19 +671,21 @@ public class System {
     public IntActionResultDto makePayment(int sessionId, String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
-        int transactionId = paymentHandler.makePayment(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
-        logger.info("makePayment: sessionId " + sessionId + ", status: " + (transactionId > 0 ? "SUCCESS" : "FAIL"));
-        return transactionId > 0 ? new IntActionResultDto(ResultCode.SUCCESS, null, transactionId) : new IntActionResultDto(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.", -1);
-
+        IntActionResultDto result = paymentHandler.makePayment(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
+        logger.info("makePayment: sessionId " + sessionId + ", status: " + (result.getResultCode() == ResultCode.SUCCESS ? "SUCCESS" : "FAIL"));
+        return result;
     }
 
     // usecase 2.8.4
-    public boolean requestSupply(int sessionId) {
-        // retrieve store product ids
-        Map<Integer, Map<Integer, Integer>> storeProductsIds = ongoingPurchases.get(sessionId);
-        if (storeProductsIds  == null) return false;
+    public IntActionResultDto requestSupply(int sessionId, String buyerName, String address, String city, String country, String zip) {
+        IntActionResultDto result = supplyHandler.requestSupply(buyerName, address, city, country, zip);
+        boolean success = result.getResultCode() == ResultCode.SUCCESS;
+        logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
+        return result;
+    }
 
-        boolean success = supplyHandler.requestSupply(sessionId, storeProductsIds);
+    public boolean cancelSupply(int sessionId, int transactionId) {
+        boolean success = supplyHandler.cancelSupply(transactionId).getResultCode() == ResultCode.SUCCESS;
         logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
         return success;
     }
@@ -1167,7 +1169,7 @@ public class System {
 
     public boolean requestRefund(int sessionId, int transactionId) {
         logger.info("requestRefund: sessionId " + sessionId + ", transactionId " + transactionId);
-        return paymentHandler.requestRefund(transactionId);
+        return paymentHandler.requestRefund(transactionId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public void restoreSupplies(int sessionId) throws DatabaseFetchException {

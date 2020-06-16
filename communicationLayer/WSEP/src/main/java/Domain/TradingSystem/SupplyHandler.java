@@ -1,8 +1,9 @@
 package Domain.TradingSystem;
 
+import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
+import DTOs.ResultCode;
 import Domain.ISupplySystem;
-
-import java.util.Map;
 
 public class SupplyHandler {
     private final String config;
@@ -13,8 +14,6 @@ public class SupplyHandler {
             throw new Exception("Failed To connect Supply Handler");
         }
         supplySystemProxy = new SupplySystemProxy();
-        if (config.equals("No supplies")) supplySystemProxy.succeedSupply = false;
-        else supplySystemProxy.succeedSupply = true;
         this.config = config;
     }
 
@@ -23,12 +22,12 @@ public class SupplyHandler {
         this.supplySystemProxy.setSupplySystem(supplySystem);
     }
 
-    public void setProxySupplySuccess(boolean success) {
-        supplySystemProxy.succeedSupply = success;
+    public IntActionResultDto requestSupply(String name, String address, String city, String country, String zip) {
+        if (config.equals("No supplies")) return new IntActionResultDto(ResultCode.ERROR_SUPPLY_DENIED, "Supply config does not allow supplies.", -1);
+        return supplySystemProxy.requestSupply(name, address, city, country, zip);
     }
 
-    public boolean requestSupply(int sessionid, Map<Integer, Map<Integer, Integer>> storeProductsIds) {
-        // communicate with supply system
-        return supplySystemProxy.requestSupply(sessionid, storeProductsIds);
+    public ActionResultDTO cancelSupply(int transactionId) {
+        return supplySystemProxy.cancelSupply(transactionId);
     }
 }

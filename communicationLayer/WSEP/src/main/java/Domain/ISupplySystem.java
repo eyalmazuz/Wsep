@@ -1,7 +1,10 @@
 package Domain;
 
-import java.util.Map;
+import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
 
 public interface ISupplySystem {
-    boolean requestSupply(int sessionId, Map<Integer, Map<Integer, Integer>> storeProductIds);
+    boolean handshake();
+    IntActionResultDto requestSupply(String name, String address, String city, String country, String zip);
+    ActionResultDTO cancelSupply(int transactionId);
 }

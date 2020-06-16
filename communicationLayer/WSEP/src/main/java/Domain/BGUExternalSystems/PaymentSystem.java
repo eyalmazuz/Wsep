@@ -1,5 +1,8 @@
 package Domain.BGUExternalSystems;
 
+import DTOs.ActionResultDTO;
+import DTOs.IntActionResultDto;
+import DTOs.ResultCode;
 import Domain.IPaymentSystem;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -8,18 +11,11 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import sun.net.www.http.HttpClient;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PaymentSystem implements IPaymentSystem {
 
@@ -27,17 +23,22 @@ public class PaymentSystem implements IPaymentSystem {
     DefaultHttpClient httpClient = new DefaultHttpClient();
     HttpPost httpPost = new HttpPost(urlStr);
 
+    public static boolean loseContact = false;
 
     @Override
     public boolean handshake() {
+        if (loseContact) return false;
+
         List<NameValuePair> params = new ArrayList<>(1);
         params.add(new BasicNameValuePair("action_type", "handshake"));
         String response = send(params);
-        return response.equals("OK");
+        return response != null && response.equals("OK");
     }
 
     @Override
-    public int attemptPurchase(String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
+    public IntActionResultDto attemptPurchase(String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
+        if (loseContact) return new IntActionResultDto(ResultCode.ERROR_PAYMENT_SYSTEM_UNAVAILABLE, "Could not contact payment system. Please try again later.", -1);
+
         List<NameValuePair> params = new ArrayList<>(7);
         params.add(new BasicNameValuePair("action_type", "pay"));
         params.add(new BasicNameValuePair("card_number", cardNumber));
@@ -48,17 +49,23 @@ public class PaymentSystem implements IPaymentSystem {
         params.add(new BasicNameValuePair("id", cardId));
 
         String response = send(params);
-        return Integer.parseInt(response);
+        if (response == null) return new IntActionResultDto(ResultCode.ERROR_PAYMENT_SYSTEM_UNAVAILABLE, "Could not contact payment system. Please try again later.", -1);
+        return response.equals("-1") ?
+                new IntActionResultDto(ResultCode.ERROR_PAYMENT_DENIED, "Payment system denied payment.", -1) :
+                new IntActionResultDto(ResultCode.SUCCESS, null, Integer.parseInt(response));
     }
 
     @Override
-    public boolean requestRefund(int transactionId) {
+    public ActionResultDTO requestRefund(int transactionId) {
+        if (loseContact) return new IntActionResultDto(ResultCode.ERROR_PAYMENT_SYSTEM_UNAVAILABLE, "Could not contact payment system. Please try again later.", -1);
+
         List<NameValuePair> params = new ArrayList<>(2);
         params.add(new BasicNameValuePair("action_type", "cancel_pay"));
         params.add(new BasicNameValuePair("transaction_id", Integer.toString(transactionId)));
 
         String response = send(params);
-        return response.equals("1");
+        if (response == null) return new IntActionResultDto(ResultCode.ERROR_PAYMENT_SYSTEM_UNAVAILABLE, "Could not contact payment system. Please try again later.", -1);
+        return response.equals("1") ? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PAYMENT_DENIED, "Payment system denied refund.");
     }
 
     private String send(List<NameValuePair> parameters) {
@@ -71,9 +78,12 @@ public class PaymentSystem implements IPaymentSystem {
         HttpResponse response = null;
         try {
             response = httpClient.execute(httpPost);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if (response == null) return null;
+
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             try (InputStream instream = entity.getContent()) {

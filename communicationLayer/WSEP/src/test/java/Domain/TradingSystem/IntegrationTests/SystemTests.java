@@ -6,6 +6,7 @@ import DTOs.ResultCode;
 import DataAccess.DAOManager;
 import Domain.BGUExternalSystems.PaymentSystem;
 import DataAccess.DatabaseFetchException;
+import Domain.BGUExternalSystems.SupplySystem;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -35,6 +36,9 @@ public class SystemTests extends TestCase {
 
         PaymentSystemProxy.testing = true;
         PaymentSystemProxy.succedPurchase = true;
+
+        SupplySystemProxy.testing = true;
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @After
@@ -171,11 +175,11 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        supplyHandler.setProxySupplySuccess(false);
-        assertFalse(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = false;
+        assertNotSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
 
-        supplyHandler.setProxySupplySuccess(true);
-        assertTrue(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = true;
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -294,7 +298,7 @@ public class SystemTests extends TestCase {
 
         assertTrue(test.updateStoreSupplies(sessionId));
         test.emptyCart(sessionId);
-        assertTrue(test.requestSupply(sessionId));
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
         test.removeOngoingPurchase(sessionId);
 
         // check state
@@ -335,9 +339,10 @@ public class SystemTests extends TestCase {
     @Test
     public void testPurchaseFailSupplySystem() throws DatabaseFetchException {
         setUpPurchase();
-        supplyHandler.setProxySupplySuccess(false);
+        SupplySystemProxy.succeedSupply = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @Test
@@ -367,7 +372,7 @@ public class SystemTests extends TestCase {
             test.removeOngoingPurchase(sessionId);
             return;
         }
-        if (!test.requestSupply(sessionId)) {
+        if (test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode() != ResultCode.SUCCESS) {
             test.requestRefund(sessionId, transactionId);
             test.restoreSupplies(sessionId);
             test.restoreHistories(sessionId);

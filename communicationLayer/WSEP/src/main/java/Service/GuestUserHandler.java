@@ -75,7 +75,7 @@ public class GuestUserHandler {
                                            String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
         IntActionResultDto result = s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId);
         int transactionId = result.getId();
-        if (result.getResultCode() != ResultCode.SUCCESS) return result;
+        if (result.getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
         s.savePurchaseHistory(sessionId);
         s.saveOngoingPurchaseForUser(sessionId);
 
@@ -90,13 +90,14 @@ public class GuestUserHandler {
                 return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
             }
 
-            if (!s.requestSupply(sessionId)) {
+            result = s.requestSupply(sessionId, buyerName, address, city, country, zip);
+            if (result.getResultCode() != ResultCode.SUCCESS) {
                 s.requestRefund(sessionId, transactionId);
                 s.restoreSupplies(sessionId);
                 s.restoreHistories(sessionId);
                 s.restoreCart(sessionId);
                 s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Supply system could not deliver products. State restored.");
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
             }
         } catch (DatabaseFetchException e) {
             return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
