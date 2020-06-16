@@ -273,6 +273,7 @@ public class System {
                 dailyStats.increaseRegular();
         }
 
+        java.lang.System.out.println("notify admins on daily stats");
 
         notifyAdmins();
     }
@@ -282,7 +283,8 @@ public class System {
                 dailyStats.getRegularSubs(),dailyStats.getManagersNotOwners(),
                 dailyStats.getManagersOwners(),dailyStats.getAdmins());
         if(publisher!=null){
-            publisher.notify("/statsUpdate",null,dto);
+            java.lang.System.out.println("sending the notify message");
+            publisher.notify("/statsUpdate/0",new ArrayList<>(),dto);
         }
     }
 

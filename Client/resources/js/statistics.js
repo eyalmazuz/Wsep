@@ -38,9 +38,10 @@ function prepareData(){
 
 }
 
-function drawChart(data) {
+function drawChart(message) {
 
-
+    data = JSON.parse(message.body)
+    console.log(data)
     var preprocessed_data = prepareData(data);
 
     var options = {

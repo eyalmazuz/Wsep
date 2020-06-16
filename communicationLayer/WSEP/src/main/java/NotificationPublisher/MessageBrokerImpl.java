@@ -15,8 +15,10 @@ public class MessageBrokerImpl implements MessageBroker {
 
     @Override
     public List<Integer> sendTo(String url,List<Integer> subscribers, Object message) {
-        if(subscribers==null)//broadcast
-            messageTemplate.convertAndSend(url,message);
+        if(subscribers.isEmpty()) {//broadcast
+            System.out.println(String.format("sending stat message to: %s", url));
+            messageTemplate.convertAndSend(url, message);
+        }
         else
             for (Integer sessionId : subscribers) {
                 messageTemplate.convertAndSend(url + sessionId, message);

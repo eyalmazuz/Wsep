@@ -60,7 +60,8 @@ async function connectStatistics() {
         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             recieveNotification(message)
         });
-        stompClient.subscribe('/statsUpdate/' + sessionStorage['subId'], function (data) {
+        stompClient.subscribe('/statsUpdate/0' , function (data) {
+            console.log("got push data")
             drawChart(data)
         });
         sendReadyForNotificaitons()
