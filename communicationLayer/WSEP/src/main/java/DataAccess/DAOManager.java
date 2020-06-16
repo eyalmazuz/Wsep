@@ -182,7 +182,7 @@ public class DAOManager {
         }
     }
 
-    private static void fixBuyingPolicy(BuyingPolicy policy) {
+    private static void fixBuyingPolicy(BuyingPolicy policy) throws DatabaseFetchException {
         HashMap<Integer, String> typeIds = policy.getBuyingTypeIDs();
         for (Integer typeId : typeIds.keySet()) {
             String type = typeIds.get(typeId);
@@ -193,7 +193,7 @@ public class DAOManager {
         }
     }
 
-    public static List<BuyingPolicy> loadAllBuyingPolicies() {
+    public static List<BuyingPolicy> loadAllBuyingPolicies() throws DatabaseFetchException {
         List<BuyingPolicy> buyingPolicies = null;
         try {
             buyingPolicies = buyingPolicyDao.queryForAll();
@@ -207,7 +207,7 @@ public class DAOManager {
     }
 
 
-    private static BuyingPolicy loadBuyingPolicy(int id) {
+    private static BuyingPolicy loadBuyingPolicy(int id) throws DatabaseFetchException {
         BuyingPolicy policy = null;
         try {
             policy = buyingPolicyDao.queryForId(Integer.toString(id));
@@ -218,10 +218,12 @@ public class DAOManager {
         return policy;
     }
 
-    private static BuyingType loadSimpleBuyingType(Integer typeId) {
+    private static BuyingType loadSimpleBuyingType(Integer typeId) throws DatabaseFetchException {
         SimpleBuyingDTO dto = null;
         try {
             dto = simpleBuyingDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load simple buying type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -249,10 +251,12 @@ public class DAOManager {
     }
 
 
-    private static BuyingType loadAdvancedBuyingType(Integer typeId) {
+    private static BuyingType loadAdvancedBuyingType(Integer typeId) throws DatabaseFetchException {
         AdvancedBuyingDTO dto = null;
         try {
             dto = advancedBuyingDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load advanced buying type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -270,7 +274,7 @@ public class DAOManager {
         return advancedBuying;
     }
 
-    private static DiscountPolicy loadDiscountPolicy(int id) {
+    private static DiscountPolicy loadDiscountPolicy(int id) throws DatabaseFetchException {
         DiscountPolicy policy = null;
         try {
             policy = discountPolicyDao.queryForId(Integer.toString(id));
@@ -281,7 +285,7 @@ public class DAOManager {
         return policy;
     }
 
-    private static void fixDiscountPolicy(DiscountPolicy policy) {
+    private static void fixDiscountPolicy(DiscountPolicy policy) throws DatabaseFetchException {
         HashMap<Integer, String> typeIds = policy.getDiscountTypeIDs();
         for (Integer typeId : typeIds.keySet()) {
             String type = typeIds.get(typeId);
@@ -292,10 +296,12 @@ public class DAOManager {
         }
     }
 
-    private static DiscountType loadSimpleDiscountType(Integer typeId) {
+    private static DiscountType loadSimpleDiscountType(Integer typeId) throws DatabaseFetchException {
         SimpleDiscountDTO dto = null;
         try {
             dto = simpleDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load simple discount type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -311,10 +317,12 @@ public class DAOManager {
         return result;
     }
 
-    private static DiscountType loadAdvancedDiscountType(Integer typeId) {
+    private static DiscountType loadAdvancedDiscountType(Integer typeId) throws DatabaseFetchException {
         AdvancedDiscountDTO dto = null;
         try {
             dto = advancedDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load advanced discount type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -332,9 +340,11 @@ public class DAOManager {
         return advancedDiscount;
     }
 
-    private static ProductInfo loadProductInfo(int productInfoId) {
+    private static ProductInfo loadProductInfo(int productInfoId) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(productInfoId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -342,9 +352,11 @@ public class DAOManager {
     }
 
 
-    public static List<ProductInfo> loadAllProductInfos() {
+    public static List<ProductInfo> loadAllProductInfos() throws DatabaseFetchException {
         try {
             return productInfoDao.queryForAll();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product infos");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -406,7 +418,7 @@ public class DAOManager {
 
     }
 
-    private static void fixStore(Store store) {
+    private static void fixStore(Store store) throws DatabaseFetchException {
        for (ProductInStore pis : store.getProducts()) {
            pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
        }
@@ -426,18 +438,20 @@ public class DAOManager {
         store.setManagers(managers);
     }
 
-    public static List<Store> loadAllStores() {
+    public static List<Store> loadAllStores() throws DatabaseFetchException {
         try {
             List<Store> stores = storeDao.queryForAll();
             for (Store store : stores) fixStore(store);
             return stores;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load stores");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static void fixSubscriber(Subscriber subscriber) {
+    private static void fixSubscriber(Subscriber subscriber) throws DatabaseFetchException {
         Map<Integer, List<Integer>> storePurchaseListsPrimitive = subscriber.getStorePurchaseListsPrimitive();
         HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
         for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
@@ -456,7 +470,7 @@ public class DAOManager {
         subscriber.setPermissions(permissionMap);
     }
 
-    private static List<Permission> loadSubscriberPermissions(int id) {
+    private static List<Permission> loadSubscriberPermissions(int id) throws DatabaseFetchException {
         QueryBuilder<Permission, String> queryBuilder = permissionDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(id);
@@ -465,6 +479,8 @@ public class DAOManager {
             where.eq("user_id", selectArg);
             PreparedQuery<Permission> query = queryBuilder.prepare();
             return permissionDao.query(query);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber permissions");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -472,11 +488,13 @@ public class DAOManager {
         return null;
     }
 
-    private static Subscriber loadSubscriber(Integer managerId) {
+    private static Subscriber loadSubscriber(Integer managerId) throws DatabaseFetchException {
         try {
             Subscriber subscriber = subscriberDao.queryForId(Integer.toString(managerId));
             fixSubscriber(subscriber);
             return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -522,15 +540,6 @@ public class DAOManager {
         }
     }
 
-    public static List<ShoppingBasket> loadAllShoppingBaskets() {
-        try {
-            return shoppingBasketDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void createOrUpdateShoppingCart(ShoppingCart shoppingCart) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
@@ -557,30 +566,35 @@ public class DAOManager {
         }
     }
 
-    public static List<Subscriber> loadAllSubscribers() {
+    public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
         List<Subscriber> subscribers = null;
         try {
             subscribers = subscriberDao.queryForAll();
             for (Subscriber s : subscribers) fixSubscriber(s);
-
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscribers");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return subscribers;
     }
 
-    private static Store loadStore(Integer storeId) {
+    private static Store loadStore(Integer storeId) throws DatabaseFetchException {
         try {
             return storeDao.queryForId(Integer.toString(storeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) {
+    private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) throws DatabaseFetchException {
         try {
             return purchaseDetailsDao.queryForId(Integer.toString(purchaseDetailsId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load purchase details");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -634,19 +648,6 @@ public class DAOManager {
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
             Runnable action = () -> createPurchaseDetails(details);
-            toDo.add(action);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void createManagerListForStore(Store store) {
-        try {
-            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
-            storeDao.assignEmptyForeignCollection(store, "managers");
-            executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> createManagerListForStore(store);
             toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -762,15 +763,6 @@ public class DAOManager {
         }
     }
 
-    public static List<Permission> loadAllPermissions() {
-        try {
-            return permissionDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void removePermission(Permission permission) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
@@ -782,15 +774,6 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static ShoppingCart loadShoppingCartBySubscriberId(int subscriberId) {
-        try {
-            return shoppingCartDao.queryForId(Integer.toString(subscriberId));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static void updateGrantingAgreement(GrantingAgreement grantingAgreement) {
@@ -869,7 +852,7 @@ public class DAOManager {
         return false;
     }
 
-    public static Subscriber getSubscriberByUsername(String username) {
+    public static Subscriber getSubscriberByUsername(String username) throws DatabaseFetchException {
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -882,26 +865,12 @@ public class DAOManager {
             Subscriber subscriber = subscribers.get(0);
             fixSubscriber(subscriber);
             return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static boolean hasAdmin() {
-        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
-        SelectArg selectArg = new SelectArg();
-        selectArg.setValue(true);
-        Where<Subscriber, String> where = queryBuilder.where();
-        try {
-            where.eq("isAdmin", selectArg);
-            PreparedQuery<Subscriber> query = queryBuilder.prepare();
-            List<Subscriber> subscribers = subscriberDao.query(query);
-            return !subscribers.isEmpty();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public static int getNumShoppingCarts() {
@@ -922,21 +891,25 @@ public class DAOManager {
         return -1;
     }
 
-    public static ProductInfo loadProductInfoById(int id) {
+    public static ProductInfo loadProductInfoById(int id) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(id));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static Store loadStoreById(int storeId) {
+    public static Store loadStoreById(int storeId) throws DatabaseFetchException {
         try {
             Store store = storeDao.queryForId(Integer.toString(storeId));
             if (store != null) fixStore(store);
 
             return store;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -951,7 +924,7 @@ public class DAOManager {
         }
     }
 
-    public static Store loadStoreByName(String name) {
+    public static Store loadStoreByName(String name) throws DatabaseFetchException {
         QueryBuilder<Store, String> queryBuilder = storeDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(name);
@@ -960,6 +933,8 @@ public class DAOManager {
             where.eq("name", selectArg);
             PreparedQuery<Store> query = queryBuilder.prepare();
             return storeDao.query(query).get(0);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -969,7 +944,7 @@ public class DAOManager {
         return null;
     }
 
-    public static ProductInfo loadProductInfoByName(String name) {
+    public static ProductInfo loadProductInfoByName(String name) throws DatabaseFetchException {
         QueryBuilder<ProductInfo, String> queryBuilder = productInfoDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(name);
@@ -978,6 +953,8 @@ public class DAOManager {
             where.eq("name", selectArg);
             PreparedQuery<ProductInfo> query = queryBuilder.prepare();
             return productInfoDao.query(query).get(0);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
         }

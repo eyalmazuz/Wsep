@@ -3,6 +3,7 @@ package Domain.TradingSystem.IntegrationTests;
 import DTOs.Notification;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -51,7 +52,7 @@ public class SystemTests extends TestCase {
     //USE CASES 4.1 tests
 
     @Test
-    public void testAddProductToStore() {
+    public void testAddProductToStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -63,7 +64,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testEditProductInStore() {
+    public void testEditProductInStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -78,7 +79,7 @@ public class SystemTests extends TestCase {
 
 
     @Test
-    public void testDeleteProductFromStore() {
+    public void testDeleteProductFromStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -94,7 +95,7 @@ public class SystemTests extends TestCase {
     // USECASE 2.8
 
     @Test
-    public void testSavePurchaseHistory() {
+    public void testSavePurchaseHistory() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
@@ -121,7 +122,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testUpdateStoreSupplies() {
+    public void testUpdateStoreSupplies() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -140,7 +141,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testSaveOngoingPurchaseForUser() {
+    public void testSaveOngoingPurchaseForUser() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
@@ -157,7 +158,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRequestSupply() {
+    public void testRequestSupply() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         Store store1 = new Store();
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
@@ -181,7 +182,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRestoreSupplies() {
+    public void testRestoreSupplies() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -197,7 +198,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRestoreHistories() {
+    public void testRestoreHistories() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -215,7 +216,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRestoreCart() {
+    public void testRestoreCart() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id =test.addStore();
         Store store1 = test.getStores().get(id);
@@ -236,7 +237,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRemoveOngoingPurchase() {
+    public void testRemoveOngoingPurchase() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -254,7 +255,7 @@ public class SystemTests extends TestCase {
 
 
 
-    private void setUpPurchase() {
+    private void setUpPurchase() throws DatabaseFetchException {
         sessionId = test.startSession().getId();
         store1Id = test.addStore();
         test.addProductInfo(4, "lambda", "snacks", 10);
@@ -276,7 +277,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseSuccess() {
+    public void testPurchaseSuccess() throws DatabaseFetchException {
         setUpPurchase();
 
         assertFalse(test.isCartEmpty(sessionId));
@@ -301,7 +302,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailBuyingPolicy() {
+    public void testPurchaseFailBuyingPolicy() throws DatabaseFetchException {
         setUpPurchase();
         test.getStoreById(store1Id).setBuyingPolicy(new BuyingPolicy("No one is allowed"));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
@@ -309,7 +310,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurhcaseFailMissingSupplies() {
+    public void testPurhcaseFailMissingSupplies() throws DatabaseFetchException {
         setUpPurchase();
 
         test.getStoreById(store1Id).setBuyingPolicy(new BuyingPolicy("None"));
@@ -321,7 +322,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailPaymentSystem() {
+    public void testPurchaseFailPaymentSystem() throws DatabaseFetchException {
         setUpPurchase();
         paymentHandler.setProxyPurchaseSuccess(false);
         confirmPurchase(sessionId, false);
@@ -329,7 +330,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailSupplySystem() {
+    public void testPurchaseFailSupplySystem() throws DatabaseFetchException {
         setUpPurchase();
         supplyHandler.setProxySupplySuccess(false);
         confirmPurchase(sessionId, false);
@@ -337,14 +338,14 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailSyncProblem() {
+    public void testPurchaseFailSyncProblem() throws DatabaseFetchException {
         setUpPurchase();
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
 
     }
 
-    private void confirmPurchase(int sessionId, boolean syncProblem) {
+    private void confirmPurchase(int sessionId, boolean syncProblem) throws DatabaseFetchException {
         if (test.makePayment(sessionId, "details").getResultCode() == ResultCode.SUCCESS) {
             test.savePurchaseHistory(sessionId);
             test.saveOngoingPurchaseForUser(sessionId);
@@ -378,7 +379,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddOwnerSucess() {
+    public void testAddOwnerSucess() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId, "Amir", "1234");
         test.login(openerSessionId, "Amir", "1234");
@@ -392,7 +393,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddManager() {
+    public void testAddManager() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -406,7 +407,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDeleteManager() {
+    public void testDeleteManager() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -422,7 +423,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testSetManagerDetails() {
+    public void testSetManagerDetails() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -439,7 +440,7 @@ public class SystemTests extends TestCase {
 
 
     @Test
-    public void testGetHistory() {
+    public void testGetHistory() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -466,7 +467,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testBuyingPoliciesSimple() {
+    public void testBuyingPoliciesSimple() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
@@ -542,7 +543,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testBuyingPoliciesComplex() {
+    public void testBuyingPoliciesComplex() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
@@ -597,7 +598,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDiscountPoliciesSimple() {
+    public void testDiscountPoliciesSimple() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int store1Id = test.addStore();
         Store store1 = test.getStores().get(store1Id);
@@ -708,7 +709,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDiscountPoliciesComplex() {
+    public void testDiscountPoliciesComplex() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int store1Id = test.addStore();
         Store store1 = test.getStores().get(store1Id);
@@ -786,7 +787,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddProductUpdateNotification(){
+    public void testAddProductUpdateNotification() throws DatabaseFetchException {
 
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
@@ -809,7 +810,7 @@ public class SystemTests extends TestCase {
      * Simple owner deletion.
      */
     @Test
-    public void testDeleteOwnerSingleManager(){
+    public void testDeleteOwnerSingleManager() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
@@ -837,7 +838,7 @@ public class SystemTests extends TestCase {
     /**
      * Complex Owner deletion (Owner inside Owner)
      */
-    public void testDeleteOwnerMultyManager(){
+    public void testDeleteOwnerMultyManager() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
 
@@ -877,7 +878,7 @@ public class SystemTests extends TestCase {
      * Checks that remove not exising manager results in failure
      */
     @Test
-    public void testDeleteOwnerNotExisting(){
+    public void testDeleteOwnerNotExisting() throws DatabaseFetchException {
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
         test.login(firstId,"amir","1234");
@@ -892,7 +893,7 @@ public class SystemTests extends TestCase {
      * Checks if notificationQueue of removed manager has been increased
      */
     @Test
-    public void testDeleteOwnerNotification(){
+    public void testDeleteOwnerNotification() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
@@ -917,7 +918,7 @@ public class SystemTests extends TestCase {
      * Checks if removing owner not granted by yourself cause error
      */
     @Test
-    public void testDeleteOwnerNotGrantedBy(){
+    public void testDeleteOwnerNotGrantedBy() throws DatabaseFetchException {
         int firstId = test.startSession().getId();
         int masterId = test.register(firstId,"amir","1234").getId();
         int ownerId = test.register(firstId,"bob","1234").getId();
@@ -934,7 +935,7 @@ public class SystemTests extends TestCase {
 
     //Test for usecase 1.1
     @Test
-    public void testSetupConfigFileOpenStore(){
+    public void testSetupConfigFileOpenStore() throws DatabaseFetchException {
         try {
             FileWriter file = new FileWriter("testFile.txt",false);
             file.write("register(bob);\nopen-store(bob,bob-store);\n");
@@ -992,7 +993,7 @@ public class SystemTests extends TestCase {
     f. u3 appoint u5 and u5 appoint u6 to a store manager.
      */
     @Test
-    public void testSetupRequirmentsFile(){
+    public void testSetupRequirmentsFile() throws DatabaseFetchException {
         try {
             FileWriter file = new FileWriter("initFile.txt",false);
             file.write("register(u1);\nregister(u2);\nregister(u3);\nregister(u4);\nregister(u5);\nregister(u6);\n"+
@@ -1014,7 +1015,7 @@ public class SystemTests extends TestCase {
      * test id there are 3 managers after approval
      */
     @Test
-    public void testApproveStoreOwnerSuccess(){
+    public void testApproveStoreOwnerSuccess() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1037,7 +1038,7 @@ public class SystemTests extends TestCase {
      * test id there are no pending agreemant after approval
      */
     @Test
-    public void testApproveStoreOwnerAgreementRemoved(){
+    public void testApproveStoreOwnerAgreementRemoved() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1059,7 +1060,7 @@ public class SystemTests extends TestCase {
      * Check if the need to approve Manager got notification after appoint new manager
      */
     @Test
-    public void testApproveStoreOwnerNotificationSent(){
+    public void testApproveStoreOwnerNotificationSent() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1083,7 +1084,7 @@ public class SystemTests extends TestCase {
      * test id there are 2 managers before approval
      */
     @Test
-    public void testNoApproveStoreOwner(){
+    public void testNoApproveStoreOwner() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1104,7 +1105,7 @@ public class SystemTests extends TestCase {
      * test id there are no pending agreemants after approval
      */
     @Test
-    public void testNoApproveStoreOwnerAgremantExist(){
+    public void testNoApproveStoreOwnerAgremantExist() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1125,7 +1126,7 @@ public class SystemTests extends TestCase {
      * try to approve owner with non existing agreement;
      */
     @Test
-    public void testApproveStoreOwnerNoAgreemant(){
+    public void testApproveStoreOwnerNoAgreemant() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1141,7 +1142,7 @@ public class SystemTests extends TestCase {
      * Test if by removal all pending owners to approve, owning request gets approved.
      */
     @Test
-    public void testDeleteOwnerToApprove(){
+    public void testDeleteOwnerToApprove() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1166,7 +1167,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDeclineStoreOwnerSuccess(){
+    public void testDeclineStoreOwnerSuccess() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1198,7 +1199,11 @@ public class SystemTests extends TestCase {
     @Test
     public void testStatisticsSubscriberLogin(){
         setUpStatsTests();
-        test.login(sessionId,"a","a");
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         assertEquals(1,test.getDailyStats().getRegularSubs());
     }
 
@@ -1206,10 +1211,18 @@ public class SystemTests extends TestCase {
     public void testStatisticsOwnerLogin(){
         setUpStatsTests();
         sessionId =test.startSession().getId();
-        test.login(sessionId,"a","a");
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         test.openStore(sessionId);
         test.logout(sessionId);
-        test.login(sessionId,"a","a");
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         assertEquals(1,test.getDailyStats().getManagersOwners());
 
     }
@@ -1218,14 +1231,31 @@ public class SystemTests extends TestCase {
     public void testStatisticsManagerLogin(){
         setUpStatsTests();
         sessionId =test.startSession().getId();
-        test.login(sessionId,"a","a");
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         int storeId =test.openStore(sessionId).getId();
         test.logout(sessionId);
-        test.login(sessionId,"a","a");
-        int subId = test.getSubscriber("b","b");
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        int subId = 0;
+        try {
+            subId = test.getSubscriber("b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         test.addStoreManager(sessionId,storeId,subId);
         test.logout(sessionId);
-        test.login(sessionId,"b","b");
+        try {
+            test.login(sessionId,"b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         assertEquals(1,test.getDailyStats().getManagersNotOwners());
     }
 

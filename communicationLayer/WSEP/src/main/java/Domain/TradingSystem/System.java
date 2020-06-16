@@ -3,6 +3,7 @@ package Domain.TradingSystem;
 import DTOs.*;
 import DTOs.SimpleDTOS.*;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
@@ -11,6 +12,7 @@ import com.j256.ormlite.dao.DaoManager;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -67,16 +69,16 @@ public class System {
         return instance;
     }
 
-    public ProductInfo getProductInfoById(int id) {
+    public ProductInfo getProductInfoById(int id) throws DatabaseFetchException {
         ProductInfo info = products.get(id);
         if (info == null) {
             info = DAOManager.loadProductInfoById(id);
-            products.put(info.getId(),info);
+            if (info != null) products.put(info.getId(),info);
         }
         return info;
     }
 
-    public Map<Integer, ProductInfo> getProducts() {
+    public Map<Integer, ProductInfo> getProducts() throws DatabaseFetchException {
         List<ProductInfo> productInfos = DAOManager.loadAllProductInfos();
         Map<Integer, ProductInfo> allProducts = new HashMap<>();
         for (ProductInfo info : productInfos) {
@@ -130,7 +132,11 @@ public class System {
     public ActionResultDTO setup(String supplyConfig, String paymentConfig , String filePath){
 
         logger.info("SETUP - supplyConfig = "+supplyConfig+", paymentConfig ="+paymentConfig+".");
-        userHandler.setAdmin();
+        try {
+            userHandler.setAdmin();
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try agin later.");
+        }
         try {
             setSupply(supplyConfig);
             setPayment(paymentConfig);
@@ -211,7 +217,7 @@ public class System {
         }
     }
 
-    public int getStoreByName(String name) {
+    public int getStoreByName(String name) throws DatabaseFetchException {
         for(Integer storeId : stores.keySet()){
             if (stores.get(storeId).getName().equals(name)){
                 return storeId;
@@ -223,11 +229,11 @@ public class System {
         return store == null ? -1 : store.getId();
     }
 
-    private void setStoreName(int storeId, String name) {
+    private void setStoreName(int storeId, String name) throws DatabaseFetchException {
         getStoreById(storeId).setName(name);
     }
 
-    private void setAdmin(String username) {
+    private void setAdmin(String username) throws DatabaseFetchException {
         Subscriber subscriber = userHandler.getSubscriberUser(username);
         if(subscriber!=null){
             subscriber.setAdmin();
@@ -238,7 +244,7 @@ public class System {
         logger.info("startSession: no arguments");
         int sessionId =userHandler.createSession();
         updateStats(sessionId);
-        
+
         return new IntActionResultDto(ResultCode.SUCCESS,"start session",sessionId);
     }
 
@@ -374,10 +380,22 @@ public class System {
     public ActionResultDTO addProductToStore(int sessionId,int storeId, int productId,int amount) {
 
         logger.info(String.format("SessionId %d Add %d of Product %d to Store %d", sessionId, amount, productId, storeId));
-        ProductInfo info = getProductInfoById(productId);
+        ProductInfo info = null;
+        try {
+            info = getProductInfoById(productId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if(info != null) {
 
-            Store store = getStoreById(storeId);
+            Store store = null;
+            try {
+                store = getStoreById(storeId);
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+            }
+
+
             if (store != null) {
                 ActionResultDTO result = store.addProduct(info, amount);
                 //Publisher Update
@@ -399,23 +417,27 @@ public class System {
     //UseCase 4.1.2
     public ActionResultDTO editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
-        if(getProductInfoById(productId) != null) {
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                ActionResultDTO result =  store.editProduct(productId, newInfo);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null) {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        String message = "Store " + storeId + " has been updated: product has been edited";
-                        Notification notification = new Notification(notificationId++,message);
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify("/storeUpdate/",managers,notification);
+        try {
+            if(getProductInfoById(productId) != null) {
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    ActionResultDTO result =  store.editProduct(productId, newInfo);
+                    //Publisher Update
+                    if(result.getResultCode()==ResultCode.SUCCESS){
+                        if(publisher != null) {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            String message = "Store " + storeId + " has been updated: product has been edited";
+                            Notification notification = new Notification(notificationId++,message);
+                            updateAllUsers(store.getAllManagers(),notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
     }
@@ -423,23 +445,27 @@ public class System {
     //UseCase 4.1.3
     public ActionResultDTO deleteProductFromStore(int sessionId, int storeId, int productId){
         logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
-        if(getProductInfoById(productId) != null) {
-            Store store = getStoreById(storeId);
-            if (store != null) {
-                ActionResultDTO result =  store.deleteProduct(productId);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null)
-                    {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify("/storeUpdate/",managers,notification);
+        try {
+            if(getProductInfoById(productId) != null) {
+                Store store = getStoreById(storeId);
+                if (store != null) {
+                    ActionResultDTO result =  store.deleteProduct(productId);
+                    //Publisher Update
+                    if(result.getResultCode()==ResultCode.SUCCESS){
+                        if(publisher != null)
+                        {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
+                            updateAllUsers(store.getAllManagers(),notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
     }
@@ -457,7 +483,12 @@ public class System {
 
         List <Subscriber> owners = new LinkedList<Subscriber>(); //update store owners list
 
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new SubscriberActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
         if (store!=null) {
             owners = store.getAllManagers();
             List<Subscriber> filterd = userHandler.getAvailableUsersToOwn(owners); // return only available subs
@@ -487,7 +518,12 @@ public class System {
         Subscriber newOwner = userHandler.getSubscriber(subId);
         if (newOwner == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if(store!=null)
         {
             List<Integer> owners = store.getOwners().stream().map(Subscriber::getId).collect(Collectors.toList());
@@ -551,7 +587,12 @@ public class System {
         Subscriber newManager = userHandler.getSubscriber(userId);
         if (newManager == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified user is invalid.");
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (store != null) {
 
             if(newManager.addPermission(store, (Subscriber)u.getState(), "Manager")){
@@ -650,7 +691,12 @@ public class System {
             Subscriber manager = userHandler.getSubscriber(managerId);
             if (manager == null)
                 return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager does not exist.");
-            Store store = getStoreById(storeId);
+            Store store = null;
+            try {
+                store = getStoreById(storeId);
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+            }
             if(store!=null) {
 
                 String[] validDetailes = {"any", "add product", "edit product", "delete product","manage-inventory"};
@@ -668,7 +714,12 @@ public class System {
     //usecase 4.10,5.1,6.4.2
     public StorePurchaseHistoryDTO getStoreHistory(int storeId){
         logger.info("getStoreHistory: storeId "+storeId);
-        Store s = getStoreById(storeId);
+        Store s = null;
+        try {
+            s = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new StorePurchaseHistoryDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1, null);
+        }
         if(s!=null){
             List<PurchaseDetails> history =  s.getStorePurchaseHistory();
             return new StorePurchaseHistoryDTO(ResultCode.SUCCESS,"Got store history",s.getId(),
@@ -722,7 +773,7 @@ public class System {
     }
 
     // Usecase 2.3
-    public boolean login(int sessionId, String username, String password) {
+    public boolean login(int sessionId, String username, String password) throws DatabaseFetchException {
         logger.info(String.format("Login : SeesionId %d , username %s",sessionId,username));
         User u = userHandler.getUser(sessionId);
         if (!u.isGuest()) return false;
@@ -898,7 +949,7 @@ public class System {
     }
 
 
-    public Store getStoreById(int storeId){
+    public Store getStoreById(int storeId) throws DatabaseFetchException {
         Store store = stores.get(storeId);
         if (store == null) store = DAOManager.loadStoreById(storeId);
         return store;
@@ -906,10 +957,22 @@ public class System {
 
     private ActionResultDTO checkCartModificationDetails(int sessionId, int storeId, int productId, int amount) {
         if (userHandler.getUser(sessionId) == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "User does not exist.");
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Store " + storeId + " does not exist.");
 
-        ProductInfo productInfo = getProductInfoById(productId);
+        ProductInfo productInfo = null;
+        try {
+            productInfo = getProductInfoById(productId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
+
+
         if (productInfo == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Product " + productId + " does not exist.");
 
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
@@ -922,9 +985,14 @@ public class System {
         if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
 
         User u = userHandler.getUser(sessionId);
-        Store store = getStoreById(storeId);
-        result = u.addProductToCart(store, getProductInfoById(productId), amount);
-        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Added " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+            result = u.addProductToCart(store, getProductInfoById(productId), amount);
+            if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Added " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        } catch (DatabaseFetchException e) {
+            result = new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         return result;
     }
 
@@ -934,9 +1002,14 @@ public class System {
         if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
 
         User u = userHandler.getUser(sessionId);
-        Store store = getStoreById(storeId);
-        result = u.editCartProductAmount(store, getProductInfoById(productId), amount);
-        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("There are now " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+            result = u.editCartProductAmount(store, getProductInfoById(productId), amount);
+            if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("There are now " + amount + " instances of product " + getProductInfoById(productId).getName() + " (" + productId + ") for store " + storeId);
+        } catch (DatabaseFetchException e) {
+            result = new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         return result;
     }
 
@@ -946,9 +1019,14 @@ public class System {
         if (result.getResultCode() == ResultCode.ERROR_CART_MODIFICATION) return result;
 
         User u = userHandler.getUser(sessionId);
-        Store store = getStoreById(storeId);
-        result = u.removeProductFromCart(store, getProductInfoById(productId));
-        if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Deleted product " + getProductInfoById(productId) + " from basket of store " + storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+            result = u.removeProductFromCart(store, getProductInfoById(productId));
+            if (result.getResultCode() == ResultCode.SUCCESS) result.setDetails("Deleted product " + getProductInfoById(productId) + " from basket of store " + storeId);
+        } catch (DatabaseFetchException e) {
+            result = new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         return result;
     }
 
@@ -992,7 +1070,7 @@ public class System {
         return u!=null && u.isGuest();
     }
 
-    public int getSubscriber(String username, String password) {
+    public int getSubscriber(String username, String password) throws DatabaseFetchException {
         logger.info("getSubscriber: username " + username + ", password " + password);
         if(username == null || password == null || username.equals("") || password.equals("")) return -1;
         Subscriber s = userHandler.getSubscriberUser(username,Security.getHash(password));
@@ -1014,7 +1092,7 @@ public class System {
         stores.clear();
     }
 
-    public Map<Integer, Store> getStores(){
+    public Map<Integer, Store> getStores() throws DatabaseFetchException {
         List<Store> stores = DAOManager.loadAllStores();
         Map<Integer, Store> map = new HashMap<>();
         for (Store store : stores) map.put(store.getId(), store);
@@ -1031,8 +1109,12 @@ public class System {
         }
         logger.info("addProductInfo: id " + id + ", name " + name + ", category " + category);
         ProductInfo productInfo = new ProductInfo(id, name, category, basePrice);
-        if (getProductInfoById(id) != null) {
-            return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
+        try {
+            if (getProductInfoById(id) != null) {
+                return new IntActionResultDto(ResultCode.ERROR_ADMIN,"Product "+id+" already Exists",-1);
+            }
+        } catch (DatabaseFetchException e) {
+            return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
         }
 
         products.put(id,productInfo);
@@ -1042,7 +1124,7 @@ public class System {
 
 
 
-    public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) {
+    public void removeStoreProductSupplies(Integer storeId, Map<Integer, Integer> productIdAmountMap) throws DatabaseFetchException {
         Store store = getStoreById(storeId);
         for (Integer productId : productIdAmountMap.keySet()) {
             store.removeProductAmount(productId, productIdAmountMap.get(productId));
@@ -1051,7 +1133,12 @@ public class System {
 
     public ActionResultDTO changeBuyingPolicy(int storeId, String newPolicy){
         logger.info("changeBuyingPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
-        Store s = getStoreById(storeId);
+        Store s = null;
+        try {
+            s = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if(s != null){
             s.setBuyingPolicy(new BuyingPolicy(newPolicy));
             return new ActionResultDTO(ResultCode.SUCCESS, null);
@@ -1061,7 +1148,12 @@ public class System {
 
     public ActionResultDTO changeDiscountPolicy(int storeId, String newPolicy){
         logger.info("changeDiscountPolicy: storeId " + storeId + ", newPolicy " + newPolicy);
-        Store s = getStoreById(storeId);
+        Store s = null;
+        try {
+            s = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if(s != null){
             s.setDiscountPolicy(new DiscountPolicy(newPolicy));
             return new ActionResultDTO(ResultCode.SUCCESS, null);
@@ -1093,7 +1185,7 @@ public class System {
         u.saveCurrentCartAsPurchase();
     }
 
-    public boolean updateStoreSupplies(int sessionId) {
+    public boolean updateStoreSupplies(int sessionId) throws DatabaseFetchException {
         logger.info("updateStoreSupplies: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         boolean result =  u.updateStoreSupplies();
@@ -1106,7 +1198,7 @@ public class System {
 
     }
 
-    private void notifyStoreOwners(List<Integer> storesInCart) {
+    private void notifyStoreOwners(List<Integer> storesInCart) throws DatabaseFetchException {
         for(int storeId:storesInCart){
             List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
             Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
@@ -1148,7 +1240,7 @@ public class System {
         return paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
     }
 
-    public void restoreSupplies(int sessionId) {
+    public void restoreSupplies(int sessionId) throws DatabaseFetchException {
         logger.info("restoreSupplies: sessionId " + sessionId);
         Map<Integer, Map<Integer, Integer>> details = ongoingPurchases.get(sessionId);
         for (Integer storeId : details.keySet()) {
@@ -1160,7 +1252,7 @@ public class System {
         }
     }
 
-    public void restoreHistories(int sessionId) {
+    public void restoreHistories(int sessionId) throws DatabaseFetchException {
         logger.info("restoreHistories: sessionId " + sessionId);
 
         // remove the last history item for both the store and the user
@@ -1180,7 +1272,7 @@ public class System {
         }
     }
 
-    public void restoreCart(int sessionId) {
+    public void restoreCart(int sessionId) throws DatabaseFetchException {
         logger.info("restoreCart: sessionId " + sessionId);
         User u = userHandler.getUser(sessionId);
         Map<Integer, Map<Integer, Integer>> storeProductAmounts = ongoingPurchases.get(sessionId);
@@ -1195,7 +1287,12 @@ public class System {
     }
 
     public StoreActionResultDTO getStoreInfo(int storeId) {
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new StoreActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
         if(store == null){
             return new StoreActionResultDTO(ResultCode.ERROR_STOREID,"Store "+storeId+" Does not exists.",null);
         }
@@ -1209,7 +1306,12 @@ public class System {
     }
 
     public SubscriberActionResultDTO getAllManagers(int storeId) {
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new SubscriberActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
         if(store==null)
             return new SubscriberActionResultDTO(ResultCode.ERROR_STOREID,"StoreId not exist",null);
         else{
@@ -1261,7 +1363,7 @@ public class System {
         }
     }
 
-    public int addSimpleBuyingTypeBasketConstraint(int storeId, int productId, String minmax, int amount) {
+    public int addSimpleBuyingTypeBasketConstraint(int storeId, int productId, String minmax, int amount) throws DatabaseFetchException {
         ProductInfo info;
         if (productId < 0) info = null;
         else {
@@ -1272,38 +1374,56 @@ public class System {
         return getStoreById(storeId).addSimpleBuyingTypeBasketConstraint(info, minmax, amount);
     }
 
-    public int addSimpleBuyingTypeUserConstraint(int storeId, String country) {
+    public int addSimpleBuyingTypeUserConstraint(int storeId, String country) throws DatabaseFetchException {
         return getStoreById(storeId).addSimpleBuyingTypeUserConstraint(country);
     }
 
-    public int addSimpleBuyingTypeSystemConstraint(int storeId, int dayOfWeek) {
+    public int addSimpleBuyingTypeSystemConstraint(int storeId, int dayOfWeek) throws DatabaseFetchException {
         return getStoreById(storeId).addSimpleBuyingTypeSystemConstraint(dayOfWeek);
     }
 
-    public void removeBuyingTypeFromStore(int storeId, int buyingTypeID) {
+    public void removeBuyingTypeFromStore(int storeId, int buyingTypeID) throws DatabaseFetchException {
         getStoreById(storeId).removeBuyingType(buyingTypeID);
     }
 
-    public void removeAllBuyingTypes(int storeId) {
+    public void removeAllBuyingTypes(int storeId) throws DatabaseFetchException {
         getStoreById(storeId).removeAllBuyingTypes();
     }
 
     public IntActionResultDto addAdvancedBuyingType(int storeId, List<Integer> buyingTypeIDs, String logicalOperation) {
-        return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+        try {
+            return getStoreById(storeId).addAdvancedBuyingType(buyingTypeIDs, logicalOperation);
+        } catch (DatabaseFetchException e) {
+            return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+        }
     }
 
     public BuyingPolicyActionResultDTO getBuyingPolicyDetails(int storeId) {
-        return getStoreById(storeId).getBuyingPolicyDetails();
+        try {
+            return getStoreById(storeId).getBuyingPolicyDetails();
+        } catch (DatabaseFetchException e) {
+            return new BuyingPolicyActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
     }
 
     public DiscountPolicyActionResultDTO getDiscountPolicyDetails(int storeId) {
-        return getStoreById(storeId).getDiscountPolicyDetails();
+        try {
+            return getStoreById(storeId).getDiscountPolicyDetails();
+        } catch (DatabaseFetchException e) {
+            return new DiscountPolicyActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
     }
 
     public ActionResultDTO changeProductPrice(int storeId, int productId, double price) {
-        Store store = getStoreById(storeId);
-        if (store == null) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such store");
-        ProductInfo info = getProductInfoById(productId);
+        Store store = null;
+        ProductInfo info = null;
+        try {
+            store = getStoreById(storeId);
+            if (store == null) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such store");
+            info = getProductInfoById(productId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (!store.hasProduct(info)) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "No such product in the store");
         if (price < 0) return new ActionResultDTO(ResultCode.ERROR_CHANGE_PRODUCT_PRICE, "Invalid price. Must be non-negative.");
         store.setProductPrice(info.getId(), price);
@@ -1336,24 +1456,28 @@ public class System {
 
     }
 
-    public void removeDiscountTypeFromStore(int storeId, int discountTypeID) {
+    public void removeDiscountTypeFromStore(int storeId, int discountTypeID) throws DatabaseFetchException {
         getStoreById(storeId).removeDiscountType(discountTypeID);
     }
 
-    public void removeAllDiscountTypes(int storeId) {
+    public void removeAllDiscountTypes(int storeId) throws DatabaseFetchException {
         getStoreById(storeId).removeAllDiscountTypes();
     }
 
-    public int addSimpleProductDiscount(int storeId, int productId, double salePercentage) {
+    public int addSimpleProductDiscount(int storeId, int productId, double salePercentage) throws DatabaseFetchException {
         return getStoreById(storeId).addSimpleProductDiscount(productId, salePercentage);
     }
 
-    public int addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) {
+    public int addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) throws DatabaseFetchException {
         return getStoreById(storeId).addSimpleCategoryDiscount(categoryName, salePercentage);
     }
 
     public IntActionResultDto addAdvancedDiscountType(int storeId, List<Integer> discountTypeIDs, String logicalOperation) {
-        return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+        try {
+            return getStoreById(storeId).addAdvancedDiscountType(discountTypeIDs, logicalOperation);
+        } catch (DatabaseFetchException e) {
+            return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+        }
     }
 
     public void clearDatabase() {
@@ -1375,7 +1499,11 @@ public class System {
                         List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
                         if(publisher!=null)
                             notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
-                        handleGrantingAgreements(storeId);
+                        try {
+                            handleGrantingAgreements(storeId);
+                        } catch (DatabaseFetchException e) {
+                            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+                        }
                         return  new ActionResultDTO(ResultCode.SUCCESS,"Managers were removed");
                     } else {
                         return new ActionResultDTO(ResultCode.ERROR_DELETE, "Cannot delete owner that is not granted by you");
@@ -1391,7 +1519,7 @@ public class System {
      * check all granting agreements and if any of them is aprroved finish him.
      * @param storeId
      */
-    private void handleGrantingAgreements(int storeId) {
+    private void handleGrantingAgreements(int storeId) throws DatabaseFetchException {
         Store store = getStoreById(storeId);
         if(store != null){
             Collection<GrantingAgreement> agreements = store.getAllGrantingAgreements();
@@ -1423,7 +1551,12 @@ public class System {
     public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
         Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
         Subscriber newOwner = userHandler.getSubscriber(subId);
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if(store != null){
             if(store.approveMalshab(owner.getId(),subId)){
                 if(store.allAproved(subId)){
@@ -1484,7 +1617,13 @@ public class System {
     public ActionResultDTO declineStoreOwner(int sessionId, int storeId, int subId) {
         Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
         Subscriber newOwner = userHandler.getSubscriber(subId);
-        Store store = getStoreById(storeId);
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
+
         if(store != null){
             if(store.agreementExist(owner.getId(),subId)) {
                 store.removeAgreement(subId);
