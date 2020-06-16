@@ -43,11 +43,12 @@ public class Subscriber implements UserState {
     private ShoppingCart shoppingCart;
 
     @DatabaseField (dataType = DataType.SERIALIZABLE)
-    private ConcurrentLinkedDeque<Notification> notificationQueue ;
+    private ArrayList<Notification> notificationQueue ;
+
     private Object permissionLock;
 
     public Subscriber() {
-        notificationQueue = new ConcurrentLinkedDeque<>();
+        notificationQueue = new ArrayList<>();
         permissions = new HashMap<>();
         permissionLock = new Object();
         shoppingCart = new ShoppingCart(user);
@@ -322,7 +323,7 @@ public class Subscriber implements UserState {
         DAOManager.updateSubscriber(this);
     }
 
-    public Queue<Notification> getAllNotification(){
+    public ArrayList<Notification> getAllNotification(){
         return notificationQueue;
     }
 

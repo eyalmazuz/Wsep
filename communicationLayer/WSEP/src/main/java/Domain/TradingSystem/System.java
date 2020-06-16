@@ -1287,7 +1287,7 @@ public class System {
     public void pullNotifications(int subId) {
         Subscriber subToLogin = userHandler.getSubscriber(subId);
         if (subToLogin != null) {
-            Queue<Notification> notifications = subToLogin.getAllNotification();
+            ArrayList<Notification> notifications = subToLogin.getAllNotification();
             List<Integer> user = new ArrayList<>();
             user.add(subToLogin.getId());
             synchronized (notifications) {

@@ -798,7 +798,7 @@ public class SystemTests extends TestCase {
         ProductInfo infoApple = test.getProductInfoById(5);
 
         test.addProductToStore(openerSessionId,storeid,4,5);
-        Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
+        ArrayList<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
         assertEquals(1,noties.size());
 
     }
