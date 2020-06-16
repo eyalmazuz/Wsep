@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -45,13 +46,13 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testSetNoAdminTest() {
+    public void testSetNoAdminTest() throws DatabaseFetchException {
         uh.setAdmin();
         assertEquals(1,uh.subscribers.size());
     }
 
     @Test
-    public void testSetExsistAdminTest() {
+    public void testSetExsistAdminTest() throws DatabaseFetchException {
         Subscriber s = new Subscriber("a","a",true);
         uh.subscribers.put(s.getId(),s);
         uh.setAdmin();
@@ -59,7 +60,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterSucsessID() {
+    public void testRegisterSucsessID() throws DatabaseFetchException {
         int prev = uh.subscribers.size();
         int id1 = uh.register("Bob","123");
         assertTrue(id1>=0);
@@ -67,7 +68,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterSucsessSize() {
+    public void testRegisterSucsessSize() throws DatabaseFetchException {
         int prev = uh.subscribers.size();
         int id1 = uh.register("Bob","123");
         assertEquals(prev+1,uh.subscribers.size());
@@ -145,20 +146,20 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetSubscriberUser() {
+    public void testGetSubscriberUser() throws DatabaseFetchException {
         registerSubs();
         assertNotNull(uh.getSubscriberUser("test","123"));
     }
 
     @Test
-    public void testGetSubscriberUserBadValues1() {
+    public void testGetSubscriberUserBadValues1() throws DatabaseFetchException {
         registerSubs();
         assertNull(uh.getSubscriberUser(null,null));
     }
 
 
     @Test
-    public void testGetSubscriberUserBadValues2() {
+    public void testGetSubscriberUserBadValues2() throws DatabaseFetchException {
         registerSubs();
         assertNull(uh.getSubscriberUser("test","blabla"));
     }
@@ -192,7 +193,7 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testSetStateSuccess() {
+    public void testSetStateSuccess() throws DatabaseFetchException {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test", "123");
@@ -203,7 +204,7 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testSetStateSuccess2() {
+    public void testSetStateSuccess2() throws DatabaseFetchException {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test", "123");
