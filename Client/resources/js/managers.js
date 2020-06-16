@@ -179,6 +179,9 @@ async function removeManagerFromStore(){
         alert('successfully fired ${user[3]} that piece of shit')
         location.reload()
     }
+    else{
+        alert(result['details'])
+    }
 
 }
 

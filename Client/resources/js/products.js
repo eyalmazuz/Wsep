@@ -97,7 +97,10 @@ async function deleteProduct(idx){
         deleteProductURL = 'https:/localhost:8443/ManagerDeleteProductFromStore?'
     }
     
-    var productId = document.getElementById('deleteproductIdText').value
+
+
+    var productId = document.getElementById('storeProducts').rows[idx].cells[0].innerHTML
+    console.log(productId)
 
     deleteProductURL += 'sessionId=' + sessionStorage['sessionId']
     deleteProductURL += "&storeId=" + storeId;
