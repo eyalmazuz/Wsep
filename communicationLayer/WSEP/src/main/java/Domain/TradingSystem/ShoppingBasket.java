@@ -4,6 +4,7 @@ import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -112,14 +113,14 @@ public class ShoppingBasket {
         return true;
     }
 
-    public boolean updateStoreSupplies() {
+    public boolean updateStoreSupplies() throws DatabaseFetchException {
         for (ProductInfo product : products.keySet()) {
             if (! store.setProductAmount(product.getId(), store.getProductAmount(product.getId()) - products.get(product)))
                 return false;
         }
         return true;
     }
-    public void restoreStoreSupplies() {
+    public void restoreStoreSupplies() throws DatabaseFetchException {
         for (ProductInfo product : products.keySet()) {
             store.setProductAmount(product.getId(), store.getProductAmount(product.getId()) + products.get(product));
         }

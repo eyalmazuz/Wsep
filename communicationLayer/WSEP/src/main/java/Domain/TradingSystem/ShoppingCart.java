@@ -4,6 +4,7 @@ import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -215,7 +216,7 @@ public class ShoppingCart {
         return storePurchaseDetailsMap;
     }
 
-    public boolean updateStoreSupplies() {
+    public boolean updateStoreSupplies() throws DatabaseFetchException {
         boolean flag = true;
         List <ShoppingBasket> baskets = new LinkedList<>();
         for (ShoppingBasket basket : getCurrentBasketCollection()) {

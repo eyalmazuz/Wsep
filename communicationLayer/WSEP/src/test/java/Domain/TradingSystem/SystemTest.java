@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.Logger.SystemLogger;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -91,7 +92,7 @@ public class SystemTest extends TestCase {
 
 
     @Test
-    public void testGetStoreByIdTest(){
+    public void testGetStoreByIdTest() throws DatabaseFetchException {
         Store s1 = test.getStoreById(1);
         Store s2 = test.getStoreById(5);
         assertEquals("1",s1.toString());
@@ -176,7 +177,7 @@ public class SystemTest extends TestCase {
     // HERE WE TEST ONLY VALIDITY OF PRODUCT AND STORE EXISTENCE IN SYSTEM
     // LOGICAL DOMAIN TESTS ARE IN ShoppingCartTest
     @Test
-    public void testAddProductToCart() {
+    public void testAddProductToCart() throws DatabaseFetchException {
         List<Integer> userSessionIDs = new ArrayList<>();
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
@@ -203,7 +204,7 @@ public class SystemTest extends TestCase {
     }
 
     @Test
-    public void testEditProductInCart() {
+    public void testEditProductInCart() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
@@ -232,7 +233,7 @@ public class SystemTest extends TestCase {
     }
 
     @Test
-    public void testRemoveProductFromCart() {
+    public void testRemoveProductFromCart() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
@@ -257,7 +258,7 @@ public class SystemTest extends TestCase {
 
     // usecase 2.8.4
     @Test
-    public void testUpdateStoreProductSupplies() {
+    public void testUpdateStoreProductSupplies() throws DatabaseFetchException {
         Map<Integer, Store> stores = test.getStoresMemory();
 
         Store store1 = stores.get(1);

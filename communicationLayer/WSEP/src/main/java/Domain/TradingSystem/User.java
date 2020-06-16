@@ -4,6 +4,7 @@ import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 
 import java.util.List;
 import java.util.Map;
@@ -136,7 +137,7 @@ public class User {
         state.addPurchase(storePurchaseDetailsMap);
     }
 
-    public boolean updateStoreSupplies() {
+    public boolean updateStoreSupplies() throws DatabaseFetchException {
         return state.getShoppingCart().updateStoreSupplies();
     }
 
