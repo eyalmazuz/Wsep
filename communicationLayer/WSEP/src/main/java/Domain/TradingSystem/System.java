@@ -843,20 +843,20 @@ public class System {
 
         List<String> productNames = new ArrayList<>();
         productNames.add(productName);
-        if (productName != null) {
+        if (!productName.equals("")) {
             List<String> productSugs = Spellchecker.getSuggestions(productName);
             if (productSugs != null) productNames.addAll(productSugs);
         }
 
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add(categoryName);
-        if (categoryName != null) {
+        if (!categoryName.equals("")) {
             List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
             if (categorySugs != null) categoryNames.addAll(categorySugs);
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (keywords != null) {
+        if (!keywords.equals("")) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
@@ -864,10 +864,12 @@ public class System {
             }
         }
 
+        try {
+            for (Store store : DAOManager.loadAllStores())
+                if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+        }catch (DatabaseFetchException e){
 
-        for (Store store: stores.values())
-            if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
-
+        }
         for (ProductInStore pis: allProducts) {
             ProductInfo info = pis.getProductInfo();
             if (productName != null)
