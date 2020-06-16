@@ -15,6 +15,8 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import javax.xml.crypto.Data;
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class System {
     private static System instance = null;
     private static int notificationId = 0;
 
+    private DayStatistics dailyStats;
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
@@ -37,6 +40,7 @@ public class System {
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
     public static boolean testing = false;
+    private boolean init = false;
 
     public System() {
         String databaseName = testing? "trading_system_test" : "trading_system";
@@ -51,6 +55,13 @@ public class System {
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
+
+        dailyStats = DAOManager.getDayStatisticsByDay(LocalDate.now());
+
+        if (dailyStats == null) {
+            dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
     }
 
     public static System getInstance(){
@@ -137,6 +148,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_SETUP,"e.getMessage");
         }
 //        instance = this;
+        init =true;
         return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
     }
 
@@ -230,7 +242,48 @@ public class System {
 
     public IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
-        return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
+        int sessionId =userHandler.createSession();
+        updateStats(sessionId);
+
+        return new IntActionResultDto(ResultCode.SUCCESS,"start session",sessionId);
+    }
+
+    private void updateStats(int sessionId) {
+        if(!init)
+            return;
+
+        if(!dailyStats.isToday()) {
+            dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
+        User user = userHandler.getUser(sessionId);
+        if(user.isGuest()){
+            dailyStats.increaseGuest();
+        }
+        else{
+            Subscriber subscriber = (Subscriber) user.getState();
+            dailyStats.decreaseGuest();
+            if(subscriber.isAdmin())
+                dailyStats.increaseAdmin();
+            else if(subscriber.isOwner())
+                dailyStats.increaseOwner();
+            else if(subscriber.isManager())
+                dailyStats.increaseManager();
+            else
+                dailyStats.increaseRegular();
+        }
+
+
+        notifyAdmins();
+    }
+
+    private void notifyAdmins() {
+        DailyStatsDTO dto = new DailyStatsDTO(dailyStats.getDate(),dailyStats.getGuests(),
+                dailyStats.getRegularSubs(),dailyStats.getManagersNotOwners(),
+                dailyStats.getManagersOwners(),dailyStats.getAdmins());
+        if(publisher!=null){
+            publisher.notify("/statsUpdate",null,dto);
+        }
     }
 
     public int addStore (){
@@ -252,8 +305,18 @@ public class System {
     public boolean logout(int sessionId){
         logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
-        if(u!=null)
-            return u.logout();
+        if(u!=null){
+            boolean result =u.logout();
+            if(result){
+                updateStats(sessionId);
+                return true;
+            }
+            return false;
+
+        }
+
+
+
         return false;
     }
 
@@ -341,7 +404,7 @@ public class System {
                         List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                         Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
                         updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+                        publisher.notify("/storeUpdate/",managers,notification);
                     }
                 }
                 return result;
@@ -366,7 +429,7 @@ public class System {
                             String message = "Store " + storeId + " has been updated: product has been edited";
                             Notification notification = new Notification(notificationId++,message);
                             updateAllUsers(store.getAllManagers(),notification);
-                            publisher.notify(managers,notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
                     return result;
@@ -394,7 +457,7 @@ public class System {
                             List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                             Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
                             updateAllUsers(store.getAllManagers(),notification);
-                            publisher.notify(managers,notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
                     return result;
@@ -731,6 +794,8 @@ public class System {
             // fix user shopping cart
             ShoppingCart cart = subToLogin.getShoppingCart();
             cart.setUser(u);
+
+            updateStats(sessionId);
 
             return true;
         }
@@ -1147,7 +1212,7 @@ public class System {
             Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
             if(publisher!=null)
-                publisher.notify(managers,notification);
+                publisher.notify("/storeUpdate/",managers,notification);
         }
     }
 
@@ -1300,7 +1365,7 @@ public class System {
             user.add(subToLogin.getId());
             synchronized (notifications) {
                 for(Notification notification:notifications){
-                    publisher.notify(user,notification);
+                    publisher.notify("/storeUpdate/",user,notification);
                 }
             }
         }
@@ -1488,7 +1553,7 @@ public class System {
             }
         }
         if(publisher!=null)
-            publisher.notify(users,message);
+            publisher.notify("/storeUpdate/",users,message);
     }
 
     public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
@@ -1584,5 +1649,27 @@ public class System {
     // for use only in test (SystemTest)
     public Map<Integer, Store> getStoresMemory() {
         return stores;
+    }
+
+    public StatisticsResultsDTO getStatistics(String from, String to) {
+        //TODO:Add function that query DB and return Proper DTO
+        //Tmp function for tests
+        List<DayStatistics> lst = new ArrayList<>();
+        lst.add(dailyStats);
+        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
+        //
+    }
+
+    private List<DailyStatsDTO> convertStatsToDTO(List<DayStatistics> list){
+      return  list.stream().map((stat)->new DailyStatsDTO(stat.getDate(),stat.getGuests(),stat.getRegularSubs()
+        ,stat.getManagersNotOwners(),stat.getManagersOwners(),stat.getAdmins())).collect(Collectors.toList());
+    }
+
+    public DayStatistics getDailyStats() {
+        return dailyStats;
+    }
+
+    public void clearStats() {
+        dailyStats.reset();
     }
 }

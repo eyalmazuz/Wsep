@@ -12,6 +12,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -33,13 +34,14 @@ public class DAOManager {
     private static Dao<DiscountPolicy, String> discountPolicyDao;
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
     private static Dao<GrantingAgreement, String> grantingAgreementDao;
+    private static Dao<DayStatistics, String> dayStatisticsDao;
 
     private static boolean isOn;
     private static Queue<Runnable> toDo = new LinkedBlockingQueue<>();
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
-            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
+            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class, DayStatistics.class};
 
     public static void close() {
         isOn = false;
@@ -71,6 +73,7 @@ public class DAOManager {
             discountPolicyDao = DaoManager.createDao(connectionSource, DiscountPolicy.class);
             simpleDiscountDao = DaoManager.createDao(connectionSource, SimpleDiscountDTO.class);
             grantingAgreementDao = DaoManager.createDao(connectionSource, GrantingAgreement.class);
+            dayStatisticsDao = DaoManager.createDao(connectionSource, DayStatistics.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
 
@@ -961,4 +964,47 @@ public class DAOManager {
         return null;
     }
 
+    public static void updateDayStatistics(DayStatistics dayStatistics) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.update(dayStatistics);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateDayStatistics(dayStatistics);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DayStatistics getDayStatisticsByDay(LocalDate localDate) {
+        Date date = java.sql.Date.valueOf(localDate);
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(date);
+        Where<DayStatistics, String> where = queryBuilder.where();
+        try {
+            where.eq("date", selectArg);
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> dayStatistics = dayStatisticsDao.query(query);
+            if (dayStatistics.isEmpty()) return null;
+            return dayStatistics.get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void addDayStatistics(DayStatistics stats) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.create(stats);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addDayStatistics(stats);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -407,4 +407,22 @@ public class Subscriber implements UserState {
         this.shoppingCart = cart;
     }
 
+    /*
+    Goes over Permission List and find if any of them is owner permission
+     */
+    public boolean isOwner() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Owner"))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isManager() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Manager"))
+                return true;
+        }
+        return false;
+    }
 }
