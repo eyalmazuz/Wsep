@@ -170,7 +170,6 @@ async function clearCart(){
 
 async function purchaseCart(){
 
-    console.log(confirmPurchaseURL)
 
     requestPurchaseURL = 'https://localhost:8443/requestPurchase?'
 
