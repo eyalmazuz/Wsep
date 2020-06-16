@@ -16,35 +16,35 @@ public class ManagerHandler {
     }
 
     public ActionResultDTO addProductToStore(int storeId, int productId, int amount)  {
-        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add product")){
             return s.addProductToStore(sessionId,storeId,productId,amount);
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can add products to stores.");
     }
 
     public ActionResultDTO addProductToStore(int storeId, int productId , String productName, String productCategory ,int amount, double basePrice) {
-        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add Product")){
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"add product")){
             IntActionResultDto addProductInfoResult = s.addProductInfo(productId,productName,productCategory,basePrice);
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }
             return s.addProductToStore(sessionId,storeId,productId,amount);
         }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "manager does have add product permissions.");
     }
 
     public ActionResultDTO editProductToStore(int storeId, int productId, String info)  {
-        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"edit Product")){
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"edit product")){
             return s.editProductInStore(sessionId,storeId,productId,info);
         }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can edit products in stores.");
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "manager does have edit product permissions.");
     }
 
     public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
-        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"delete Product")){
+        if(s.isSubscriber(sessionId) && s.isManagerWith(sessionId,storeId,"remove product")){
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only managers can delete products in stores.");
+        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "manager does have remove product permissions.");
     }
 
     public StorePurchaseHistoryDTO viewPurchaseHistory(int storeId){

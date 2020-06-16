@@ -556,6 +556,11 @@ public class System {
 
             if (u != null) {
                 Subscriber managerToDelete = userHandler.getSubscriber(userId);
+
+                if(!managerToDelete.isGrantedBy(storeId, subscriber.getId())){
+                    return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "cannot remove manager who wasn't granted by you");
+                }
+
                 if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
 
                     managerToDelete.removeManagment(storeId);
@@ -734,16 +739,19 @@ public class System {
     }
 
     // Usecase 2.4
-    public StoreActionResultDTO viewStoreProductInfo() throws DatabaseFetchException{
+    public StoreActionResultDTO viewStoreProductInfo(){
         logger.info("searchProducts: no arguments");
         List<StoreDTO> result = new ArrayList<>();
         String info = "";
-        for (Store store: DAOManager.loadAllStores()) {
-            result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
-                    store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
+        try {
+            for (Store store : DAOManager.loadAllStores()) {
+                result.add(new StoreDTO(store.getId(), store.getBuyingPolicy().toString(),
+                        store.getDiscountPolicy().toString(), getProductDTOlist(store.getProducts())));
+            }
+            Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
+        }catch(DatabaseFetchException e){
+            return new StoreActionResultDTO(ResultCode.ERROR_DATABASE, "coult not connet to database", null);
         }
-        Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
-
         return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
     }
 
