@@ -3,6 +3,8 @@ package Domain.TradingSystem;
 import DTOs.*;
 import DTOs.SimpleDTOS.*;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
+import Domain.BGUExternalSystems.SupplySystem;
 import DataAccess.DatabaseFetchException;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
@@ -12,7 +14,6 @@ import com.j256.ormlite.dao.DaoManager;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -119,13 +120,14 @@ public class System {
     public void setLogger(SystemLogger log){
         this.logger = log;
     }
+
     //Usecase 1.1
     private void setSupply(String config) throws Exception {
-        supplyHandler = new SupplyHandler(config);
+        supplyHandler = new SupplyHandler(config, new SupplySystem());
     }
 
     private void setPayment(String config) throws Exception {
-        paymentHandler = new PaymentHandler(config);
+        paymentHandler = new PaymentHandler(config, new PaymentSystem());
     }
 
 
@@ -735,30 +737,25 @@ public class System {
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
-    public boolean setPaymentDetails(int sessionId, String details) {
-        logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
-        User u = userHandler.getUser(sessionId);
-        return u.setPaymentDetails(details);
-    }
-
     // usecase 2.8.3
-    public ActionResultDTO makePayment(int sessionId, String paymentDetails) {
+    public IntActionResultDto makePayment(int sessionId, String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
-        Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts, u.getShoppingCartPrice().getPrice());
-        logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
-        return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
-
+        IntActionResultDto result = paymentHandler.makePayment(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
+        logger.info("makePayment: sessionId " + sessionId + ", status: " + (result.getResultCode() == ResultCode.SUCCESS ? "SUCCESS" : "FAIL"));
+        return result;
     }
 
     // usecase 2.8.4
-    public boolean requestSupply(int sessionId) {
-        // retrieve store product ids
-        Map<Integer, Map<Integer, Integer>> storeProductsIds = ongoingPurchases.get(sessionId);
-        if (storeProductsIds  == null) return false;
+    public IntActionResultDto requestSupply(int sessionId, String buyerName, String address, String city, String country, String zip) {
+        IntActionResultDto result = supplyHandler.requestSupply(buyerName, address, city, country, zip);
+        boolean success = result.getResultCode() == ResultCode.SUCCESS;
+        logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
+        return result;
+    }
 
-        boolean success = supplyHandler.requestSupply(sessionId, storeProductsIds);
+    public boolean cancelSupply(int sessionId, int transactionId) {
+        boolean success = supplyHandler.cancelSupply(transactionId).getResultCode() == ResultCode.SUCCESS;
         logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
         return success;
     }
@@ -1245,9 +1242,9 @@ public class System {
         return ongoingPurchases;
     }
 
-    public boolean requestRefund(int sessionId) {
-        logger.info("requestRefund: sessionId " + sessionId);
-        return paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
+    public boolean requestRefund(int sessionId, int transactionId) {
+        logger.info("requestRefund: sessionId " + sessionId + ", transactionId " + transactionId);
+        return paymentHandler.requestRefund(transactionId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public void restoreSupplies(int sessionId) throws DatabaseFetchException {
