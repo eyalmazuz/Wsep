@@ -615,12 +615,20 @@ public class DAOManager {
     public static void updateSubscriber(Subscriber subscriber) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
-            subscriberDao.update(subscriber);
+            Subscriber dbVersion = DAOManager.loadSubscriber(subscriber.getId());
+            if(dbVersion.getpVersion() == subscriber.getpVersion()) {
+                subscriber.incpVersion();
+                subscriberDao.update(subscriber);
+            }
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> updateSubscriber(subscriber);
+            Runnable action = () -> {
+                    updateSubscriber(subscriber);
+            };
             toDo.add(action);
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (DatabaseFetchException e) {
             e.printStackTrace();
         }
     }
