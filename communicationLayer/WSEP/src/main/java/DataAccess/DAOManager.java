@@ -465,6 +465,7 @@ public class DAOManager {
             permissionMap.put(permission.getStore().getId(), permission);
         }
         subscriber.setPermissions(permissionMap);
+
     }
 
     private static List<Permission> loadSubscriberPermissions(int id) throws DatabaseFetchException {
@@ -488,8 +489,10 @@ public class DAOManager {
     private static Subscriber loadSubscriber(Integer managerId) throws DatabaseFetchException {
         try {
             Subscriber subscriber = subscriberDao.queryForId(Integer.toString(managerId));
-            fixSubscriber(subscriber);
-            return subscriber;
+           if(subscriber!=null) {
+               fixSubscriber(subscriber);
+               return subscriber;
+           }
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
@@ -616,7 +619,7 @@ public class DAOManager {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             Subscriber dbVersion = DAOManager.loadSubscriber(subscriber.getId());
-            if(dbVersion.getpVersion() == subscriber.getpVersion()) {
+            if( (dbVersion==null) ||(dbVersion.getpVersion() == subscriber.getpVersion())) {
                 subscriber.incpVersion();
                 subscriberDao.update(subscriber);
             }
