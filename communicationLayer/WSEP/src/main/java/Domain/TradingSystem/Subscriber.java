@@ -327,6 +327,10 @@ public class Subscriber implements UserState {
         return notificationQueue;
     }
 
+    public void setNotificationQueue(ArrayList<Notification> notificationQueue) {
+        this.notificationQueue = notificationQueue;
+    }
+
     public void removeNotification(int id){
         Notification toRemove = null;
         synchronized (notificationQueue){
@@ -424,5 +428,11 @@ public class Subscriber implements UserState {
                 return true;
         }
         return false;
+    }
+
+    public void updateNotificationQueue(ArrayList<Notification> notifications) {
+
+        this.notificationQueue.addAll(notifications);
+
     }
 }

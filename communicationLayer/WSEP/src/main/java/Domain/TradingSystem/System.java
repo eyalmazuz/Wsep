@@ -318,9 +318,6 @@ public class System {
             return false;
 
         }
-
-
-
         return false;
     }
 
@@ -1210,7 +1207,7 @@ public class System {
     private void notifyStoreOwners(List<Integer> storesInCart) throws DatabaseFetchException {
         for(int storeId:storesInCart){
             List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-            Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
+            Notification notification = new Notification(notificationId++, "Someone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
             if(publisher!=null)
                 publisher.notify("/storeUpdate/",managers,notification);

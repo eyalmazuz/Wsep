@@ -1,5 +1,6 @@
 package DataAccess;
 
+import DTOs.Notification;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -11,6 +12,8 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -463,12 +466,16 @@ public class DAOManager {
         }
         subscriber.setStorePurchaseLists(storePurchaseLists);
 
+        shameshameshame(subscriber);
+
         Map<Integer, Permission> permissionMap = new HashMap<>();
         for (Permission permission : loadSubscriberPermissions(subscriber.getId())) {
             permissionMap.put(permission.getStore().getId(), permission);
         }
         subscriber.setPermissions(permissionMap);
     }
+
+
 
     private static List<Permission> loadSubscriberPermissions(int id) throws DatabaseFetchException {
         QueryBuilder<Permission, String> queryBuilder = permissionDao.queryBuilder();
@@ -564,6 +571,33 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    //https://gph.is/2rQSwV2
+    private static void shameshameshame(Subscriber subscriber) {
+        ArrayList<Notification> notifications = new ArrayList<Notification>();
+        for(int i = 0; i < subscriber.getAllNotification().size(); i++){
+            final Object source = subscriber.getAllNotification().get(i);
+
+            Method method = null;
+            Method method2 = null;
+            try {
+                method = source.getClass().getMethod("getId");
+                Integer id = (Integer)method.invoke(source);
+                method2 = source.getClass().getMethod("getMassage");
+                String massage = (String)method2.invoke(source);
+                notifications.add(new Notification(id, massage));
+
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+        }
+        subscriber.setNotificationQueue(notifications);
     }
 
     public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
