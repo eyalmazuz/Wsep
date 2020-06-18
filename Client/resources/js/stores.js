@@ -19,7 +19,7 @@ async function viewStores(){
 function buildStoresTable(stores){
 
     storeList = stores['stores']
-
+    console.log(storeList)
     var storesTable = document.getElementById('storesTable')
     
     for(var i = 1; i< storesTable.rows.length; i++){

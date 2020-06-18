@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="resources/css/main.css">
+
+        <meta charset="utf-8">
+        <title>My Website</title>
+
+        <script type='text/javascript' src="./resources/js/buttons.js"></script>
+        <script type='text/javascript' src="./resources/js/admin.js"></script>
+        <script type='text/javascript' src="./resources/js/communication.js"></script>
+        <script type="text/javascript" src="./resources/js/statistics.js"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <script src="resources/jars/sockjs.min.js"></script>
+        <script src="resources/jars/stomp.min.js"></script>
+        <script type='text/javascript'>
+        
+        
+        </script>
+    
+</head>
+
+    <body onload="loadStatistics()">
+        
+        <!-- Tittle-->
+        <header class='title'>
+            <h1 class='BigTitle'>
+                Wsep Best Trading System
+            </h1>
+        </header>
+
+        <div class="buttons">
+            
+            <button onclick="logoutAdmin()" class='nav' id='logoutButton'>Logout</button>
+
+            <!-- Button to open the modal login form -->
+            <button onclick="location.href='index.html'" class='nav' id='homepageButton'>Homepage</button>        
+            <button onclick="dateSelection()" class='nav' id='sd'>Show Statistics</button>        
+
+        </div>
+
+        <!-- The Login Model -->
+        <div id="statisticsForm" class="modal">
+            <span onclick="document.getElementById('statisticsForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+
+                <label for="from">From</label>
+                <input type="date" id="fromText" name="from"> 
+
+                <label for="to">To</label>
+                <input type="date" id="toText" name="to"> 
+
+                <button type="button" onclick="draw()">Show</button>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('statisticsForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+
+        <div id="barchart_material" style="width: 900px; height: 500px;"></div>
+
+    </body>
+
+</html>
