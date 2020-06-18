@@ -6,6 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,7 +37,7 @@ public class DayStatistics {
     public DayStatistics() {}
 
     public DayStatistics(LocalDate date) {
-        this.date = java.sql.Date.valueOf(date);
+        this.date = java.util.Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         this.guests = new AtomicInteger(0);
         this.regularSubs = new AtomicInteger(0);
         this.managersNotOwners = new AtomicInteger(0);

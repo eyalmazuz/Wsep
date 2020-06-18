@@ -1,5 +1,8 @@
 package DataAccess;
 
+import DTOs.ResultCode;
+import DTOs.SimpleDTOS.DailyStatsDTO;
+import DTOs.StatisticsResultsDTO;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -54,7 +57,7 @@ public class DAOManager {
 
     public static void init(String databaseName, String username, String password) {
         try {
-            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=UTC");
+            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=GMT%2B3");
 
             isOn = true;
 
@@ -419,9 +422,9 @@ public class DAOManager {
     }
 
     private static void fixStore(Store store) throws DatabaseFetchException {
-       for (ProductInStore pis : store.getProducts()) {
-           pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
-       }
+        for (ProductInStore pis : store.getProducts()) {
+            pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
+        }
 
         BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
         if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
@@ -937,8 +940,7 @@ public class DAOManager {
             throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             return null;
         }
         return null;
@@ -957,8 +959,7 @@ public class DAOManager {
             throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             return null;
         }
         return null;
@@ -1007,4 +1008,29 @@ public class DAOManager {
             e.printStackTrace();
         }
     }
+
+    public static List<DayStatistics> getStatisticsBetween(LocalDate from, LocalDate to) {
+        Date fromDate = java.sql.Date.valueOf(from);
+        Date toDate = java.sql.Date.valueOf(to);
+
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        Where<DayStatistics, String> where = queryBuilder.where();
+
+        try {
+            where.and(
+                    where.ge("date", fromDate),
+                    where.le("date", toDate));
+
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> stats = dayStatisticsDao.query(query);
+
+            return stats;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 }
+
