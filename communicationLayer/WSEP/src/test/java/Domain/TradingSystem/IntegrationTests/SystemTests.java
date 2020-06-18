@@ -1,9 +1,12 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.IntActionResultDto;
 import DTOs.Notification;
 import DTOs.ResultCode;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
 import DataAccess.DatabaseFetchException;
+import Domain.BGUExternalSystems.SupplySystem;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -22,21 +25,33 @@ public class SystemTests extends TestCase {
 
     //System Unitesting
     System test;
+    private int sessionId;
+    private int store1Id;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
 
     @Before
     public void setUp() {
         System.testing = true;
 
         test = new System();
-        Publisher publisherMock = new Publisher((subscribers, message) -> null);
+        Publisher publisherMock = new Publisher((path,subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
+        PaymentSystemProxy.testing = true;
+        PaymentSystemProxy.succedPurchase = true;
+
+        SupplySystemProxy.testing = true;
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @After
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        test.clearStats();
         DAOManager.clearDatabase();
     }
 
@@ -167,11 +182,11 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        supplyHandler.setProxySupplySuccess(false);
-        assertFalse(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = false;
+        assertNotSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
 
-        supplyHandler.setProxySupplySuccess(true);
-        assertTrue(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = true;
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
@@ -246,12 +261,7 @@ public class SystemTests extends TestCase {
     }
 
 
-    private int sessionId;
-    private int store1Id;
-    private ProductInfo info;
-    private User u;
-    private PaymentHandler paymentHandler = null;
-    private SupplyHandler supplyHandler = null;
+
 
     private void setUpPurchase() throws DatabaseFetchException {
         sessionId = test.startSession().getId();
@@ -283,13 +293,14 @@ public class SystemTests extends TestCase {
         double price = test.checkSuppliesAndGetPrice(sessionId);
         assertFalse(price < 0);
 
-        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123").getResultCode(), ResultCode.SUCCESS);
         test.savePurchaseHistory(sessionId);
         test.saveOngoingPurchaseForUser(sessionId);
 
         assertTrue(test.updateStoreSupplies(sessionId));
         test.emptyCart(sessionId);
-        assertTrue(test.requestSupply(sessionId));
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
         test.removeOngoingPurchase(sessionId);
 
         // check state
@@ -322,7 +333,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testPurchaseFailPaymentSystem() throws DatabaseFetchException {
         setUpPurchase();
-        paymentHandler.setProxyPurchaseSuccess(false);
+        PaymentSystemProxy.succedPurchase = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
     }
@@ -330,9 +341,10 @@ public class SystemTests extends TestCase {
     @Test
     public void testPurchaseFailSupplySystem() throws DatabaseFetchException {
         setUpPurchase();
-        supplyHandler.setProxySupplySuccess(false);
+        SupplySystemProxy.succeedSupply = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @Test
@@ -344,29 +356,33 @@ public class SystemTests extends TestCase {
     }
 
     private void confirmPurchase(int sessionId, boolean syncProblem) throws DatabaseFetchException {
-        if (test.makePayment(sessionId, "details").getResultCode() == ResultCode.SUCCESS) {
-            test.savePurchaseHistory(sessionId);
-            test.saveOngoingPurchaseForUser(sessionId);
+        IntActionResultDto result = test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123");
+        if (result.getResultCode() != ResultCode.SUCCESS) return;
+        int transactionId = result.getId();
 
-            // updateStoreSupplies would fail only if there is a sync problem
-            if (!syncProblem) {
-                test.updateStoreSupplies(sessionId);
-                test.emptyCart(sessionId);
-            } else {
-                test.requestRefund(sessionId);
-                test.restoreHistories(sessionId);
-                test.removeOngoingPurchase(sessionId);
-                return;
-            }
-            if (!test.requestSupply(sessionId)) {
-                test.requestRefund(sessionId);
-                test.restoreSupplies(sessionId);
-                test.restoreHistories(sessionId);
-                test.restoreCart(sessionId);
-            }
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
 
+        // updateStoreSupplies would fail only if there is a sync problem
+        if (!syncProblem) {
+            test.updateStoreSupplies(sessionId);
+            test.emptyCart(sessionId);
+        } else {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreHistories(sessionId);
             test.removeOngoingPurchase(sessionId);
+            return;
         }
+        if (test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode() != ResultCode.SUCCESS) {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreSupplies(sessionId);
+            test.restoreHistories(sessionId);
+            test.restoreCart(sessionId);
+        }
+
+        test.removeOngoingPurchase(sessionId);
+
     }
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
@@ -786,7 +802,6 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testAddProductUpdateNotification() throws DatabaseFetchException {
-        int counter;
 
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
@@ -798,7 +813,7 @@ public class SystemTests extends TestCase {
         ProductInfo infoApple = test.getProductInfoById(5);
 
         test.addProductToStore(openerSessionId,storeid,4,5);
-        Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
+        ArrayList<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
         assertEquals(1,noties.size());
 
     }
@@ -974,6 +989,12 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
         assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","testFile.txt").getResultCode());
+
+    }
+
+    @Test
+    public void testSetupNonExistFile(){
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","2Boys1Test.txt").getResultCode());
 
     }
 
@@ -1176,6 +1197,83 @@ public class SystemTests extends TestCase {
 
         assertEquals(2, store.getAllManagers().size());
     }
+
+    public void setUpStatsTests(){
+        sessionId =test.startSession().getId();
+        test.register(sessionId,"a","a");
+        test.register(sessionId,"b","b");
+    }
+
+    @Test
+    public void testStatisticsGuestLogin(){
+        setUpStatsTests();
+        assertEquals(1,test.getDailyStats().getGuests());
+    }
+
+    @Test
+    public void testStatisticsSubscriberLogin(){
+        setUpStatsTests();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getRegularSubs());
+    }
+
+    @Test
+    public void testStatisticsOwnerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        test.openStore(sessionId);
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getManagersOwners());
+
+    }
+
+    @Test
+    public void testStatisticsManagerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        int storeId =test.openStore(sessionId).getId();
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        int subId = 0;
+        try {
+            subId = test.getSubscriber("b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        test.addStoreManager(sessionId,storeId,subId);
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getManagersNotOwners());
+    }
+
+
 
 
 }

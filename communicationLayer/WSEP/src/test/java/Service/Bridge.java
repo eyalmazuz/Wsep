@@ -22,7 +22,8 @@ public interface Bridge {
 
     boolean clearCart(int sessionId);
 
-    boolean buyCart(int sessionId, String paymentDetails);
+    boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                    String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip);
 
     boolean logout(int sessionId);
 

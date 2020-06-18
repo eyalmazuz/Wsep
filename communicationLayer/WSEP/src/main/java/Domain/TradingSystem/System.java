@@ -3,6 +3,8 @@ package Domain.TradingSystem;
 import DTOs.*;
 import DTOs.SimpleDTOS.*;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
+import Domain.BGUExternalSystems.SupplySystem;
 import DataAccess.DatabaseFetchException;
 import Domain.Logger.SystemLogger;
 import Domain.Security.Security;
@@ -12,9 +14,10 @@ import com.j256.ormlite.dao.DaoManager;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +27,7 @@ public class System {
     private static System instance = null;
     private static int notificationId = 0;
 
+    private DayStatistics dailyStats;
     private SupplyHandler supplyHandler;
     private PaymentHandler paymentHandler;
     private UserHandler userHandler;
@@ -37,6 +41,7 @@ public class System {
     private Map<Integer, Map<Integer, Map<Integer, Integer>>> ongoingPurchases = new HashMap<>();
 
     public static boolean testing = false;
+    private boolean init = false;
 
     public System() {
         String databaseName = testing? "trading_system_test" : "trading_system";
@@ -51,6 +56,13 @@ public class System {
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
+
+        dailyStats = DAOManager.getDayStatisticsByDay(LocalDate.now());
+
+        if (dailyStats == null) {
+            dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
     }
 
     public static System getInstance(){
@@ -108,13 +120,14 @@ public class System {
     public void setLogger(SystemLogger log){
         this.logger = log;
     }
+
     //Usecase 1.1
     private void setSupply(String config) throws Exception {
-        supplyHandler = new SupplyHandler(config);
+        supplyHandler = new SupplyHandler(config, new SupplySystem());
     }
 
     private void setPayment(String config) throws Exception {
-        paymentHandler = new PaymentHandler(config);
+        paymentHandler = new PaymentHandler(config, new PaymentSystem());
     }
 
 
@@ -137,6 +150,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_SETUP,"e.getMessage");
         }
 //        instance = this;
+        init =true;
         return new ActionResultDTO(ResultCode.SUCCESS,"Setup Succsess");
     }
 
@@ -239,7 +253,50 @@ public class System {
 
     public IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
-        return new IntActionResultDto(ResultCode.SUCCESS,"start session",userHandler.createSession());
+        int sessionId =userHandler.createSession();
+        updateStats(sessionId);
+
+        return new IntActionResultDto(ResultCode.SUCCESS,"start session",sessionId);
+    }
+
+    private void updateStats(int sessionId) {
+        if(!init)
+            return;
+
+        if(!dailyStats.isToday()) {
+            dailyStats = new DayStatistics(LocalDate.now());
+            DAOManager.addDayStatistics(dailyStats);
+        }
+        User user = userHandler.getUser(sessionId);
+        if(user.isGuest()){
+            dailyStats.increaseGuest();
+        }
+        else{
+            Subscriber subscriber = (Subscriber) user.getState();
+            dailyStats.decreaseGuest();
+            if(subscriber.isAdmin())
+                dailyStats.increaseAdmin();
+            else if(subscriber.isOwner())
+                dailyStats.increaseOwner();
+            else if(subscriber.isManager())
+                dailyStats.increaseManager();
+            else
+                dailyStats.increaseRegular();
+        }
+
+        java.lang.System.out.println("notify admins on daily stats");
+
+        notifyAdmins();
+    }
+
+    private void notifyAdmins() {
+        DailyStatsDTO dto = new DailyStatsDTO(dailyStats.getDate(),dailyStats.getGuests(),
+                dailyStats.getRegularSubs(),dailyStats.getManagersNotOwners(),
+                dailyStats.getManagersOwners(),dailyStats.getAdmins());
+        if(publisher!=null){
+            java.lang.System.out.println("sending the notify message");
+            publisher.notify("/statsUpdate/0",new ArrayList<>(),dto);
+        }
     }
 
     public int addStore (){
@@ -261,8 +318,15 @@ public class System {
     public boolean logout(int sessionId){
         logger.info("Logout: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
-        if(u!=null)
-            return u.logout();
+        if(u!=null){
+            boolean result =u.logout();
+            if(result){
+                updateStats(sessionId);
+                return true;
+            }
+            return false;
+
+        }
         return false;
     }
 
@@ -350,7 +414,7 @@ public class System {
                         List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                         Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
                         updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify(managers,notification);
+                        publisher.notify("/storeUpdate/",managers,notification);
                     }
                 }
                 return result;
@@ -375,7 +439,7 @@ public class System {
                             String message = "Store " + storeId + " has been updated: product has been edited";
                             Notification notification = new Notification(notificationId++,message);
                             updateAllUsers(store.getAllManagers(),notification);
-                            publisher.notify(managers,notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
                     return result;
@@ -403,7 +467,7 @@ public class System {
                             List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                             Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
                             updateAllUsers(store.getAllManagers(),notification);
-                            publisher.notify(managers,notification);
+                            publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
                     return result;
@@ -593,6 +657,11 @@ public class System {
 
             if (u != null) {
                 Subscriber managerToDelete = userHandler.getSubscriber(userId);
+
+                if(!managerToDelete.isGrantedBy(storeId, subscriber.getId())){
+                    return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "cannot remove manager who wasn't granted by you");
+                }
+
                 if (managerToDelete != null && !subscriber.equals(managerToDelete)) {
 
                     managerToDelete.removeManagment(storeId);
@@ -702,30 +771,25 @@ public class System {
         return new StorePurchaseHistoryDTO(ResultCode.ERROR_STOREHISTORY,"Illeagal Store Id",-1,null);
     }
 
-    public boolean setPaymentDetails(int sessionId, String details) {
-        logger.info("setPaymentDetails: sessionId " + sessionId + ", details " + details);
-        User u = userHandler.getUser(sessionId);
-        return u.setPaymentDetails(details);
-    }
-
     // usecase 2.8.3
-    public ActionResultDTO makePayment(int sessionId, String paymentDetails) {
+    public IntActionResultDto makePayment(int sessionId, String cardNumber, String expirationMonth, String expirationYear, String holder, String ccv, String cardId) {
         // retrieve store product ids
         User u = userHandler.getUser(sessionId);
-        Map<Integer, Map<Integer, Integer>> storeIdProductAmounts = u.getPrimitiveCartDetails();
-        boolean success = paymentHandler.makePayment(sessionId, paymentDetails, storeIdProductAmounts, u.getShoppingCartPrice().getPrice());
-        logger.info("makePayment: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
-        return success? new ActionResultDTO(ResultCode.SUCCESS, null) : new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Payment system denied the purchase.");
-
+        IntActionResultDto result = paymentHandler.makePayment(cardNumber, expirationMonth, expirationYear, holder, ccv, cardId);
+        logger.info("makePayment: sessionId " + sessionId + ", status: " + (result.getResultCode() == ResultCode.SUCCESS ? "SUCCESS" : "FAIL"));
+        return result;
     }
 
     // usecase 2.8.4
-    public boolean requestSupply(int sessionId) {
-        // retrieve store product ids
-        Map<Integer, Map<Integer, Integer>> storeProductsIds = ongoingPurchases.get(sessionId);
-        if (storeProductsIds  == null) return false;
+    public IntActionResultDto requestSupply(int sessionId, String buyerName, String address, String city, String country, String zip) {
+        IntActionResultDto result = supplyHandler.requestSupply(buyerName, address, city, country, zip);
+        boolean success = result.getResultCode() == ResultCode.SUCCESS;
+        logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
+        return result;
+    }
 
-        boolean success = supplyHandler.requestSupply(sessionId, storeProductsIds);
+    public boolean cancelSupply(int sessionId, int transactionId) {
+        boolean success = supplyHandler.cancelSupply(transactionId).getResultCode() == ResultCode.SUCCESS;
         logger.info("requestSupply: sessionId " + sessionId + ", status: " + (success ? "SUCCESS" : "FAIL"));
         return success;
     }
@@ -764,6 +828,8 @@ public class System {
             ShoppingCart cart = subToLogin.getShoppingCart();
             cart.setUser(u);
 
+            updateStats(sessionId);
+
             return true;
         }
 
@@ -771,16 +837,19 @@ public class System {
     }
 
     // Usecase 2.4
-    public StoreActionResultDTO viewStoreProductInfo() {
+    public StoreActionResultDTO viewStoreProductInfo(){
         logger.info("searchProducts: no arguments");
         List<StoreDTO> result = new ArrayList<>();
         String info = "";
-        for (Store store: stores.values()) {
-            result.add(new StoreDTO(store.getId(),store.getBuyingPolicy().toString(),
-                    store.getDiscountPolicy().toString(),getProductDTOlist(store.getProducts())));
+        try {
+            for (Store store : DAOManager.loadAllStores()) {
+                result.add(new StoreDTO(store.getId(), store.getBuyingPolicy().toString(),
+                        store.getDiscountPolicy().toString(), getProductDTOlist(store.getProducts())));
+            }
+            Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
+        }catch(DatabaseFetchException e){
+            return new StoreActionResultDTO(ResultCode.ERROR_DATABASE, "coult not connet to database", null);
         }
-        Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
-
         return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
     }
 
@@ -808,20 +877,20 @@ public class System {
 
         List<String> productNames = new ArrayList<>();
         productNames.add(productName);
-        if (productName != null) {
+        if (!productName.equals("")) {
             List<String> productSugs = Spellchecker.getSuggestions(productName);
             if (productSugs != null) productNames.addAll(productSugs);
         }
 
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add(categoryName);
-        if (categoryName != null) {
+        if (!categoryName.equals("")) {
             List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
             if (categorySugs != null) categoryNames.addAll(categorySugs);
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (keywords != null) {
+        if (!keywords.equals("")) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
@@ -829,10 +898,12 @@ public class System {
             }
         }
 
+        try {
+            for (Store store : DAOManager.loadAllStores())
+                if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+        }catch (DatabaseFetchException e){
 
-        for (Store store: stores.values())
-            if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
-
+        }
         for (ProductInStore pis: allProducts) {
             ProductInfo info = pis.getProductInfo();
             if (productName != null)
@@ -1173,10 +1244,10 @@ public class System {
     private void notifyStoreOwners(List<Integer> storesInCart) throws DatabaseFetchException {
         for(int storeId:storesInCart){
             List<Integer> managers = getStoreById(storeId).getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-            Notification notification = new Notification(notificationId++, "Somone Buy from store "+storeId);
+            Notification notification = new Notification(notificationId++, "Someone Buy from store "+storeId);
             updateAllUsers(getStoreById(storeId).getAllManagers(),notification);
             if(publisher!=null)
-                publisher.notify(managers,notification);
+                publisher.notify("/storeUpdate/",managers,notification);
         }
     }
 
@@ -1207,9 +1278,9 @@ public class System {
         return ongoingPurchases;
     }
 
-    public boolean requestRefund(int sessionId) {
-        logger.info("requestRefund: sessionId " + sessionId);
-        return paymentHandler.requestRefund(sessionId, ongoingPurchases.get(sessionId));
+    public boolean requestRefund(int sessionId, int transactionId) {
+        logger.info("requestRefund: sessionId " + sessionId + ", transactionId " + transactionId);
+        return paymentHandler.requestRefund(transactionId).getResultCode() == ResultCode.SUCCESS;
     }
 
     public void restoreSupplies(int sessionId) throws DatabaseFetchException {
@@ -1324,12 +1395,12 @@ public class System {
     public void pullNotifications(int subId) {
         Subscriber subToLogin = userHandler.getSubscriber(subId);
         if (subToLogin != null) {
-            Queue<Notification> notifications = subToLogin.getAllNotification();
+            ArrayList<Notification> notifications = subToLogin.getAllNotification();
             List<Integer> user = new ArrayList<>();
             user.add(subToLogin.getId());
             synchronized (notifications) {
                 for(Notification notification:notifications){
-                    publisher.notify(user,notification);
+                    publisher.notify("/storeUpdate/",user,notification);
                 }
             }
         }
@@ -1517,7 +1588,7 @@ public class System {
             }
         }
         if(publisher!=null)
-            publisher.notify(users,message);
+            publisher.notify("/storeUpdate/",users,message);
     }
 
     public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
@@ -1613,5 +1684,27 @@ public class System {
     // for use only in test (SystemTest)
     public Map<Integer, Store> getStoresMemory() {
         return stores;
+    }
+
+    public StatisticsResultsDTO getStatistics(String from, String to) {
+        //TODO:Add function that query DB and return Proper DTO
+        //Tmp function for tests
+        List<DayStatistics> lst = new ArrayList<>();
+        lst.add(dailyStats);
+        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
+        //
+    }
+
+    private List<DailyStatsDTO> convertStatsToDTO(List<DayStatistics> list){
+      return  list.stream().map((stat)->new DailyStatsDTO(stat.getDate(),stat.getGuests(),stat.getRegularSubs()
+        ,stat.getManagersNotOwners(),stat.getManagersOwners(),stat.getAdmins())).collect(Collectors.toList());
+    }
+
+    public DayStatistics getDailyStats() {
+        return dailyStats;
+    }
+
+    public void clearStats() {
+        dailyStats.reset();
     }
 }

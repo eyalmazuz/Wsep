@@ -1,5 +1,6 @@
 package DataAccess;
 
+import DTOs.Notification;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -11,7 +12,10 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -33,13 +37,14 @@ public class DAOManager {
     private static Dao<DiscountPolicy, String> discountPolicyDao;
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
     private static Dao<GrantingAgreement, String> grantingAgreementDao;
+    private static Dao<DayStatistics, String> dayStatisticsDao;
 
     private static boolean isOn;
     private static Queue<Runnable> toDo = new LinkedBlockingQueue<>();
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
-            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
+            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class, DayStatistics.class};
 
     public static void close() {
         isOn = false;
@@ -71,6 +76,7 @@ public class DAOManager {
             discountPolicyDao = DaoManager.createDao(connectionSource, DiscountPolicy.class);
             simpleDiscountDao = DaoManager.createDao(connectionSource, SimpleDiscountDTO.class);
             grantingAgreementDao = DaoManager.createDao(connectionSource, GrantingAgreement.class);
+            dayStatisticsDao = DaoManager.createDao(connectionSource, DayStatistics.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
 
@@ -460,6 +466,8 @@ public class DAOManager {
         }
         subscriber.setStorePurchaseLists(storePurchaseLists);
 
+        shameshameshame(subscriber);
+
         Map<Integer, Permission> permissionMap = new HashMap<>();
         for (Permission permission : loadSubscriberPermissions(subscriber.getId())) {
             permissionMap.put(permission.getStore().getId(), permission);
@@ -467,6 +475,8 @@ public class DAOManager {
         subscriber.setPermissions(permissionMap);
 
     }
+
+
 
     private static List<Permission> loadSubscriberPermissions(int id) throws DatabaseFetchException {
         QueryBuilder<Permission, String> queryBuilder = permissionDao.queryBuilder();
@@ -564,6 +574,33 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    //https://gph.is/2rQSwV2
+    private static void shameshameshame(Subscriber subscriber) {
+        ArrayList<Notification> notifications = new ArrayList<Notification>();
+        for(int i = 0; i < subscriber.getAllNotification().size(); i++){
+            final Object source = subscriber.getAllNotification().get(i);
+
+            Method method = null;
+            Method method2 = null;
+            try {
+                method = source.getClass().getMethod("getId");
+                Integer id = (Integer)method.invoke(source);
+                method2 = source.getClass().getMethod("getMassage");
+                String massage = (String)method2.invoke(source);
+                notifications.add(new Notification(id, massage));
+
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+        }
+        subscriber.setNotificationQueue(notifications);
     }
 
     public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
@@ -827,7 +864,7 @@ public class DAOManager {
 
     public static int getMaxBuyingPolicyId() {
         try {
-            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingpolicies");
+            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -836,7 +873,7 @@ public class DAOManager {
 
     public static int getMaxDiscountPolicyId() {
         try {
-            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountpolicies");
+            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -972,4 +1009,47 @@ public class DAOManager {
         return null;
     }
 
+    public static void updateDayStatistics(DayStatistics dayStatistics) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.update(dayStatistics);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateDayStatistics(dayStatistics);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DayStatistics getDayStatisticsByDay(LocalDate localDate) {
+        Date date = java.sql.Date.valueOf(localDate);
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(date);
+        Where<DayStatistics, String> where = queryBuilder.where();
+        try {
+            where.eq("date", selectArg);
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> dayStatistics = dayStatisticsDao.query(query);
+            if (dayStatistics.isEmpty()) return null;
+            return dayStatistics.get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void addDayStatistics(DayStatistics stats) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.create(stats);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addDayStatistics(stats);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

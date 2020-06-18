@@ -51,3 +51,21 @@ function disconnect() {
     setConnected(false);
     console.log("Disconnected");
 }
+
+async function connectStatistics() {
+    var socket = new SockJS('https://localhost:8443/notifications');
+    stompClient = Stomp.over(socket);
+    await stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
+            recieveNotification(message)
+        });
+        stompClient.subscribe('/statsUpdate/0' , function (data) {
+            console.log("got push data")
+            drawChart(data)
+        });
+        sendReadyForNotificaitons()
+
+    });
+
+}

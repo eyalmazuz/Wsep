@@ -70,8 +70,9 @@ public abstract class ServiceTest extends TestCase {
         return bridge.clearCart(sessionId);
     }
 
-    public boolean buyCart(int sessionId, String paymentDetails){
-        return bridge.buyCart(sessionId, paymentDetails);
+    public boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip){
+        return bridge.buyCart(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId, buyerName, address, city, country, zip);
     }
 
     public boolean logout(int sessionId){ return bridge.logout(sessionId); }

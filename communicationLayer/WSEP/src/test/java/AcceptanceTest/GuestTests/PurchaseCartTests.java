@@ -2,6 +2,9 @@ package AcceptanceTest.GuestTests;
 
 import AcceptanceTest.Data.Database;
 import AcceptanceTest.ServiceTest;
+import Domain.BGUExternalSystems.PaymentSystem;
+import Domain.TradingSystem.PaymentHandler;
+import Domain.TradingSystem.PaymentSystemProxy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +54,8 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertTrue(buyCart(Database.sessionId, "Good payment details"));
+        assertTrue(buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345"));
     }
 
     @Test
@@ -67,7 +71,8 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId, "Good payment details"));
+        assertFalse(buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345"));
 
     }
 
@@ -79,19 +84,8 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 500);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 500);
-        assertFalse(buyCart(Database.sessionId, "Good payment details"));
-
-    }
-
-    @Test
-    public void testPurchaseFailureInvalidDetails(){
-
-        setupSystem("Mock Config", "Mock Config","");
-        Database.sessionId = startSession();
-
-        addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
-        addToCart(Database.sessionId, Database.userToStore.get("chika"),3, 5);
-        assertFalse(buyCart(Database.sessionId, "Bad payment details"));
+        assertFalse(buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345"));
 
     }
 
@@ -103,7 +97,8 @@ public class PurchaseCartTests extends ServiceTest {
 
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId, "Good payment details"));
+        assertFalse(buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345"));
     }
 
     @Test
@@ -112,9 +107,11 @@ public class PurchaseCartTests extends ServiceTest {
         setupSystem("Mock Config", "No payments","");
         Database.sessionId = startSession();
 
+        PaymentSystemProxy.testing = true;
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        assertFalse(buyCart(Database.sessionId, "Good payment details"));
+        assertFalse(buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345"));
     }
 
 
