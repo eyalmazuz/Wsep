@@ -1211,15 +1211,6 @@ public class SystemTests extends TestCase {
         assertEquals(1,test.getDailyStats().getGuests());
     }
 
-//    @Test
-//    public void testStats() {
-//        test.addDayStatistics(2020, 6, 3);
-//        test.addDayStatistics(2019, 5, 10);
-//
-//        StatisticsResultsDTO a = test.getStatistics("03.03.2019", "10.05.2021");
-//
-//    }
-
     @Test
     public void testStatisticsSubscriberLogin(){
         setUpStatsTests();

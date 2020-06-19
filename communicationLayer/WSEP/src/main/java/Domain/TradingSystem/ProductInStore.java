@@ -84,4 +84,13 @@ public class ProductInStore {
     public void setProductInfo(ProductInfo productInfo) {
         this.productInfo = productInfo;
     }
+
+    public boolean equals(Object other) {
+        if (other instanceof ProductInStore) {
+            boolean a = ((ProductInStore) other).getProductInfoId() == getProductInfoId();
+            boolean b = ((ProductInStore) other).getStore().equals(getStore());
+            return a && b;
+        }
+        return false;
+    }
 }

@@ -39,7 +39,6 @@ public class SearchProductTests extends ServiceTest {
     @Test
     public void testSearchProductSuccessful(){
         String products = searchProducts(Database.sessionId, "UO", null, null, -1, -1, 0, 0);
-        System.out.println(products);
         assertNotNull(products);
     }
 
