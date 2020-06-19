@@ -1646,13 +1646,16 @@ public class System {
 
     public StatisticsResultsDTO getStatistics(String from, String to) {
 
+        logger.info("requests statistics from: " + from + " to: " + to);
         // DD.MM.YYYY
-        int fromDay = Integer.valueOf(from.substring(0, 2));
-        int fromMonth = Integer.valueOf(from.substring(3, 5));
-        int fromYear = Integer.valueOf(from.substring(6, 10));
-        int toDay = Integer.valueOf(to.substring(0, 2));
-        int toMonth = Integer.valueOf(to.substring(3, 5));
-        int toYear = Integer.valueOf(to.substring(6, 10));
+        int fromDay = Integer.valueOf(from.substring(8, 10));
+        int fromMonth = Integer.valueOf(from.substring(5, 7));
+        int fromYear = Integer.valueOf(from.substring(0, 4));
+        int toDay = Integer.valueOf(to.substring(8, 10));
+        int toMonth = Integer.valueOf(to.substring(5, 7));
+        int toYear = Integer.valueOf(to.substring(0, 4));
+
+        java.lang.System.out.println(String.format("from: %s-%s-%s, to: %s-%s-%S", fromYear, fromMonth, fromDay, toYear, toMonth, toDay));
 
         List<DayStatistics> results = DAOManager.getStatisticsBetween(LocalDate.of(fromYear, fromMonth, fromDay), LocalDate.of(toYear, toMonth, toDay));
 
