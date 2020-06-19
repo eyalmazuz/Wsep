@@ -52,6 +52,7 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+
 async function connectStatistics() {
     var socket = new SockJS('https://localhost:8443/notifications');
     stompClient = Stomp.over(socket);
@@ -60,9 +61,20 @@ async function connectStatistics() {
         stompClient.subscribe('/storeUpdate/' + sessionStorage['subId'], function (message) {
             recieveNotification(message)
         });
-        stompClient.subscribe('/statsUpdate/0' , function (data) {
+        stompClient.subscribe('/statsUpdate/0' , function (message) {
             console.log("got push data")
-            drawChart(data)
+            data = JSON.parse(message.body)
+            var date = new Date()
+            var today = '';
+            today += date.getFullYear()
+            today += date.getMonth() < 10 ? '-0' + (date.getMonth() + 1) : '-' + (date.getMonth()+1)
+            today += '-' + date.getDate()
+            console.log(today)
+            console.log(sessionStorage['toDate'])
+            if(sessionStorage['toDate'] === today){
+                updateChart(data);
+            }
+            // drawChart(data)
         });
         sendReadyForNotificaitons()
 
