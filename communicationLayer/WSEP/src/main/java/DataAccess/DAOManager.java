@@ -647,7 +647,7 @@ public class DAOManager {
             Runnable action = () -> addSubscriber(subscriberState);
             toDo.add(action);
         } catch (SQLException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
 
     }

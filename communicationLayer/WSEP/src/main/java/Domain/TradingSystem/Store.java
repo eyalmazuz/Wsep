@@ -16,11 +16,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @DatabaseTable(tableName = "stores")
 public class Store {
 
-    public static int globalId = 0;
+    public static AtomicInteger globalId = new AtomicInteger(0);
 
     @DatabaseField(id = true)
     private int id;
@@ -58,9 +59,8 @@ public class Store {
 
 
     public Store(){
-        this.id = globalId;
+        this.id = globalId.incrementAndGet();
         this.name = "";
-        globalId ++;
         managers = new ArrayList<>();
         managerIds = new ArrayList<>();
         DAOManager.createProductInStoreListForStore(this);

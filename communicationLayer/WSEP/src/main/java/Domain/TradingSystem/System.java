@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class System {
@@ -52,7 +53,7 @@ public class System {
         logger = new SystemLogger();
         products = new ConcurrentHashMap<>();
 
-        User.idCounter = DAOManager.getMaxSubscriberId() + 1;
+        User.idCounter = new AtomicInteger(DAOManager.getMaxSubscriberId() + 1);
         PurchaseDetails.nextPurchaseId = DAOManager.getMaxPurchaseDetailsId() + 1;
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
@@ -251,7 +252,7 @@ public class System {
         }
     }
 
-    public IntActionResultDto startSession(){
+    public  IntActionResultDto startSession(){
         logger.info("startSession: no arguments");
         int sessionId =userHandler.createSession();
         updateStats(sessionId);

@@ -12,6 +12,8 @@ public class UserHandler {
 
     Map<Integer, Subscriber> subscribers;
     Map<Integer, User> users;
+    Object subscribeLock = new Object();
+    Object usersLock = new Object();
 
     public UserHandler(){
         subscribers = new HashMap<>();
@@ -45,21 +47,25 @@ public class UserHandler {
         if(username==null || password == null){
             return -1;
         }
+        synchronized (username.intern()) {
+            for (Subscriber sub : subscribers.values()) {
+                if (sub.getUsername().equals(username))
+                    return -1;
+            }
 
-        for (Subscriber sub: subscribers.values()) {
-            if (sub.getUsername().equals(username))
+            if (DAOManager.subscriberExists(username)) {
                 return -1;
-        }
+            }
+            Subscriber subscriberState;
+            synchronized (subscribeLock) {
+                subscriberState = new Subscriber(username, password, false);
+                subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
+                subscribers.put(subscriberState.getId(), subscriberState);
+                DAOManager.addSubscriber(subscriberState);
+            }
 
-        if (DAOManager.subscriberExists(username)) {
-            return -1;
+            return subscriberState.getId();
         }
-
-        Subscriber subscriberState = new Subscriber(username, password, false);
-        subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
-        subscribers.put(subscriberState.getId(),subscriberState);
-        DAOManager.addSubscriber(subscriberState);
-        return subscriberState.getId();
     }
 
     public User getUser(int sessionId){
@@ -169,8 +175,11 @@ public class UserHandler {
     }
 
     public int createSession() {
-        User newUser = new User();
-        users.put(newUser.getId(),newUser);
+        User newUser;
+        synchronized (usersLock) {
+            newUser = new User();
+            users.put(newUser.getId(), newUser);
+        }
         return newUser.getId();
     }
 
