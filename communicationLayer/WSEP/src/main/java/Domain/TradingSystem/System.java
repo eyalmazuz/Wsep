@@ -549,7 +549,7 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
-    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
         if(newOwner.addPermission(store, owner, "Owner")){
             store.addOwner(newOwner);
 
@@ -1086,6 +1086,10 @@ public class System {
             return s.getId();
     }
 
+    public Subscriber getSubscriber(int subID){
+        return userHandler.getSubscriber(subID);
+    }
+
     public void setState(int sessionId, int subId) {
         logger.info("setState: sessionId " + sessionId + ", subId " + subId);
         userHandler.setState(sessionId, subId);
@@ -1528,17 +1532,7 @@ public class System {
     private void handleGrantingAgreements(int storeId) throws DatabaseFetchException {
         Store store = getStoreById(storeId);
         if(store != null){
-            Collection<GrantingAgreement> agreements = store.getAllGrantingAgreements();
-            for (GrantingAgreement agreement : agreements){
-                if (agreement.allAproved()){
-                    Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());
-                    Subscriber newOwner = userHandler.getSubscriber(agreement.getMalshabId());
-                    if (setStoreOwner(grantor, newOwner, store)) {
-                        store.removeAgreement(agreement.getMalshabId());
-                    }
-
-                }
-            }
+            store.handleGrantingAgreement();
         }
     }
 
@@ -1565,8 +1559,8 @@ public class System {
         }
         if(store != null){
             if(store.approveMalshab(owner.getId(),subId)){
-                if(store.allAproved(subId)){
-                    int grantorId = store.getAgreementGrantor(subId);
+                    int grantorId = store.allAproved(subId);
+                    if(grantorId!=-1){
                     if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
                         store.removeAgreement(subId);
                         return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
