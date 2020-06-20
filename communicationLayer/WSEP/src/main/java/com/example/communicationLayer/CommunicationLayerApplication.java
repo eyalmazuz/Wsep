@@ -50,4 +50,5 @@ public class CommunicationLayerApplication implements ApplicationListener<Applic
 	CommandLineRunner setup(SessionController sessionController){
 		return (x) -> sessionController.setup("supplyConfig", "paymentConfig", "initFile.txt");
 	}
+
 }

@@ -11,13 +11,11 @@ import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
 import com.j256.ormlite.dao.DaoManager;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
+// import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -210,7 +208,7 @@ public class System {
                         break;
 
                     default:
-                        throw new SyntaxException("Wrong syntax");
+                        throw new Exception("Wrong syntax");
 
 
                 }
@@ -251,9 +249,6 @@ public class System {
     }
 
     private void updateStats(int sessionId) {
-        if(!init)
-            return;
-
         if(!dailyStats.isToday()) {
             dailyStats = new DayStatistics(LocalDate.now());
             DAOManager.addDayStatistics(dailyStats);
@@ -840,20 +835,21 @@ public class System {
 
         List<String> productNames = new ArrayList<>();
         productNames.add(productName);
-        if (!productName.equals("")) {
+        if (productName != null) {
             List<String> productSugs = Spellchecker.getSuggestions(productName);
+
             if (productSugs != null) productNames.addAll(productSugs);
         }
 
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add(categoryName);
-        if (!categoryName.equals("")) {
+        if (categoryName != null) {
             List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
             if (categorySugs != null) categoryNames.addAll(categorySugs);
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (!keywords.equals("")) {
+        if (keywords != null) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
@@ -864,6 +860,13 @@ public class System {
         try {
             for (Store store : DAOManager.loadAllStores())
                 if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+            for (Store store : stores.values())
+                if (store.getRating() >= minStoreRating) {
+                    for (ProductInStore pis: store.getProducts()) {
+                        if (!allProducts.contains(pis)) allProducts.add(pis);
+                    }
+                }
+
         }catch (DatabaseFetchException e){
 
         }
@@ -1644,12 +1647,30 @@ public class System {
     }
 
     public StatisticsResultsDTO getStatistics(String from, String to) {
-        //TODO:Add function that query DB and return Proper DTO
-        //Tmp function for tests
-        List<DayStatistics> lst = new ArrayList<>();
-        lst.add(dailyStats);
-        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
-        //
+
+        logger.info("requests statistics from: " + from + " to: " + to);
+        // DD.MM.YYYY
+        int fromDay = Integer.valueOf(from.substring(8, 10));
+        int fromMonth = Integer.valueOf(from.substring(5, 7));
+        int fromYear = Integer.valueOf(from.substring(0, 4));
+        int toDay = Integer.valueOf(to.substring(8, 10));
+        int toMonth = Integer.valueOf(to.substring(5, 7));
+        int toYear = Integer.valueOf(to.substring(0, 4));
+
+        java.lang.System.out.println(String.format("from: %s-%s-%s, to: %s-%s-%S", fromYear, fromMonth, fromDay, toYear, toMonth, toDay));
+
+        List<DayStatistics> results = DAOManager.getStatisticsBetween(LocalDate.of(fromYear, fromMonth, fromDay), LocalDate.of(toYear, toMonth, toDay));
+
+        if (results == null)
+            return new StatisticsResultsDTO(ResultCode.ERROR_STATISTICS_BETWEEN, "Could not get day statistics between dates", null);
+        else return new StatisticsResultsDTO(ResultCode.SUCCESS, "statistics between " + from + " to " + to, convertStatsToDTO(results));
+
+
+//        //Tmp function for tests
+//        List<DayStatistics> lst = new ArrayList<>();
+//        lst.add(dailyStats);
+//        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
+//        //
     }
 
     private List<DailyStatsDTO> convertStatsToDTO(List<DayStatistics> list){
@@ -1663,5 +1684,10 @@ public class System {
 
     public void clearStats() {
         dailyStats.reset();
+    }
+
+    public void addDayStatistics(int year, int month, int day) {
+        DayStatistics stats = new DayStatistics(LocalDate.of(year, month, day));
+        DAOManager.addDayStatistics(stats);
     }
 }
