@@ -118,29 +118,43 @@ public class UserHandler {
      * @param owners - the users to exclude
      * @return a list of the remaining user id's
      */
-    public List<Subscriber> getAvailableUsersToOwn(List <Subscriber> owners) {
-
+    public List<Subscriber> getAvailableUsersToOwn(List <Subscriber> owners)  {
         List <Subscriber> availableSubs = new LinkedList<>();
         if(owners!=null) {
             List<Integer> ids = owners.stream().map(Subscriber::getId).collect(Collectors.toList());
-            for (Subscriber user : subscribers.values()) {
-                if (!ids.contains(user.getId()))
-                    availableSubs.add(user);
+            try {
+                for (Subscriber user : DAOManager.loadAllSubscribers() ){
+                    if (!ids.contains(user.getId()))
+                        availableSubs.add(user);
+                }
+            } catch (DatabaseFetchException e) {
+                e.printStackTrace();
             }
         }
         return availableSubs;
     }
 
-    public Subscriber getSubscriber(int subId) {
+    public Subscriber  getSubscriber(int subId) {
+        Subscriber inDB = null;
+        try {
+            inDB = DAOManager.getSubscriberByID(subId);
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        syncSubscribers(subscribers.get(subId),inDB);
         return subscribers.get(subId);
     }
 
     public List<Integer> getManagersOfCurUser(int storeId, int grantorId) {
         List <Integer> ans = new LinkedList<Integer>();
-        for (Subscriber user: subscribers.values()){
-            if (user.isGrantedBy(storeId,grantorId)){
-                ans.add(user.getId());
+        try {
+            for (Subscriber user: DAOManager.loadAllSubscribers()){
+                if (user.isGrantedBy(storeId,grantorId)){
+                    ans.add(user.getId());
+                }
             }
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
         }
         return ans;
     }
