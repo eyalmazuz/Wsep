@@ -29,7 +29,6 @@ public class ShopPermissionsTests extends ServiceTest {
         appointManager(Database.sessionId, sid_1, Database.userToId.get("ruby"));
         logout(Database.sessionId);
 
-        login(Database.sessionId, "chika", "12345");
     }
 
     @After
@@ -44,6 +43,8 @@ public class ShopPermissionsTests extends ServiceTest {
     //USECASES 4.6.1
     @Test
     public void testEditManagerOptionSuccessful(){
+
+        login(Database.sessionId, "chika", "12345");
         assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "add product"));
         assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "any"));
         assertTrue(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"delete product"));
@@ -52,9 +53,37 @@ public class ShopPermissionsTests extends ServiceTest {
     // TEST HERE SUPPOSE TO FAIL CAUSE NO IMPLEMENTATION YET
     @Test
     public void testEditManagerOptionFailureInvalidOption(){
+        login(Database.sessionId, "chika", "12345");
         assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "delete store"));
         assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"),"can break system"));
         assertFalse(editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("dia"), "can give free money"));
+    }
+
+    @Test
+    public void testPermissionFailCantAdd(){
+        logout(Database.sessionId);
+        Database.userToId.put("foo", register(Database.sessionId, "foo", "bar"));
+        login(Database.sessionId, "chika", "12345");
+        appointManager(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("foo"));
+        logout(Database.sessionId);
+        login(Database.sessionId, "foo", "bar");
+        assertFalse(addProductToStore(false, Database.sessionId, 5, Database.userToStore.get("chika"), 5));
+    }
+
+
+    @Test
+    public void testPermissionSucessCanAdd(){
+        boolean good;
+        Database.userToId.put("goo", register(Database.sessionId, "goo", "bar"));
+        login(Database.sessionId, "admin", "admin");
+        addProductInfo(Database.sessionId, 5, "bamba", "food", 10);
+        logout(Database.sessionId);
+        good = login(Database.sessionId, "chika", "12345");
+        good = appointManager(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("goo"));
+        good = editManagerOptions(Database.sessionId, Database.userToStore.get("chika"), Database.userToId.get("goo"), "add product");
+        good = logout(Database.sessionId);
+        good = login(Database.sessionId, "goo", "bar");
+        assertTrue(addProductToStore(false, Database.sessionId, 5, Database.userToStore.get("chika"), 5));
     }
 
 

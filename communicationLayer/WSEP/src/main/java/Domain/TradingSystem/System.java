@@ -886,7 +886,7 @@ public class System {
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (!keywords.equals("")) {
+        if (keywords != null) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);

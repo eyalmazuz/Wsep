@@ -659,6 +659,8 @@ public class DAOManager {
     }
 
     public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
+        if (subscriberDao == null)
+            return null;
         List<Subscriber> subscribers = null;
         try {
             subscribers = subscriberDao.queryForAll();
@@ -890,6 +892,8 @@ public class DAOManager {
     }
 
     public static int getMaxSubscriberId() {
+        if(subscriberDao == null)
+            return -2;
         try {
             return subscriberDao.countOf() == 0 ? -1 : (int) subscriberDao.queryRawValue("SELECT MAX(id) FROM subscribers");
         } catch (SQLException e) {
@@ -937,6 +941,8 @@ public class DAOManager {
 
 
     public static boolean subscriberExists(String username) {
+        if(subscriberDao == null)
+            return false;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -953,12 +959,37 @@ public class DAOManager {
     }
 
     public static Subscriber getSubscriberByUsername(String username) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
         Where<Subscriber, String> where = queryBuilder.where();
         try {
             where.eq("username", selectArg);
+            PreparedQuery<Subscriber> query = queryBuilder.prepare();
+            List<Subscriber> subscribers = subscriberDao.query(query);
+            if (subscribers.isEmpty()) return null;
+            Subscriber subscriber = subscribers.get(0);
+            fixSubscriber(subscriber);
+            return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Subscriber getSubscriberByID(int subID) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
+        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(subID);
+        Where<Subscriber, String> where = queryBuilder.where();
+        try {
+            where.eq("id", selectArg);
             PreparedQuery<Subscriber> query = queryBuilder.prepare();
             List<Subscriber> subscribers = subscriberDao.query(query);
             if (subscribers.isEmpty()) return null;
