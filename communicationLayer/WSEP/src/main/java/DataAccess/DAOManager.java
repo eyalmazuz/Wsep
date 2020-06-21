@@ -429,6 +429,10 @@ public class DAOManager {
             pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
         }
 
+        for(PurchaseDetails detail : store.getStorePurchaseHistory()){
+            shameshameshame2(detail);
+        }
+
         BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
         if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
 
@@ -442,6 +446,51 @@ public class DAOManager {
             managers.add(manager);
         }
         store.setManagers(managers);
+    }
+
+    //https://gph.is/2rQSwV2
+    private static void shameshameshame2(PurchaseDetails details) {
+        HashMap<ProductInfo, Integer> products = new HashMap<>();
+        for(Map.Entry<ProductInfo, Integer> prodcut2amount : details.getProducts().entrySet()){
+            final Object source = prodcut2amount.getKey();
+
+            Method method = null;
+            Method method2 = null;
+            Method method3 = null;
+            Method method4 = null;
+            Method method5 = null;
+            Method method6 = null;
+            try {
+                method = source.getClass().getMethod("getId");
+                Integer id = (Integer)method.invoke(source);
+
+                method2 = source.getClass().getMethod("getName");
+                String name = (String)method2.invoke(source);
+
+                method3 = source.getClass().getMethod("getCategory");
+                String categoty = (String)method3.invoke(source);
+
+                method4 = source.getClass().getMethod("getRating");
+                double rating = (Double)method4.invoke(source);
+
+                method5 = source.getClass().getMethod("getDefaultPrice");
+                double defaultPrice = (Double)method5.invoke(source);
+
+                ProductInfo newInfo = new ProductInfo(id, name, categoty, defaultPrice);
+                newInfo.setRating(rating);
+
+                products.put(newInfo, prodcut2amount.getValue());
+
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+        }
+        details.setProducts(products);
     }
 
     public static List<Store> loadAllStores() throws DatabaseFetchException {
@@ -463,8 +512,11 @@ public class DAOManager {
         for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
             List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
             List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
-            for (Integer purchaseDetailsId : purchaseDetailsIds)
-                purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
+            for (Integer purchaseDetailsId : purchaseDetailsIds) {
+                PurchaseDetails details = loadPurchaseDetails(purchaseDetailsId);
+                shameshameshame2(details);
+                purchaseDetailsList.add(details);
+            }
             storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
         }
         subscriber.setStorePurchaseLists(storePurchaseLists);
@@ -858,7 +910,7 @@ public class DAOManager {
 
     public static int getMaxPurchaseDetailsId() {
         try {
-            return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchasedetails");
+            return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchaseDetails");
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -63,6 +63,12 @@ async function showAddManager(){
     possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
 
+    var x = document.getElementById("managerSelect");
+
+    for(i = x.length-1; i >= 0; i--) {
+        x.remove(i);
+     }
+
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
