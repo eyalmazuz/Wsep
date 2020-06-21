@@ -973,6 +973,27 @@ public class DAOManager {
         return null;
     }
 
+    public static Subscriber getSubscriberByID(int subID) throws DatabaseFetchException {
+        QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(subID);
+        Where<Subscriber, String> where = queryBuilder.where();
+        try {
+            where.eq("id", selectArg);
+            PreparedQuery<Subscriber> query = queryBuilder.prepare();
+            List<Subscriber> subscribers = subscriberDao.query(query);
+            if (subscribers.isEmpty()) return null;
+            Subscriber subscriber = subscribers.get(0);
+            fixSubscriber(subscriber);
+            return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static int getNumShoppingCarts() {
         try {
             return shoppingCartDao.queryForAll().size();
