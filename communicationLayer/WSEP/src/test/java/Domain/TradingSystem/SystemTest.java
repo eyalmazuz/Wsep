@@ -33,6 +33,7 @@ public class SystemTest extends TestCase {
 
         stores.put(1,new StoreMock(1));
         stores.put(2,new StoreMock(2));
+
         test.setStores(stores);
 
     }
@@ -334,17 +335,26 @@ class StoreMock extends Store{
 
     @Override
     public void removeProductAmount(Integer productId, Integer amount) {
+        if (amount < 0) return;
         for (ProductInStore product : getProducts()) {
             int id = product.getProductInfoId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
-                if (newAmount == 0) {
-                    getProducts().remove(product);
-                } else {
-                    product.setAmount(newAmount);
+                if (newAmount>=0) {
+                    if (newAmount == 0) {
+                        getProducts().remove(product);
+                    } else {
+                        product.setAmount(newAmount);
+                    }
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof StoreMock) return ((StoreMock) other).getId() == id;
+        return false;
     }
 }
 
