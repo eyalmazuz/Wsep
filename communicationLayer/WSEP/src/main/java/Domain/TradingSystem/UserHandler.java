@@ -56,7 +56,11 @@ public class UserHandler {
         }
 
         Subscriber subscriberState = new Subscriber(username, password, false);
-        subscriberState.setId(DAOManager.getMaxSubscriberId() + 1);
+        int id = DAOManager.getMaxSubscriberId();
+        if(id == -2){
+            id = subscribers.size();
+        }
+        subscriberState.setId(id + 1);
         subscribers.put(subscriberState.getId(),subscriberState);
         DAOManager.addSubscriber(subscriberState);
         return subscriberState.getId();
@@ -73,7 +77,7 @@ public class UserHandler {
                 cachedSub = sub;
         }
         Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
-        if (subscriber == null)  return null;
+        if (subscriber == null)  return cachedSub;
         if (subscriber.getHashedPassword().equals(hashedPassword)) {
             syncSubscribers(cachedSub,subscriber);
             return subscribers.get(subscriber.getId());
@@ -123,7 +127,10 @@ public class UserHandler {
         if(owners!=null) {
             List<Integer> ids = owners.stream().map(Subscriber::getId).collect(Collectors.toList());
             try {
-                for (Subscriber user : DAOManager.loadAllSubscribers() ){
+                List<Subscriber> allSubs = DAOManager.loadAllSubscribers();
+                if(allSubs == null)
+                    allSubs = subscribers.values().stream().collect(Collectors.toList());
+                for (Subscriber user :  allSubs){
                     if (!ids.contains(user.getId()))
                         availableSubs.add(user);
                 }
@@ -141,14 +148,18 @@ public class UserHandler {
         } catch (DatabaseFetchException e) {
             e.printStackTrace();
         }
-        syncSubscribers(subscribers.get(subId),inDB);
+        if(inDB != null)
+            syncSubscribers(subscribers.get(subId),inDB);
         return subscribers.get(subId);
     }
 
     public List<Integer> getManagersOfCurUser(int storeId, int grantorId) {
         List <Integer> ans = new LinkedList<Integer>();
         try {
-            for (Subscriber user: DAOManager.loadAllSubscribers()){
+            List<Subscriber> allSubs = DAOManager.loadAllSubscribers();
+            if(allSubs == null)
+                allSubs = subscribers.values().stream().collect(Collectors.toList());
+            for (Subscriber user :  allSubs){
                 if (user.isGrantedBy(storeId,grantorId)){
                     ans.add(user.getId());
                 }

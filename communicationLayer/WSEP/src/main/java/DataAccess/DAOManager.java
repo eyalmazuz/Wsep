@@ -659,6 +659,8 @@ public class DAOManager {
     }
 
     public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
+        if (subscriberDao == null)
+            return null;
         List<Subscriber> subscribers = null;
         try {
             subscribers = subscriberDao.queryForAll();
@@ -890,6 +892,8 @@ public class DAOManager {
     }
 
     public static int getMaxSubscriberId() {
+        if(subscriberDao == null)
+            return -2;
         try {
             return subscriberDao.countOf() == 0 ? -1 : (int) subscriberDao.queryRawValue("SELECT MAX(id) FROM subscribers");
         } catch (SQLException e) {
@@ -937,6 +941,8 @@ public class DAOManager {
 
 
     public static boolean subscriberExists(String username) {
+        if(subscriberDao == null)
+            return false;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -953,6 +959,8 @@ public class DAOManager {
     }
 
     public static Subscriber getSubscriberByUsername(String username) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -974,6 +982,8 @@ public class DAOManager {
     }
 
     public static Subscriber getSubscriberByID(int subID) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(subID);
