@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConcurrencyTest extends TestCase {
     //System Unitesting
     System test;
-    private final static int THREADS=30;
+    private final static int THREADS=10;
     private int sessionId;
     private int store1Id;
     private ProductInfo info;
@@ -50,18 +50,18 @@ public class ConcurrencyTest extends TestCase {
         test.clearStats();
         DAOManager.clearDatabase();
     }
-/*
+
     @Test
     public void testBuyProductsMultipleBuys(){
         int storeId = setUpStoreWithAmount(100);
         AtomicInteger doneCount = new AtomicInteger(0);
         List<Thread> threadList = new ArrayList();
-        for(int i = 0;i<10;i++) {
+        for(int i = 0;i<THREADS;i++) {
             Thread t1 = new Thread(() -> {
                 int id = test.startSession().getId();
                 test.addToCart(id, storeId, 69, 5);
                 try {
-                    confirmPurchase(sessionId, false);
+                    confirmPurchase(id, false);
                 } catch (DatabaseFetchException e) {
                     e.printStackTrace();
                 }
@@ -72,7 +72,7 @@ public class ConcurrencyTest extends TestCase {
         for(Thread t : threadList){
             t.start();
         }
-        while(doneCount.get()<10){
+        while(doneCount.get()<THREADS){
 
         }
 
@@ -80,6 +80,14 @@ public class ConcurrencyTest extends TestCase {
     }
 
     private int setUpStoreWithAmount(int amount) {
+        try {
+            paymentHandler = new PaymentHandler("None");
+            test.setPaymentHandler(paymentHandler);
+            supplyHandler = new SupplyHandler("None");
+            test.setSupplyHandler(supplyHandler);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         int id = test.startSession().getId();
         test.register(id,"master","1234");
         try {
@@ -122,7 +130,10 @@ public class ConcurrencyTest extends TestCase {
         test.removeOngoingPurchase(sessionId);
 
     }
-*/
+
+
+
+    /// PASSED TESTS////
 
     @Test
     public void testRegistermultipleTimes(){
@@ -183,11 +194,10 @@ public class ConcurrencyTest extends TestCase {
 
     @Test
     public void testStartMultipleSessions(){
-        int numTherds = 30;
         List<Thread> threads = new ArrayList<>();
         AtomicInteger count = new AtomicInteger(0);
         Map<Integer,Integer> idsCount = new ConcurrentHashMap<>();
-        for(int i = 0;i<numTherds;i++){
+        for(int i = 0;i<THREADS;i++){
             Thread t = new Thread(()->{
                 int id = test.startSession().getId();
                 if(idsCount.get(id)== null){
@@ -203,7 +213,7 @@ public class ConcurrencyTest extends TestCase {
         for(Thread t : threads){
             t.start();
         }
-        while(count.get()<numTherds){}
+        while(count.get()<THREADS){}
         for(Integer val : idsCount.values()) {
             assertEquals(new Integer(1), val);
         }
@@ -214,7 +224,7 @@ public class ConcurrencyTest extends TestCase {
     public void testOpenMultipleStores(){
         List<Thread> threads = new ArrayList<>();
         AtomicInteger count = new AtomicInteger(0);
-        AtomicInteger nameId = new AtomicInteger(0);
+        AtomicInteger nameId = new AtomicInteger(1);
         Map<Integer,Integer> idsCount = new ConcurrentHashMap<>();
         for(int i = 0;i<THREADS;i++){
             Thread t = new Thread(()->{
@@ -227,6 +237,9 @@ public class ConcurrencyTest extends TestCase {
                     e.printStackTrace();
                 }
                 int storeId = test.openStore(id).getId();
+                if(storeId == -1){
+                    java.lang.System.out.println("Failed to open store username = "+name);
+                }
 
                 if(idsCount.get(storeId)== null){
                     idsCount.put(storeId,1);

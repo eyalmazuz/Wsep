@@ -224,7 +224,7 @@ public class Store {
     public boolean setProductAmount(Integer productId, int amount) throws DatabaseFetchException {
         synchronized (products) {
             if (amount == 0) products.removeIf(pis -> pis.getProductInfoId() == productId);
-            else if (amount>0) {
+            else if (amount > 0) {
                 boolean productExists = false;
                 for (ProductInStore pis : products) {
                     if (productId == pis.getProductInfoId()) {
@@ -234,12 +234,12 @@ public class Store {
                     }
                 }
                 if (!productExists) addProduct(System.getInstance().getProductInfoById(productId), amount);
-            }
-            else
+            } else
                 return false;
+
+            DAOManager.updateStore(this);
+            return true;
         }
-        DAOManager.updateStore(this);
-        return true;
     }
 
     public ProductInStore getProductInStoreById(int id) {
