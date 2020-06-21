@@ -67,6 +67,8 @@ async function login(){
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
         }
+
+        location.reload();
     
 }
 
@@ -95,7 +97,7 @@ async function logout(){
             sessionStorage['subId'] = '-1'
 
         }
-        location.reload()
+        location.href = 'index.html'
 
     }
 }

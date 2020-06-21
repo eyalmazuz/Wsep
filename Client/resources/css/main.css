@@ -45,6 +45,16 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+	width: 50%;
+	height: 100%;
+}
+
+th{
+	font-size: 133%;
+}
+
+td {
+	font-size: 133%;
 }
 
 
@@ -52,12 +62,34 @@ table {
 	text-align: center;
 }
 
+/* .darkmode{
+	background-color: black;
+} */
+
 .title {
 	color: #cf1c1c;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
-	/* size: 0.03%; */
+	font-size: 200.0%;
 }
+
+.banner {
+	color: #cf1c1c;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 200.0%;
+	text-align: center;
+}
+
+.BIGtitle {
+	color: black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 1000.0%;
+	text-align: center;
+}
+
+
 
 .login {
 	text-align: right;
@@ -107,21 +139,30 @@ input[type=password]:focus {
 	color: #FFF200;
 	border: none;
 	cursor: pointer;
-	padding: 14px 20px;
-	margin: 0.07%;
-	size: 0.08%;
+	padding: 20px 28px;
+	font-size: large;
+	margin: 0.07%;	
+	/* size: 0.1%; */
 }
+
+
+.buttons {
+	/* display: flex; */
+	justify-content: center;
+	align-items: center;
+	height: 200px;
+  }
 
 /* Add a hover effect for buttons */
 button:hover {
 	opacity: 0.8;
 }
 
-/* Add a hover effect for buttons */
+/* Add a hover effect for buttons
 button:active {
 	background-color: #888;
 	opacity: 0.8;
-}
+} */
 
 /* Extra style for the cancel button (red) */
 .cancelbtn {
