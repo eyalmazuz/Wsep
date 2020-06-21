@@ -67,24 +67,49 @@ public class UserHandler {
     }
 
     public Subscriber getSubscriberUser(String username, String hashedPassword) throws DatabaseFetchException {
+        Subscriber cachedSub = null;
         for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username) && sub.getHashedPassword().equals(hashedPassword))
-                return sub;
+                cachedSub = sub;
         }
         Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
-        if (subscriber == null) return null;
-        if (subscriber.getHashedPassword().equals(hashedPassword)) return subscriber;
+        if (subscriber == null)  return null;
+        if (subscriber.getHashedPassword().equals(hashedPassword)) {
+            syncSubscribers(cachedSub,subscriber);
+            return subscribers.get(subscriber.getId());
+        }
+
         return null;
     }
 
+    /**
+     * Check if the DB version of subscriber is more updates and if so update subscribers list.
+     * @param cachedSub
+     * @param DBsub
+     */
+    private void syncSubscribers(Subscriber cachedSub, Subscriber DBsub) {
+        if(cachedSub == null)
+            subscribers.put(DBsub.getId(),DBsub);
+        else
+        if(DBsub.getpVersion() > cachedSub.getpVersion()){
+            subscribers.put(DBsub.getId(),DBsub);
+        }
+    }
+
     public Subscriber getSubscriberUser(String username) throws DatabaseFetchException {
+        Subscriber cachedSub = null;
         for (Subscriber sub: subscribers.values()) {
             if (sub.getUsername().equals(username))
-                return sub;
+                cachedSub = sub;
         }
+
         Subscriber subscriber = DAOManager.getSubscriberByUsername(username);
-        if(subscriber != null) subscribers.put(subscriber.getId(), subscriber);
-        return subscriber;
+
+        if(subscriber != null) {
+            syncSubscribers(cachedSub, subscriber);
+            return subscribers.get(subscriber.getId());
+        }
+        return null;
     }
 
 

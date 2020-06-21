@@ -1013,7 +1013,7 @@ public class SystemTests extends TestCase {
             FileWriter file = new FileWriter("initFile.txt",false);
             file.write("register(u1);\nregister(u2);\nregister(u3);\nregister(u4);\nregister(u5);\nregister(u6);\n"+
                     "set-admin(u1);\nopen-store(u2,s1);\nadd-product(u2,s1,diapers,20,30);\n"+
-                    "appoint-manager(u2,s1,u3,manage-inventory);\nappoint-manager(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
+                    "appoint-owner(u2,s1,u3,manage-inventory);\nappoint-owner(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
             file.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -476,6 +476,7 @@ public class DAOManager {
             permissionMap.put(permission.getStore().getId(), permission);
         }
         subscriber.setPermissions(permissionMap);
+
     }
 
 
@@ -501,8 +502,10 @@ public class DAOManager {
     private static Subscriber loadSubscriber(Integer managerId) throws DatabaseFetchException {
         try {
             Subscriber subscriber = subscriberDao.queryForId(Integer.toString(managerId));
-            fixSubscriber(subscriber);
-            return subscriber;
+           if(subscriber!=null) {
+               fixSubscriber(subscriber);
+               return subscriber;
+           }
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
@@ -655,12 +658,20 @@ public class DAOManager {
     public static void updateSubscriber(Subscriber subscriber) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
-            subscriberDao.update(subscriber);
+            Subscriber dbVersion = DAOManager.loadSubscriber(subscriber.getId());
+            if( (dbVersion==null) ||(dbVersion.getpVersion() == subscriber.getpVersion())) {
+                subscriber.incpVersion();
+                subscriberDao.update(subscriber);
+            }
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> updateSubscriber(subscriber);
+            Runnable action = () -> {
+                    updateSubscriber(subscriber);
+            };
             toDo.add(action);
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (DatabaseFetchException e) {
             e.printStackTrace();
         }
     }

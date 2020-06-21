@@ -47,6 +47,9 @@ public class Subscriber implements UserState {
 
     private Object permissionLock;
 
+    @DatabaseField
+    private int pVersion;
+
     public Subscriber() {
         notificationQueue = new ArrayList<>();
         permissions = new HashMap<>();
@@ -54,6 +57,7 @@ public class Subscriber implements UserState {
         shoppingCart = new ShoppingCart(user);
         this.id = idCounter;
         idCounter++;
+        this.pVersion=0;
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
@@ -434,5 +438,12 @@ public class Subscriber implements UserState {
 
         this.notificationQueue.addAll(notifications);
 
+    }
+    public int getpVersion() {
+        return pVersion;
+    }
+
+    public void incpVersion() {
+        this.pVersion++;
     }
 }
