@@ -72,6 +72,10 @@ public class PurchaseDetails {
         return price;
     }
 
+    public void setProducts(HashMap<ProductInfo, Integer> products) {
+        this.products = products;
+    }
+
     @Override
     public String toString() {
         String output = "";

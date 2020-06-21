@@ -581,7 +581,7 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
-    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
         if(newOwner.addPermission(store, owner, "Owner")){
             store.addOwner(newOwner);
 
@@ -872,7 +872,7 @@ public class System {
 
         List<String> productNames = new ArrayList<>();
         productNames.add(productName);
-        if (productName != null) {
+        if (!productName.equals("")) {
             List<String> productSugs = Spellchecker.getSuggestions(productName);
 
             if (productSugs != null) productNames.addAll(productSugs);
@@ -880,13 +880,13 @@ public class System {
 
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add(categoryName);
-        if (categoryName != null) {
+        if (!categoryName.equals("")) {
             List<String> categorySugs = Spellchecker.getSuggestions(categoryName);
             if (categorySugs != null) categoryNames.addAll(categorySugs);
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (keywords != null) {
+        if (!keywords.equals("")) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
