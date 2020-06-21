@@ -49,10 +49,16 @@ public class PaymentSystem implements IPaymentSystem {
         params.add(new BasicNameValuePair("id", cardId));
 
         String response = send(params);
+        int statusCode = 0;
+        try{
+            statusCode = Integer.parseInt(response);
+        }catch(NumberFormatException e){
+            statusCode = -1;
+        }
         if (response == null) return new IntActionResultDto(ResultCode.ERROR_PAYMENT_SYSTEM_UNAVAILABLE, "Could not contact payment system. Please try again later.", -1);
-        return response.equals("-1") ?
+        return statusCode == -1 ?
                 new IntActionResultDto(ResultCode.ERROR_PAYMENT_DENIED, "Payment system denied payment.", -1) :
-                new IntActionResultDto(ResultCode.SUCCESS, null, Integer.parseInt(response));
+                new IntActionResultDto(ResultCode.SUCCESS, null, statusCode);
     }
 
     @Override
