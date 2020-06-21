@@ -49,7 +49,14 @@ async function login(){
             sessionStorage['username'] = username
             sessionStorage['subId'] = result['id']
             await connect() //.then(result => sendReadyForNotificaitons())
-            if(username === 'admin' && password === "admin"){
+            
+            registerURL = 'https://localhost:8443/isAdmin?sessionId=' + sessionStorage['sessionId']
+
+            var result; 
+            await fetch(registerURL).then(response => response.json()).then(response => result = response)
+            console.log(result)
+            
+            if(result['resultCode'] === 'SUCCESS'){
                 sessionStorage['isAdmin'] = true
             }
             document.getElementById('loginForm').style.display = 'none'
