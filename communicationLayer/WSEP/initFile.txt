@@ -7,6 +7,6 @@ register(u6);
 set-admin(u1);
 open-store(u2,s1);
 add-product(u2,s1,diapers,20,30);
-appoint-manager(u2,s1,u3,manage-inventory);
-appoint-manager(u3,s1,u5,manager);
+appoint-owner(u2,s1,u3,manage-inventory);
+appoint-owner(u3,s1,u5,manager);
 appoint-manager(u5,s1,u6,manager);

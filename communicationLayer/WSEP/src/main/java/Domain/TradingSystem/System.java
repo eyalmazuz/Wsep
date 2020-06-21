@@ -193,6 +193,15 @@ public class System {
                         setManagerDetalis(sessionId,managerId,storeId,args[3]);
                         logout(sessionId);
                         break;
+                    case "appoint-owner":
+                        //appoint-manager(<Manager-name>,<Store-name>,<New Manager name>,<Details>);
+                        login(sessionId,args[0],"123");
+                        storeId = getStoreByName(args[1]);
+                        int  ownerId= userHandler.getSubscriberUser(args[2]).getId();
+                        addStoreOwnerNoGrants(sessionId,storeId,ownerId);
+                        setManagerDetalis(sessionId,ownerId,storeId,args[3]);
+                        logout(sessionId);
+                        break;
                     case "add-product":
                         //add-product(<manager-name>,<store-name>,<product-name>,<amount>,<price>);
                         login(sessionId,args[0],"123");
@@ -544,7 +553,35 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
-    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+    public ActionResultDTO addStoreOwnerNoGrants (int sessionId, int storeId, int subId) {
+        logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
+        User u = userHandler.getUser(sessionId);
+        Subscriber owner = (Subscriber)u.getState();
+        Subscriber newOwner = userHandler.getSubscriber(subId);
+        if (newOwner == null)
+            return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
+        Store store = null;
+        try {
+            store = getStoreById(storeId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
+        if(store!=null)
+        {
+
+                if (setStoreOwner(owner, newOwner, store))
+                    return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                else {
+                    return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "user have already pending agreemant");
+                }
+
+        }
+
+
+        return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
+    }
+
+    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
         if(newOwner.addPermission(store, owner, "Owner")){
             store.addOwner(newOwner);
 
