@@ -336,6 +336,7 @@ public class System {
     public IntActionResultDto openStore(int sessionId){
         logger.info("openStore: sessionId "+sessionId);
         User u = userHandler.getUser(sessionId);
+
         if(u!=null) {
             Store newStore = u.openStore();
             if (newStore != null) {

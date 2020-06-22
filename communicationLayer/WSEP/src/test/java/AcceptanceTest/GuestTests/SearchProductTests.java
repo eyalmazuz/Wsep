@@ -48,7 +48,7 @@ public class SearchProductTests extends ServiceTest {
 
     }
 
-    public void testSearchProductsFailure(){
+    public void testSearchProductsNoResults(){
         String prodcuts = searchProducts(Database.sessionId, "Food", "", null, -1, -1, 2500, 0);
         assertEquals("Results:\n\n", prodcuts);
 

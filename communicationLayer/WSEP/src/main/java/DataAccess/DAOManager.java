@@ -202,6 +202,7 @@ public class DAOManager {
     public static List<BuyingPolicy> loadAllBuyingPolicies() throws DatabaseFetchException {
         List<BuyingPolicy> buyingPolicies = null;
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             buyingPolicies = buyingPolicyDao.queryForAll();
             for (BuyingPolicy policy : buyingPolicies) {
                 fixBuyingPolicy(policy);

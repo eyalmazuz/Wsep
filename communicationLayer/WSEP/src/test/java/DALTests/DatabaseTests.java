@@ -51,7 +51,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testProductInfoPersistence() throws DatabaseFetchException {
+    public void testProductInfoPersistenceAddAndRating() throws DatabaseFetchException {
         test.addProductInfo(1, "what", "whatcategory", 40);
         ProductInfo productInfo = DAOManager.loadAllProductInfos().get(0);
 
@@ -64,7 +64,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceBasket1() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceBasketMaxAmountForProduct() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -80,7 +80,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceBasket2() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceBasketMinAmountForProduct() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -96,7 +96,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceBasket3() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceBasketMinProductAmount() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MinProductAmountConstraint(5));
@@ -110,7 +110,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceBasket4() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceBasketMaxProductAmount() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         int buyingTypeId = policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(5));
@@ -124,7 +124,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceUser() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceUserNotOutsideCountry() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         int buyingTypeId = policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
@@ -137,7 +137,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleBuyingPolicyPersistenceSystem() throws DatabaseFetchException {
+    public void testSimpleBuyingPolicyPersistenceSystemNotOnDay() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         int buyingTypeId = policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(5));
@@ -150,7 +150,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedBuyingPolicyPersistence1() throws DatabaseFetchException {
+    public void testAdvancedBuyingPolicyPersistenceMinMaxForProductAnd() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "lambda", "snacks", 50);
@@ -174,7 +174,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedBuyingPolicyPersistence2() throws DatabaseFetchException {
+    public void testAdvancedBuyingPolicyPersistenceMinMaxForProductImplies() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "lambda", "snacks", 50);
@@ -198,7 +198,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedBuyingPolicyPersistence3() throws DatabaseFetchException {
+    public void testAdvancedBuyingPolicyPersistenceMinMaxAndCountryImplies() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "lambda", "snacks", 50);
@@ -240,7 +240,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedBuyingPolicyPersistence4() throws DatabaseFetchException {
+    public void testAdvancedBuyingPolicyPersistenceFromUser() throws DatabaseFetchException {
         int storeId = test.addStore();
         BuyingPolicy policy = test.getStoreById(storeId).getBuyingPolicy();
         test.addProductInfo(1, "lambda", "snacks", 50);
@@ -282,7 +282,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence1() throws DatabaseFetchException {
+    public void testStoreProductPersistenceSuccess() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -294,7 +294,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence2() throws DatabaseFetchException {
+    public void testStoreProductPersistenceWithRemove() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -307,7 +307,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence3() throws DatabaseFetchException {
+    public void testStoreProductPersistenceMultipleAdd() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -320,7 +320,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence4() throws DatabaseFetchException {
+    public void testStoreProductPersistenceRemoveAndEmpty() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -334,7 +334,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence5() throws DatabaseFetchException {
+    public void testStoreProductPersistenceSetPrice() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -347,7 +347,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence6() throws DatabaseFetchException {
+    public void testStoreProductPersistenceEdit() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -360,7 +360,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testStoreProductPersistence7() throws DatabaseFetchException {
+    public void testStoreProductPersistenceDelete() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         ProductInfo info = test.getProductInfoById(1);
@@ -457,7 +457,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testUserCartModificationPersistence2() throws DatabaseFetchException {
+    public void testUserCartModificationPersistenceEdit() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
@@ -479,7 +479,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testUserCartModificationPersistence3() throws DatabaseFetchException {
+    public void testUserCartModificationPersistenceRemove() throws DatabaseFetchException {
         int storeId = test.addStore();
         test.addProductInfo(1, "lambda", "snacks", 50);
         int sessionId = test.startSession().getId();
@@ -558,7 +558,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSimpleDiscountPolicyPersistence1() throws DatabaseFetchException {
+    public void testSimpleDiscountPolicyPersistenceProductSale() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -573,7 +573,7 @@ public class DatabaseTests extends TestCase {
 
 
     @Test
-    public void testSimpleDiscountPolicyPersistence2() throws DatabaseFetchException {
+    public void testSimpleDiscountPolicyPersistenceCategorySale() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -587,7 +587,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedDiscountPolicyPersistence1() throws DatabaseFetchException {
+    public void testAdvancedDiscountPolicyPersistenceProductOrCategorySale() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -609,7 +609,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedDiscountPolicyPersistence2() throws DatabaseFetchException {
+    public void testAdvancedDiscountPolicyPersistenceProductXorCategorySaleOr() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -651,7 +651,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedDiscountPolicyPersistence3() throws DatabaseFetchException {
+    public void testAdvancedDiscountPolicyPersistenceProductOrCategoryFromUser() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -672,7 +672,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testAdvancedDiscountPolicyPersistence4() throws DatabaseFetchException {
+    public void testAdvancedDiscountPolicyPersistenceProductXorCategoryFromUserOr() throws DatabaseFetchException {
         int storeId = test.addStore();
         Store store = test.getStoreById(storeId);
         test.addProductInfo(1, "what", "whatcategory", 50);
@@ -712,7 +712,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPermissionPersistence1() throws DatabaseFetchException {
+    public void testSubscriberPermissionPersistence() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         User u = test.getUser(sessionId);
         test.register(sessionId, "user", "passw0rd");
@@ -747,7 +747,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPermissionPersistence2() throws DatabaseFetchException {
+    public void testSubscriberPermissionPersistenceRemove() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
@@ -768,7 +768,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testGrantingAgreementPersistence() throws DatabaseFetchException {
+    public void testGrantingAgreementPersistenceSaved() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -818,7 +818,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testGrantingAgreementPersistence2() throws DatabaseFetchException {
+    public void testGrantingAgreementPersistenceNoLongerPresent() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -870,7 +870,7 @@ public class DatabaseTests extends TestCase {
     }
 
     @Test
-    public void testGrantingAgreementPersistence3() throws DatabaseFetchException {
+    public void testGrantingAgreementPersistenceDecline() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");

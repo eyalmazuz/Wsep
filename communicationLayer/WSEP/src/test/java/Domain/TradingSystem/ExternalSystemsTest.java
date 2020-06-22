@@ -24,31 +24,31 @@ public class ExternalSystemsTest extends TestCase {
     }
 
     @Test
-    public void testAttemptPurchase() {
+    public void testAttemptPurchaseSuccess() {
         int transactionId = paymentSystem.attemptPurchase("12345678", "04", "2021", "me", "777", "123123123").getId();
         assertTrue(transactionId > 0);
     }
 
     @Test
-    public void testRequestRefund() {
+    public void testRequestRefundSuccess() {
         int transactionId = paymentSystem.attemptPurchase("12345678", "04", "2021", "me", "777", "123123123").getId();
         assertEquals(paymentSystem.requestRefund(transactionId).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testRequestSupply() {
+    public void testRequestSupplySuccess() {
         boolean success = supplySystem.requestSupply("Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode() == ResultCode.SUCCESS;
         assertTrue(success);
     }
 
     @Test
-    public void testCancelSupply() {
+    public void testCancelSupplySuccess() {
         int transactionId = supplySystem.requestSupply("Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getId();
         assertEquals(supplySystem.cancelSupply(transactionId).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testPaymentContactFail() {
+    public void testPaymentContactFailureNoContact() {
         PaymentSystem.loseContact = true;
         assertFalse(paymentSystem.handshake());
         assertSame(paymentSystem.attemptPurchase("12345678", "04", "2021", "me", "777", "123123123").getResultCode(),
@@ -58,7 +58,7 @@ public class ExternalSystemsTest extends TestCase {
     }
 
     @Test
-    public void testSupplyContactFail() {
+    public void testSupplyContactFailureNoContact() {
         SupplySystem.loseContact = true;
         assertFalse(supplySystem.handshake());
         assertSame(supplySystem.requestSupply("Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(),
