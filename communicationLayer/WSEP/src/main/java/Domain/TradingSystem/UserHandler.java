@@ -44,7 +44,7 @@ public class UserHandler {
     }
 
     public int register(String username, String password) {
-        if(username==null || password == null){
+        if (username == null || password == null) {
             return -1;
         }
         synchronized (username.intern()) {
@@ -58,24 +58,23 @@ public class UserHandler {
             }
             Subscriber subscriberState;
             synchronized (subscribeLock) {
-              Subscriber subscriberState = new Subscriber(username, password, false);
-              int id = DAOManager.getMaxSubscriberId();
-              if(id == -2){
-                  id = subscribers.size();
-              }
-              subscriberState.setId(id + 1);
-              subscribers.put(subscriberState.getId(),subscriberState);
-              DAOManager.addSubscriber(subscriberState);
+                subscriberState = new Subscriber(username, password, false);
+                int id = DAOManager.getMaxSubscriberId();
+                if (id == -2) {
+                    id = subscribers.size();
+                }
+                subscriberState.setId(id + 1);
+                subscribers.put(subscriberState.getId(), subscriberState);
+                DAOManager.addSubscriber(subscriberState);
             }
 
             return subscriberState.getId();
         }
+    }
 
 
-    public User getUser(int sessionId){
-
-            return users.get(sessionId);
-
+    public User getUser(int sessionId) {
+        return users.get(sessionId);
     }
 
     public Subscriber getSubscriberUser(String username, String hashedPassword) throws DatabaseFetchException {
