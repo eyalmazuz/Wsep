@@ -13,6 +13,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
+import com.mysql.cj.exceptions.CJCommunicationsException;
 
 import java.lang.System;
 import java.lang.reflect.InvocationTargetException;
@@ -58,12 +59,30 @@ public class DAOManager {
         executeTodos();
     }
 
+    private static String _databaseName, _username, _password;
+
     public static void init(String databaseName, String username, String password) {
+        _databaseName = databaseName;
+        _username = username;
+        _password = password;
         try {
             connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=GMT%2B3");
 
             isOn = true;
 
+            startDaos();
+
+            for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void startDaos() {
+        try {
             productInfoDao = DaoManager.createDao(connectionSource, ProductInfo.class);
             buyingPolicyDao = DaoManager.createDao(connectionSource, BuyingPolicy.class);
             simpleBuyingDao = DaoManager.createDao(connectionSource, SimpleBuyingDTO.class);
@@ -80,14 +99,21 @@ public class DAOManager {
             simpleDiscountDao = DaoManager.createDao(connectionSource, SimpleDiscountDTO.class);
             grantingAgreementDao = DaoManager.createDao(connectionSource, GrantingAgreement.class);
             dayStatisticsDao = DaoManager.createDao(connectionSource, DayStatistics.class);
-
-            for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    private static void attemptRestart() {
+        try {
+            System.out.println("Attempting to restart connection to database");
+            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + _databaseName + "?user=" + _username + "&password=" + _password + "&serverTimezone=GMT%2B3");
+            startDaos();
+            isOn = true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            isOn = false;
+        }
     }
 
     public static void createProductInfo(ProductInfo productInfo) {
@@ -95,10 +121,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInfoDao.create(productInfo);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createProductInfo(productInfo);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -118,10 +147,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             advancedBuyingDao.create(buyingDTO);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> advancedBuyingDaoCreate(buyingDTO);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -131,10 +163,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             buyingPolicyDao.createOrUpdate(policy);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> buyingPolicyDaoCreateOrUpdate(policy);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -144,10 +179,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             simpleBuyingDao.create(buyingDTO);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> simpleBuyingDaoCreate(buyingDTO);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -208,6 +246,9 @@ public class DAOManager {
                 fixBuyingPolicy(policy);
             }
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return buyingPolicies;
@@ -220,6 +261,9 @@ public class DAOManager {
             policy = buyingPolicyDao.queryForId(Integer.toString(id));
             if (policy != null) fixBuyingPolicy(policy);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return policy;
@@ -229,9 +273,12 @@ public class DAOManager {
         SimpleBuyingDTO dto = null;
         try {
             dto = simpleBuyingDao.queryForId(Integer.toString(typeId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load simple buying type");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         if (dto == null) System.err.println("Could not find simple buying type " + typeId + " in database");
@@ -262,7 +309,7 @@ public class DAOManager {
         AdvancedBuyingDTO dto = null;
         try {
             dto = advancedBuyingDao.queryForId(Integer.toString(typeId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load advanced buying type");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -307,7 +354,7 @@ public class DAOManager {
         SimpleDiscountDTO dto = null;
         try {
             dto = simpleDiscountDao.queryForId(Integer.toString(typeId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load simple discount type");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -328,7 +375,7 @@ public class DAOManager {
         AdvancedDiscountDTO dto = null;
         try {
             dto = advancedDiscountDao.queryForId(Integer.toString(typeId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load advanced discount type");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -350,9 +397,12 @@ public class DAOManager {
     private static ProductInfo loadProductInfo(int productInfoId) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(productInfoId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -362,9 +412,12 @@ public class DAOManager {
     public static List<ProductInfo> loadAllProductInfos() throws DatabaseFetchException {
         try {
             return productInfoDao.queryForAll();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load product infos");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -375,10 +428,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInfoDao.update(productInfo);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateProductInfo(productInfo);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -389,10 +445,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.assignEmptyForeignCollection(store, "products");
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createProductInStoreListForStore(store);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -402,10 +461,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.create(store);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> addStore(store);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -416,10 +478,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             for (Class c : persistentClasses) TableUtils.clearTable(connectionSource, c);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> clearDatabase();
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
 
@@ -499,9 +564,12 @@ public class DAOManager {
             List<Store> stores = storeDao.queryForAll();
             for (Store store : stores) fixStore(store);
             return stores;
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load stores");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -543,9 +611,12 @@ public class DAOManager {
             where.eq("user_id", selectArg);
             PreparedQuery<Permission> query = queryBuilder.prepare();
             return permissionDao.query(query);
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber permissions");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
 
@@ -559,9 +630,12 @@ public class DAOManager {
                fixSubscriber(subscriber);
                return subscriber;
            }
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -572,10 +646,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.update(store);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateStore(store);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -585,10 +662,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             productInStoreDao.update(product);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateProductInStore(product);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -598,10 +678,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingCartDao.assignEmptyForeignCollection(shoppingCart, "persistentShoppingBaskets");
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createBasketListForCart(shoppingCart);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -611,10 +694,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingCartDao.createOrUpdate(shoppingCart);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createOrUpdateShoppingCart(shoppingCart);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -624,10 +710,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             shoppingBasketDao.update(shoppingBasket);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateShoppingBasket(shoppingBasket);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -666,9 +755,12 @@ public class DAOManager {
         try {
             subscribers = subscriberDao.queryForAll();
             for (Subscriber s : subscribers) fixSubscriber(s);
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscribers");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return subscribers;
@@ -677,9 +769,12 @@ public class DAOManager {
     private static Store loadStore(Integer storeId) throws DatabaseFetchException {
         try {
             return storeDao.queryForId(Integer.toString(storeId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -688,9 +783,12 @@ public class DAOManager {
     private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) throws DatabaseFetchException {
         try {
             return purchaseDetailsDao.queryForId(Integer.toString(purchaseDetailsId));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load purchase details");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -701,10 +799,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             subscriberDao.create(subscriberState);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> addSubscriber(subscriberState);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
            // e.printStackTrace();
         }
 
@@ -719,12 +820,15 @@ public class DAOManager {
                 subscriberDao.update(subscriber);
             }
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> {
                     updateSubscriber(subscriber);
             };
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         } catch (DatabaseFetchException e) {
             e.printStackTrace();
@@ -736,10 +840,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             subscriberDao.createOrUpdate(state);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createOrUpdateSubscriber(state);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -749,10 +856,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             purchaseDetailsDao.createOrUpdate(details);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createPurchaseDetails(details);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -762,10 +872,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             storeDao.assignEmptyForeignCollection(store, "purchaseHistory");
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> createPurchaseHistoryForStore(store);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -775,10 +888,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.update(permission);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updatePermission(permission);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -788,10 +904,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.create(permission);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> addPermission(permission);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -801,10 +920,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             advancedDiscountDao.create(discountDTO);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> advancedDiscountDaoCreate(discountDTO);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -814,10 +936,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             discountPolicyDao.create(policy);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> discountPolicyDaoCreateOrUpdate(policy);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -827,10 +952,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             simpleDiscountDao.create(discountDTO);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> simpleDiscountDaoCreate(discountDTO);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -871,10 +999,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             permissionDao.delete(permission);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> removePermission(permission);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -884,10 +1015,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             grantingAgreementDao.update(grantingAgreement);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateGrantingAgreement(grantingAgreement);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -898,6 +1032,9 @@ public class DAOManager {
         try {
             return subscriberDao.countOf() == 0 ? -1 : (int) subscriberDao.queryRawValue("SELECT MAX(id) FROM subscribers");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -907,6 +1044,9 @@ public class DAOManager {
         try {
             return productInfoDao.countOf() == 0 ? -1 : (int) productInfoDao.queryRawValue("SELECT MAX(id) FROM productinfos");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -917,6 +1057,9 @@ public class DAOManager {
         try {
             return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchaseDetails");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -926,6 +1069,9 @@ public class DAOManager {
         try {
             return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingPolicies");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -935,13 +1081,29 @@ public class DAOManager {
         try {
             return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountPolicies");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
     }
 
 
-    public static boolean subscriberExists(String username) {
+    public static int getMaxStoreId() {
+        try {
+            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM stores");
+        } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+    public static boolean subscriberExists(String username) throws DatabaseFetchException {
         if(subscriberDao == null)
             return false;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
@@ -952,11 +1114,14 @@ public class DAOManager {
             where.eq("username", selectArg);
             PreparedQuery<Subscriber> query = queryBuilder.prepare();
             return !subscriberDao.query(query).isEmpty();
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
+            throw new DatabaseFetchException("Could not check if subscriber exists");
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
+            throw new DatabaseFetchException("Could not check if subscriber exists");
         }
-
-        return false;
     }
 
     public static Subscriber getSubscriberByUsername(String username) throws DatabaseFetchException {
@@ -974,9 +1139,12 @@ public class DAOManager {
             Subscriber subscriber = subscribers.get(0);
             fixSubscriber(subscriber);
             return subscriber;
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -997,9 +1165,13 @@ public class DAOManager {
             Subscriber subscriber = subscribers.get(0);
             fixSubscriber(subscriber);
             return subscriber;
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+                throw new DatabaseFetchException("Could not load subscriber");
+            }
             e.printStackTrace();
         }
         return null;
@@ -1009,6 +1181,9 @@ public class DAOManager {
         try {
             return shoppingCartDao.queryForAll().size();
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -1018,6 +1193,9 @@ public class DAOManager {
         try {
             return shoppingBasketDao.queryForAll().size();
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return -1;
@@ -1026,9 +1204,12 @@ public class DAOManager {
     public static ProductInfo loadProductInfoById(int id) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(id));
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -1040,9 +1221,12 @@ public class DAOManager {
             if (store != null) fixStore(store);
 
             return store;
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -1052,6 +1236,9 @@ public class DAOManager {
         try {
             productInfoDao.deleteById(Integer.toString(productId));
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -1065,9 +1252,12 @@ public class DAOManager {
             where.eq("name", selectArg);
             PreparedQuery<Store> query = queryBuilder.prepare();
             return storeDao.query(query).get(0);
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         } catch (IndexOutOfBoundsException e) {
             return null;
@@ -1084,9 +1274,12 @@ public class DAOManager {
             where.eq("name", selectArg);
             PreparedQuery<ProductInfo> query = queryBuilder.prepare();
             return productInfoDao.query(query).get(0);
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         } catch (IndexOutOfBoundsException e) {
             return null;
@@ -1099,10 +1292,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             dayStatisticsDao.update(dayStatistics);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> updateDayStatistics(dayStatistics);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -1120,6 +1316,9 @@ public class DAOManager {
             if (dayStatistics.isEmpty()) return null;
             return dayStatistics.get(0);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
@@ -1130,10 +1329,13 @@ public class DAOManager {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             dayStatisticsDao.create(stats);
             executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+        } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException e) {
             Runnable action = () -> addDayStatistics(stats);
             toDo.add(action);
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
     }
@@ -1156,10 +1358,14 @@ public class DAOManager {
             return stats;
 
         } catch (SQLException e) {
+            if (e.getMessage().equals("Connection has already been closed")) {
+                attemptRestart();
+            }
             e.printStackTrace();
         }
         return null;
 
     }
+
 }
 
