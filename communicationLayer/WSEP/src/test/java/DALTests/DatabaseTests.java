@@ -17,6 +17,7 @@ import java.util.Map;
 public class DatabaseTests extends TestCase {
     System test;
 
+
     @Before
     public void setUp() {
         System.testing = true;
