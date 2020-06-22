@@ -2,6 +2,7 @@ package Domain.TradingSystem;
 
 import DTOs.Notification;
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -23,13 +24,20 @@ public class SubscriberTest extends TestCase {
     HashMap<ProductInfo,Integer> products ;
     ProductInfo productInfo;
     PurchaseDetails details;
+    private System test = System.getInstance();
 
     @Before
     public void setUp() {
         System.testing = true;
 
-        subscriber = new Subscriber("hava nagila", "1234", false);
-        subscriber.setUser(new User());
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava nagila", "1234").getId();
+        try {
+            test.login(sessionId, "hava nagila", "1234");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        subscriber = (Subscriber) test.getUser(sessionId).getState();
     }
 
     @After
@@ -52,12 +60,6 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testIsAdminSuccess() {
         subscriber = new Subscriber("hava nagila", "1234", true);
-        assertTrue(subscriber.isAdmin());
-    }
-
-    @Test
-    public void testSetAdmin() {
-        subscriber.setAdmin();
         assertTrue(subscriber.isAdmin());
     }
 
@@ -101,7 +103,9 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testHasOwnerPermissionSuccess() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        int subId = test.register(sessionId, "hava neranena", "4321").getId();
+        Subscriber newSubscriber = test.getSubscriber(subId);
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
         assertTrue(newSubscriber.hasOwnerPermission(store.getId()));
@@ -112,7 +116,15 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testHasOwnerPermissionFailureNotOwner() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
+
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
         assertFalse(subscriber.hasOwnerPermission(store.getId()));
@@ -170,7 +182,14 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testHasManagerPermissionSuccess() {
         store = subscriber.openStore();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"New Manager");
         assertTrue(newSubscriber.hasManagerPermission(store.getId()));
@@ -181,7 +200,14 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testHasManagerPermissionFailureNotManager() {
         store = subscriber.openStore();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"New Manager");
         assertFalse(subscriber.hasManagerPermission(store.getId()));
@@ -192,7 +218,14 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testHasManagerPermissionFailureNegativeId() {
         store = subscriber.openStore();
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"New Manager");
         assertFalse(subscriber.hasManagerPermission(-1));
@@ -204,7 +237,15 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testGetManagerDetailsFailureNegativeIdSuccess() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
+
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
         assertTrue(newSubscriber.getManagerDetails(store.getId()).contains("any"));
@@ -213,7 +254,15 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testGetManagerDetailsFailureNegativeIdFailure() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
+
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
         assertEquals(newSubscriber.getManagerDetails(-1),null);
@@ -222,7 +271,15 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testGetManagerDetailsFailureNotManagerSuccess() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
+
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
         assertTrue(newSubscriber.getManagerDetails(store.getId()).contains("any"));
@@ -232,29 +289,19 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testGetManagerDetailsFailureNotManagerFailure() {
         store = new Store(0);
-        Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "hava neranena", "4321").getId();
+        try {
+            test.login(sessionId, "hava neranena", "4321");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        Subscriber newSubscriber = (Subscriber) test.getUser(sessionId).getState();
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
         assertEquals(subscriber.getManagerDetails(store.getId()),null);
     }
 
-
-
-    /*
-    @Test
-    void addPurchase() {
-        ??
-    }
-
-    @Test
-    void removePurchase() {
-        ??
-    }
-*/
-    @Test
-    public void testGetHashedPassword() {
-       assertEquals("1234",subscriber.getHashedPassword());
-    }
 
     @Test
     public void testGetPurchaseHistory() {
