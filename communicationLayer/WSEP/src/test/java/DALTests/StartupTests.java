@@ -157,32 +157,32 @@ public class StartupTests extends TestCase {
     @Test
     public void testStoreGrantingAgreementStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        test.register(sessionId, "user", "passw0rd");
+        int grantorID = test.register(sessionId, "user", "passw0rd").getId();
         test.login(sessionId, "user", "passw0rd");
         int storeId = test.openStore(sessionId).getId();
 
         int otherSessionId = test.startSession().getId();
-        test.register(otherSessionId, "user2", "passw0rd");
+        int firstownerId =test.register(otherSessionId, "user2", "passw0rd").getId();
         test.login(otherSessionId, "user2", "passw0rd");
 
-        test.addStoreOwner(sessionId, storeId, otherSessionId);
+        test.addStoreOwner(sessionId, storeId, firstownerId);
 
         int secondOwner = otherSessionId;
 
         otherSessionId = test.startSession().getId();
-        test.register(otherSessionId, "user3", "passw0rd");
+        int secondOwnerId = test.register(otherSessionId, "user3", "passw0rd").getId();
         test.login(otherSessionId, "user3", "passw0rd");
 
-        test.addStoreOwner(sessionId, storeId, otherSessionId);
+        test.addStoreOwner(sessionId, storeId, secondOwnerId);
 
         test = new System();
 
         assertEquals(test.getStoreById(storeId).getAllGrantingAgreements().size(), 1);
         GrantingAgreement agreement = test.getStoreById(storeId).getAllGrantingAgreements().iterator().next();
         assertEquals(agreement.getStoreId(), storeId);
-        assertEquals(agreement.getGrantorId(), sessionId);
-        assertEquals(agreement.getMalshabId(), otherSessionId);
-        assertFalse(agreement.getOwner2approve().get(secondOwner));
+        assertEquals(agreement.getGrantorId(), grantorID);
+        assertEquals(agreement.getMalshabId(), secondOwnerId);
+        assertFalse(agreement.getOwner2approve().get(firstownerId));
     }
 
     @Test
