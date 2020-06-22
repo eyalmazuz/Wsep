@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @DatabaseTable (tableName = "purchaseDetails")
 public class PurchaseDetails {
@@ -33,14 +34,13 @@ public class PurchaseDetails {
     @DatabaseField
     private double price;
 
-    public static int nextPurchaseId = 0;
+    public static AtomicInteger nextPurchaseId = new AtomicInteger(0);
 
     public PurchaseDetails () {}
 
     public PurchaseDetails(User user, Store store, HashMap<ProductInfo, Integer> products, double price) {
         this.dateTime = new Timestamp(java.lang.System.currentTimeMillis());
-        this.id = nextPurchaseId;
-        nextPurchaseId++;
+        this.id = nextPurchaseId.getAndIncrement();
         this.user = user;
         if (user.getState() instanceof Subscriber) subscriberId = ((Subscriber) user.getState()).getId();
         this.store = store;

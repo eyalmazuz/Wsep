@@ -192,12 +192,16 @@ public class Store {
     }
 
     public PurchaseDetails addPurchase(User user, HashMap<ProductInfo, Integer> products, double price) {
-        PurchaseDetails details = new PurchaseDetails(user, this, products, price);
-        purchaseHistory.add(details);
-        lastAddedPurchaseHistoryItem = details;
-        DAOManager.createPurchaseDetails(details);
-        DAOManager.updateStore(this);
-        return details;
+
+        synchronized (System.purchaseLock) {
+            PurchaseDetails details = new PurchaseDetails(user, this, products, price);
+            purchaseHistory.add(details);
+            lastAddedPurchaseHistoryItem = details;
+            DAOManager.createPurchaseDetails(details);
+            DAOManager.updateStore(this);
+            return details;
+        }
+
     }
 
     private ProductInfo getProductInfoByProductId(int productId) {
@@ -208,8 +212,10 @@ public class Store {
     }
 
     public void cancelPurchase(PurchaseDetails purchaseDetails) {
-        purchaseHistory.remove(purchaseDetails);
-        DAOManager.updateStore(this);
+        synchronized (System.purchaseLock) {
+            purchaseHistory.remove(purchaseDetails);
+            DAOManager.updateStore(this);
+        }
     }
 
     public int getProductAmount(Integer productId) {
@@ -222,7 +228,7 @@ public class Store {
     }
 
     public boolean setProductAmount(Integer productId, int amount) throws DatabaseFetchException {
-        synchronized (products) {
+        synchronized (System.storesLock) {
             if (amount == 0) products.removeIf(pis -> pis.getProductInfoId() == productId);
             else if (amount > 0) {
                 boolean productExists = false;
@@ -279,21 +285,23 @@ public class Store {
     }
 
     public void removeProductAmount(Integer productId, Integer amount) {
-        if (amount < 0) return;
-        for (ProductInStore product : products) {
-            int id = product.getProductInfoId();
-            if (productId == id) {
-                int newAmount = product.getAmount() - amount;
-                if (newAmount>=0) {
-                    if (newAmount == 0) {
-                        products.remove(product);
-                    } else {
-                        product.setAmount(newAmount);
+        synchronized (System.storesLock) {
+            if (amount < 0) return;
+            for (ProductInStore product : products) {
+                int id = product.getProductInfoId();
+                if (productId == id) {
+                    int newAmount = product.getAmount() - amount;
+                    if (newAmount >= 0) {
+                        if (newAmount == 0) {
+                            products.remove(product);
+                        } else {
+                            product.setAmount(newAmount);
+                        }
                     }
                 }
             }
+            DAOManager.updateStore(this);
         }
-        DAOManager.updateStore(this);
     }
 
     public void removeManger(Subscriber managerToDelete) {

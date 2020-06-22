@@ -52,31 +52,66 @@ public class ConcurrencyTest extends TestCase {
     }
 
     @Test
-    public void testBuyProductsMultipleBuys(){
+    public void testBuyProductsMultipleBuysSucess(){
         int storeId = setUpStoreWithAmount(100);
-        AtomicInteger doneCount = new AtomicInteger(0);
+        buyFromStoreAmount(storeId,5);
+
+        try {
+            assertEquals(100-(THREADS*5),test.getStoreById(storeId).getProductAmount(69));
+        } catch (DatabaseFetchException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testBuyProductsMultipleBuysSucessMoreThenInventory(){
+        int storeId = setUpStoreWithAmount(7);
+        buyFromStoreAmount(storeId,1);
+
+        try {
+            assertEquals(0,test.getStoreById(storeId).getProductAmount(69));
+        } catch (DatabaseFetchException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testBuyProductsMultipleBuysSucessMoreThenInventoryHistory(){
+        int storeId = setUpStoreWithAmount(7);
+        buyFromStoreAmount(storeId,1);
+
+        try {
+            assertEquals(7,test.getStoreById(storeId).getStorePurchaseHistory().size());
+        } catch (DatabaseFetchException e) {
+            fail();
+        }
+    }
+
+    private void buyFromStoreAmount(int storeId,int amount) {
+
         List<Thread> threadList = new ArrayList();
         for(int i = 0;i<THREADS;i++) {
             Thread t1 = new Thread(() -> {
                 int id = test.startSession().getId();
-                test.addToCart(id, storeId, 69, 5);
+                test.addToCart(id, storeId, 69, amount);
                 try {
                     confirmPurchase(id, false);
                 } catch (DatabaseFetchException e) {
                     e.printStackTrace();
                 }
-                doneCount.incrementAndGet();
             });
             threadList.add(t1);
         }
         for(Thread t : threadList){
             t.start();
         }
-        while(doneCount.get()<THREADS){
-
+        for(Thread t : threadList){
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-        assertEquals(1,1);
     }
 
     private int setUpStoreWithAmount(int amount) {
@@ -255,7 +290,13 @@ public class ConcurrencyTest extends TestCase {
         for(Thread t : threads){
             t.start();
         }
-        while(count.get()<THREADS){}
+        for(Thread t : threads){
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         for(Integer val : idsCount.values()) {
             assertEquals(new Integer(1), val);
