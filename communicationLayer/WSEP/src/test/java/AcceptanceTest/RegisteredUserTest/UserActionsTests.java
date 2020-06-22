@@ -73,7 +73,7 @@ public class UserActionsTests extends ServiceTest {
     }
 
     @Test
-    public void testOpenStoreFailure(){
+    public void testOpenStoreFailureNotLoggedIn(){
         logout(Database.sessionId);
         assertEquals(-1, openStore(Database.sessionId));
         assertEquals(-1, openStore(Database.sessionId));

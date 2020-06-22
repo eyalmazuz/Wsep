@@ -130,26 +130,6 @@ public class ShoppingCart {
         return newBasket;
     }
 
-    public void merge(ShoppingCart other) {
-        List<Integer> existingStoreIDs = new ArrayList<>();
-        for (ShoppingBasket basket : getCurrentBasketCollection()) {
-            existingStoreIDs.add(basket.getStoreId());
-            for (ShoppingBasket otherBasket : other.getCurrentBasketCollection()) {
-                if (otherBasket.getStoreId() == basket.getStoreId()) {
-                    basket.merge(otherBasket);
-                    break;
-                }
-            }
-        }
-
-        for (ShoppingBasket otherBasket : other.getCurrentBasketCollection()) {
-            if(!existingStoreIDs.contains(otherBasket.getStoreId())) {
-                getCurrentBasketCollection().add(otherBasket);
-            }
-        }
-
-    }
-
 
     public ArrayList<ShoppingBasket> getBaskets(){
         return new ArrayList<>(getCurrentBasketCollection());
