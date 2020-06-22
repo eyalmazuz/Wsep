@@ -481,8 +481,7 @@ public class SystemTests extends TestCase {
 
     }
 
-    @Test
-    public void testBuyingPoliciesSimple() throws DatabaseFetchException {
+    public HashMap<String, Object> testBuyingPoliciesSetup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
@@ -492,70 +491,171 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
 
+        HashMap<String, Object> nec = new HashMap<>();
+        nec.put("store1", store1);
+        nec.put("u", u);
+        nec.put("sessionId", sessionId);
+        nec.put("info", info);
+        return nec;
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleNoOne() throws DatabaseFetchException {
+        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+
         // bad
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        // good
-        policy.setDetails("blah");
-        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
+    @Test
+    public void testBuyingPoliciesSimpleDetails() throws DatabaseFetchException {
+        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+
+
+        // bad
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMinAmountForProductFailure() throws DatabaseFetchException {
+        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMinAmountForProductSuccess() throws DatabaseFetchException {
+        testBuyingPoliciesSetup();
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // good
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductFailure() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.setDetails("blah");
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 3));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductSuccess() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         policy.clearBuyingTypes();
         // good
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 4));
         store1.setBuyingPolicy(policy);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductFailureWithAdd() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+
+        Store store1 = (Store) nec.get("store1");
+        User u = (User) nec.get("u");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
         u.addProductToCart(store1, info, 39);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleNoOneSuccessWithEdit() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+
+        Store store1 = (Store) nec.get("store1");
+        User u = (User) nec.get("u");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // good
         u.editCartProductAmount(store1, info, 39);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleFailureNotOnDay() throws DatabaseFetchException {
+        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        policy.setDetails("blah");
         // bad
         int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
         policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
-        policy.clearBuyingTypes();
-        // good
-        policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
-        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    @Test
+    public void testBuyingPoliciesSimpleNotOutsideCountryFailure() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
 
+        Store store1 = (Store) nec.get("store1");
+        User u = (User) nec.get("u");
+
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         policy.clearBuyingTypes();
-        // bad
         policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
         u.setCountry("Brazil");
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
-        policy.clearBuyingTypes();
-        // good
+    @Test
+    public void testBuyingPoliciesSimpleNotOutsideCountrySuccess() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+
+        Store store1 = (Store) nec.get("store1");
+        User u = (User) nec.get("u");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
         u.setCountry("Israel");
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
+
 
     @Test
     public void testBuyingPoliciesComplex() throws DatabaseFetchException {
@@ -612,8 +712,7 @@ public class SystemTests extends TestCase {
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 
-    @Test
-    public void testDiscountPoliciesSimple() throws DatabaseFetchException {
+    public HashMap<String, Object> testDiscountPoliciesSimpleSetup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int store1Id = test.addStore();
         Store store1 = test.getStores().get(store1Id);
@@ -621,6 +720,7 @@ public class SystemTests extends TestCase {
 
         test.addProductInfo(4, "bamba", "snacks", 10);
         test.addProductInfo(5, "apple", "fruits", 10);
+
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -632,6 +732,23 @@ public class SystemTests extends TestCase {
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
 
+        HashMap<String, Object> nec = new HashMap<>();
+
+        nec.put("store1", store1);
+        nec.put("infoApple", infoApple);
+        nec.put("infoBamba", infoBamba);
+
+        return nec;
+
+    }
+
+
+    @Test
+    public void testDiscountPoliciesSimpleProductSaleDiscount() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+
         DiscountPolicy policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
@@ -640,12 +757,9 @@ public class SystemTests extends TestCase {
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
 
-
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         assertEquals(5 * 10.0, store1.getPrice(u, productsAmount).getPrice());
-
-
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -654,7 +768,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoBamba, 5);
         assertEquals(5 * 5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleMultipleProductSaleDiscounts() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -676,8 +800,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoApple, 10);
 
         assertEquals((1-0.5) * 5 * 10 + (1-0.75) * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleCategorySaleDiscount() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
@@ -701,7 +834,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoApple, 10);
         assertEquals(5*10 + (1-0.75)*10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleProductAndCategorySales() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -720,8 +863,8 @@ public class SystemTests extends TestCase {
         policy.clearDiscountTypes();
         test.removeProduct(4);
         test.removeProduct(5);
-
     }
+
 
     @Test
     public void testDiscountPoliciesComplex() throws DatabaseFetchException {
@@ -1120,7 +1263,7 @@ public class SystemTests extends TestCase {
      * test id there are no pending agreemants after approval
      */
     @Test
-    public void testNoApproveStoreOwnerAgremantExist() throws DatabaseFetchException {
+    public void testNoApproveStoreOwnerAgreementExist() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1141,7 +1284,7 @@ public class SystemTests extends TestCase {
      * try to approve owner with non existing agreement;
      */
     @Test
-    public void testApproveStoreOwnerNoAgreemant() throws DatabaseFetchException {
+    public void testApproveStoreOwnerNoAgreement() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();

@@ -224,11 +224,13 @@ public class UserHandlerTest extends TestCase {
         assertTrue(id1 != id2);
     }
 
+    @Test
     public void testCreateSessionSuccessID() {
         int id = uh.createSession();
         assertTrue(id>=0);
     }
 
+    @Test
     public void testCreateSessionSuccessSize() {
         int prev = uh.users.size();
         uh.createSession();

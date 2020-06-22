@@ -137,11 +137,10 @@ public class SubscriberTest extends TestCase {
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         assertEquals(newSubscriber.hasPermission(store.getId(),"Manager"),store);
-        assertNull(newSubscriber.hasPermission(-3,"Manager"));
     }
 
 
-    @Test   // TODO: better name
+    @Test
     void hasPermissionFailure() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
@@ -154,12 +153,10 @@ public class SubscriberTest extends TestCase {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         assertTrue(newSubscriber.addPermission(store,subscriber,"Manager"));
-        store = new Store();
-        assertFalse(newSubscriber.addPermission(store,subscriber,"Manager"));//the grantor is not the store owner
     }
 
-    @Test   // TODO: better name
-    void addPermissionFailure() {
+    @Test
+    void addPermissionFailureGrantorNotStoreOwner() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         store = new Store();

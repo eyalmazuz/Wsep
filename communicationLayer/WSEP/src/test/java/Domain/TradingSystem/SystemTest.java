@@ -93,8 +93,12 @@ public class SystemTest extends TestCase {
 
 
     @Test
-    public void testOpenStoreFailure() {    // TODO: better name
+    public void testOpenStoreFailureNoUser() {
         assertEquals(-1,test.openStore(-1).getId());
+    }
+
+    @Test
+    public void testOpenStoreFailureIsGuest() {
         assertEquals(-1,test.openStore(1).getId());
     }
 

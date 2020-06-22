@@ -232,6 +232,7 @@ public class ShoppingCartTest extends TestCase {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
+        shoppingCart.saveAndGetStorePurchaseDetails();
         assertEquals(store1.getStorePurchaseHistory().size(), 1);
     }
 
@@ -240,6 +241,7 @@ public class ShoppingCartTest extends TestCase {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
+        shoppingCart.saveAndGetStorePurchaseDetails();
         assertEquals((int)store1.getStorePurchaseHistory().get(0).getProducts().get(info), 5);
     }
 
