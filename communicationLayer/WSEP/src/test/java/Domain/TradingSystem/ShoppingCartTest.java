@@ -49,11 +49,11 @@ public class ShoppingCartTest extends TestCase {
 
 
     @Test
-    public void testAddProductSuccess1() {
+    public void testAddProductActionSuccess() {
         assertSame(shoppingCart.addProduct(store1, productInfo4, 40).getResultCode(), ResultCode.SUCCESS);
     }
     @Test
-    public void testAddProductSuccessFound1() {
+    public void testAddProductSuccessItemFound() {
         shoppingCart.addProduct(store1, productInfo4, 40).getResultCode();
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store1.getId()) {
@@ -65,12 +65,7 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testAddProductSuccess2() {
-        assertSame(shoppingCart.addProduct(store1, productInfo4, 50).getResultCode(), ResultCode.SUCCESS);
-    }
-
-    @Test
-    public void testAddProductSuccessFound2() {
+    public void testAddProductToExistingSuccessFound() {
         shoppingCart.addProduct(store1, productInfo4, 40).getResultCode();
         shoppingCart.addProduct(store1, productInfo4, 50).getResultCode();
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
@@ -83,111 +78,56 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testAddProductSuccess3() {
-        assertSame(shoppingCart.addProduct(store2, productInfo2, 10).getResultCode(), ResultCode.SUCCESS);
-    }
-
-    @Test
-    public void testAddProductSuccessFound3() {
-        shoppingCart.addProduct(store2, productInfo2, 10).getResultCode();
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store2.getId()) {
-                if (basket.getProducts().containsKey(productInfo2) && basket.getProducts().get(productInfo2) == 10)
-                    found = true;
-            }
-        }
-        assertTrue(found);
-    }
-
-    @Test
-    public void testAddProductFailure4() {
+    public void testAddProductZeroAmountFailure() {
         assertNotSame(shoppingCart.addProduct(store2, productInfo40, 0).getResultCode(), ResultCode.SUCCESS);
     }
 
-
-
     @Test
-    public void testAddProductFailureNotFound4() {
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store2.getId()) {
-                if (basket.getProducts().containsKey(productInfo40)) found = true;
-            }
-        }
-        assertFalse(found);
-    }
-
-
-    @Test
-    public void testAddProductFailure5() {
+    public void testAddProductNegativeAmountFailure() {
         assertNotSame(shoppingCart.addProduct(store2, productInfo40, -5).getResultCode(), ResultCode.SUCCESS);
     }
-    @Test
-    public void testAddProductFailureNotFound5() {
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store2.getId()) {
-                if (basket.getProducts().containsKey(productInfo40)) found = true;
-            }
-        }
-        assertFalse(found);
-    }
 
     @Test
-    public void testAddProductFailure6() {
+    public void testAddProductStoreNullFailure() {
         assertNotSame(shoppingCart.addProduct(null, productInfo2, 40).getResultCode(), ResultCode.SUCCESS);
         }
 
     @Test
-    public void testAddProductFailure7() {
+    public void testAddProductProductNullFailure() {
        assertNotSame(shoppingCart.addProduct(store3, null, 40).getResultCode(), ResultCode.SUCCESS);
     }
 
 
     @Test
-    public void testAddProductFailureNotFound6() {
-
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store3.getId()) {
-                found = true;
-            }
-        }
-        assertFalse(found);
-    }
-
-    @Test
-    public void testEditProductFailure8() {
+    public void testEditProductNotExistFailure() {
         assertNotSame(shoppingCart.editProduct(store1, productInfo40, 50).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductFailure9() {
+    public void testEditProductStoreNullFailure() {
         assertNotSame(shoppingCart.editProduct(null, productInfo40, 50).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductFailureNotFound7() {
+    public void testEditProductYesStoreNoProductFailure() {
 
         shoppingCart.addProduct(store1, productInfo40, 50);
         assertNotSame(shoppingCart.editProduct(store1, null, 50).getResultCode(), ResultCode.SUCCESS);
    }
 
     @Test
-    public void testEditProductFailureNotFound8() {
-        assertNotSame(shoppingCart.editProduct(store1, productInfo40, -1).getResultCode(), ResultCode.SUCCESS);
-    }
-
-    @Test
-    public void testEditProductFailureNotFound9() {
+    public void testEditProductZeroAmountFailure() {
         assertNotSame(shoppingCart.editProduct(store1, productInfo40, 0).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductFailureNotFound10() {
+    public void testEditProductNegativeAmountFailure() {
         assertNotSame(shoppingCart.editProduct(store1, productInfo40, -5).getResultCode(), ResultCode.SUCCESS);
     }
 
 
     @Test
-    public void testEditProductSuccessFound7() {
+    public void testEditProductSuccess() {
         shoppingCart.addProduct(store1, productInfo40, 50);
         shoppingCart.editProduct(store1, productInfo40, 20);
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
@@ -202,12 +142,12 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testEditProductFailure10() {
+    public void testRemoveProductNoStoreNoProductFailure() {
         assertNotSame(shoppingCart.removeProductFromCart(store1, productInfo40).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductFailure11() {
+    public void testRemoveProductNullStoreNoProductFailure() {
         assertNotSame(shoppingCart.removeProductFromCart(null, productInfo40).getResultCode(), ResultCode.SUCCESS);
     }
 
@@ -217,7 +157,7 @@ public class ShoppingCartTest extends TestCase {
         assertSame(shoppingCart.removeProductFromCart(store1, productInfo2).getResultCode(), ResultCode.SUCCESS);
     }
     @Test
-    public void testRemoveProductFailure() {
+    public void testRemoveProductNoProductFailure() {
 
         for (ShoppingBasket basket : shoppingCart.getBaskets()) {
             if (basket.getStoreId() == store1.getId()) {
@@ -228,7 +168,7 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testRemoveAllProducts() {
+    public void testRemoveAllProductsSuccess() {
         shoppingCart.addProduct(store1, productInfo4, 40);
         shoppingCart.removeAllProducts();
         assertEquals(0, shoppingCart.getBaskets().size());
@@ -282,7 +222,7 @@ public class ShoppingCartTest extends TestCase {
 
 
     @Test
-    public void testCheckStoreSuppliesFailure() {
+    public void testCheckStoreSuppliesNoSuppliesFailure() {
         shoppingCart.addProduct(store1, productInfo5, 50);
         assertFalse(shoppingCart.checkStoreSupplies());
     }
