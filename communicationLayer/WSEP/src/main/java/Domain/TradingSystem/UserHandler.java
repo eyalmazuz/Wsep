@@ -78,6 +78,7 @@ public class UserHandler {
     }
 
     public Subscriber getSubscriberUser(String username, String hashedPassword) throws DatabaseFetchException {
+        if (username == null || hashedPassword == null) return null;
         Subscriber cachedSub = null;
         synchronized (username.intern()) {
             for (Subscriber sub : subscribers.values()) {
