@@ -11,13 +11,11 @@ import Domain.Security.Security;
 import Domain.Spelling.Spellchecker;
 import NotificationPublisher.Publisher;
 import com.j256.ormlite.dao.DaoManager;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
+// import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -222,7 +220,7 @@ public class System {
                         break;
 
                     default:
-                        throw new SyntaxException("Wrong syntax");
+                        throw new Exception("Wrong syntax");
 
 
                 }
@@ -263,9 +261,6 @@ public class System {
     }
 
     private void updateStats(int sessionId) {
-        if(!init)
-            return;
-
         if(!dailyStats.isToday()) {
             dailyStats = new DayStatistics(LocalDate.now());
             DAOManager.addDayStatistics(dailyStats);
@@ -589,7 +584,7 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
-    private boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
         if(newOwner.addPermission(store, owner, "Owner")){
             store.addOwner(newOwner);
 
@@ -882,6 +877,7 @@ public class System {
         productNames.add(productName);
         if (!productName.equals("")) {
             List<String> productSugs = Spellchecker.getSuggestions(productName);
+
             if (productSugs != null) productNames.addAll(productSugs);
         }
 
@@ -904,6 +900,13 @@ public class System {
         try {
             for (Store store : DAOManager.loadAllStores())
                 if (store.getRating() >= minStoreRating) allProducts.addAll(store.getProducts());
+            for (Store store : stores.values())
+                if (store.getRating() >= minStoreRating) {
+                    for (ProductInStore pis: store.getProducts()) {
+                        if (!allProducts.contains(pis)) allProducts.add(pis);
+                    }
+                }
+
         }catch (DatabaseFetchException e){
 
         }
@@ -1124,6 +1127,10 @@ public class System {
             return -1;
         else
             return s.getId();
+    }
+
+    public Subscriber getSubscriber(int subID){
+        return userHandler.getSubscriber(subID);
     }
 
     public void setState(int sessionId, int subId) {
@@ -1568,17 +1575,7 @@ public class System {
     private void handleGrantingAgreements(int storeId) throws DatabaseFetchException {
         Store store = getStoreById(storeId);
         if(store != null){
-            Collection<GrantingAgreement> agreements = store.getAllGrantingAgreements();
-            for (GrantingAgreement agreement : agreements){
-                if (agreement.allAproved()){
-                    Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());
-                    Subscriber newOwner = userHandler.getSubscriber(agreement.getMalshabId());
-                    if (setStoreOwner(grantor, newOwner, store)) {
-                        store.removeAgreement(agreement.getMalshabId());
-                    }
-
-                }
-            }
+            store.handleGrantingAgreement();
         }
     }
 
@@ -1605,8 +1602,8 @@ public class System {
         }
         if(store != null){
             if(store.approveMalshab(owner.getId(),subId)){
-                if(store.allAproved(subId)){
-                    int grantorId = store.getAgreementGrantor(subId);
+                    int grantorId = store.allAproved(subId);
+                    if(grantorId!=-1){
                     if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
                         store.removeAgreement(subId);
                         return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
@@ -1690,12 +1687,30 @@ public class System {
     }
 
     public StatisticsResultsDTO getStatistics(String from, String to) {
-        //TODO:Add function that query DB and return Proper DTO
-        //Tmp function for tests
-        List<DayStatistics> lst = new ArrayList<>();
-        lst.add(dailyStats);
-        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
-        //
+
+        logger.info("requests statistics from: " + from + " to: " + to);
+        // DD.MM.YYYY
+        int fromDay = Integer.valueOf(from.substring(8, 10));
+        int fromMonth = Integer.valueOf(from.substring(5, 7));
+        int fromYear = Integer.valueOf(from.substring(0, 4));
+        int toDay = Integer.valueOf(to.substring(8, 10));
+        int toMonth = Integer.valueOf(to.substring(5, 7));
+        int toYear = Integer.valueOf(to.substring(0, 4));
+
+        java.lang.System.out.println(String.format("from: %s-%s-%s, to: %s-%s-%S", fromYear, fromMonth, fromDay, toYear, toMonth, toDay));
+
+        List<DayStatistics> results = DAOManager.getStatisticsBetween(LocalDate.of(fromYear, fromMonth, fromDay), LocalDate.of(toYear, toMonth, toDay));
+
+        if (results == null)
+            return new StatisticsResultsDTO(ResultCode.ERROR_STATISTICS_BETWEEN, "Could not get day statistics between dates", null);
+        else return new StatisticsResultsDTO(ResultCode.SUCCESS, "statistics between " + from + " to " + to, convertStatsToDTO(results));
+
+
+//        //Tmp function for tests
+//        List<DayStatistics> lst = new ArrayList<>();
+//        lst.add(dailyStats);
+//        return new StatisticsResultsDTO(ResultCode.SUCCESS,"List of stats",convertStatsToDTO(lst));
+//        //
     }
 
     private List<DailyStatsDTO> convertStatsToDTO(List<DayStatistics> list){
@@ -1709,5 +1724,10 @@ public class System {
 
     public void clearStats() {
         dailyStats.reset();
+    }
+
+    public void addDayStatistics(int year, int month, int day) {
+        DayStatistics stats = new DayStatistics(LocalDate.of(year, month, day));
+        DAOManager.addDayStatistics(stats);
     }
 }

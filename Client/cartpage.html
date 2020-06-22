@@ -34,6 +34,13 @@
 
         </div>
 
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
     </div>
     <!-- The Register Model -->
     <div id="registerForm" class="modal">
@@ -86,8 +93,16 @@
         </form>
     </div> 
 
+    <div>
+        <button type="button" id='clearCartButton' onclick="clearCart()" class='nav'>Clear Cart</button>
+        <button type="button" id='buyCartButton' onclick="openPurchaseCart()" class='nav'>Buy Cart</button>
+
+
+    </div>
+
+
         <div>
-            <h1>CART</h1>
+            <h1 class='title'>CART</h1>
         </div>
 
         <div>
@@ -105,16 +120,7 @@
             </table>
         </div>
         
-        <div>
-            <button type="button" id='clearCartButton' onclick="clearCart()">Clear Cart</button>
-        
 
-        </div>
-        
-        <div>
-            <button type="button" id='buyCartButton' onclick="openPurchaseCart()">Buy Cart</button>
-
-        </div>
 
         <!-- The Register Model -->
         <div id="purchaseForm" class="modal">
@@ -172,7 +178,7 @@
         <div>
             <br>
             <br>
-            <h1><b>Purchase History</b></h1>
+            <h1 class='title'><b>Purchase History</b></h1>
             <table id='historyTable' border="1">
                 <tr>
                     <th>Store Id</th>

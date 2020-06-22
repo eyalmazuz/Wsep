@@ -3,6 +3,7 @@ package Domain.TradingSystem.IntegrationTests;
 import DTOs.IntActionResultDto;
 import DTOs.Notification;
 import DTOs.ResultCode;
+import DTOs.StatisticsResultsDTO;
 import DataAccess.DAOManager;
 import Domain.BGUExternalSystems.PaymentSystem;
 import DataAccess.DatabaseFetchException;

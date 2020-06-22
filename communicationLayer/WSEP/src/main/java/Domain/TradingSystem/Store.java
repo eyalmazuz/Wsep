@@ -511,12 +511,12 @@ public class Store {
 
     }
 
-    public boolean allAproved(int malshabId) {
+    public int allAproved(int malshabId) {
         GrantingAgreement agreement = malshab2granting.get(malshabId);
         if(agreement!=null){
-            return agreement.allAproved();
+            return agreement.getGrantorId();
         }
-        return false;
+        return -1;
     }
 
     public void removeAgreement(int subId) {
@@ -556,4 +556,20 @@ public class Store {
         }
         return -1;
     }
+
+    public void handleGrantingAgreement() {
+        Collection<GrantingAgreement> agreements = getAllGrantingAgreements();
+        for (GrantingAgreement agreement : agreements){
+            if (agreement.allAproved()){
+                Subscriber grantor = System.getInstance().getSubscriber(agreement.getGrantorId());
+                Subscriber newOwner = System.getInstance().getSubscriber(agreement.getMalshabId());
+                if (System.getInstance().setStoreOwner(grantor, newOwner, this)) {
+                    removeAgreement(agreement.getMalshabId());
+                }
+
+            }
+        }
+    }
+
+
 }

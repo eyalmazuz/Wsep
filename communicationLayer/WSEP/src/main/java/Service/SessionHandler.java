@@ -38,4 +38,5 @@ public class SessionHandler {
     public PermissionActionResultDTO getPermission(int subId, int storeId) {
        return  system.getPermission(subId,storeId);
     }
+
 }
