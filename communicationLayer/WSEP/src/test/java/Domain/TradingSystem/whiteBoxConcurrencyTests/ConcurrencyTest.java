@@ -154,8 +154,7 @@ public class ConcurrencyTest extends TestCase {
         test.saveOngoingPurchaseForUser(sessionId);
 
         // updateStoreSupplies would fail only if there is a sync problem
-        if (!syncProblem) {
-            test.updateStoreSupplies(sessionId);
+        if (!syncProblem && test.updateStoreSupplies(sessionId)) {
             test.emptyCart(sessionId);
         } else {
             test.requestRefund(sessionId, transactionId);

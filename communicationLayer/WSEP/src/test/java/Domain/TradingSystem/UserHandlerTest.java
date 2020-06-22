@@ -220,10 +220,10 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testCreateSessionDiffIds() {
         int id1 = uh.createSession();
+
         int id2 = uh.createSession();
         assertTrue(id1 != id2);
     }
-
     public void testCreateSessionSuccessID() {
         int id = uh.createSession();
         assertTrue(id>=0);
