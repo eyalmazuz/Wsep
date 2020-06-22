@@ -109,54 +109,54 @@ public class SystemTest extends TestCase {
         stores.get(1).setRating(3);
         stores.get(2).setRating(4);
 
-        String res0 = test.searchProducts(1, "apple", null, null, -1 ,-1).toString();
+        String res0 = test.searchProducts(1, "apple", "", null, -1 ,-1).toString();
         assertTrue(res0.contains("product ID: 5"));
 
         // spelling checker
-        String resSpeller = test.searchProducts(1, "appple", null, null, -1 ,-1).toString();
+        String resSpeller = test.searchProducts(1, "appple", "", null, -1 ,-1).toString();
         assertTrue(resSpeller.contains("product ID: 5"));
 
         // spelling checker
-        String resSpeller2 = test.searchProducts(1, "applee", null, null, -1 ,-1).toString();
+        String resSpeller2 = test.searchProducts(1, "applee", "", null, -1 ,-1).toString();
         assertTrue(resSpeller2.contains("product ID: 5"));
 
-        String res1 = test.searchProducts(1, "bamba", null, null, -1 ,-1).toString();
+        String res1 = test.searchProducts(1, "bamba", "", null, -1 ,-1).toString();
         assertTrue(res1.contains("product ID: 4"));
 
-        String res15 = test.searchProducts(1, "bamba", null, null, -1 ,3).toString();
+        String res15 = test.searchProducts(1, "bamba", "", null, -1 ,3).toString();
         assertTrue(res15.contains("Store ID: 1"));
         assertTrue(res15.contains("Store ID: 2"));
 
-        String res16 = test.searchProducts(1, "bamba", null, null, -1 ,4).toString();
+        String res16 = test.searchProducts(1, "bamba", "", null, -1 ,4).toString();
         assertFalse(res16.contains("Store ID: 1"));
         assertTrue(res16.contains("Store ID: 2"));
 
-        String res2 = test.searchProducts(1, null, "fruit", null, -1 ,-1).toString();
+        String res2 = test.searchProducts(1, "", "fruit", null, -1 ,-1).toString();
         assertTrue(res2.contains("product ID: 5"));
 
         // apple's descrition is "very ripe apple"
         String[] keywords = {"ripe"};
-        String res3 = test.searchProducts(1, null, null, keywords, -1 ,-1).toString();
+        String res3 = test.searchProducts(1, "", "", keywords, -1 ,-1).toString();
         assertTrue(res3.contains("product ID: 5"));
 
-        String res4 = test.searchProducts(1, null, null, null, 2 ,-1).toString();
+        String res4 = test.searchProducts(1, "", "", null, 2 ,-1).toString();
         assertTrue(res4.contains("product ID: 5"));
         assertTrue(res4.contains("product ID: 4"));
 
-        String res5 = test.searchProducts(1, null, null, null, 3 ,-1).toString();
+        String res5 = test.searchProducts(1, "", "", null, 3 ,-1).toString();
         assertTrue(res5.contains("product ID: 4"));
         assertFalse(res5.contains("product ID: 5"));
 
-        String res6 = test.searchProducts(1, null, null, null, -1 ,3).toString();
+        String res6 = test.searchProducts(1, "", "", null, -1 ,3).toString();
         //out.println(res6);
         assertFalse(res6.contains("product ID: 4"));
         assertFalse(res6.contains("product ID: 5"));
 
-        String res8 = test.searchProducts(1, "bruh product", null, null, -1 ,-1).toString();
+        String res8 = test.searchProducts(1, "bruh product", "", null, -1 ,-1).toString();
         assertFalse(res8.contains("product ID: 4"));
         assertFalse(res8.contains("product ID: 5"));
 
-        String res9 = test.searchProducts(1, null, "bruh category", null, -1 ,-1).toString();
+        String res9 = test.searchProducts(1, "", "bruh category", null, -1 ,-1).toString();
         assertFalse(res9.contains("product ID: 4"));
         assertFalse(res9.contains("product ID: 5"));
     }
@@ -293,6 +293,7 @@ class StoreMock extends Store{
     List<ProductInStore> mockProducts = new ArrayList<>();
 
     public StoreMock(int i) {
+        super(0);
         id = i;
         ProductInfo bamba = new ProductInfo(4, "bamba", "snack", 10);
         bamba.setRating(3);

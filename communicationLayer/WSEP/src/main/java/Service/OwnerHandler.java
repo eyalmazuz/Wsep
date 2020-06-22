@@ -29,7 +29,11 @@ public class OwnerHandler {
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }
-            return s.addProductToStore(sessionId,storeId,productId,amount);
+            ActionResultDTO result = s.addProductToStore(sessionId,storeId,productId,amount);
+            if(result.getResultCode()!=ResultCode.SUCCESS){
+                s.removeProduct(productId);
+            }
+            return result;
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }

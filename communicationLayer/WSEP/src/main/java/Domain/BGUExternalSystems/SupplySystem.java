@@ -49,8 +49,14 @@ public class SupplySystem implements ISupplySystem {
         params.add(new BasicNameValuePair("zip", zip));
 
         String response = send(params);
+        int statusCode = 0;
+        try{
+            statusCode = Integer.parseInt(response);
+        }catch(NumberFormatException e){
+            statusCode = -1;
+        }
         if (response == null) return new IntActionResultDto(ResultCode.ERROR_SUPPLY_SYSTEM_UNAVAILABLE, "Could not contact supply system. Please try again later.", -1);
-        return response.equals("-1") ? new IntActionResultDto(ResultCode.ERROR_SUPPLY_DENIED, "Supply system denied supply.", -1) :
+        return statusCode == -1 ? new IntActionResultDto(ResultCode.ERROR_SUPPLY_DENIED, "Supply system denied supply.", -1) :
                 new IntActionResultDto(ResultCode.SUCCESS, null, Integer.parseInt(response));
     }
 
