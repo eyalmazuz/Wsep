@@ -31,9 +31,9 @@ public class ShoppingCartTest extends TestCase {
         shoppingCart = new ShoppingCart(user);
         otherShoppingCart = new ShoppingCart(user);
 
-        store1 = new Store();
-        store2 = new Store();
-        store3 = new Store();
+        store1 = new Store(0);
+        store2 = new Store(0);
+        store3 = new Store(0);
         productInfo2 = new ProductInfo(2,"two","two", 10);
         productInfo4 = new ProductInfo(4,"four","four", 10);
         productInfo5 = new ProductInfo(5,"five","five", 10);

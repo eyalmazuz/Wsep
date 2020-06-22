@@ -55,9 +55,9 @@ public class Store {
     @DatabaseField
     private double rating = -1;
 
+    public Store() {}
 
-
-    public Store(){
+    public Store(int dummyArg){
         this.id = globalId;
         this.name = "";
         globalId ++;

@@ -346,6 +346,7 @@ class StoreMock extends Store{
     List<ProductInStore> mockProducts = new ArrayList<>();
 
     public StoreMock(int i) {
+        super(0);
         id = i;
         ProductInfo bamba = new ProductInfo(4, "bamba", "snack", 10);
         bamba.setRating(3);
