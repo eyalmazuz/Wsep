@@ -1779,10 +1779,12 @@ public class System {
         dailyStats.reset();
     }
 
-    public void addDayStatistics(int year, int month, int day) {
+    public DayStatistics addDayStatistics(int year, int month, int day) {
         DayStatistics stats = new DayStatistics(LocalDate.of(year, month, day));
         DAOManager.addDayStatistics(stats);
+        return stats;
     }
+
 
     public Map<Integer, Subscriber> getSubscribersMemory() {
         return userHandler.subscribers;
