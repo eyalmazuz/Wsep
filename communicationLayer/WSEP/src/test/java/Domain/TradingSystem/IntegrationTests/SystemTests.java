@@ -502,7 +502,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testBuyingPoliciesSimpleNoOne() throws DatabaseFetchException {
-        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
 
         // bad
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
@@ -513,7 +516,9 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testBuyingPoliciesSimpleDetails() throws DatabaseFetchException {
-        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
 
 
         // bad
@@ -525,7 +530,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testBuyingPoliciesSimpleMinAmountForProductFailure() throws DatabaseFetchException {
-        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
 
 
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
@@ -538,7 +546,10 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testBuyingPoliciesSimpleMinAmountForProductSuccess() throws DatabaseFetchException {
-        testBuyingPoliciesSetup();
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
 
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // good
@@ -601,10 +612,10 @@ public class SystemTests extends TestCase {
     @Test
     public void testBuyingPoliciesSimpleNoOneSuccessWithEdit() throws DatabaseFetchException {
         HashMap<String, Object> nec = testBuyingPoliciesSetup();
-
         Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
         User u = (User) nec.get("u");
-
 
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // good
@@ -615,7 +626,9 @@ public class SystemTests extends TestCase {
 
     @Test
     public void testBuyingPoliciesSimpleFailureNotOnDay() throws DatabaseFetchException {
-        Store store1 = (Store) testBuyingPoliciesSetup().get("store1");
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
 
 
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
@@ -630,8 +643,8 @@ public class SystemTests extends TestCase {
     @Test
     public void testBuyingPoliciesSimpleNotOutsideCountryFailure() throws DatabaseFetchException {
         HashMap<String, Object> nec = testBuyingPoliciesSetup();
-
         Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
         User u = (User) nec.get("u");
 
 
@@ -646,8 +659,9 @@ public class SystemTests extends TestCase {
     @Test
     public void testBuyingPoliciesSimpleNotOutsideCountrySuccess() throws DatabaseFetchException {
         HashMap<String, Object> nec = testBuyingPoliciesSetup();
-
         Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
         User u = (User) nec.get("u");
 
 
