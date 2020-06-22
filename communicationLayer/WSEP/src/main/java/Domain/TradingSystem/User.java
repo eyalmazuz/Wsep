@@ -8,6 +8,7 @@ import DataAccess.DatabaseFetchException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class User {
 
@@ -16,13 +17,14 @@ public class User {
 
     private String paymentDetails;
     private UserState state;
-    public static int idCounter = 0;
+    public static AtomicInteger idCounter;// = new AtomicInteger(0);
     private int id;
     private String country = "Unknown";
 
     public User() {
-        this.id = Math.max(DAOManager.getMaxSubscriberId() + 1, idCounter);
-        idCounter = id + 1;
+//        int maxDB = DAOManager.getMaxSubscriberId();
+//        int nId = idCounter.incrementAndGet();
+        this.id = idCounter.incrementAndGet();
         this.state = new Guest(this);
         // FIX for acceptance testing
     }

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SystemTests extends TestCase {
 
@@ -1418,6 +1419,49 @@ public class SystemTests extends TestCase {
     }
 
 
+//    @Test
+//    public void testBuyProductsMultipleBuys(){
+//        int storeId = setUpStoreWithAmount(100);
+//        AtomicInteger doneCount = new AtomicInteger(0);
+//        List<Thread> threadList = new ArrayList();
+//        for(int i = 0;i<10;i++) {
+//            Thread t1 = new Thread(() -> {
+//                int id = test.startSession().getId();
+//                test.addToCart(id, storeId, 69, 5);
+//                try {
+//                    confirmPurchase(sessionId, false);
+//                } catch (DatabaseFetchException e) {
+//                    e.printStackTrace();
+//                }
+//                doneCount.incrementAndGet();
+//            });
+//            threadList.add(t1);
+//        }
+//        for(Thread t : threadList){
+//            t.start();
+//        }
+//        while(doneCount.get()<10){
+//
+//        }
+//
+//        assertEquals(1,1);
+//    }
+//
+//    private int setUpStoreWithAmount(int amount) {
+//        int id = test.startSession().getId();
+//        test.register(id,"master","1234");
+//        try {
+//            test.login(id,"master","1234");
+//        } catch (DatabaseFetchException e) {
+//            e.printStackTrace();
+//        }
+//        int storeid = test.openStore(id).getId();
+//        test.addProductInfo(69,"bamba","food",5);
+//        test.addProductToStore(id,storeid,69,amount);
+//        return storeid;
+//    }
+//
+//
 
 
 }

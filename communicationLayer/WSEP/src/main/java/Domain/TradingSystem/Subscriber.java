@@ -8,12 +8,13 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @DatabaseTable(tableName = "subscribers")
 public class Subscriber implements UserState {
 
     //FIELDS:
-    public static int idCounter = 0;
+
 
     @DatabaseField (id = true)
     private int id;
@@ -55,8 +56,9 @@ public class Subscriber implements UserState {
         permissions = new HashMap<>();
         permissionLock = new Object();
         shoppingCart = new ShoppingCart(user);
-        this.id = idCounter;
-        idCounter++;
+
+
+
         this.pVersion=0;
     }
 
