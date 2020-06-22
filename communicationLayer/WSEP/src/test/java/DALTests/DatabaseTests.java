@@ -1,5 +1,6 @@
 package DALTests;
 
+import DTOs.StatisticsResultsDTO;
 import DataAccess.DAOManager;
 import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.*;
@@ -63,6 +64,289 @@ public class DatabaseTests extends TestCase {
         productInfo = DAOManager.loadAllProductInfos().get(0);
         assertEquals(productInfo.getRating(), 5.0);
     }
+
+
+    @Test
+    public void testDayStatisticsPersistenceAdd() throws DatabaseFetchException {
+        test.addDayStatistics(2019, 5, 20);
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(1);
+        assertTrue(stats.getDate().equals("Mon May 20 00:00:00 IDT 2019"));
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceInBetweenSetup() {
+        DayStatistics s1 = test.addDayStatistics(2019, 5, 20);
+        s1.increaseGuest(); // 1
+        s1.increaseGuest(); // guests = 2
+        s1.increaseAdmin(); // admin = 1
+        s1.increaseManager(); // manager = 1
+        s1.increaseRegular();
+        s1.increaseRegular();
+        s1.increaseRegular();   // regular = 3
+        s1.increaseOwner(); // owner = 1
+
+        DayStatistics s3 = test.addDayStatistics(2019, 6, 20);
+        s3.increaseGuest(); // guests = 1
+
+        s3.increaseAdmin(); //
+        s3.increaseAdmin(); // admin = 2
+
+        s3.increaseManager(); //
+        s3.increaseManager(); // manager = 2
+        s3.increaseRegular();
+        s3.increaseRegular();   // regular = 2
+        s3.increaseOwner(); // owner = 1
+
+
+        DayStatistics s2 = test.addDayStatistics(2020, 5, 20);
+        s2.increaseGuest(); // guests = 1
+
+        // admin = 0
+
+        s2.increaseManager(); //
+        s2.increaseManager(); // manager = 2
+        s2.increaseRegular();
+        s2.increaseRegular();   // regular = 2
+        s2.increaseOwner(); // owner = 1
+        s2.increaseManager();
+        s2.increaseManager(); // manager = 4
+
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceInBetweenThree() {
+        testDayStatisticsPersistenceInBetweenSetup();
+
+        StatisticsResultsDTO res = test.getStatistics("2019.05.20", "2020.05.20");
+
+        assertSame(3, res.getStats().size());
+
+        assertSame(1, res.getStats().get(0).getAdmins());
+        assertSame(2, res.getStats().get(0).getGuests());
+        assertSame(1, res.getStats().get(0).getManagersNotOwners());
+        assertSame(1, res.getStats().get(0).getManagersOwners());
+        assertSame(3, res.getStats().get(0).getRegularSubs());
+
+        assertSame(2, res.getStats().get(1).getAdmins());
+        assertSame(1, res.getStats().get(1).getGuests());
+        assertSame(2, res.getStats().get(1).getManagersNotOwners());
+        assertSame(1, res.getStats().get(1).getManagersOwners());
+        assertSame(2, res.getStats().get(1).getRegularSubs());
+
+        assertSame(0, res.getStats().get(2).getAdmins());
+        assertSame(1, res.getStats().get(2).getGuests());
+        assertSame(4, res.getStats().get(2).getManagersNotOwners());
+        assertSame(1, res.getStats().get(2).getManagersOwners());
+        assertSame(2, res.getStats().get(2).getRegularSubs());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceInBetweenTwo() {
+        testDayStatisticsPersistenceInBetweenSetup();
+
+        StatisticsResultsDTO res = test.getStatistics("2019.05.23", "2020.06.20"); // assert
+        assertSame(2, res.getStats().size());
+
+        assertSame(2, res.getStats().get(0).getAdmins());
+        assertSame(1, res.getStats().get(0).getGuests());
+        assertSame(2, res.getStats().get(0).getManagersNotOwners());
+        assertSame(1, res.getStats().get(0).getManagersOwners());
+        assertSame(2, res.getStats().get(0).getRegularSubs());
+
+        assertSame(0, res.getStats().get(1).getAdmins());
+        assertSame(1, res.getStats().get(1).getGuests());
+        assertSame(4, res.getStats().get(1).getManagersNotOwners());
+        assertSame(1, res.getStats().get(1).getManagersOwners());
+        assertSame(2, res.getStats().get(1).getRegularSubs());
+
+
+        StatisticsResultsDTO res1 = test.getStatistics("2019.04.20", "2019.06.20"); // assert
+        assertSame(2, res1.getStats().size());
+
+        assertSame(1, res1.getStats().get(0).getAdmins());
+        assertSame(2, res1.getStats().get(0).getGuests());
+        assertSame(1, res1.getStats().get(0).getManagersNotOwners());
+        assertSame(1, res1.getStats().get(0).getManagersOwners());
+        assertSame(3, res1.getStats().get(0).getRegularSubs());
+
+        assertSame(2, res1.getStats().get(1).getAdmins());
+        assertSame(1, res1.getStats().get(1).getGuests());
+        assertSame(2, res1.getStats().get(1).getManagersNotOwners());
+        assertSame(1, res1.getStats().get(1).getManagersOwners());
+        assertSame(2, res1.getStats().get(1).getRegularSubs());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceInBetweenOne() {
+        testDayStatisticsPersistenceInBetweenSetup();
+
+        StatisticsResultsDTO res = test.getStatistics("2019.06.20", "2019.06.20"); // assert
+        assertSame(1, res.getStats().size());
+
+        assertSame(2, res.getStats().get(0).getAdmins());
+        assertSame(1, res.getStats().get(0).getGuests());
+        assertSame(2, res.getStats().get(0).getManagersNotOwners());
+        assertSame(1, res.getStats().get(0).getManagersOwners());
+        assertSame(2, res.getStats().get(0).getRegularSubs());
+
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceInBetweenNone() {
+        testDayStatisticsPersistenceInBetweenSetup();
+
+        StatisticsResultsDTO res = test.getStatistics("2020.07.2020", "2011.05.20"); // assert
+        assertSame(0, res.getStats().size());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceGuest() throws DatabaseFetchException {
+        test.startSession();
+
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(stats.getGuests(), 1);
+        assertSame(stats.getRegularSubs(), 0);
+        assertSame(stats.getManagersNotOwners(), 0);
+        assertSame(stats.getManagersOwners(), 0);
+
+
+        test.startSession();
+
+        stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(stats.getGuests(), 2);
+        assertSame(stats.getRegularSubs(), 0);
+        assertSame(stats.getManagersNotOwners(), 0);
+        assertSame(stats.getManagersOwners(), 0);
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceLoginLogout() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+
+        test.register(sessionId, "user", "passw0rd");
+        test.register(sessionId, "user2", "passw0rd");
+
+        test.login(sessionId, "user", "passw0rd");
+
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(1, stats.getRegularSubs());
+        assertSame(0, stats.getGuests());
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+
+
+        test.logout(sessionId);
+        stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(1, stats.getRegularSubs());
+        assertSame(1, stats.getGuests());
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+
+        test.login(sessionId, "user2", "passw0rd");
+
+        stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(2, stats.getRegularSubs());
+        assertSame(0, stats.getGuests());
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceAdmin() throws DatabaseFetchException {
+        test.setup("", "", "");
+        int sessionId = test.startSession().getId();
+
+        test.login(sessionId, "admin", "admin");
+
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(1, stats.getAdmins());
+        assertSame(0, stats.getGuests());
+        assertSame(0, stats.getRegularSubs());
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+
+        test.logout(sessionId);
+        stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(1, stats.getAdmins());
+        assertSame(1, stats.getGuests());
+        assertSame(0, stats.getRegularSubs());
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceOwner() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+
+        test.getUser(sessionId);
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        test.openStore(sessionId).getId();
+
+
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(0, stats.getManagersOwners());
+        assertSame(0, stats.getAdmins());
+        assertSame(0, stats.getGuests());
+        assertSame(1, stats.getRegularSubs());
+        assertSame(0, stats.getManagersNotOwners());
+
+        test.logout(sessionId);
+        test.login(sessionId, "user", "passw0rd");
+        stats = DAOManager.loadAllDayStatistics().get(0);
+
+        assertSame(1, stats.getManagersOwners());
+        assertSame(0, stats.getAdmins());
+        assertSame(0, stats.getGuests());
+        assertSame(1, stats.getRegularSubs());
+        assertSame(0, stats.getManagersNotOwners());
+
+    }
+
+    @Test
+    public void testDayStatisticsPersistenceManagerNotOwner() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+
+        User u = test.getUser(sessionId);
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+
+        int sessionId2 = test.startSession().getId();
+        User u2 = test.getUser(sessionId2);
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
+        Subscriber subState = (Subscriber) u2.getState();
+        subState.addPermission(store, (Subscriber) u.getState(), "Manager");
+
+        DayStatistics stats = DAOManager.loadAllDayStatistics().get(0);
+        assertSame(0, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+        assertSame(0, stats.getAdmins());
+        assertSame(0, stats.getGuests());
+        assertSame(2, stats.getRegularSubs());
+
+        test.logout(sessionId);
+        test.login(sessionId, "user2", "passw0rd");
+        stats = DAOManager.loadAllDayStatistics().get(0);
+
+        assertSame(1, stats.getManagersNotOwners());
+        assertSame(0, stats.getManagersOwners());
+        assertSame(0, stats.getAdmins());
+        assertSame(0, stats.getGuests());
+        assertSame(2, stats.getRegularSubs());
+
+    }
+
 
     @Test
     public void testSimpleBuyingPolicyPersistenceBasketMaxAmountForProduct() throws DatabaseFetchException {

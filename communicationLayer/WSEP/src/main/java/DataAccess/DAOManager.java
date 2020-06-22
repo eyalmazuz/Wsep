@@ -1304,4 +1304,19 @@ public class DAOManager {
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Could not delete product from store, please try again later.");
 
     }
+
+    public static List<DayStatistics> loadAllDayStatistics() throws DatabaseFetchException {
+        try {
+            return dayStatisticsDao.queryForAll();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product infos");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
+
 }
