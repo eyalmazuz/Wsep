@@ -80,37 +80,41 @@ public class GuestUserHandler {
     }
 
     // 2.8.3, 2.8.4
-    public ActionResultDTO confirmPurchase(int sessionId, String paymentDetails) {
-        IntActionResultDto result = s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId);
-        int transactionId = result.getId();
-        if (result.getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
+    public ActionResultDTO confirmPurchase(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
+        final IntActionResultDto[] result = {s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId)};
+        int transactionId = result[0].getId();
+        if (result[0].getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result[0].getDetails());
+
         return s.runPurchaseTransaction(() -> {
-        s.savePurchaseHistory(sessionId);
-        s.saveOngoingPurchaseForUser(sessionId);
+            s.savePurchaseHistory(sessionId);
+            s.saveOngoingPurchaseForUser(sessionId);
 
-        try {
-            if (s.updateStoreSupplies(sessionId)) {
+            if (DAOManager.crashTransactions) throw new SQLException();
 
-                s.emptyCart(sessionId);
-            } else {
-                s.requestRefund(sessionId, transactionId);
-                s.restoreHistories(sessionId);
-                s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
+            try {
+                if (s.updateStoreSupplies(sessionId)) {
+
+                    s.emptyCart(sessionId);
+                } else {
+                    s.requestRefund(sessionId, transactionId);
+                    s.restoreHistories(sessionId);
+                    s.removeOngoingPurchase(sessionId);
+                    return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
+                }
+
+                result[0] = s.requestSupply(sessionId, buyerName, address, city, country, zip);
+                if (result[0].getResultCode() != ResultCode.SUCCESS) {
+                    s.requestRefund(sessionId, transactionId);
+                    s.restoreSupplies(sessionId);
+                    s.restoreHistories(sessionId);
+                    s.restoreCart(sessionId);
+                    s.removeOngoingPurchase(sessionId);
+                    return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result[0].getDetails());
+                }
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
             }
-
-            result = s.requestSupply(sessionId, buyerName, address, city, country, zip);
-            if (result.getResultCode() != ResultCode.SUCCESS) {
-                s.requestRefund(sessionId, transactionId);
-                s.restoreSupplies(sessionId);
-                s.restoreHistories(sessionId);
-                s.restoreCart(sessionId);
-                s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
-            }
-        } catch (DatabaseFetchException e) {
-            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
-        }
 
 
             s.removeOngoingPurchase(sessionId);

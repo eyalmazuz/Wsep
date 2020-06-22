@@ -2,6 +2,7 @@ package DataAccess;
 
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
+import DTOs.Notification;
 import DTOs.ResultCode;
 import Domain.TradingSystem.*;
 import com.j256.ormlite.dao.Dao;
@@ -1162,7 +1163,7 @@ public class DAOManager {
         return null;
 
     }
-}
+
 
     public static boolean crashTransactions = false;
 
@@ -1211,6 +1212,7 @@ public class DAOManager {
 
         for (Subscriber subscriber : Domain.TradingSystem.System.getInstance().getSubscribersMemory().values()) {
             try {
+
                 subscriberDao.refresh(subscriber);
             } catch (SQLException ex) {
                 ex.printStackTrace();

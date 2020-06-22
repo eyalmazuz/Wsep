@@ -15,6 +15,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -398,8 +399,10 @@ public class System {
         } catch (DatabaseFetchException e) {
             return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
+
+        ProductInfo finalInfo = info;
         return DAOManager.runAddProductToStoreTransaction(() -> {
-            if (info != null) {
+            if (finalInfo != null) {
 
                 Store store = null;
                 try {
@@ -410,13 +413,18 @@ public class System {
 
 
                 if (store != null) {
-                    ActionResultDTO result = store.addProduct(info, amount);
+                    ActionResultDTO result = store.addProduct(finalInfo, amount);
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
                     //Publisher Update
                     if (result.getResultCode() == ResultCode.SUCCESS) {
                         if (publisher != null) {
                             List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                             Notification notification = new Notification(notificationId++, "Store " + storeId + " has been updated");
                             updateAllUsers(store.getAllManagers(), notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
                             publisher.notify("/storeUpdate/", managers, notification);
                         }
                     }
@@ -437,6 +445,9 @@ public class System {
                 Store store = getStoreById(storeId);
                 if (store != null) {
                     ActionResultDTO result =  store.editProduct(productId, newInfo);
+
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
                     //Publisher Update
                     if(result.getResultCode()==ResultCode.SUCCESS){
                         if(publisher != null) {
@@ -444,6 +455,9 @@ public class System {
                             String message = "Store " + storeId + " has been updated: product has been edited";
                             Notification notification = new Notification(notificationId++,message);
                             updateAllUsers(store.getAllManagers(),notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
                             publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
@@ -467,6 +481,9 @@ public class System {
                 Store store = getStoreById(storeId);
                 if (store != null) {
                     ActionResultDTO result =  store.deleteProduct(productId);
+
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
                     //Publisher Update
                     if(result.getResultCode()==ResultCode.SUCCESS){
                         if(publisher != null)
@@ -474,6 +491,9 @@ public class System {
                             List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                             Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
                             updateAllUsers(store.getAllManagers(),notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
                             publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
@@ -811,6 +831,7 @@ public class System {
         return DAOManager.runRegisterTransaction(() -> {
             if (u != null) {
                 int subId = userHandler.register(username, Security.getHash(password));
+                if (DAOManager.crashTransactions) throw new SQLException();
                 if (subId == -1) {
                     return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
                 }
