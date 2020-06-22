@@ -34,8 +34,15 @@ public class SystemTests extends TestCase {
     private PaymentHandler paymentHandler = null;
     private SupplyHandler supplyHandler = null;
 
+    private static boolean firstTime = true;
+
     @Before
     public void setUp() {
+        if (firstTime) {
+            DAOManager.clearDatabase();
+            firstTime = false;
+        }
+
         System.testing = true;
 
         test = new System();
@@ -552,6 +559,8 @@ public class SystemTests extends TestCase {
 
 
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.setDetails("blah");
+
         // good
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
