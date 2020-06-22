@@ -76,25 +76,25 @@ public class StartupTests extends TestCase {
     @Test
     public void testStoreOwnerStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        test.register(sessionId, "user", "passw0rd");
+        int grantorId = test.register(sessionId, "user", "passw0rd").getId();
         test.login(sessionId, "user", "passw0rd");
         int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
         store.setName("store name");
 
         int sessionId2 = test.startSession().getId();
-        test.register(sessionId2, "user2", "passw0rd");
+        int newOwnerId = test.register(sessionId2, "user2", "passw0rd").getId();
         test.login(sessionId2, "user2", "passw0rd");
 
-        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
+        test.addStoreOwner(sessionId, storeId, newOwnerId);
 
         test = new System();
 
         Store savedStore = test.getStoreById(storeId);
 
         assertEquals(savedStore.getOwners().size(),2);
-        assertEquals(savedStore.getOwners().get(0).getId(), sessionId);
-        assertEquals(savedStore.getOwners().get(1).getId(), sessionId2);
+        assertEquals(savedStore.getOwners().get(0).getId(), grantorId);
+        assertEquals(savedStore.getOwners().get(1).getId(), newOwnerId);
     }
 
     @Test
