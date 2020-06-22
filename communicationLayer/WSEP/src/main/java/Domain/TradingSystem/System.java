@@ -299,7 +299,7 @@ public class System {
 
     public int addStore (){
         logger.info("AddStore");
-        Store store = new Store();
+        Store store = new Store(0);
         stores.put(store.getId(),store);
         DAOManager.addStore(store);
         return store.getId();
@@ -889,7 +889,7 @@ public class System {
         }
 
         List<String> keywordsUpdated = new ArrayList<>();
-        if (!keywords.equals("")) {
+        if (keywords != null) {
             keywordsUpdated = new ArrayList<>(Arrays.asList(keywords));
             for (String keyword: keywords) {
                 List<String> keywordSugs = Spellchecker.getSuggestions(keyword);
@@ -1575,6 +1575,17 @@ public class System {
     private void handleGrantingAgreements(int storeId) throws DatabaseFetchException {
         Store store = getStoreById(storeId);
         if(store != null){
+//            Collection<GrantingAgreement> agreements = store.getAllGrantingAgreements();
+//            for (GrantingAgreement agreement : agreements){
+//                if (agreement.allAproved()){
+//                    Subscriber grantor = userHandler.getSubscriber(agreement.getGrantorId());
+//                    Subscriber newOwner = userHandler.getSubscriber(agreement.getMalshabId());
+//                    if (setStoreOwner(grantor, newOwner, store)) {
+//                        store.removeAgreement(agreement.getMalshabId());
+//                    }
+//
+//                }
+//            }
             store.handleGrantingAgreement();
         }
     }
@@ -1602,8 +1613,13 @@ public class System {
         }
         if(store != null){
             if(store.approveMalshab(owner.getId(),subId)){
-                    int grantorId = store.allAproved(subId);
-                    if(grantorId!=-1){
+//                if (store.allAproved(subId)) {        // OLD
+//                    int grantorId = store.getAgreementGrantor(subId); // OLD
+
+                int grantorId = store.getApprovedAgreementGrantor(subId);
+                //if (store.allAproved(subId))
+                //int grantorId = store.allAproved(subId);      // NEW
+                if (grantorId != -1) {
                     if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
                         store.removeAgreement(subId);
                         return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");

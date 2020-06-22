@@ -19,7 +19,7 @@ public class StoreTest extends TestCase {
         System.testing = true;
         new System();
 
-        store = new Store();
+        store = new Store(0);
         s = new Subscriber();
         bamba = new ProductInfo(1,"bamba","sanck", 10);
         bisly = new ProductInfo(2,"bisly","sanck", 10);

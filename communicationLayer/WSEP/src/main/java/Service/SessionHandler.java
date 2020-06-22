@@ -4,6 +4,7 @@ package Service;
 import DTOs.ActionResultDTO;
 import DTOs.IntActionResultDto;
 import DTOs.PermissionActionResultDTO;
+import DTOs.ResultCode;
 import Domain.TradingSystem.System;
 import NotificationPublisher.Publisher;
 
@@ -39,4 +40,10 @@ public class SessionHandler {
        return  system.getPermission(subId,storeId);
     }
 
+    public ActionResultDTO isAdmin(int sessionId) {
+        if (system.isAdmin(sessionId)){
+            return new ActionResultDTO(ResultCode.SUCCESS,"Is ADMIN!");
+        }
+        return new ActionResultDTO(ResultCode.ERROR_SESSIONID,"is not admin");
+    }
 }

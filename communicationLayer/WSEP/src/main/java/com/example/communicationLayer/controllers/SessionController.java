@@ -51,5 +51,11 @@ public class SessionController {
         sessionHandler.pullNotifications(subId);
     }
 
+    @GetMapping("/isAdmin")
+    @ResponseBody
+    public ActionResultDTO isAdmin(@RequestParam(value = "sessionId", defaultValue = "-1") int sessionId){
+        return sessionHandler.isAdmin(sessionId);
+    }
+
 
 }

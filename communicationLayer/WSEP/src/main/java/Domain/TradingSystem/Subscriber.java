@@ -131,7 +131,7 @@ public class Subscriber implements UserState {
 
 
     public Store openStore() {
-        Store newStore = new Store();
+        Store newStore = new Store(0);
         addPermission(newStore,null,"Owner");
         newStore.addOwner(this);
         return newStore;

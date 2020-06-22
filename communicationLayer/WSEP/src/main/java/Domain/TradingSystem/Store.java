@@ -56,9 +56,10 @@ public class Store {
     @DatabaseField
     private double rating = -1;
 
+    public Store() {}
 
 
-    public Store(){
+    public Store(int dummyArg){
         this.id = globalId.incrementAndGet();
         this.name = "";
         managers = new ArrayList<>();
@@ -511,13 +512,16 @@ public class Store {
 
     }
 
-    public int allAproved(int malshabId) {
+
+    public int getApprovedAgreementGrantor(int malshabId) {
         GrantingAgreement agreement = malshab2granting.get(malshabId);
-        if(agreement!=null){
+        if(agreement!=null && agreement.allAproved()){
             return agreement.getGrantorId();
         }
         return -1;
+
     }
+
 
     public void removeAgreement(int subId) {
         malshab2granting.remove(subId);
