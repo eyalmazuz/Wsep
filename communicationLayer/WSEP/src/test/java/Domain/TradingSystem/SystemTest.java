@@ -231,7 +231,7 @@ public class SystemTest extends TestCase {
     // HERE WE TEST ONLY VALIDITY OF PRODUCT AND STORE EXISTENCE IN SYSTEM
     // LOGICAL DOMAIN TESTS ARE IN ShoppingCartTest
     @Test
-    public void testAddProductToCartSuccess() throws DatabaseFetchException {
+    public void testAddProductToCartBadInputs() throws DatabaseFetchException {
         List<Integer> userSessionIDs = new ArrayList<>();
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
@@ -250,15 +250,15 @@ public class SystemTest extends TestCase {
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
+        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), 0).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), -1).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(-1, stores.get(1).getId(), products.get(1).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductInCartSuccess() throws DatabaseFetchException {
+    public void testEditProductInCartBadInputs() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
@@ -287,7 +287,7 @@ public class SystemTest extends TestCase {
     }
 
     @Test
-    public void testRemoveProductFromCartSuccess() throws DatabaseFetchException {
+    public void testRemoveProductFromCartBadInputs() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
         Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
