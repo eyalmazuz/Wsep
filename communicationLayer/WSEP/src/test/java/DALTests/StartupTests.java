@@ -97,6 +97,7 @@ public class StartupTests extends TestCase {
         assertEquals(savedStore.getOwners().get(1).getId(), newOwnerId);
     }
 
+
     @Test
     public void testStorePoliciesStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
