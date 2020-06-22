@@ -87,6 +87,9 @@ public class ConcurrencyTest extends TestCase {
         }
     }
 
+    /*
+    Sets THREADS to buy from storeId with the amount on the parameter
+     */
     private void buyFromStoreAmount(int storeId,int amount) {
 
         List<Thread> threadList = new ArrayList();
@@ -114,6 +117,11 @@ public class ConcurrencyTest extends TestCase {
         }
     }
 
+    /*
+    Set up store with product id: 69
+    with ammount given in the Parameter
+    returns the opend storeId
+     */
     private int setUpStoreWithAmount(int amount) {
         try {
             paymentHandler = new PaymentHandler("None");
