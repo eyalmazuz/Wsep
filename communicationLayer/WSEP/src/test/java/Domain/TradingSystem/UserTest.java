@@ -44,7 +44,7 @@ public class UserTest extends TestCase {
 
     //Usecase 3.2
     @Test
-    public void testOpenStoreFailure(){
+    public void testOpenStoreFailureAsGuest(){
         assertNull(guest.openStore());
     }
 

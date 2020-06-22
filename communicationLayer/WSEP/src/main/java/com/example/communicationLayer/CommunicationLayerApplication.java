@@ -48,6 +48,7 @@ public class CommunicationLayerApplication implements ApplicationListener<Applic
 
 	@Bean
 	CommandLineRunner setup(SessionController sessionController){
-		return (x) -> sessionController.setup("supplyConfig", "paymentConfig", "initFile.txt");
+		return (x) -> sessionController.setup("supplyConfig", "paymentConfig", "initFile4.txt");
 	}
+
 }

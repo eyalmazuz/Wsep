@@ -63,6 +63,12 @@ async function showAddManager(){
     possibleManagersURL += 'sessionId=' + sessionStorage['sessionId']
     possibleManagersURL += '&storeId=' + storeId
 
+    var x = document.getElementById("managerSelect");
+
+    for(i = x.length-1; i >= 0; i--) {
+        x.remove(i);
+     }
+
     await fetch(possibleManagersURL, headers).then(response => response.json()).then(response => possibleManagers = response)
     console.log(possibleManagers)
     for(managerIdx in possibleManagers['subscribers']){
@@ -178,6 +184,9 @@ async function removeManagerFromStore(){
     if(result['resultCode'] === 'SUCCESS'){
         alert('successfully fired ${user[3]} that piece of shit')
         location.reload()
+    }
+    else{
+        alert(result['details'])
     }
 
 }

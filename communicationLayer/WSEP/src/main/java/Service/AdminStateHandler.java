@@ -42,4 +42,11 @@ public class AdminStateHandler {
         }
         return new SubscriberActionResultDTO(ResultCode.ERROR_ADMIN,"User is not admin",null);
     }
+
+    public StatisticsResultsDTO getStatistics(String from, String to) {
+        if(s.isAdmin(sessionId))
+            return s.getStatistics(from,to);
+        else
+            return new StatisticsResultsDTO(ResultCode.ERROR_ADMIN,"User is not admin",null);
+    }
 }

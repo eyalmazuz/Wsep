@@ -54,10 +54,12 @@ public class RealBridge implements Bridge {
         return guh.clearCart(sessionId).getResultCode() == ResultCode.SUCCESS;
     }
 
-    public boolean buyCart(int sessionId, String paymentDetails) {
+    public boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
         GuestUserHandler guh = new GuestUserHandler();
         if (guh.requestPurchase(sessionId).getResultCode() == ResultCode.SUCCESS) {
-            return guh.confirmPurchase(sessionId, paymentDetails).getResultCode() == ResultCode.SUCCESS;
+            return guh.confirmPurchase(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv,
+                    cardId, buyerName, address, city, country, zip).getResultCode() == ResultCode.SUCCESS;
         }
 
         return false;

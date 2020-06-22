@@ -8,12 +8,13 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @DatabaseTable(tableName = "subscribers")
 public class Subscriber implements UserState {
 
     //FIELDS:
-    public static int idCounter = 0;
+
 
     @DatabaseField (id = true)
     private int id;
@@ -43,16 +44,22 @@ public class Subscriber implements UserState {
     private ShoppingCart shoppingCart;
 
     @DatabaseField (dataType = DataType.SERIALIZABLE)
-    private ConcurrentLinkedDeque<Notification> notificationQueue ;
+    private ArrayList<Notification> notificationQueue ;
+
     private Object permissionLock;
 
+    @DatabaseField
+    private int pVersion;
+
     public Subscriber() {
-        notificationQueue = new ConcurrentLinkedDeque<>();
+        notificationQueue = new ArrayList<>();
         permissions = new HashMap<>();
         permissionLock = new Object();
         shoppingCart = new ShoppingCart(user);
-        this.id = idCounter;
-        idCounter++;
+
+
+
+        this.pVersion=0;
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
@@ -124,7 +131,7 @@ public class Subscriber implements UserState {
 
 
     public Store openStore() {
-        Store newStore = new Store();
+        Store newStore = new Store(0);
         addPermission(newStore,null,"Owner");
         newStore.addOwner(this);
         return newStore;
@@ -322,8 +329,12 @@ public class Subscriber implements UserState {
         DAOManager.updateSubscriber(this);
     }
 
-    public Queue<Notification> getAllNotification(){
+    public ArrayList<Notification> getAllNotification(){
         return notificationQueue;
+    }
+
+    public void setNotificationQueue(ArrayList<Notification> notificationQueue) {
+        this.notificationQueue = notificationQueue;
     }
 
     public void removeNotification(int id){
@@ -406,4 +417,35 @@ public class Subscriber implements UserState {
         this.shoppingCart = cart;
     }
 
+    /*
+    Goes over Permission List and find if any of them is owner permission
+     */
+    public boolean isOwner() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Owner"))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isManager() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Manager"))
+                return true;
+        }
+        return false;
+    }
+
+    public void updateNotificationQueue(ArrayList<Notification> notifications) {
+
+        this.notificationQueue.addAll(notifications);
+
+    }
+    public int getpVersion() {
+        return pVersion;
+    }
+
+    public void incpVersion() {
+        this.pVersion++;
+    }
 }

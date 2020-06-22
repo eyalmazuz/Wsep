@@ -6,9 +6,16 @@ public class Notification implements Serializable {
     int id;
     String massage;
 
+    public static final long serialVersionUID = 123456L;
+
     public Notification(int id,String message){
         this.id = id;
         this.massage = message;
+    }
+
+    public Notification(Notification notification) {
+        this.id = notification.getId();
+        this.massage = notification.massage;
     }
 
     public int getId() {

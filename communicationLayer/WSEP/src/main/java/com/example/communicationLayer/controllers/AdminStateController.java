@@ -1,9 +1,6 @@
 package com.example.communicationLayer.controllers;
 
-import DTOs.ActionResultDTO;
-import DTOs.StorePurchaseHistoryDTO;
-import DTOs.SubscriberActionResultDTO;
-import DTOs.UserPurchaseHistoryDTO;
+import DTOs.*;
 import Domain.TradingSystem.Subscriber;
 import Service.AdminStateHandler;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +45,13 @@ public class AdminStateController {
        return new AdminStateHandler(sessionId).getAllSubscribers();
     }
 
+    @GetMapping("/getStats")
+       public StatisticsResultsDTO getStatistics(@RequestParam(value = "sessionId",defaultValue = "-1") int sessionId,
+                                                 @RequestParam(value="from",defaultValue = "") String from,
+                                                 @RequestParam(value = "to",defaultValue = "")String to){
+           return new AdminStateHandler(sessionId).getStatistics(from,to);
+        }
+    }
 
-}
+
+

@@ -38,8 +38,7 @@ public class SearchProductTests extends ServiceTest {
 
     @Test
     public void testSearchProductSuccessful(){
-        String products = searchProducts(Database.sessionId, "UO", null, null, -1, -1, 0, 0);
-        System.out.println(products);
+        String products = searchProducts(Database.sessionId, "UO", "", null, -1, -1, 0, 0);
         assertNotNull(products);
     }
 
@@ -49,8 +48,8 @@ public class SearchProductTests extends ServiceTest {
 
     }
 
-    public void testSearchProductsFailure(){
-        String prodcuts = searchProducts(Database.sessionId, "Food", null, null, -1, -1, 2500, 0);
+    public void testSearchProductsNoResults(){
+        String prodcuts = searchProducts(Database.sessionId, "Food", "", null, -1, -1, 2500, 0);
         assertEquals("Results:\n\n", prodcuts);
 
     }

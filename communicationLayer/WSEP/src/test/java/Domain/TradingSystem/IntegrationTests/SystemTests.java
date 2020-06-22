@@ -1,8 +1,13 @@
 package Domain.TradingSystem.IntegrationTests;
 
+import DTOs.IntActionResultDto;
 import DTOs.Notification;
 import DTOs.ResultCode;
+import DTOs.StatisticsResultsDTO;
 import DataAccess.DAOManager;
+import Domain.BGUExternalSystems.PaymentSystem;
+import DataAccess.DatabaseFetchException;
+import Domain.BGUExternalSystems.SupplySystem;
 import Domain.TradingSystem.System;
 import Domain.TradingSystem.*;
 import NotificationPublisher.MessageBroker;
@@ -16,26 +21,46 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SystemTests extends TestCase {
 
     //System Unitesting
     System test;
+    private int sessionId;
+    private int store1Id;
+    private ProductInfo info;
+    private User u;
+    private PaymentHandler paymentHandler = null;
+    private SupplyHandler supplyHandler = null;
+
+    private static boolean firstTime = true;
 
     @Before
     public void setUp() {
+        if (firstTime) {
+            DAOManager.clearDatabase();
+            firstTime = false;
+        }
+
         System.testing = true;
 
         test = new System();
-        Publisher publisherMock = new Publisher((subscribers, message) -> null);
+        Publisher publisherMock = new Publisher((path,subscribers, message) -> null);
         test.setPublisher(publisherMock);
 
+        PaymentSystemProxy.testing = true;
+        PaymentSystemProxy.succedPurchase = true;
+
+        SupplySystemProxy.testing = true;
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @After
     public void tearDown() {
         test.deleteStores();
         test.deleteUsers();
+        test.clearStats();
         DAOManager.clearDatabase();
     }
 
@@ -44,7 +69,7 @@ public class SystemTests extends TestCase {
     //USE CASES 4.1 tests
 
     @Test
-    public void testAddProductToStore() {
+    public void testAddProductToStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -56,7 +81,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testEditProductInStore() {
+    public void testEditProductInStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -71,7 +96,7 @@ public class SystemTests extends TestCase {
 
 
     @Test
-    public void testDeleteProductFromStore() {
+    public void testDeleteProductFromStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -87,9 +112,9 @@ public class SystemTests extends TestCase {
     // USECASE 2.8
 
     @Test
-    public void testSavePurchaseHistory() {
+    public void testSavePurchaseHistory() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
 
@@ -114,7 +139,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testUpdateStoreSupplies() {
+    public void testUpdateStoreSupplies() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "eyal", "1234");
         test.login(sessionId, "eyal", "1234");
@@ -133,9 +158,9 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testSaveOngoingPurchaseForUser() {
+    public void testSaveOngoingPurchaseForUser() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -150,9 +175,9 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRequestSupply() {
+    public void testRequestSupply() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -166,15 +191,15 @@ public class SystemTests extends TestCase {
             e.printStackTrace();
         }
 
-        supplyHandler.setProxySupplySuccess(false);
-        assertFalse(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = false;
+        assertNotSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
 
-        supplyHandler.setProxySupplySuccess(true);
-        assertTrue(test.requestSupply(sessionId));
+        SupplySystemProxy.succeedSupply = true;
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testRestoreSupplies() {
+    public void testRestoreSupplies() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -190,7 +215,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRestoreHistories() {
+    public void testRestoreHistories() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -208,7 +233,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRestoreCart() {
+    public void testRestoreCart() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id =test.addStore();
         Store store1 = test.getStores().get(id);
@@ -229,7 +254,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testRemoveOngoingPurchase() {
+    public void testRemoveOngoingPurchase() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -245,14 +270,9 @@ public class SystemTests extends TestCase {
     }
 
 
-    private int sessionId;
-    private int store1Id;
-    private ProductInfo info;
-    private User u;
-    private PaymentHandler paymentHandler = null;
-    private SupplyHandler supplyHandler = null;
 
-    private void setUpPurchase() {
+
+    private void setUpPurchase() throws DatabaseFetchException {
         sessionId = test.startSession().getId();
         store1Id = test.addStore();
         test.addProductInfo(4, "lambda", "snacks", 10);
@@ -274,7 +294,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseSuccess() {
+    public void testPurchaseSuccess() throws DatabaseFetchException {
         setUpPurchase();
 
         assertFalse(test.isCartEmpty(sessionId));
@@ -282,13 +302,14 @@ public class SystemTests extends TestCase {
         double price = test.checkSuppliesAndGetPrice(sessionId);
         assertFalse(price < 0);
 
-        assertSame(test.makePayment(sessionId, "details").getResultCode(), ResultCode.SUCCESS);
+        assertSame(test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123").getResultCode(), ResultCode.SUCCESS);
         test.savePurchaseHistory(sessionId);
         test.saveOngoingPurchaseForUser(sessionId);
 
         assertTrue(test.updateStoreSupplies(sessionId));
         test.emptyCart(sessionId);
-        assertTrue(test.requestSupply(sessionId));
+        assertSame(test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode(), ResultCode.SUCCESS);
         test.removeOngoingPurchase(sessionId);
 
         // check state
@@ -299,7 +320,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailBuyingPolicy() {
+    public void testPurchaseFailBuyingPolicy() throws DatabaseFetchException {
         setUpPurchase();
         test.getStoreById(store1Id).setBuyingPolicy(new BuyingPolicy("No one is allowed"));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
@@ -307,7 +328,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurhcaseFailMissingSupplies() {
+    public void testPurhcaseFailMissingSupplies() throws DatabaseFetchException {
         setUpPurchase();
 
         test.getStoreById(store1Id).setBuyingPolicy(new BuyingPolicy("None"));
@@ -319,53 +340,58 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testPurchaseFailPaymentSystem() {
+    public void testPurchaseFailPaymentSystem() throws DatabaseFetchException {
         setUpPurchase();
-        paymentHandler.setProxyPurchaseSuccess(false);
+        PaymentSystemProxy.succedPurchase = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
     }
 
     @Test
-    public void testPurchaseFailSupplySystem() {
+    public void testPurchaseFailSupplySystem() throws DatabaseFetchException {
         setUpPurchase();
-        supplyHandler.setProxySupplySuccess(false);
+        SupplySystemProxy.succeedSupply = false;
         confirmPurchase(sessionId, false);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
+        SupplySystemProxy.succeedSupply = true;
     }
 
     @Test
-    public void testPurchaseFailSyncProblem() {
+    public void testPurchaseFailSyncProblem() throws DatabaseFetchException {
         setUpPurchase();
         confirmPurchase(sessionId, true);
         assertTrue(checkPurchaseProcessNoChanges(u, test.getStoreById(store1Id)));
 
     }
 
-    private void confirmPurchase(int sessionId, boolean syncProblem) {
-        if (test.makePayment(sessionId, "details").getResultCode() == ResultCode.SUCCESS) {
-            test.savePurchaseHistory(sessionId);
-            test.saveOngoingPurchaseForUser(sessionId);
+    private void confirmPurchase(int sessionId, boolean syncProblem) throws DatabaseFetchException {
+        IntActionResultDto result = test.makePayment(sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123");
+        if (result.getResultCode() != ResultCode.SUCCESS) return;
+        int transactionId = result.getId();
 
-            // updateStoreSupplies would fail only if there is a sync problem
-            if (!syncProblem) {
-                test.updateStoreSupplies(sessionId);
-                test.emptyCart(sessionId);
-            } else {
-                test.requestRefund(sessionId);
-                test.restoreHistories(sessionId);
-                test.removeOngoingPurchase(sessionId);
-                return;
-            }
-            if (!test.requestSupply(sessionId)) {
-                test.requestRefund(sessionId);
-                test.restoreSupplies(sessionId);
-                test.restoreHistories(sessionId);
-                test.restoreCart(sessionId);
-            }
+        test.savePurchaseHistory(sessionId);
+        test.saveOngoingPurchaseForUser(sessionId);
 
+        // updateStoreSupplies would fail only if there is a sync problem
+        if (!syncProblem) {
+            test.updateStoreSupplies(sessionId);
+            test.emptyCart(sessionId);
+        } else {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreHistories(sessionId);
             test.removeOngoingPurchase(sessionId);
+            return;
         }
+        if (test.requestSupply(sessionId, "Michael Scott", "1725 Slough Avenue", "Scranton", "PA, United States", "12345").getResultCode() != ResultCode.SUCCESS) {
+            test.requestRefund(sessionId, transactionId);
+            test.restoreSupplies(sessionId);
+            test.restoreHistories(sessionId);
+            test.restoreCart(sessionId);
+        }
+
+        test.removeOngoingPurchase(sessionId);
+
     }
 
     private boolean checkPurchaseProcessNoChanges(User u, Store store) {
@@ -376,7 +402,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddOwnerSucess() {
+    public void testAddOwnerSucess() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId, "Amir", "1234");
         test.login(openerSessionId, "Amir", "1234");
@@ -390,7 +416,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddManager() {
+    public void testAddManager() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -404,7 +430,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDeleteManager() {
+    public void testDeleteManager() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -420,7 +446,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testSetManagerDetails() {
+    public void testSetManagerDetails() throws DatabaseFetchException {
         int openerSessionId = test.startSession().getId();
         test.register(openerSessionId,"Amir","1234");
         test.login(openerSessionId,"Amir","1234");
@@ -437,7 +463,7 @@ public class SystemTests extends TestCase {
 
 
     @Test
-    public void testGetHistory() {
+    public void testGetHistory() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int id = test.addStore();
         Store store1 = test.getStores().get(id);
@@ -463,8 +489,7 @@ public class SystemTests extends TestCase {
 
     }
 
-    @Test
-    public void testBuyingPoliciesSimple() {
+    public HashMap<String, Object> testBuyingPoliciesSetup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
@@ -474,73 +499,190 @@ public class SystemTests extends TestCase {
         u.setState(new Subscriber());
         u.addProductToCart(store1, info, 4);
 
+        HashMap<String, Object> nec = new HashMap<>();
+        nec.put("store1", store1);
+        nec.put("u", u);
+        nec.put("sessionId", sessionId);
+        nec.put("info", info);
+        return nec;
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleNoOne() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
         // bad
         BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        // good
-        policy.setDetails("blah");
-        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
+    @Test
+    public void testBuyingPoliciesSimpleDetails() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+
+
+        // bad
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMinAmountForProductFailure() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 5));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMinAmountForProductSuccess() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.setDetails("blah");
+
         // good
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MinAmountForProductConstraint(info, 2));
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductFailure() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.setDetails("blah");
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 3));
         store1.setBuyingPolicy(policy);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductSuccess() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         policy.clearBuyingTypes();
         // good
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxAmountForProductConstraint(info, 4));
         store1.setBuyingPolicy(policy);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleMaxAmountForProductFailureWithAdd() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+
+        Store store1 = (Store) nec.get("store1");
+        User u = (User) nec.get("u");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         // bad
         policy.addSimpleBuyingType(new BasketBuyingConstraint.MaxProductAmountConstraint(40));
         u.addProductToCart(store1, info, 39);
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleNoOneSuccessWithEdit() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+        User u = (User) nec.get("u");
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
         // good
         u.editCartProductAmount(store1, info, 39);
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
 
-        policy.clearBuyingTypes();
+    }
+
+    @Test
+    public void testBuyingPoliciesSimpleFailureNotOnDay() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        store1.setBuyingPolicy(policy);
+        policy.setDetails("blah");
         // bad
         int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
         policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today));
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
-        policy.clearBuyingTypes();
-        // good
-        policy.addSimpleBuyingType(new SystemBuyingConstraint.NotOnDayConstraint(today + 1));
-        assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    @Test
+    public void testBuyingPoliciesSimpleNotOutsideCountryFailure() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        User u = (User) nec.get("u");
 
+
+        BuyingPolicy policy = new BuyingPolicy("blah");
+        store1.setBuyingPolicy(policy);
         policy.clearBuyingTypes();
-        // bad
         policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
         u.setCountry("Brazil");
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
+    }
 
-        policy.clearBuyingTypes();
-        // good
+    @Test
+    public void testBuyingPoliciesSimpleNotOutsideCountrySuccess() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testBuyingPoliciesSetup();
+        Store store1 = (Store) nec.get("store1");
+        int sessionId = (Integer) nec.get("sessionId");
+        ProductInfo info = (ProductInfo) nec.get("info");
+        User u = (User) nec.get("u");
+
+
+        BuyingPolicy policy = new BuyingPolicy("No one is allowed");
+        policy.addSimpleBuyingType(new UserBuyingConstraint.NotOutsideCountryConstraint("Israel"));
         u.setCountry("Israel");
         assertSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 
+
     @Test
-    public void testBuyingPoliciesComplex() {
+    public void testBuyingPoliciesComplex() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int storeId = test.addStore();
         Store store1 = test.getStores().get(storeId);
@@ -594,8 +736,7 @@ public class SystemTests extends TestCase {
         assertNotSame(test.checkBuyingPolicy(sessionId).getResultCode(), ResultCode.SUCCESS);
     }
 
-    @Test
-    public void testDiscountPoliciesSimple() {
+    public HashMap<String, Object> testDiscountPoliciesSimpleSetup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int store1Id = test.addStore();
         Store store1 = test.getStores().get(store1Id);
@@ -603,6 +744,7 @@ public class SystemTests extends TestCase {
 
         test.addProductInfo(4, "bamba", "snacks", 10);
         test.addProductInfo(5, "apple", "fruits", 10);
+
         ProductInfo infoBamba = test.getProductInfoById(4);
         ProductInfo infoApple = test.getProductInfoById(5);
 
@@ -614,6 +756,23 @@ public class SystemTests extends TestCase {
         User u = test.getUser(sessionId);
         u.setState(new Subscriber());
 
+        HashMap<String, Object> nec = new HashMap<>();
+
+        nec.put("store1", store1);
+        nec.put("infoApple", infoApple);
+        nec.put("infoBamba", infoBamba);
+
+        return nec;
+
+    }
+
+
+    @Test
+    public void testDiscountPoliciesSimpleProductSaleDiscount() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+
         DiscountPolicy policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
         store1.setDiscountPolicy(policy);
@@ -622,12 +781,9 @@ public class SystemTests extends TestCase {
         assertEquals(5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
 
-
         productsAmount = new HashMap<>();
         productsAmount.put(infoBamba, 5);
         assertEquals(5 * 10.0, store1.getPrice(u, productsAmount).getPrice());
-
-
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -636,7 +792,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoBamba, 5);
         assertEquals(5 * 5.0, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleMultipleProductSaleDiscounts() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -658,8 +824,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoApple, 10);
 
         assertEquals((1-0.5) * 5 * 10 + (1-0.75) * 10 * 20, store1.getPrice(u, productsAmount).getPrice());
-        policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleCategorySaleDiscount() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.CategorySaleDiscount("fruits", 0.75));
@@ -683,7 +858,17 @@ public class SystemTests extends TestCase {
         productsAmount.put(infoApple, 10);
         assertEquals(5*10 + (1-0.75)*10*20, store1.getPrice(u, productsAmount).getPrice());
         policy.clearDiscountTypes();
+    }
 
+    @Test
+    public void testDiscountPoliciesSimpleProductAndCategorySales() throws DatabaseFetchException {
+        HashMap<String, Object> nec = testDiscountPoliciesSimpleSetup();
+        Store store1 = (Store) nec.get("store1");
+        ProductInfo infoBamba = (ProductInfo) nec.get("infoBamba");
+        ProductInfo infoApple = (ProductInfo) nec.get("infoApple");
+
+        DiscountPolicy policy;
+        HashMap<ProductInfo, Integer> productsAmount;
 
         policy = new DiscountPolicy("test");
         policy.addSimpleDiscountType(new ProductDiscount.ProductSaleDiscount(4, 0.5));
@@ -702,11 +887,11 @@ public class SystemTests extends TestCase {
         policy.clearDiscountTypes();
         test.removeProduct(4);
         test.removeProduct(5);
-
     }
 
+
     @Test
-    public void testDiscountPoliciesComplex() {
+    public void testDiscountPoliciesComplex() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         int store1Id = test.addStore();
         Store store1 = test.getStores().get(store1Id);
@@ -784,8 +969,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testAddProductUpdateNotification(){
-        int counter;
+    public void testAddProductUpdateNotification() throws DatabaseFetchException {
 
         int openerSessionId = test.startSession().getId();
         int subId = test.register(openerSessionId,"Amir","1234").getId();
@@ -797,7 +981,7 @@ public class SystemTests extends TestCase {
         ProductInfo infoApple = test.getProductInfoById(5);
 
         test.addProductToStore(openerSessionId,storeid,4,5);
-        Queue<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
+        ArrayList<Notification> noties = test.getUserHandler().getSubscriber(subId).getAllNotification();
         assertEquals(1,noties.size());
 
     }
@@ -808,7 +992,7 @@ public class SystemTests extends TestCase {
      * Simple owner deletion.
      */
     @Test
-    public void testDeleteOwnerSingleManager(){
+    public void testDeleteOwnerSingleManager() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
@@ -836,7 +1020,7 @@ public class SystemTests extends TestCase {
     /**
      * Complex Owner deletion (Owner inside Owner)
      */
-    public void testDeleteOwnerMultyManager(){
+    public void testDeleteOwnerMultyManager() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
 
@@ -876,7 +1060,7 @@ public class SystemTests extends TestCase {
      * Checks that remove not exising manager results in failure
      */
     @Test
-    public void testDeleteOwnerNotExisting(){
+    public void testDeleteOwnerNotExisting() throws DatabaseFetchException {
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
         test.login(firstId,"amir","1234");
@@ -891,7 +1075,7 @@ public class SystemTests extends TestCase {
      * Checks if notificationQueue of removed manager has been increased
      */
     @Test
-    public void testDeleteOwnerNotification(){
+    public void testDeleteOwnerNotification() throws DatabaseFetchException {
         //Set up data
         int firstId = test.startSession().getId();
         test.register(firstId,"amir","1234");
@@ -916,7 +1100,7 @@ public class SystemTests extends TestCase {
      * Checks if removing owner not granted by yourself cause error
      */
     @Test
-    public void testDeleteOwnerNotGrantedBy(){
+    public void testDeleteOwnerNotGrantedBy() throws DatabaseFetchException {
         int firstId = test.startSession().getId();
         int masterId = test.register(firstId,"amir","1234").getId();
         int ownerId = test.register(firstId,"bob","1234").getId();
@@ -933,7 +1117,7 @@ public class SystemTests extends TestCase {
 
     //Test for usecase 1.1
     @Test
-    public void testSetupConfigFileOpenStore(){
+    public void testSetupConfigFileOpenStore() throws DatabaseFetchException {
         try {
             FileWriter file = new FileWriter("testFile.txt",false);
             file.write("register(bob);\nopen-store(bob,bob-store);\n");
@@ -976,6 +1160,12 @@ public class SystemTests extends TestCase {
 
     }
 
+    @Test
+    public void testSetupNonExistFile(){
+        assertEquals(ResultCode.ERROR_SETUP,test.setup("123","123","2Boys1Test.txt").getResultCode());
+
+    }
+
     /*
     a. Register users u1,u2,u3,u4,u5,u6.
     b. Make u1 admin.
@@ -985,12 +1175,12 @@ public class SystemTests extends TestCase {
     f. u3 appoint u5 and u5 appoint u6 to a store manager.
      */
     @Test
-    public void testSetupRequirmentsFile(){
+    public void testSetupRequirmentsFile() throws DatabaseFetchException {
         try {
             FileWriter file = new FileWriter("initFile.txt",false);
             file.write("register(u1);\nregister(u2);\nregister(u3);\nregister(u4);\nregister(u5);\nregister(u6);\n"+
                     "set-admin(u1);\nopen-store(u2,s1);\nadd-product(u2,s1,diapers,20,30);\n"+
-                    "appoint-manager(u2,s1,u3,manage-inventory);\nappoint-manager(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
+                    "appoint-owner(u2,s1,u3,manage-inventory);\nappoint-owner(u3,s1,u5,manager);\nappoint-manager(u5,s1,u6,manager);\n");
             file.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -1007,7 +1197,7 @@ public class SystemTests extends TestCase {
      * test id there are 3 managers after approval
      */
     @Test
-    public void testApproveStoreOwnerSuccess(){
+    public void testApproveStoreOwnerSuccess() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1030,7 +1220,7 @@ public class SystemTests extends TestCase {
      * test id there are no pending agreemant after approval
      */
     @Test
-    public void testApproveStoreOwnerAgreementRemoved(){
+    public void testApproveStoreOwnerAgreementRemoved() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1052,7 +1242,7 @@ public class SystemTests extends TestCase {
      * Check if the need to approve Manager got notification after appoint new manager
      */
     @Test
-    public void testApproveStoreOwnerNotificationSent(){
+    public void testApproveStoreOwnerNotificationSent() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1076,7 +1266,7 @@ public class SystemTests extends TestCase {
      * test id there are 2 managers before approval
      */
     @Test
-    public void testNoApproveStoreOwner(){
+    public void testNoApproveStoreOwner() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1097,7 +1287,7 @@ public class SystemTests extends TestCase {
      * test id there are no pending agreemants after approval
      */
     @Test
-    public void testNoApproveStoreOwnerAgremantExist(){
+    public void testNoApproveStoreOwnerAgreementExist() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1118,7 +1308,7 @@ public class SystemTests extends TestCase {
      * try to approve owner with non existing agreement;
      */
     @Test
-    public void testApproveStoreOwnerNoAgreemant(){
+    public void testApproveStoreOwnerNoAgreement() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1134,7 +1324,7 @@ public class SystemTests extends TestCase {
      * Test if by removal all pending owners to approve, owning request gets approved.
      */
     @Test
-    public void testDeleteOwnerToApprove(){
+    public void testDeleteOwnerToApprove() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1159,7 +1349,7 @@ public class SystemTests extends TestCase {
     }
 
     @Test
-    public void testDeclineStoreOwnerSuccess(){
+    public void testDeclineStoreOwnerSuccess() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId,"amir","1234");
         int ownerId1 = test.register(sessionId,"bob","1234").getId();
@@ -1175,6 +1365,126 @@ public class SystemTests extends TestCase {
 
         assertEquals(2, store.getAllManagers().size());
     }
+
+    public void setUpStatsTests(){
+        sessionId =test.startSession().getId();
+        test.register(sessionId,"a","a");
+        test.register(sessionId,"b","b");
+    }
+
+    @Test
+    public void testStatisticsGuestLogin(){
+        setUpStatsTests();
+        assertEquals(1,test.getDailyStats().getGuests());
+    }
+
+    @Test
+    public void testStatisticsSubscriberLogin(){
+        setUpStatsTests();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getRegularSubs());
+    }
+
+    @Test
+    public void testStatisticsOwnerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        test.openStore(sessionId);
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getManagersOwners());
+
+    }
+
+    @Test
+    public void testStatisticsManagerLogin(){
+        setUpStatsTests();
+        sessionId =test.startSession().getId();
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        int storeId =test.openStore(sessionId).getId();
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"a","a");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        int subId = 0;
+        try {
+            subId = test.getSubscriber("b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        test.addStoreManager(sessionId,storeId,subId);
+        test.logout(sessionId);
+        try {
+            test.login(sessionId,"b","b");
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
+        assertEquals(1,test.getDailyStats().getManagersNotOwners());
+    }
+
+
+//    @Test
+//    public void testBuyProductsMultipleBuys(){
+//        int storeId = setUpStoreWithAmount(100);
+//        AtomicInteger doneCount = new AtomicInteger(0);
+//        List<Thread> threadList = new ArrayList();
+//        for(int i = 0;i<10;i++) {
+//            Thread t1 = new Thread(() -> {
+//                int id = test.startSession().getId();
+//                test.addToCart(id, storeId, 69, 5);
+//                try {
+//                    confirmPurchase(sessionId, false);
+//                } catch (DatabaseFetchException e) {
+//                    e.printStackTrace();
+//                }
+//                doneCount.incrementAndGet();
+//            });
+//            threadList.add(t1);
+//        }
+//        for(Thread t : threadList){
+//            t.start();
+//        }
+//        while(doneCount.get()<10){
+//
+//        }
+//
+//        assertEquals(1,1);
+//    }
+//
+//    private int setUpStoreWithAmount(int amount) {
+//        int id = test.startSession().getId();
+//        test.register(id,"master","1234");
+//        try {
+//            test.login(id,"master","1234");
+//        } catch (DatabaseFetchException e) {
+//            e.printStackTrace();
+//        }
+//        int storeid = test.openStore(id).getId();
+//        test.addProductInfo(69,"bamba","food",5);
+//        test.addProductToStore(id,storeid,69,amount);
+//        return storeid;
+//    }
+//
+//
 
 
 }

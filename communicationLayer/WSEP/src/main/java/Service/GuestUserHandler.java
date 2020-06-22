@@ -1,6 +1,7 @@
 package Service;
 
 import DTOs.*;
+import DataAccess.DatabaseFetchException;
 import DataAccess.DAOManager;
 import Domain.TradingSystem.System;
 
@@ -21,9 +22,19 @@ public class GuestUserHandler {
 
         //check if guest - userHandler
         if (s.isGuest(sessionId)){
-            int subId = s.getSubscriber(username, password);
+            int subId = -1;
+            try {
+                subId = s.getSubscriber(username, password);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             if(subId != -1){
-                boolean success = s.login(sessionId, username, password);
+                boolean success = false;
+                try {
+                    success = s.login(sessionId, username, password);
+                } catch (DatabaseFetchException e) {
+                    return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+                }
 //                s.pullNotifications(subId);
                 return success ? new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId) : new IntActionResultDto(ResultCode.ERROR_LOGIN, "Login failed", -1);
             }
@@ -70,35 +81,37 @@ public class GuestUserHandler {
 
     // 2.8.3, 2.8.4
     public ActionResultDTO confirmPurchase(int sessionId, String paymentDetails) {
-        ActionResultDTO result = s.makePayment(sessionId, paymentDetails);
-        if (result.getResultCode() != ResultCode.SUCCESS) return result;
-
+        IntActionResultDto result = s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId);
+        int transactionId = result.getId();
+        if (result.getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
         return s.runPurchaseTransaction(() -> {
+        s.savePurchaseHistory(sessionId);
+        s.saveOngoingPurchaseForUser(sessionId);
 
-            s.savePurchaseHistory(sessionId);
-            s.saveOngoingPurchaseForUser(sessionId);
-
-            // for testing purposes only
-            if (DAOManager.crashTransactions) throw new SQLException();
-
+        try {
             if (s.updateStoreSupplies(sessionId)) {
 
                 s.emptyCart(sessionId);
             } else {
-                s.requestRefund(sessionId);
+                s.requestRefund(sessionId, transactionId);
                 s.restoreHistories(sessionId);
                 s.removeOngoingPurchase(sessionId);
                 return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
             }
 
-            if (!s.requestSupply(sessionId)) {
-                s.requestRefund(sessionId);
+            result = s.requestSupply(sessionId, buyerName, address, city, country, zip);
+            if (result.getResultCode() != ResultCode.SUCCESS) {
+                s.requestRefund(sessionId, transactionId);
                 s.restoreSupplies(sessionId);
                 s.restoreHistories(sessionId);
                 s.restoreCart(sessionId);
                 s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Supply system could not deliver products. State restored.");
+                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
             }
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
+
 
             s.removeOngoingPurchase(sessionId);
 

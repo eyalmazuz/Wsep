@@ -28,6 +28,8 @@
 
             <button onclick="showViewShopHistory()" class='nav' id='storesButton'>Store Histrory</button>
             <button onclick="showViewUserHistory()" class='nav' id='storesButton'>User History</button>
+            <button onclick="location.href='statistics.html'" class='nav' id='statisticsButton'>Website Statistics</button>
+
 
             <!-- Button to open the modal login form -->
             <button onclick="location.href='index.html'" class='nav' id='homepageButton'>Homepage</button>
@@ -90,7 +92,7 @@
         <div id='storeHistory'>
             <br>
             <br>
-            <h1><b>Store Purchase History</b></h1>
+            <h1 class='title'><b>Store Purchase History</b></h1>
             <table id='adminStoreHistoryTable' border="1">
                 <tr>
                     <th>Purchase ID</th>
@@ -107,7 +109,7 @@
         <div>
             <br>
             <br>
-            <h1><b>User Purchase History</b></h1>
+            <h1 class='title'><b>User Purchase History</b></h1>
             <table id='adminUserHistoryTable' border="1">
                 <tr>
                     <th>Store Id</th>

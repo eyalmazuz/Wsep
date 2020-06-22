@@ -1,6 +1,7 @@
 package Domain.TradingSystem;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -45,13 +46,13 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testSetNoAdminTest() {
+    public void testSetNoAdminTest() throws DatabaseFetchException {
         uh.setAdmin();
         assertEquals(1,uh.subscribers.size());
     }
 
     @Test
-    public void testSetExsistAdminTest() {
+    public void testSetExsistAdminTest() throws DatabaseFetchException {
         Subscriber s = new Subscriber("a","a",true);
         uh.subscribers.put(s.getId(),s);
         uh.setAdmin();
@@ -59,7 +60,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterSucsessID() {
+    public void testRegisterSucsessID() throws DatabaseFetchException {
         int prev = uh.subscribers.size();
         int id1 = uh.register("Bob","123");
         assertTrue(id1>=0);
@@ -67,7 +68,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterSucsessSize() {
+    public void testRegisterSucsessSize() throws DatabaseFetchException {
         int prev = uh.subscribers.size();
         int id1 = uh.register("Bob","123");
         assertEquals(prev+1,uh.subscribers.size());
@@ -84,22 +85,22 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testRegisterBadValues1() {
+    public void testRegisterFailureNoUsername() {
         assertEquals(-1, uh.register(null, "123"));
     }
 
     @Test
-    public void testRegisterBadValues2() {
+    public void testRegisterFailureNoPassword() {
         assertEquals(-1, uh.register("Yaron", null));
     }
 
     @Test
-    public void testRegisterBadValues3() {
+    public void testRegisterFailureNoUsernameAndPassword() {
         assertEquals(-1,uh.register(null,null));
     }
 
     @Test
-    public void testRegisterSameUsername() {
+    public void testRegisterFailureSameUsername() {
         uh.register("bob","123");
         assertEquals(-1,uh.register("bob","456"));
     }
@@ -118,13 +119,13 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetUserBadValues1() {
+    public void testGetUserFailureNoSession() {
         assertNull(uh.getUser(5));
     }
 
 
     @Test
-    public void testGetUserBadValues2() {
+    public void testGetUserFailureNegativeSession() {
         assertNull(uh.getUser(-6));
     }
 
@@ -135,30 +136,30 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetSubscriberBadValues1() {
+    public void testGetSubscriberFailureNoSession() {
         assertNull(uh.getSubscriber(5));
     }
 
     @Test
-    public void testGetSubscriberBadValues2() {
+    public void testGetSubscriberFailureNegativeSession() {
         assertNull(uh.getSubscriber(-6));
     }
 
     @Test
-    public void testGetSubscriberUser() {
+    public void testGetSubscriberUserSuccess() throws DatabaseFetchException {
         registerSubs();
         assertNotNull(uh.getSubscriberUser("test","123"));
     }
 
     @Test
-    public void testGetSubscriberUserBadValues1() {
+    public void testGetSubscriberUserFailureNoUsernameAndPassword() throws DatabaseFetchException {
         registerSubs();
         assertNull(uh.getSubscriberUser(null,null));
     }
 
 
     @Test
-    public void testGetSubscriberUserBadValues2() {
+    public void testGetSubscriberUserFailureNoUser() throws DatabaseFetchException {
         registerSubs();
         assertNull(uh.getSubscriberUser("test","blabla"));
     }
@@ -176,7 +177,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetAvailableUsersToOwnBadEmpty() {
+    public void testGetAvailableUsersToOwnFailureEmpty() {
     registerSubs();
     List<Subscriber> list1 = uh.getAvailableUsersToOwn(null);
     assertTrue(list1.isEmpty());
@@ -192,7 +193,7 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testSetStateSuccess() {
+    public void testSetStateSuccessChangedState() throws DatabaseFetchException {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test", "123");
@@ -203,7 +204,7 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testSetStateSuccess2() {
+    public void testSetStateSuccessCorrectState() throws DatabaseFetchException {
         int id = uh.createSession();
         registerSubs();
         Subscriber s = uh.getSubscriberUser("test", "123");
@@ -219,15 +220,18 @@ public class UserHandlerTest extends TestCase {
     @Test
     public void testCreateSessionDiffIds() {
         int id1 = uh.createSession();
+
         int id2 = uh.createSession();
         assertTrue(id1 != id2);
     }
 
+    @Test
     public void testCreateSessionSuccessID() {
         int id = uh.createSession();
         assertTrue(id>=0);
     }
 
+    @Test
     public void testCreateSessionSuccessSize() {
         int prev = uh.users.size();
         uh.createSession();

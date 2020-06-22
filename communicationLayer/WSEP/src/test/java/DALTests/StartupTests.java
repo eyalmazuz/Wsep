@@ -1,6 +1,7 @@
 package DALTests;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.*;
 import Domain.TradingSystem.System;
 import junit.framework.TestCase;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testProductInfoStartup() {
+    public void testProductInfoStartup() throws DatabaseFetchException {
         test.addProductInfo(1, "lambda", "snacks", 30);
         test.addProductInfo(2, "snickers", "snacks", 40);
 
@@ -48,9 +50,8 @@ public class StartupTests extends TestCase {
         assertEquals(info.getDefaultPrice(), 40.0);
     }
 
-
     @Test
-    public void testStoreProductsAndOwnersStartup() {
+    public void testStoreProductsStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -59,12 +60,6 @@ public class StartupTests extends TestCase {
         store.setName("store name");
         test.addProductInfo(1, "lambda", "snacks", 30);
         test.addProductToStore(sessionId, storeId, 1, 15);
-
-        int sessionId2 = test.startSession().getId();
-        test.register(sessionId2, "user2", "passw0rd");
-        test.login(sessionId2, "user2", "passw0rd");
-
-        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
 
         test = new System();
 
@@ -75,6 +70,27 @@ public class StartupTests extends TestCase {
         ProductInStore pis = savedStore.getProductInStoreById(1);
         assertEquals(pis.getProductInfoId(), 1);
         assertEquals(pis.getAmount(), 15);
+    }
+
+
+    @Test
+    public void testStoreOwnerStartup() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        store.setName("store name");
+
+        int sessionId2 = test.startSession().getId();
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
+
+        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
+
+        test = new System();
+
+        Store savedStore = test.getStoreById(storeId);
 
         assertEquals(savedStore.getOwners().size(),2);
         assertEquals(savedStore.getOwners().get(0).getId(), sessionId);
@@ -82,7 +98,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStorePoliciesStartup() {
+    public void testStorePoliciesStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -118,7 +134,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStorePurchaseHistoryStartup() {
+    public void testStorePurchaseHistoryStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -139,38 +155,38 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testStoreGrantingAgreementStartup() {
+    public void testStoreGrantingAgreementStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        test.register(sessionId, "user", "passw0rd");
+        int grantorID = test.register(sessionId, "user", "passw0rd").getId();
         test.login(sessionId, "user", "passw0rd");
         int storeId = test.openStore(sessionId).getId();
 
         int otherSessionId = test.startSession().getId();
-        test.register(otherSessionId, "user2", "passw0rd");
+        int firstownerId =test.register(otherSessionId, "user2", "passw0rd").getId();
         test.login(otherSessionId, "user2", "passw0rd");
 
-        test.addStoreOwner(sessionId, storeId, otherSessionId);
+        test.addStoreOwner(sessionId, storeId, firstownerId);
 
         int secondOwner = otherSessionId;
 
         otherSessionId = test.startSession().getId();
-        test.register(otherSessionId, "user3", "passw0rd");
+        int secondOwnerId = test.register(otherSessionId, "user3", "passw0rd").getId();
         test.login(otherSessionId, "user3", "passw0rd");
 
-        test.addStoreOwner(sessionId, storeId, otherSessionId);
+        test.addStoreOwner(sessionId, storeId, secondOwnerId);
 
         test = new System();
 
         assertEquals(test.getStoreById(storeId).getAllGrantingAgreements().size(), 1);
         GrantingAgreement agreement = test.getStoreById(storeId).getAllGrantingAgreements().iterator().next();
         assertEquals(agreement.getStoreId(), storeId);
-        assertEquals(agreement.getGrantorId(), sessionId);
-        assertEquals(agreement.getMalshabId(), otherSessionId);
-        assertFalse(agreement.getOwner2approve().get(secondOwner));
+        assertEquals(agreement.getGrantorId(), grantorID);
+        assertEquals(agreement.getMalshabId(), secondOwnerId);
+        assertFalse(agreement.getOwner2approve().get(firstownerId));
     }
 
     @Test
-    public void testSubscriberShoppingCartStartup() {
+    public void testSubscriberShoppingCartStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -193,7 +209,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPermissionsStartup() {
+    public void testSubscriberPermissionsStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -219,7 +235,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testSubscriberPurchaseHistoryStartup() {
+    public void testSubscriberPurchaseHistoryStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -246,7 +262,7 @@ public class StartupTests extends TestCase {
 
 
     @Test
-    public void testRemovePersistentProductInfo() {
+    public void testRemovePersistentProductInfo() throws DatabaseFetchException {
         test.addProductInfo(1, "lambda", "snacks", 30.0);
 
         test = new System();
@@ -255,7 +271,7 @@ public class StartupTests extends TestCase {
     }
 
     @Test
-    public void testUpdatePersistentStore() {
+    public void testUpdatePersistentStore() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -281,5 +297,23 @@ public class StartupTests extends TestCase {
         assertEquals(test.getStoreById(storeId).getProducts().get(0).getAmount(), 60);
         assertEquals(((BasketBuyingConstraint.MinAmountForProductConstraint) test.getStoreById(storeId).getBuyingPolicy().getBuyingTypes().values().iterator().next()).getMinAmount(), 20);
 
+    }
+
+    @Test
+    public void testStoreProductInfoStartup() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        test.addProductInfo(1, "lambda", "snacks", 30);
+        test.addProductToStore(sessionId, storeId, 1, 40);
+
+        test = new System();
+
+        Store store = test.getStoreById(storeId);
+        ProductInfo savedProductInfo = store.getProducts().get(0).getProductInfo();
+        assertEquals(savedProductInfo.getCategory(), "snacks");
+        assertEquals(savedProductInfo.getName(), "lambda");
+        assertEquals(savedProductInfo.getDefaultPrice(), 30.0);
     }
 }

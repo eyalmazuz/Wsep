@@ -15,7 +15,10 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
 
 import java.lang.System;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -38,13 +41,14 @@ public class DAOManager {
     private static Dao<DiscountPolicy, String> discountPolicyDao;
     private static Dao<SimpleDiscountDTO, String> simpleDiscountDao;
     private static Dao<GrantingAgreement, String> grantingAgreementDao;
+    private static Dao<DayStatistics, String> dayStatisticsDao;
 
     private static boolean isOn;
     private static Queue<Runnable> toDo = new LinkedBlockingQueue<>();
 
     private static Class[] persistentClasses = {ProductInfo.class, BuyingPolicy.class, SimpleBuyingDTO.class, AdvancedBuyingDTO.class, ProductInStore.class,
             Store.class, ShoppingCart.class, ShoppingBasket.class, Subscriber.class, PurchaseDetails.class, Permission.class,
-            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class};
+            AdvancedDiscountDTO.class, DiscountPolicy.class, SimpleDiscountDTO.class, GrantingAgreement.class, DayStatistics.class};
 
     public static void close() {
         isOn = false;
@@ -57,7 +61,7 @@ public class DAOManager {
 
     public static void init(String databaseName, String username, String password) {
         try {
-            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=UTC");
+            connectionSource = new JdbcConnectionSource("jdbc:mysql://localhost/" + databaseName + "?user=" + username + "&password=" + password + "&serverTimezone=GMT%2B3");
 
             isOn = true;
 
@@ -76,6 +80,7 @@ public class DAOManager {
             discountPolicyDao = DaoManager.createDao(connectionSource, DiscountPolicy.class);
             simpleDiscountDao = DaoManager.createDao(connectionSource, SimpleDiscountDTO.class);
             grantingAgreementDao = DaoManager.createDao(connectionSource, GrantingAgreement.class);
+            dayStatisticsDao = DaoManager.createDao(connectionSource, DayStatistics.class);
 
             for (Class c : persistentClasses) TableUtils.createTableIfNotExists(connectionSource, c);
 
@@ -184,7 +189,7 @@ public class DAOManager {
         }
     }
 
-    private static void fixBuyingPolicy(BuyingPolicy policy) {
+    private static void fixBuyingPolicy(BuyingPolicy policy) throws DatabaseFetchException {
         HashMap<Integer, String> typeIds = policy.getBuyingTypeIDs();
         for (Integer typeId : typeIds.keySet()) {
             String type = typeIds.get(typeId);
@@ -195,9 +200,10 @@ public class DAOManager {
         }
     }
 
-    public static List<BuyingPolicy> loadAllBuyingPolicies() {
+    public static List<BuyingPolicy> loadAllBuyingPolicies() throws DatabaseFetchException {
         List<BuyingPolicy> buyingPolicies = null;
         try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
             buyingPolicies = buyingPolicyDao.queryForAll();
             for (BuyingPolicy policy : buyingPolicies) {
                 fixBuyingPolicy(policy);
@@ -209,7 +215,7 @@ public class DAOManager {
     }
 
 
-    private static BuyingPolicy loadBuyingPolicy(int id) {
+    private static BuyingPolicy loadBuyingPolicy(int id) throws DatabaseFetchException {
         BuyingPolicy policy = null;
         try {
             policy = buyingPolicyDao.queryForId(Integer.toString(id));
@@ -220,10 +226,12 @@ public class DAOManager {
         return policy;
     }
 
-    private static BuyingType loadSimpleBuyingType(Integer typeId) {
+    private static BuyingType loadSimpleBuyingType(Integer typeId) throws DatabaseFetchException {
         SimpleBuyingDTO dto = null;
         try {
             dto = simpleBuyingDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load simple buying type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -251,10 +259,12 @@ public class DAOManager {
     }
 
 
-    private static BuyingType loadAdvancedBuyingType(Integer typeId) {
+    private static BuyingType loadAdvancedBuyingType(Integer typeId) throws DatabaseFetchException {
         AdvancedBuyingDTO dto = null;
         try {
             dto = advancedBuyingDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load advanced buying type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -272,7 +282,7 @@ public class DAOManager {
         return advancedBuying;
     }
 
-    private static DiscountPolicy loadDiscountPolicy(int id) {
+    private static DiscountPolicy loadDiscountPolicy(int id) throws DatabaseFetchException {
         DiscountPolicy policy = null;
         try {
             policy = discountPolicyDao.queryForId(Integer.toString(id));
@@ -283,7 +293,7 @@ public class DAOManager {
         return policy;
     }
 
-    private static void fixDiscountPolicy(DiscountPolicy policy) {
+    private static void fixDiscountPolicy(DiscountPolicy policy) throws DatabaseFetchException {
         HashMap<Integer, String> typeIds = policy.getDiscountTypeIDs();
         for (Integer typeId : typeIds.keySet()) {
             String type = typeIds.get(typeId);
@@ -294,10 +304,12 @@ public class DAOManager {
         }
     }
 
-    private static DiscountType loadSimpleDiscountType(Integer typeId) {
+    private static DiscountType loadSimpleDiscountType(Integer typeId) throws DatabaseFetchException {
         SimpleDiscountDTO dto = null;
         try {
             dto = simpleDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load simple discount type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -313,10 +325,12 @@ public class DAOManager {
         return result;
     }
 
-    private static DiscountType loadAdvancedDiscountType(Integer typeId) {
+    private static DiscountType loadAdvancedDiscountType(Integer typeId) throws DatabaseFetchException {
         AdvancedDiscountDTO dto = null;
         try {
             dto = advancedDiscountDao.queryForId(Integer.toString(typeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load advanced discount type");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -334,9 +348,11 @@ public class DAOManager {
         return advancedDiscount;
     }
 
-    private static ProductInfo loadProductInfo(int productInfoId) {
+    private static ProductInfo loadProductInfo(int productInfoId) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(productInfoId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -344,9 +360,11 @@ public class DAOManager {
     }
 
 
-    public static List<ProductInfo> loadAllProductInfos() {
+    public static List<ProductInfo> loadAllProductInfos() throws DatabaseFetchException {
         try {
             return productInfoDao.queryForAll();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product infos");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -408,7 +426,15 @@ public class DAOManager {
 
     }
 
-    private static void fixStore(Store store) {
+    private static void fixStore(Store store) throws DatabaseFetchException {
+        for (ProductInStore pis : store.getProducts()) {
+            pis.setProductInfo(loadProductInfoById(pis.getProductInfoId()));
+        }
+
+        for(PurchaseDetails detail : store.getStorePurchaseHistory()){
+            shameshameshame2(detail);
+        }
+
         BuyingPolicy fixedBuyingPolicy = loadBuyingPolicy(store.getBuyingPolicy().getId());
         if (fixedBuyingPolicy != null) store.setBuyingPolicy(fixedBuyingPolicy);
 
@@ -424,37 +450,92 @@ public class DAOManager {
         store.setManagers(managers);
     }
 
-    public static List<Store> loadAllStores() {
+    //https://gph.is/2rQSwV2
+    private static void shameshameshame2(PurchaseDetails details) {
+        HashMap<ProductInfo, Integer> products = new HashMap<>();
+        for(Map.Entry<ProductInfo, Integer> prodcut2amount : details.getProducts().entrySet()){
+            final Object source = prodcut2amount.getKey();
+
+            Method method = null;
+            Method method2 = null;
+            Method method3 = null;
+            Method method4 = null;
+            Method method5 = null;
+            Method method6 = null;
+            try {
+                method = source.getClass().getMethod("getId");
+                Integer id = (Integer)method.invoke(source);
+
+                method2 = source.getClass().getMethod("getName");
+                String name = (String)method2.invoke(source);
+
+                method3 = source.getClass().getMethod("getCategory");
+                String categoty = (String)method3.invoke(source);
+
+                method4 = source.getClass().getMethod("getRating");
+                double rating = (Double)method4.invoke(source);
+
+                method5 = source.getClass().getMethod("getDefaultPrice");
+                double defaultPrice = (Double)method5.invoke(source);
+
+                ProductInfo newInfo = new ProductInfo(id, name, categoty, defaultPrice);
+                newInfo.setRating(rating);
+
+                products.put(newInfo, prodcut2amount.getValue());
+
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+        }
+        details.setProducts(products);
+    }
+
+    public static List<Store> loadAllStores() throws DatabaseFetchException {
         try {
             List<Store> stores = storeDao.queryForAll();
             for (Store store : stores) fixStore(store);
             return stores;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load stores");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static void fixSubscriber(Subscriber subscriber) {
+    private static void fixSubscriber(Subscriber subscriber) throws DatabaseFetchException {
         Map<Integer, List<Integer>> storePurchaseListsPrimitive = subscriber.getStorePurchaseListsPrimitive();
         HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
         for (Integer storeId : storePurchaseListsPrimitive.keySet()) {
             List<Integer> purchaseDetailsIds = storePurchaseListsPrimitive.get(storeId);
             List<PurchaseDetails> purchaseDetailsList = new ArrayList<>();
-            for (Integer purchaseDetailsId : purchaseDetailsIds)
-                purchaseDetailsList.add(loadPurchaseDetails(purchaseDetailsId));
+            for (Integer purchaseDetailsId : purchaseDetailsIds) {
+                PurchaseDetails details = loadPurchaseDetails(purchaseDetailsId);
+                shameshameshame2(details);
+                purchaseDetailsList.add(details);
+            }
             storePurchaseLists.put(loadStore(storeId), purchaseDetailsList);
         }
         subscriber.setStorePurchaseLists(storePurchaseLists);
+
+        shameshameshame(subscriber);
 
         Map<Integer, Permission> permissionMap = new HashMap<>();
         for (Permission permission : loadSubscriberPermissions(subscriber.getId())) {
             permissionMap.put(permission.getStore().getId(), permission);
         }
         subscriber.setPermissions(permissionMap);
+
     }
 
-    private static List<Permission> loadSubscriberPermissions(int id) {
+
+
+    private static List<Permission> loadSubscriberPermissions(int id) throws DatabaseFetchException {
         QueryBuilder<Permission, String> queryBuilder = permissionDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(id);
@@ -463,6 +544,8 @@ public class DAOManager {
             where.eq("user_id", selectArg);
             PreparedQuery<Permission> query = queryBuilder.prepare();
             return permissionDao.query(query);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber permissions");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -470,11 +553,15 @@ public class DAOManager {
         return null;
     }
 
-    private static Subscriber loadSubscriber(Integer managerId) {
+    private static Subscriber loadSubscriber(Integer managerId) throws DatabaseFetchException {
         try {
             Subscriber subscriber = subscriberDao.queryForId(Integer.toString(managerId));
-            fixSubscriber(subscriber);
-            return subscriber;
+           if(subscriber!=null) {
+               fixSubscriber(subscriber);
+               return subscriber;
+           }
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -520,15 +607,6 @@ public class DAOManager {
         }
     }
 
-    public static List<ShoppingBasket> loadAllShoppingBaskets() {
-        try {
-            return shoppingBasketDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void createOrUpdateShoppingCart(ShoppingCart shoppingCart) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
@@ -555,30 +633,64 @@ public class DAOManager {
         }
     }
 
-    public static List<Subscriber> loadAllSubscribers() {
+    //https://gph.is/2rQSwV2
+    private static void shameshameshame(Subscriber subscriber) {
+        ArrayList<Notification> notifications = new ArrayList<Notification>();
+        for(int i = 0; i < subscriber.getAllNotification().size(); i++){
+            final Object source = subscriber.getAllNotification().get(i);
+
+            Method method = null;
+            Method method2 = null;
+            try {
+                method = source.getClass().getMethod("getId");
+                Integer id = (Integer)method.invoke(source);
+                method2 = source.getClass().getMethod("getMassage");
+                String massage = (String)method2.invoke(source);
+                notifications.add(new Notification(id, massage));
+
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+        }
+        subscriber.setNotificationQueue(notifications);
+    }
+
+    public static List<Subscriber> loadAllSubscribers() throws DatabaseFetchException {
+        if (subscriberDao == null)
+            return null;
         List<Subscriber> subscribers = null;
         try {
             subscribers = subscriberDao.queryForAll();
             for (Subscriber s : subscribers) fixSubscriber(s);
-
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscribers");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return subscribers;
     }
 
-    private static Store loadStore(Integer storeId) {
+    private static Store loadStore(Integer storeId) throws DatabaseFetchException {
         try {
             return storeDao.queryForId(Integer.toString(storeId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) {
+    private static PurchaseDetails loadPurchaseDetails(Integer purchaseDetailsId) throws DatabaseFetchException {
         try {
             return purchaseDetailsDao.queryForId(Integer.toString(purchaseDetailsId));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load purchase details");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -594,7 +706,7 @@ public class DAOManager {
             Runnable action = () -> addSubscriber(subscriberState);
             toDo.add(action);
         } catch (SQLException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
 
     }
@@ -602,12 +714,20 @@ public class DAOManager {
     public static void updateSubscriber(Subscriber subscriber) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
-            subscriberDao.update(subscriber);
+            Subscriber dbVersion = DAOManager.loadSubscriber(subscriber.getId());
+            if( (dbVersion==null) ||(dbVersion.getpVersion() == subscriber.getpVersion())) {
+                subscriber.incpVersion();
+                subscriberDao.update(subscriber);
+            }
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> updateSubscriber(subscriber);
+            Runnable action = () -> {
+                    updateSubscriber(subscriber);
+            };
             toDo.add(action);
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (DatabaseFetchException e) {
             e.printStackTrace();
         }
     }
@@ -632,19 +752,6 @@ public class DAOManager {
             executeTodos();
         } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
             Runnable action = () -> createPurchaseDetails(details);
-            toDo.add(action);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void createManagerListForStore(Store store) {
-        try {
-            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
-            storeDao.assignEmptyForeignCollection(store, "managers");
-            executeTodos();
-        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
-            Runnable action = () -> createManagerListForStore(store);
             toDo.add(action);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -760,15 +867,6 @@ public class DAOManager {
         }
     }
 
-    public static List<Permission> loadAllPermissions() {
-        try {
-            return permissionDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void removePermission(Permission permission) {
         try {
             if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
@@ -780,15 +878,6 @@ public class DAOManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static ShoppingCart loadShoppingCartBySubscriberId(int subscriberId) {
-        try {
-            return shoppingCartDao.queryForId(Integer.toString(subscriberId));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static void updateGrantingAgreement(GrantingAgreement grantingAgreement) {
@@ -805,6 +894,8 @@ public class DAOManager {
     }
 
     public static int getMaxSubscriberId() {
+        if(subscriberDao == null)
+            return -2;
         try {
             return subscriberDao.countOf() == 0 ? -1 : (int) subscriberDao.queryRawValue("SELECT MAX(id) FROM subscribers");
         } catch (SQLException e) {
@@ -813,9 +904,19 @@ public class DAOManager {
         return -1;
     }
 
+    public static int getMaxProductInfoId() {
+        try {
+            return productInfoDao.countOf() == 0 ? -1 : (int) productInfoDao.queryRawValue("SELECT MAX(id) FROM productinfos");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
     public static int getMaxPurchaseDetailsId() {
         try {
-            return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchasedetails");
+            return purchaseDetailsDao.countOf() == 0 ? -1 : (int) purchaseDetailsDao.queryRawValue("SELECT MAX(id) FROM purchaseDetails");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -824,7 +925,7 @@ public class DAOManager {
 
     public static int getMaxBuyingPolicyId() {
         try {
-            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingpolicies");
+            return buyingPolicyDao.countOf() == 0 ? -1 : (int) buyingPolicyDao.queryRawValue("SELECT MAX(id) FROM buyingPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -833,7 +934,7 @@ public class DAOManager {
 
     public static int getMaxDiscountPolicyId() {
         try {
-            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountpolicies");
+            return discountPolicyDao.countOf() == 0 ? -1 : (int) discountPolicyDao.queryRawValue("SELECT MAX(id) FROM discountPolicies");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -842,6 +943,8 @@ public class DAOManager {
 
 
     public static boolean subscriberExists(String username) {
+        if(subscriberDao == null)
+            return false;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -857,7 +960,9 @@ public class DAOManager {
         return false;
     }
 
-    public static Subscriber getSubscriberByUsername(String username) {
+    public static Subscriber getSubscriberByUsername(String username) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(username);
@@ -870,26 +975,35 @@ public class DAOManager {
             Subscriber subscriber = subscribers.get(0);
             fixSubscriber(subscriber);
             return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static boolean hasAdmin() {
+    public static Subscriber getSubscriberByID(int subID) throws DatabaseFetchException {
+        if(subscriberDao == null)
+            return null;
         QueryBuilder<Subscriber, String> queryBuilder = subscriberDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
-        selectArg.setValue(true);
+        selectArg.setValue(subID);
         Where<Subscriber, String> where = queryBuilder.where();
         try {
-            where.eq("isAdmin", selectArg);
+            where.eq("id", selectArg);
             PreparedQuery<Subscriber> query = queryBuilder.prepare();
             List<Subscriber> subscribers = subscriberDao.query(query);
-            return !subscribers.isEmpty();
+            if (subscribers.isEmpty()) return null;
+            Subscriber subscriber = subscribers.get(0);
+            fixSubscriber(subscriber);
+            return subscriber;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load subscriber");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     public static int getNumShoppingCarts() {
@@ -910,21 +1024,25 @@ public class DAOManager {
         return -1;
     }
 
-    public static ProductInfo loadProductInfoById(int id) {
+    public static ProductInfo loadProductInfoById(int id) throws DatabaseFetchException {
         try {
             return productInfoDao.queryForId(Integer.toString(id));
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static Store loadStoreById(int storeId) {
+    public static Store loadStoreById(int storeId) throws DatabaseFetchException {
         try {
             Store store = storeDao.queryForId(Integer.toString(storeId));
             if (store != null) fixStore(store);
 
             return store;
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -939,7 +1057,7 @@ public class DAOManager {
         }
     }
 
-    public static Store loadStoreByName(String name) {
+    public static Store loadStoreByName(String name) throws DatabaseFetchException {
         QueryBuilder<Store, String> queryBuilder = storeDao.queryBuilder();
         SelectArg selectArg = new SelectArg();
         selectArg.setValue(name);
@@ -948,11 +1066,103 @@ public class DAOManager {
             where.eq("name", selectArg);
             PreparedQuery<Store> query = queryBuilder.prepare();
             return storeDao.query(query).get(0);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load store");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+        return null;
+    }
+
+    public static ProductInfo loadProductInfoByName(String name) throws DatabaseFetchException {
+        QueryBuilder<ProductInfo, String> queryBuilder = productInfoDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(name);
+        Where<ProductInfo, String> where = queryBuilder.where();
+        try {
+            where.eq("name", selectArg);
+            PreparedQuery<ProductInfo> query = queryBuilder.prepare();
+            return productInfoDao.query(query).get(0);
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            throw new DatabaseFetchException("Could not load product info");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+        return null;
+    }
+
+    public static void updateDayStatistics(DayStatistics dayStatistics) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.update(dayStatistics);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> updateDayStatistics(dayStatistics);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DayStatistics getDayStatisticsByDay(LocalDate localDate) {
+        Date date = java.sql.Date.valueOf(localDate);
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        selectArg.setValue(date);
+        Where<DayStatistics, String> where = queryBuilder.where();
+        try {
+            where.eq("date", selectArg);
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> dayStatistics = dayStatisticsDao.query(query);
+            if (dayStatistics.isEmpty()) return null;
+            return dayStatistics.get(0);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public static void addDayStatistics(DayStatistics stats) {
+        try {
+            if (!isOn) throw new com.mysql.cj.exceptions.CJCommunicationsException();
+            dayStatisticsDao.create(stats);
+            executeTodos();
+        } catch (com.mysql.cj.exceptions.CJCommunicationsException e) {
+            Runnable action = () -> addDayStatistics(stats);
+            toDo.add(action);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<DayStatistics> getStatisticsBetween(LocalDate from, LocalDate to) {
+        Date fromDate = java.sql.Date.valueOf(from);
+        Date toDate = java.sql.Date.valueOf(to);
+
+        QueryBuilder<DayStatistics, String> queryBuilder = dayStatisticsDao.queryBuilder();
+        Where<DayStatistics, String> where = queryBuilder.where();
+
+        try {
+            where.and(
+                    where.ge("date", fromDate),
+                    where.le("date", toDate));
+
+            PreparedQuery<DayStatistics> query = queryBuilder.prepare();
+            List<DayStatistics> stats = dayStatisticsDao.query(query);
+
+            return stats;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+}
 
     public static boolean crashTransactions = false;
 

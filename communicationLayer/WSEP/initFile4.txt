@@ -1,0 +1,8 @@
+register(A1);
+register(u1);
+register(u2);
+register(u11);
+register(u12);
+register(u13);
+set-admin(A1);
+open-store(u11,s2);

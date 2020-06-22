@@ -1,12 +1,15 @@
 package DALTests;
 
 import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.*;
 import Domain.TradingSystem.System;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 public class ResilienceTests extends TestCase {
 
@@ -51,7 +54,7 @@ public class ResilienceTests extends TestCase {
     }
 
     @Test
-    public void testMultipleActionRes() {
+    public void testMultipleActionRes() throws DatabaseFetchException {
 
         // first we add a product, then a discount policy. We close the connection and check if nothing happened, then open and check all has been done.
         int storeId = test.addStore();
