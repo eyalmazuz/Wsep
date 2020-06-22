@@ -750,13 +750,15 @@ public class DatabaseTests extends TestCase {
     public void testSubscriberPermissionPersistenceRemove() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         User u = test.getUser(sessionId);
-        u.setState(new Subscriber());
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId,"user", "passw0rd");
         int storeId = test.openStore(sessionId).getId();
         Store store = test.getStoreById(storeId);
 
         int sessionId2 = test.startSession().getId();
         User u2 = test.getUser(sessionId2);
-        u2.setState(new Subscriber());
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
         Subscriber subState = (Subscriber) u2.getState();
         subState.addPermission(store, (Subscriber) u.getState(), "Manager");
         subState.removePermission(store, "Manager");

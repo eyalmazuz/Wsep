@@ -50,9 +50,8 @@ public class StartupTests extends TestCase {
         assertEquals(info.getDefaultPrice(), 40.0);
     }
 
-
     @Test
-    public void testStoreProductsAndOwnersStartup() throws DatabaseFetchException {
+    public void testStoreProductsStartup() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
         test.register(sessionId, "user", "passw0rd");
         test.login(sessionId, "user", "passw0rd");
@@ -61,12 +60,6 @@ public class StartupTests extends TestCase {
         store.setName("store name");
         test.addProductInfo(1, "lambda", "snacks", 30);
         test.addProductToStore(sessionId, storeId, 1, 15);
-
-        int sessionId2 = test.startSession().getId();
-        test.register(sessionId2, "user2", "passw0rd");
-        test.login(sessionId2, "user2", "passw0rd");
-
-        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
 
         test = new System();
 
@@ -77,6 +70,27 @@ public class StartupTests extends TestCase {
         ProductInStore pis = savedStore.getProductInStoreById(1);
         assertEquals(pis.getProductInfoId(), 1);
         assertEquals(pis.getAmount(), 15);
+    }
+
+
+    @Test
+    public void testStoreOwnerStartup() throws DatabaseFetchException {
+        int sessionId = test.startSession().getId();
+        test.register(sessionId, "user", "passw0rd");
+        test.login(sessionId, "user", "passw0rd");
+        int storeId = test.openStore(sessionId).getId();
+        Store store = test.getStoreById(storeId);
+        store.setName("store name");
+
+        int sessionId2 = test.startSession().getId();
+        test.register(sessionId2, "user2", "passw0rd");
+        test.login(sessionId2, "user2", "passw0rd");
+
+        test.addStoreOwner(sessionId, storeId, sessionId2).getDetails();
+
+        test = new System();
+
+        Store savedStore = test.getStoreById(storeId);
 
         assertEquals(savedStore.getOwners().size(),2);
         assertEquals(savedStore.getOwners().get(0).getId(), sessionId);
