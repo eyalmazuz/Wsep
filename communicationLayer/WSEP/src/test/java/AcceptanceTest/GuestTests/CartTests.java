@@ -64,7 +64,7 @@ public class CartTests extends ServiceTest {
     }
 
     @Test
-    public void testEditAmountInCartFailure(){
+    public void testEditAmountInCartNonPositiveAmountFailure(){
         assertFalse(updateAmount(Database.sessionId, Database.userToStore.get("chika"),1,-5));
 
 

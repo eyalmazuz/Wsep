@@ -39,13 +39,13 @@ public class SubscriberTest extends TestCase {
     }
 
     @Test
-    public void testGetUsername() {
+    public void testGetUsernameSuccess() {
         assertEquals(subscriber.getUsername(),"hava nagila");
 
     }
 
     @Test
-    public void testIsAdminFailure() {
+    public void testIsAdminFailureNotAdmin() {
         assertFalse(subscriber.isAdmin());
     }
 
@@ -89,7 +89,7 @@ public class SubscriberTest extends TestCase {
     }
 
     @Test
-    public void testSetUserNotNull(){
+    public void testSetUserFailureNull(){
         assertThrows(Exception.class,()->subscriber.setUser(null));
 
     }
@@ -137,16 +137,16 @@ public class SubscriberTest extends TestCase {
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         assertEquals(newSubscriber.hasPermission(store.getId(),"Manager"),store);
-        assertEquals(newSubscriber.hasPermission(-3,"Manager"),null);
+        assertNull(newSubscriber.hasPermission(-3,"Manager"));
     }
 
 
-    @Test
+    @Test   // TODO: better name
     void hasPermissionFailure() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
-        assertEquals(newSubscriber.hasPermission(-3,"Manager"),null);
+        assertNull(newSubscriber.hasPermission(-3,"Manager"));
     }
 
     @Test
@@ -158,7 +158,7 @@ public class SubscriberTest extends TestCase {
         assertFalse(newSubscriber.addPermission(store,subscriber,"Manager"));//the grantor is not the store owner
     }
 
-    @Test
+    @Test   // TODO: better name
     void addPermissionFailure() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);

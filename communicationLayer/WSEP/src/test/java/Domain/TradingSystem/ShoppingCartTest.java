@@ -236,60 +236,6 @@ public class ShoppingCartTest extends TestCase {
 
 
 
-
-
-    @Test
-    public void testMergeSuccess() {
-        shoppingCart.addProduct(store1, productInfo4, 50);
-        shoppingCart.addProduct(store2, productInfo4, 40);
-        shoppingCart.addProduct(store2, productInfo5, 60);
-        otherShoppingCart.addProduct(store1, productInfo5, 50);
-        otherShoppingCart.addProduct(store1, productInfo4, 5);
-        otherShoppingCart.addProduct(store2, productInfo5, 10);
-        otherShoppingCart.addProduct(store3, productInfo10, 50);
-        shoppingCart.merge(otherShoppingCart);
-        boolean wrong = false;
-
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store1.getId()) {
-                if (!basket.getProducts().containsKey(productInfo5) || basket.getProducts().get(productInfo5) != 50
-                    || !basket.getProducts().containsKey(productInfo4) || basket.getProducts().get(productInfo4) != 55) {
-                    wrong = true;
-                    break;
-                }
-            } else if (basket.getStoreId() == store2.getId()) {
-                if (!basket.getProducts().containsKey(productInfo4) || basket.getProducts().get(productInfo4) != 40 || !basket.getProducts().containsKey(productInfo5)
-                    || basket.getProducts().get(productInfo5) != 70) {
-                    wrong = true;
-                    break;
-                }
-            }
-        }
-        assertFalse(wrong);
-
-    }
-
-
-
-    @Test
-    public void testMerge() {
-        shoppingCart.addProduct(store1, productInfo4, 50);
-        shoppingCart.addProduct(store2, productInfo4, 40);
-        shoppingCart.addProduct(store2, productInfo5, 60);
-        otherShoppingCart.addProduct(store1, productInfo5, 50);
-        otherShoppingCart.addProduct(store1, productInfo4, 5);
-        otherShoppingCart.addProduct(store2, productInfo5, 10);
-        otherShoppingCart.addProduct(store3, productInfo10, 50);
-        shoppingCart.merge(otherShoppingCart);
-
-        boolean store3Found = false;
-        for (ShoppingBasket basket : shoppingCart.getBaskets()) {
-            if (basket.getStoreId() == store3.getId()) store3Found = true;
-        }
-        assertTrue(store3Found);
-    }
-
-
     // TESTS FOR USECASE 2.8
 
     @Test
@@ -299,14 +245,14 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testIsEmptyFailure() {
+    public void testIsEmptyFailureNotEmpty() {
         shoppingCart.addProduct(store1, productInfo4, 4);
         assertFalse(shoppingCart.isEmpty());
 
     }
 
     @Test
-    public void testIsEmptySuccess2() {
+    public void testIsEmptySuccessAfterRemove() {
         shoppingCart.removeAllProducts();
         assertTrue(shoppingCart.isEmpty());
     }
@@ -314,14 +260,14 @@ public class ShoppingCartTest extends TestCase {
 
 
     @Test
-    public void testCheckBuyingPolicyFailure() {
+    public void testCheckBuyingPolicyFailureNotAllowed() {
         store1.setBuyingPolicy(new BuyingPolicy("No one is allowed"));
         shoppingCart.addProduct(store1, productInfo4, 4);
         assertNotSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
        }
 
     @Test
-    public void testCheckBuyingPolicySuccess() {
+    public void testCheckBuyingPolicySuccessAllowed() {
         store1.setBuyingPolicy(new BuyingPolicy("None"));
         assertSame(shoppingCart.checkBuyingPolicy().getResultCode(), ResultCode.SUCCESS);
     }
@@ -342,26 +288,24 @@ public class ShoppingCartTest extends TestCase {
     }
 
     @Test
-    public void testSaveAndGetStorePurchaseDetails() {
+    public void testSaveAndGetStorePurchaseDetailsSuccessInfoSize() {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
-        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
         assertEquals(store1.getStorePurchaseHistory().size(), 1);
-        }
+    }
 
     @Test
-    public void testSaveAndGetStorePurchaseDetails2() {
+    public void testSaveAndGetStorePurchaseDetailsSuccessInfoContent() {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
-        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
         assertEquals((int)store1.getStorePurchaseHistory().get(0).getProducts().get(info), 5);
-         }
+    }
 
 
     @Test
-    public void testSaveAndGetStorePurchaseDetails3() {
+    public void testSaveAndGetStorePurchaseDetailsSuccessGetStore() {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
@@ -370,7 +314,7 @@ public class ShoppingCartTest extends TestCase {
        }
 
     @Test
-    public void testSaveAndGetStorePurchaseDetails4() {
+    public void testSaveAndGetStorePurchaseDetailsSuccessSaveAndGet() {
         info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 6);
         shoppingCart.addProduct(store1, info, 5);
