@@ -21,10 +21,6 @@ public class ConcurrencyTest extends TestCase {
     //System Unitesting
     System test;
     private final static int THREADS=10;
-    private int sessionId;
-    private int store1Id;
-    private ProductInfo info;
-    private User u;
     private PaymentHandler paymentHandler = null;
     private SupplyHandler supplyHandler = null;
 
