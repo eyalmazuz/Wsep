@@ -106,7 +106,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testSavePurchaseHistory() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
 
@@ -152,7 +152,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testSaveOngoingPurchaseForUser() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);
@@ -169,7 +169,7 @@ public class SystemTests extends TestCase {
     @Test
     public void testRequestSupply() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
-        Store store1 = new Store();
+        Store store1 = new Store(0);
         ProductInfo info = new ProductInfo(4, "lambda", "snacks", 10);
         store1.addProduct(info, 5);
         User u = test.getUser(sessionId);

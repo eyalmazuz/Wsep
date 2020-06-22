@@ -296,7 +296,7 @@ public class System {
 
     public int addStore (){
         logger.info("AddStore");
-        Store store = new Store();
+        Store store = new Store(0);
         stores.put(store.getId(),store);
         DAOManager.addStore(store);
         return store.getId();

@@ -100,7 +100,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testHasOwnerPermissionSuccess() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
@@ -111,7 +111,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testHasOwnerPermissionFailureNotOwner() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
@@ -122,7 +122,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testHasOwnerPermissionFailureNegativeId() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber, "Owner");
         newSubscriber.overridePermission("Manager",store,"New Owner");
@@ -154,7 +154,7 @@ public class SubscriberTest extends TestCase {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         assertTrue(newSubscriber.addPermission(store,subscriber,"Manager"));
-        store = new Store();
+        store = new Store(0);
         assertFalse(newSubscriber.addPermission(store,subscriber,"Manager"));//the grantor is not the store owner
     }
 
@@ -162,7 +162,7 @@ public class SubscriberTest extends TestCase {
     void addPermissionFailure() {
         store=subscriber.openStore();
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
-        store = new Store();
+        store = new Store(0);
         assertFalse(newSubscriber.addPermission(store,subscriber,"Manager"));//the grantor is not the store owner
     }
 
@@ -204,7 +204,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testGetManagerDetailsFailureNegativeIdSuccess() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
@@ -213,7 +213,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testGetManagerDetailsFailureNegativeIdFailure() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
@@ -222,7 +222,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testGetManagerDetailsFailureNotManagerSuccess() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
@@ -232,7 +232,7 @@ public class SubscriberTest extends TestCase {
 
     @Test
     public void testGetManagerDetailsFailureNotManagerFailure() {
-        store = new Store();
+        store = new Store(0);
         Subscriber newSubscriber = new Subscriber("hava neranena", "4321", false);
         newSubscriber.addPermission(store,subscriber,"Manager");
         newSubscriber.overridePermission("Manager",store,"any");
@@ -261,7 +261,7 @@ public class SubscriberTest extends TestCase {
     public void testGetPurchaseHistory() {
         storePurchaseDetails = new HashMap<>();
         user = subscriber.getUser();
-        store = new Store();
+        store = new Store(0);
         int storeId = store.getId();
         products = new HashMap<>();
         productInfo = new ProductInfo(3,"bamba","hatif", 10);
@@ -299,7 +299,7 @@ public class SubscriberTest extends TestCase {
     @Test
     public void testRemoveOwnershipAllIds(){
         Subscriber s2 = new Subscriber("Bob","123",false);
-        Store store = new Store();
+        Store store = new Store(0);
         subscriber.addPermission(store,null,"Owner");
         s2.addPermission(store,subscriber,"Manager");
         store.addOwner(subscriber);
