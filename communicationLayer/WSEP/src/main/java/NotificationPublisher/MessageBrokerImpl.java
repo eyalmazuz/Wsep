@@ -14,10 +14,16 @@ public class MessageBrokerImpl implements MessageBroker {
     }
 
     @Override
-    public List<Integer> sendTo(List<Integer> subscribers, Object message) {
-        for(Integer sessionId : subscribers) {
-            messageTemplate.convertAndSend("/storeUpdate/" + sessionId, message);
-            System.out.println("Notified User" + sessionId);
-        } return new ArrayList<>();
+    public List<Integer> sendTo(String url,List<Integer> subscribers, Object message) {
+        if(subscribers.isEmpty()) {//broadcast
+            System.out.println(String.format("sending stat message to: %s", url));
+            messageTemplate.convertAndSend(url, message);
+        }
+        else
+            for (Integer sessionId : subscribers) {
+                messageTemplate.convertAndSend(url + sessionId, message);
+                System.out.println("Notified User" + sessionId + " in address: " + url + sessionId);
+            }
+        return new ArrayList<>();
     }
 }

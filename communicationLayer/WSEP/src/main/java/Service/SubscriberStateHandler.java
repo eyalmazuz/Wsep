@@ -26,6 +26,7 @@ public class SubscriberStateHandler {
         if(s.isSubscriber(sessionId)){
             return s.openStore(sessionId);
         }
+
         return new IntActionResultDto(ResultCode.ERROR_OPENSTORE,"user is not subscriber",-1);
     }
 

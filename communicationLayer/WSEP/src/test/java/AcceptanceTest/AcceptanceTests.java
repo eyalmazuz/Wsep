@@ -5,6 +5,7 @@ import AcceptanceTest.GuestTests.GuestTests;
 import AcceptanceTest.RegisteredUserTest.RegisteredUserTests;
 import AcceptanceTest.StoreTests.StoreTests;
 import AcceptanceTest.SystemTests.SystemTests;
+import Domain.TradingSystem.System;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

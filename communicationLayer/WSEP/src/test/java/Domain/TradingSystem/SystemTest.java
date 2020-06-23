@@ -1,6 +1,8 @@
 package Domain.TradingSystem;
 
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 import Domain.Logger.SystemLogger;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -12,11 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemTest extends TestCase {
     //System Unitesting
-    System test = new System();
-    UserHandler mockHandler = new userHandlerMock();
+    System test;
+    UserHandler mockHandler;
 
     @Before
     public void setUp(){
+        System.testing = true;
+        test = new System();
+        mockHandler = new userHandlerMock();
+
         mockHandler.setSubscribers(new HashMap<Integer, Subscriber>() {{
             put(1, new Subscriber("Yaron", "abc123", false));
         }});
@@ -27,141 +33,197 @@ public class SystemTest extends TestCase {
 
         stores.put(1,new StoreMock(1));
         stores.put(2,new StoreMock(2));
+
         test.setStores(stores);
+
     }
 
     @After
     public void tearDown(){
         test.deleteStores();
+        DAOManager.clearDatabase();
     }
 
     @Test
      public void testSetUp(){
-      assertEquals(ResultCode.ERROR_SETUP,test.setup("Error","Error").getResultCode());
-      assertEquals(ResultCode.SUCCESS,test.setup("123","123").getResultCode());
+      assertEquals(ResultCode.ERROR_SETUP,test.setup("Error","Error","").getResultCode());
+      assertEquals(ResultCode.SUCCESS,test.setup("123","123","").getResultCode());
     }
 
 
     @Test
-    public void testAddStoreTest() {
-        int size = test.getStores().size();
+    public void testAddStoreSuccessSizeChanged() {
+        int size = test.getStoresMemory().size();
         test.addStore();
-        assertEquals(size+1,test.getStores().size());
+        assertEquals(size+1,test.getStoresMemory().size());
     }
 
     @Test
-    public void testIsSubscriberTest() {
-
+    public void testIsSubscriberSuccessExisting() {
         assertTrue(test.isSubscriber(2));
+    }
+
+    @Test
+    public void testIsSubscriberFailureNonExisting() {
         assertFalse(test.isSubscriber(-1));
         assertFalse(test.isSubscriber(1));
     }
 
     @Test
-    public void testIsAdminTest() {
+    public void testIsAdminSuccessAdmin() {
         assertTrue(test.isAdmin(2));
+    }
+
+    @Test
+    public void testIsAdminFailureNotAdmin() {
         assertFalse(test.isAdmin(-1));
         assertFalse(test.isAdmin(1));
     }
 
     @Test
-    public void testIsGuestTest() {
-        assertFalse(test.isGuest(2));
-        assertFalse(test.isGuest(-1));
+    public void testIsGuestSuccessGuest() {
         assertTrue(test.isGuest(1));
     }
 
+    @Test
+    public void testIsGuestFailureNotGuest() {
+        assertFalse(test.isGuest(2));
+        assertFalse(test.isGuest(-1));
+    }
 
 
     @Test
-    public void testOpenStoreFailureTest() {
-        int size = test.getStores().size();
+    public void testOpenStoreFailureNoUser() {
         assertEquals(-1,test.openStore(-1).getId());
+    }
+
+    @Test
+    public void testOpenStoreFailureIsGuest() {
         assertEquals(-1,test.openStore(1).getId());
-//        assertTrue(test.openStore(2).getId()>=0);
-  //      assertEquals(size+1,test.getStores().size());
     }
 
 
     @Test
-    public void testGetStoreByIdTest(){
+    public void testGetStoreByIdSuccessExists() throws DatabaseFetchException {
         Store s1 = test.getStoreById(1);
-        Store s2 = test.getStoreById(5);
         assertEquals("1",s1.toString());
-        assertNull(s2);
+    }
 
+    @Test
+    public void testGetStoreByIdFailureNotExist() throws DatabaseFetchException {
+        Store s2 = test.getStoreById(5);
+        assertNull(s2);
     }
 
 
-    @Test
-    public void testSearchProducts() {
-        Map<Integer, Store> stores = test.getStores();
+    public void setUpSearchProducts() {
+        Map<Integer, Store> stores = test.getStoresMemory();
 
         stores.get(1).setRating(3);
         stores.get(2).setRating(4);
-
-        String res0 = test.searchProducts(1, "apple", null, null, -1 ,-1).toString();
-        assertTrue(res0.contains("product ID: 5"));
-
-        // spelling checker
-        String resSpeller = test.searchProducts(1, "appple", null, null, -1 ,-1).toString();
-        assertTrue(resSpeller.contains("product ID: 5"));
-
-        // spelling checker
-        String resSpeller2 = test.searchProducts(1, "applee", null, null, -1 ,-1).toString();
-        assertTrue(resSpeller2.contains("product ID: 5"));
-
-        String res1 = test.searchProducts(1, "bamba", null, null, -1 ,-1).toString();
-        assertTrue(res1.contains("product ID: 4"));
-
-        String res15 = test.searchProducts(1, "bamba", null, null, -1 ,3).toString();
-        assertTrue(res15.contains("Store ID: 1"));
-        assertTrue(res15.contains("Store ID: 2"));
-
-        String res16 = test.searchProducts(1, "bamba", null, null, -1 ,4).toString();
-        assertFalse(res16.contains("Store ID: 1"));
-        assertTrue(res16.contains("Store ID: 2"));
-
-        String res2 = test.searchProducts(1, null, "fruit", null, -1 ,-1).toString();
-        assertTrue(res2.contains("product ID: 5"));
-
-        // apple's descrition is "very ripe apple"
-        String[] keywords = {"ripe"};
-        String res3 = test.searchProducts(1, null, null, keywords, -1 ,-1).toString();
-        assertTrue(res3.contains("product ID: 5"));
-
-        String res4 = test.searchProducts(1, null, null, null, 2 ,-1).toString();
-        assertTrue(res4.contains("product ID: 5"));
-        assertTrue(res4.contains("product ID: 4"));
-
-        String res5 = test.searchProducts(1, null, null, null, 3 ,-1).toString();
-        assertTrue(res5.contains("product ID: 4"));
-        assertFalse(res5.contains("product ID: 5"));
-
-        String res6 = test.searchProducts(1, null, null, null, -1 ,3).toString();
-        //out.println(res6);
-        assertFalse(res6.contains("product ID: 4"));
-        assertFalse(res6.contains("product ID: 5"));
-
-        String res8 = test.searchProducts(1, "bruh product", null, null, -1 ,-1).toString();
-        assertFalse(res8.contains("product ID: 4"));
-        assertFalse(res8.contains("product ID: 5"));
-
-        String res9 = test.searchProducts(1, null, "bruh category", null, -1 ,-1).toString();
-        assertFalse(res9.contains("product ID: 4"));
-        assertFalse(res9.contains("product ID: 5"));
     }
 
     @Test
-    public void testViewStoreProductInfo() {
+    public void testSearchProductsSuccessProductNameOnly() {
+        setUpSearchProducts();
+
+        String res0 = test.searchProducts(1, "apple", "", null, -1 ,-1).toString();
+        assertTrue(res0.contains("product ID: 5"));
+
+        String res1 = test.searchProducts(1, "bamba", "", null, -1 ,-1).toString();
+        assertTrue(res1.contains("product ID: 4"));
+
+        String res8 = test.searchProducts(1, "bruh product", "", null, -1 ,-1).toString();
+        assertFalse(res8.contains("product ID: 4"));
+        assertFalse(res8.contains("product ID: 5"));
+
+    }
+
+    @Test
+    public void testSearchProductsSuccessSpellcheck() {
+        setUpSearchProducts();
+
+        String resSpeller = test.searchProducts(1, "appple", "", null, -1 ,-1).toString();
+        assertTrue(resSpeller.contains("product ID: 5"));
+
+        String resSpeller2 = test.searchProducts(1, "applee", "", null, -1 ,-1).toString();
+        assertTrue(resSpeller2.contains("product ID: 5"));
+    }
+
+    @Test
+    public void testSearchProductsSuccessProductNameStoreRating() {
+        setUpSearchProducts();
+
+        String res15 = test.searchProducts(1, "bamba", "", null, -1 ,3).toString();
+        assertTrue(res15.contains("Store ID: 1"));
+        assertTrue(res15.contains("Store ID: 2"));
+
+        String res16 = test.searchProducts(1, "bamba", "", null, -1 ,4).toString();
+        assertFalse(res16.contains("Store ID: 1"));
+        assertTrue(res16.contains("Store ID: 2"));
+    }
+
+    @Test
+    public void testSearchProductsSuccessOnlyCategoryName() {
+        setUpSearchProducts();
+
+        String res2 = test.searchProducts(1, "", "fruit", null, -1 ,-1).toString();
+        assertTrue(res2.contains("product ID: 5"));
+
+        String res9 = test.searchProducts(1, "", "bruh category", null, -1 ,-1).toString();
+        assertFalse(res9.contains("product ID: 4"));
+        assertFalse(res9.contains("product ID: 5"));
+
+    }
+
+    @Test
+    public void testSearchProductsSuccessKeywords() {
+        setUpSearchProducts();
+
+        // apple's descrition is "very ripe apple"
+        String[] keywords = {"ripe"};
+        String res3 = test.searchProducts(1, "", "", keywords, -1 ,-1).toString();
+        assertTrue(res3.contains("product ID: 5"));
+    }
+
+    @Test
+    public void testSearchProductsSuccessItemRating() {
+        setUpSearchProducts();
+
+        String res4 = test.searchProducts(1, "", "", null, 2 ,-1).toString();
+        assertTrue(res4.contains("product ID: 5"));
+        assertTrue(res4.contains("product ID: 4"));
+
+        String res5 = test.searchProducts(1, "", "", null, 3 ,-1).toString();
+        assertTrue(res5.contains("product ID: 4"));
+        assertFalse(res5.contains("product ID: 5"));
+
+    }
+
+    @Test
+    public void testSearchProductsSuccessOnlyStoreRating() {
+        setUpSearchProducts();
+
+        String res6 = test.searchProducts(1, "", "", null, -1 ,3).toString();
+        //out.println(res6);
+        assertFalse(res6.contains("product ID: 4"));
+        assertFalse(res6.contains("product ID: 5"));
+    }
+
+    @Test
+    public void testViewStoreProductInfoSuccess() {
         assertNotNull(test.viewStoreProductInfo());
     }
 
 
     @Test
-    public void testGetUserHistory() {
-        assertEquals(ResultCode.ERROR_SESSIONID,test.getHistory(-1).getResultCode());
+    public void testGetUserHistorySuccess() {
         assertNotNull(test.getHistory(3));
+    }
+
+    @Test
+    public void testGetUserHistoryFailureNoSession() {
+        assertEquals(ResultCode.ERROR_SESSIONID,test.getHistory(-1).getResultCode());
     }
 
 
@@ -169,10 +231,10 @@ public class SystemTest extends TestCase {
     // HERE WE TEST ONLY VALIDITY OF PRODUCT AND STORE EXISTENCE IN SYSTEM
     // LOGICAL DOMAIN TESTS ARE IN ShoppingCartTest
     @Test
-    public void testAddProductToCart() {
+    public void testAddProductToCartBadInputs() throws DatabaseFetchException {
         List<Integer> userSessionIDs = new ArrayList<>();
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -188,17 +250,17 @@ public class SystemTest extends TestCase {
         }
         maxId = Collections.max(productIds);
         int badProduct = maxId + 1;
-        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
 
+        assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), badProduct, 40).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), 0).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(sessionId, stores.get(1).getId(), products.get(1).getId(), -1).getResultCode(), ResultCode.SUCCESS);
         assertNotSame(test.addToCart(-1, stores.get(1).getId(), products.get(1).getId(), 4).getResultCode(), ResultCode.SUCCESS);
     }
 
     @Test
-    public void testEditProductInCart() {
+    public void testEditProductInCartBadInputs() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -225,9 +287,9 @@ public class SystemTest extends TestCase {
     }
 
     @Test
-    public void testRemoveProductFromCart() {
+    public void testRemoveProductFromCartBadInputs() throws DatabaseFetchException {
         int sessionId = mockHandler.users.keySet().iterator().next();
-        Map<Integer, Store> stores = test.getStores();
+        Map<Integer, Store> stores = test.getStoresMemory();
         Set<Integer> storeIds = stores.keySet();
 
         int maxId = Collections.max(storeIds);
@@ -250,8 +312,8 @@ public class SystemTest extends TestCase {
 
     // usecase 2.8.4
     @Test
-    public void testUpdateStoreProductSupplies() {
-        Map<Integer, Store> stores = test.getStores();
+    public void testUpdateStoreProductSupplies() throws DatabaseFetchException {
+        Map<Integer, Store> stores = test.getStoresMemory();
 
         Store store1 = stores.get(1);
         // this store contains 10 bamba (id 4), 2 apple (id 5)
@@ -262,11 +324,11 @@ public class SystemTest extends TestCase {
 
         boolean problem = false;
         for (ProductInStore pis : store1.getProducts()) {
-            if (pis.getId() == 4 && pis.getAmount() != 3) {
+            if (pis.getProductInfoId() == 4 && pis.getAmount() != 3) {
                 problem = true;
                 break;
             }
-            if (pis.getId() == 5) {
+            if (pis.getProductInfoId() == 5) {
                 problem = true;
                 break;
             }
@@ -284,6 +346,7 @@ class StoreMock extends Store{
     List<ProductInStore> mockProducts = new ArrayList<>();
 
     public StoreMock(int i) {
+        super(0);
         id = i;
         ProductInfo bamba = new ProductInfo(4, "bamba", "snack", 10);
         bamba.setRating(3);
@@ -317,7 +380,7 @@ class StoreMock extends Store{
     @Override
     public int getProductAmount(Integer productId) {
         for (ProductInStore product : getProducts()) {
-            if (productId == product.getId()) {
+            if (productId == product.getProductInfoId()) {
                 return product.getAmount();
             }
         }
@@ -326,17 +389,26 @@ class StoreMock extends Store{
 
     @Override
     public void removeProductAmount(Integer productId, Integer amount) {
+        if (amount < 0) return;
         for (ProductInStore product : getProducts()) {
-            int id = product.getId();
+            int id = product.getProductInfoId();
             if (productId == id) {
                 int newAmount = product.getAmount() - amount;
-                if (newAmount == 0) {
-                    getProducts().remove(product);
-                } else {
-                    product.setAmount(newAmount);
+                if (newAmount>=0) {
+                    if (newAmount == 0) {
+                        getProducts().remove(product);
+                    } else {
+                        product.setAmount(newAmount);
+                    }
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof StoreMock) return ((StoreMock) other).getId() == id;
+        return false;
     }
 }
 
@@ -383,7 +455,7 @@ class UserMock extends User{
         if(type.equals("Owner"))
             return new SubscriberMock("Owner");
         else
-            return new GuestMock();
+            return new GuestMock(new User());
     }
 
     public UserMock(String type) {
@@ -407,12 +479,6 @@ class UserMock extends User{
         return type.equals("Guest");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        if (type.equals("Guest"))
-            return null;
-        return new UserPurchaseHistory();
-    }
 
     @Override
     public boolean isAdmin() {
@@ -456,10 +522,10 @@ class SubscriberMock extends Subscriber{
         return type.equals("Owner");
     }
 
-    @Override
-    public UserPurchaseHistory getHistory() {
-        return new UserPurchaseHistory();
-    }
 }
 
-class GuestMock extends Guest{}
+class GuestMock extends Guest{
+    public GuestMock(User user) {
+        super(user);
+    }
+}

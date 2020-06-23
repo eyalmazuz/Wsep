@@ -20,11 +20,15 @@ public class ShopAdministrationTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         appointManager(Database.sessionId, sid_1, Database.userToId.get("dia"));
         appointOwner(Database.sessionId, sid_1, Database.userToId.get("kanan"));
         logout(Database.sessionId);
+
+        login(Database.sessionId,"kanan","12345");
+        appointOwner(Database.sessionId,sid_1,Database.userToId.get("iggy"));
 
         login(Database.sessionId, "dia", "12345");
         appointManager(Database.sessionId, sid_1, Database.userToId.get("ruby"));
@@ -37,6 +41,8 @@ public class ShopAdministrationTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }
@@ -57,6 +63,33 @@ public class ShopAdministrationTests extends ServiceTest {
     public void testAppointAnotherManagerFailureAlreadyManager(){
         assertFalse(appointManager(Database.sessionId,1,Database.userToId.get("dia")));
     }
+
+    // USE CASES 4.4
+
+    @Test
+    public void testRemoveOwnerSucess(){
+        assertTrue(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("kanan")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerNoOwner(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("dia")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerNoGrantedBy(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),Database.userToId.get("iggy")));
+
+    }
+
+    @Test
+    public void testRemoveOwnerInvalidOwnerID(){
+        assertFalse(removeOwner(Database.sessionId,Database.userToStore.get("chika"),-2));
+
+    }
+
 
     // USE CASES 4.5
     @Test

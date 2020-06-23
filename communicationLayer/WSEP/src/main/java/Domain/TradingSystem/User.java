@@ -3,9 +3,12 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class User {
 
@@ -14,17 +17,16 @@ public class User {
 
     private String paymentDetails;
     private UserState state;
-    private ShoppingCart shoppingCart;
-    private static int idCounter = 0;
+    public static AtomicInteger idCounter;// = new AtomicInteger(0);
     private int id;
     private String country = "Unknown";
 
     public User() {
-        this.id = idCounter;
-        idCounter++;
-        this.state = new Guest();
+//        int maxDB = DAOManager.getMaxSubscriberId();
+//        int nId = idCounter.incrementAndGet();
+        this.id = idCounter.incrementAndGet();
+        this.state = new Guest(this);
         // FIX for acceptance testing
-        this.shoppingCart = new ShoppingCart(this);
     }
 
 
@@ -42,13 +44,15 @@ public class User {
     }
 
     public void setState(UserState nState) {
-
         if(nState == null){
             throw new NullPointerException();
         }
 
         this.state = nState;
         state.setUser(this);
+        state.setCountry(country);
+
+        if (nState instanceof Subscriber) DAOManager.createOrUpdateSubscriber((Subscriber) state);
     }
 
 
@@ -59,28 +63,28 @@ public class User {
      */
     public void setShoppingCart(ShoppingCart cart) {
         if(cart!=null) {
-            this.shoppingCart = cart;
+            state.setShoppingCart(cart);
         }
     }
 
     public ActionResultDTO addProductToCart(Store store, ProductInfo product, int amount) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.addProduct(store, product, amount);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().addProduct(store, product, amount);
     }
 
     public ActionResultDTO editCartProductAmount(Store store, ProductInfo product, int newAmount) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.editProduct(store, product, newAmount);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().editProduct(store, product, newAmount);
     }
 
     public ActionResultDTO removeProductFromCart(Store store, ProductInfo product) {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        return shoppingCart.removeProductFromCart(store, product);
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        return state.getShoppingCart().removeProductFromCart(store, product);
     }
 
     public ActionResultDTO removeAllProductsFromCart() {
-        if (shoppingCart == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
-        shoppingCart.removeAllProducts();
+        if (state.getShoppingCart() == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid shopping cart.");
+        state.getShoppingCart().removeAllProducts();
         return new ActionResultDTO(ResultCode.SUCCESS, "Shopping cart cleared.");
     }
 
@@ -101,30 +105,12 @@ public class User {
     }
 
     public ShoppingCart getShoppingCart () {
-        return shoppingCart;
+        return state.getShoppingCart();
     }
 
-    public UserPurchaseHistory getHistory () {
-        return state.getHistory();
+    public String getHistory () {
+        return state.getPurchaseHistory();
     }
-
-/*TODO:Fix test to be on system only
-
-    public boolean addOwner (Store store, Subscriber newOwner){
-        return state.addOwner(store, newOwner);
-
-    }
-
-
-    public boolean addManager (Store store, Subscriber newManager){
-        return state.addManager(store, newManager);
-    }
-
-    public boolean deleteManager (Store store, Subscriber managerToDelete){
-        return state.deleteManager(store, managerToDelete);
-    }
-*/
-
 
 
     public boolean isAdmin() {
@@ -137,36 +123,32 @@ public class User {
 
 
     public boolean isCartEmpty() {
-        return shoppingCart.isEmpty();
+        return state.getShoppingCart().isEmpty();
     }
 
     public boolean checkStoreSupplies() {
-        return shoppingCart.checkStoreSupplies();
+        return state.getShoppingCart().checkStoreSupplies();
     }
 
     public DoubleActionResultDTO getShoppingCartPrice() {
-        return shoppingCart.getPrice();
+        return state.getShoppingCart().getPrice();
     }
 
     public void saveCurrentCartAsPurchase() {
-        Map<Store, PurchaseDetails> storePurchaseDetailsMap = shoppingCart.saveAndGetStorePurchaseDetails();
+        Map<Store, PurchaseDetails> storePurchaseDetailsMap = state.getShoppingCart().saveAndGetStorePurchaseDetails();
         state.addPurchase(storePurchaseDetailsMap);
     }
 
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return state.getUserPurchaseHistory();
-    }
-
-    public boolean updateStoreSupplies() {
-        return shoppingCart.updateStoreSupplies();
+    public boolean updateStoreSupplies() throws DatabaseFetchException {
+        return state.getShoppingCart().updateStoreSupplies();
     }
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveCartDetails() {
-        return shoppingCart.getPrimitiveDetails();
+        return state.getShoppingCart().getPrimitiveDetails();
     }
 
     public void emptyCart() {
-        shoppingCart.removeAllProducts();
+        state.getShoppingCart().removeAllProducts();
     }
 
     public void removeLastHistoryItem(List<Store> stores) {
@@ -174,7 +156,7 @@ public class User {
     }
 
     public List<Integer> getStoresInCart() {
-        return shoppingCart.getStores();
+        return state.getShoppingCart().getStores();
     }
 
     public void setCountry(String country) {
@@ -183,6 +165,10 @@ public class User {
 
     public String getCountry() {
         return country;
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return state.getStorePurchaseLists();
     }
 }
 

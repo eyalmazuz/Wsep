@@ -4,9 +4,9 @@ public class ProxyBridge implements Bridge {
     private RealBridge rb = null;
 
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig){
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path){
         if (rb != null){
-            return rb.setupSystem(supplyConfig, paymentConfig);
+            return rb.setupSystem(supplyConfig, paymentConfig,path);
         }
         else{
             return false;
@@ -88,9 +88,10 @@ public class ProxyBridge implements Bridge {
         }
     }
 
-    public boolean buyCart(int sessionId, String paymentDetails) {
+    public boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
         if (rb != null) {
-            return rb.buyCart(sessionId, paymentDetails);
+            return rb.buyCart(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId, buyerName, address, city, country, zip);
         }
         else {
             return false;
@@ -144,9 +145,9 @@ public class ProxyBridge implements Bridge {
     }
 
 
-    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount){
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount){
         if(rb != null){
-            return rb.addProduct(flag, sessionId, productId, storeId, amount);
+            return rb.addProductToStore(flag, sessionId, productId, storeId, amount);
         }
         else{
             return false;
@@ -251,6 +252,14 @@ public class ProxyBridge implements Bridge {
     public boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy) {
         if(rb != null){
             return rb.changeBuyingPolicy(sessionId, flag, storeId, newPolicy);
+        }
+        else return false;
+    }
+
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        if(rb != null){
+            return rb.removeOwner(sessionId,storeId,userId);
         }
         else return false;
     }

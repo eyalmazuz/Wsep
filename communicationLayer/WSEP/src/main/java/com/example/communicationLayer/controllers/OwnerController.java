@@ -65,6 +65,31 @@ public class OwnerController {
         return new OwnerHandler(sessionId).addStoreOwner(storeId,subId);
     }
 
+    @GetMapping("/approveStoreOwner")
+    @ResponseBody
+    public ActionResultDTO approveStoreOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                         @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new OwnerHandler(sessionId).approveStoreOwner(storeId,subId);
+    }
+
+    @GetMapping("/declineStoreOwner")
+    @ResponseBody
+    public ActionResultDTO declineStoreOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                             @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                             @RequestParam(value = "subId", defaultValue = "") int subId){
+        return new OwnerHandler(sessionId).declineStoreOwner(storeId,subId);
+    }
+
+    @GetMapping("/getGrantings")
+    @ResponseBody
+    public GrantingResultDTO getGrantings(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                          @RequestParam(value = "subId", defaultValue = "") int subId)
+    {
+        return new OwnerHandler(sessionId).getAllGrantings(subId);
+    }
+
+
     @GetMapping("/addStoreManager")
     @ResponseBody
     public ActionResultDTO addStoreManager(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
@@ -90,6 +115,14 @@ public class OwnerController {
                                          @RequestParam(value = "storeId", defaultValue = "") int storeId,
                                          @RequestParam(value = "userId", defaultValue = "") int userId){
         return new OwnerHandler(sessionId).deleteManager(storeId,userId);
+    }
+
+    @GetMapping("/deleteOwner")
+    @ResponseBody
+    public ActionResultDTO deleteOwner(@RequestParam(value = "sessionId", defaultValue = "") int sessionId,
+                                         @RequestParam(value = "storeId", defaultValue = "") int storeId,
+                                         @RequestParam(value = "userId", defaultValue = "") int userId){
+        return new OwnerHandler(sessionId).deleteOwner(storeId,userId);
     }
 
 

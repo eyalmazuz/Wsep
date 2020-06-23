@@ -1,6 +1,6 @@
 
 async function viewStoreProducts(){
-
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }
@@ -97,7 +97,10 @@ async function deleteProduct(idx){
         deleteProductURL = 'https:/localhost:8443/ManagerDeleteProductFromStore?'
     }
     
-    var productId = document.getElementById('deleteproductIdText').value
+
+
+    var productId = document.getElementById('storeProducts').rows[idx].cells[0].innerHTML
+    console.log(productId)
 
     deleteProductURL += 'sessionId=' + sessionStorage['sessionId']
     deleteProductURL += "&storeId=" + storeId;
@@ -252,8 +255,8 @@ async function checkPermission(storeId, perm){
     permissionURL += 'storeId=' + parseInt(storeId)
     permissionURL += '&subId=' + parseInt(sessionStorage['subId'])
     await fetch(permissionURL, headers).then(response => response.json()).then(response => permissions = response)
-    var isOwner = permissions['permission']['details'] === 'Simple' && permissions['permission']['type'] === 'Owner'
-    var isManager = (permissions['permission']['details'] === perm || permissions['permission']['details'] === 'any') && permissions['permission']['type'] === 'Manager' 
+    var isOwner = permissions['permission']['details'].includes('Simple') && permissions['permission']['type'] === 'Owner'
+    var isManager = (permissions['permission']['details'].includes(perm) || permissions['permission']['details'].includes('any')) && permissions['permission']['type'] === 'Manager' 
 
      return isOwner || isManager  
 }

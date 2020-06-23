@@ -33,7 +33,14 @@ async function searchProducts() {
 
     console.log(result)
 
-    createProductTable(result);
+	if (result['resultCode'] == 'SUCCESS') {
+		createProductTable(result);
+	}
+	else {
+		if (result['resultCode'] == 'ERROR_DATABASE') {
+			alert('Could not contact database. Please try again later.');
+		}
+	}
 }
 
 
@@ -103,11 +110,15 @@ async function addToCart(idx) {
     }
     else{
         console.log('fail')
+		if(result['resultCode'] == 'ERROR_DATABASE') {
+			alert('Could not contact database. Please try again later.');
+		}
     }
 
 }
 
 async function loadSearchPage(){
+    hideButtons();
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

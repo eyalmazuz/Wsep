@@ -18,25 +18,28 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "chika", "12345");
         int sid_1 = openStore(Database.sessionId);
         Database.userToStore.put("chika", sid_1);
-        addProdcut(true,Database.sessionId, 1, sid_1, 5);
-        addProdcut(true,Database.sessionId, 2, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 1, sid_1, 5);
+        addProductToStore(true,Database.sessionId, 2, sid_1, 5);
         logout(Database.sessionId);
 
         login(Database.sessionId, "hanamaru", "12345");
         int sid_2 = openStore(Database.sessionId);
         Database.userToStore.put("hanamaru", sid_2);
-        addProdcut(true,Database.sessionId, 2, sid_2, 10);
+        addProductToStore(true,Database.sessionId, 2, sid_2, 10);
         logout(Database.sessionId);
 
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId, "Good payment details");
+        buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345");
 
     }
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }
@@ -70,7 +73,7 @@ public class UserActionsTests extends ServiceTest {
     }
 
     @Test
-    public void testOpenStoreFailure(){
+    public void testOpenStoreFailureNotLoggedIn(){
         logout(Database.sessionId);
         assertEquals(-1, openStore(Database.sessionId));
         assertEquals(-1, openStore(Database.sessionId));
@@ -83,7 +86,8 @@ public class UserActionsTests extends ServiceTest {
         login(Database.sessionId, "you", "12345");
         addToCart(Database.sessionId, Database.userToStore.get("chika"),1, 5);
         addToCart(Database.sessionId, Database.userToStore.get("chika"),2, 5);
-        buyCart(Database.sessionId, "Good payment details");
+        buyCart(Database.sessionId, "12345678", "04", "2021", "me", "777",
+                "12123123", "me", "1428 Elm Street", "Springwood", "Ohio, United States", "12345");
         assertNotNull(viewPurchaseHistory(Database.sessionId));
     }
 

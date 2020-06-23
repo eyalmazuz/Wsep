@@ -41,6 +41,12 @@
         </div>
 
         <br>
+        <div>
+            <h1 id='optionTitle' class='title'>Store OPTIONS</h1>
+            <button type="button" id='addManager' class='nav' onclick="showAddOwner()" >Add Owner to Store</button>
+            <button type="button" id='addManager' class='nav' onclick="showRemoveOwner()" >Remove Owner from Store</button>
+            <button type="button" id='addManager' class='nav' onclick="showPendingOwners()" >Show Pending Owners Requests</button>
+        </div>
         <br>
         <br>
 
@@ -56,10 +62,7 @@
         <br>
         <br>
         <br>
-        <div>
-            <h1 id='optionTitle'>Store OPTIONS</h1>
-            <button type="button" id='addManager' class='nav' onclick="showAddOwner()" >Add Owner to Store</button>
-        </div>
+
 
         <br>
         <br>
@@ -141,8 +144,8 @@
         </div>
 
         <!-- The remove Owner Model -->
-        <div id="removeManagerForm" class="modal">
-            <span onclick="document.getElementById('removeManagerForm').style.display='none'"
+        <div id="removeOwnerForm" class="modal">
+            <span onclick="document.getElementById('removeOwnerForm').style.display='none'"
             class="close" title="Close Modal">&times;</span>
 
             <!-- Modal Content -->
@@ -151,20 +154,46 @@
                 <div class="container">
                 
                     <label for="id"><b>Choose User</b></label>
-                    <select id='employeeSelect'>
+                    <select id='removeOwnerSelect'>
 
                     </select>
-                    <button type="button" onclick="removeManagerFromStore()">YOU ARE FIRED</button>
-                    <label id='managerAddResult'></label>
+                    <button type="button" onclick="removeOwnerFromStore()">FIRE Owner</button>
                 </div>
 
                 <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('removeManagerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                <button type="button" onclick="document.getElementById('removeOwnerForm').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div> 
+        
+
+        <!-- The approve Owner Model -->
+        <div id="approveOwnerForm" class="modal">
+            <span onclick="document.getElementById('approveOwnerForm').style.display='none'"
+            class="close" title="Close Modal">&times;</span>
+
+            <!-- Modal Content -->
+            <form class="modal-content animate">
+
+                <div class="container">
+
+                    <div name='pending'>
+                        <table id='pendingTable' border="1">
+                            <tr>
+                                <th>User ID</th>
+                                <th>User Name</th>
+                                <th>Grantor</th>
+                            </tr>
+                        </table>
+                    </div>
+            
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('approveOwnerForm').style.display='none'" class="cancelbtn">Cancel</button>
                 </div>
             </form>
         </div>
-
-
     </body>
 
 </html>

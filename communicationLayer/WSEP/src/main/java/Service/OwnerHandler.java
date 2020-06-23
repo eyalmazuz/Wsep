@@ -1,6 +1,7 @@
 package Service;
 
 import DTOs.*;
+import DataAccess.DatabaseFetchException;
 import Domain.TradingSystem.System;
 
 import java.util.List;
@@ -28,7 +29,11 @@ public class OwnerHandler {
             if(addProductInfoResult.getResultCode()!=ResultCode.SUCCESS){
                 return addProductInfoResult;
             }
-            return s.addProductToStore(sessionId,storeId,productId,amount);
+            ActionResultDTO result = s.addProductToStore(sessionId,storeId,productId,amount);
+            if(result.getResultCode()!=ResultCode.SUCCESS){
+                s.removeProduct(productId);
+            }
+            return result;
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "Only owners can use this functionality.");
     }
@@ -42,6 +47,7 @@ public class OwnerHandler {
 
     //uscase 4.1.3
     public ActionResultDTO deleteProductFromStore(int storeId, int productId) {
+        //java.lang.System.out.println("asdasd");
         if(s.isSubscriber(sessionId) && s.isOwner(sessionId,storeId)){
             return s.deleteProductFromStore(sessionId,storeId,productId);
         }
@@ -57,14 +63,23 @@ public class OwnerHandler {
     //Usecase 4.3
     public ActionResultDTO addStoreOwner(int storeId, int subId) {
         if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
-        if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        try {
+            if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         return s.addStoreOwner(sessionId,storeId,subId);
     }
 
     //Usecase 4.5
     public ActionResultDTO addStoreManager(int storeId, int userId) {
         if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
-        if (s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        try {
+            if (s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
 
         return s.addStoreManager(sessionId,storeId,userId);
     }
@@ -78,7 +93,12 @@ public class OwnerHandler {
      */
     public ActionResultDTO editManageOptions(int storeId, int subId, String options) {
         if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
-        if (!s.subIsManager(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        try {
+            if (!s.subIsManager(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
         return s.setManagerDetalis(sessionId,subId,storeId,options);
     }
 
@@ -91,7 +111,12 @@ public class OwnerHandler {
      */
     public ActionResultDTO deleteManager(int storeId, int userId) {
         if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
-        if (!s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        try {
+            if (!s.subIsManager(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
         return s.deleteManager(sessionId,storeId,userId);
     }
 
@@ -124,7 +149,12 @@ public class OwnerHandler {
             if (!minmax.toLowerCase().equals("max") && !minmax.toLowerCase().equals("min")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "The minmax string should be either max or min", -1);
             if (amount < 0) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Amount must be non-negative", -1);
 
-            int buyingTypeID = s.addSimpleBuyingTypeBasketConstraint(storeId, productId, minmax, amount);
+            int buyingTypeID = 0;
+            try {
+                buyingTypeID = s.addSimpleBuyingTypeBasketConstraint(storeId, productId, minmax, amount);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
@@ -133,7 +163,12 @@ public class OwnerHandler {
     public IntActionResultDto addSimpleBuyingTypeUserConstraint(int storeId, String country) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
             if (country.toLowerCase().equals("any")) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "No new policy has been added", -1);
-            int buyingTypeID = s.addSimpleBuyingTypeUserConstraint(storeId, country);
+            int buyingTypeID = 0;
+            try {
+                buyingTypeID = s.addSimpleBuyingTypeUserConstraint(storeId, country);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
@@ -142,7 +177,12 @@ public class OwnerHandler {
     public IntActionResultDto addSimpleBuyingTypeSystemConstraint(int storeId, int dayOfWeek) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
             if (dayOfWeek < 1 || dayOfWeek > 7) return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Invalid day of week", -1);
-            int buyingTypeID = s.addSimpleBuyingTypeSystemConstraint(storeId, dayOfWeek);
+            int buyingTypeID = 0;
+            try {
+                buyingTypeID = s.addSimpleBuyingTypeSystemConstraint(storeId, dayOfWeek);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Added buying type " + buyingTypeID, buyingTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
@@ -150,7 +190,11 @@ public class OwnerHandler {
 
     public IntActionResultDto removeBuyingType(int storeId, int buyingTypeID) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
-            s.removeBuyingTypeFromStore(storeId, buyingTypeID);
+            try {
+                s.removeBuyingTypeFromStore(storeId, buyingTypeID);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Removed buying type " + buyingTypeID, buyingTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
@@ -158,7 +202,11 @@ public class OwnerHandler {
 
     public IntActionResultDto removeAllBuyingTypes(int storeId) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
-            s.removeAllBuyingTypes(storeId);
+            try {
+                s.removeAllBuyingTypes(storeId);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Removed all buying types", 0);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change buying policies in stores.", -1);
@@ -189,7 +237,12 @@ public class OwnerHandler {
     public IntActionResultDto addSimpleProductDiscount(int storeId, int productId, double salePercentage) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
             if (salePercentage < 0) return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Sale percentage must be non-negative", -1);
-            int discountTypeID = s.addSimpleProductDiscount(storeId, productId, salePercentage);
+            int discountTypeID = 0;
+            try {
+                discountTypeID = s.addSimpleProductDiscount(storeId, productId, salePercentage);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Added discount type " + discountTypeID, discountTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_DISCOUNT_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
@@ -197,7 +250,12 @@ public class OwnerHandler {
 
     public IntActionResultDto addSimpleCategoryDiscount(int storeId, String categoryName, double salePercentage) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
-            int discountTypeID = s.addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
+            int discountTypeID = 0;
+            try {
+                discountTypeID = s.addSimpleCategoryDiscount(storeId, categoryName, salePercentage);
+            } catch (DatabaseFetchException e) {
+                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+            }
             return new IntActionResultDto(ResultCode.SUCCESS, "Added discount type " + discountTypeID, discountTypeID);
         }
         return new IntActionResultDto(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.", -1);
@@ -215,7 +273,11 @@ public class OwnerHandler {
 
     public ActionResultDTO removeDiscountType(int storeId, int discountTypeId) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
-            s.removeDiscountTypeFromStore(storeId, discountTypeId);
+            try {
+                s.removeDiscountTypeFromStore(storeId, discountTypeId);
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+            }
             return new ActionResultDTO(ResultCode.SUCCESS, "Removed discount type " + discountTypeId);
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.");
@@ -223,7 +285,11 @@ public class OwnerHandler {
 
     public ActionResultDTO removeAllDiscountTypes(int storeId) {
         if (s.isSubscriber(sessionId) && s.isOwner(sessionId, storeId)) {
-            s.removeAllDiscountTypes(storeId);
+            try {
+                s.removeAllDiscountTypes(storeId);
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+            }
             return new ActionResultDTO(ResultCode.SUCCESS, "Removed all discount types");
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_BUYING_POLICY_CHANGE, "Only managers can change discount policies in stores.");
@@ -238,5 +304,43 @@ public class OwnerHandler {
 
     public DiscountPolicyActionResultDTO viewDiscountPolicies(int sessionId, int storeId) {
         return s.getDiscountPolicyDetails(storeId);
+    }
+
+    public ActionResultDTO deleteOwner(int storeId, int userId) {
+        if (!s.isOwner(sessionId, storeId) || !s.isSubscriber(sessionId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "Only owners can use this functionality.");
+        try {
+            if (!s.subIsOwner(userId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified subscriber is not a manager.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
+
+        return s.deleteOwner(sessionId,storeId,userId);
+    }
+
+    public ActionResultDTO approveStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        try {
+            if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
+        return s.approveStoreOwner(sessionId,storeId,subId);
+    }
+
+    public GrantingResultDTO getAllGrantings(int subId) {
+        return s.getAllGrantings(sessionId,subId);
+    }
+
+    public ActionResultDTO declineStoreOwner(int storeId, int subId) {
+        if (!s.isSubscriber(sessionId) || !s.isOwner(sessionId,storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Only owners can use this functionality.");
+        try {
+            if (s.subIsOwner(subId, storeId)) return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "The specified subscriber is already an owner.");
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+        }
+        return s.declineStoreOwner(sessionId,storeId,subId);
     }
 }

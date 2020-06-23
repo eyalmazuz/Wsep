@@ -1,46 +1,72 @@
 package Domain.TradingSystem;
 
 import DTOs.Notification;
+import DataAccess.DAOManager;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@DatabaseTable(tableName = "subscribers")
 public class Subscriber implements UserState {
 
     //FIELDS:
-    private static int idCounter = 0;
+
+
+    @DatabaseField (id = true)
     private int id;
+
     private Map <Integer,Permission> permissions; //StoreId -> Permission
+
     private User user;
+
+    @DatabaseField(unique = true)
     private String username;
+
+    @DatabaseField
     private String hashedPassword;
+
+    @DatabaseField
     private boolean isAdmin;
-    private UserPurchaseHistory userPurchaseHistory;
-    private Queue<Notification> notificationQueue ;
+
+    @DatabaseField
+    private String country;
+
+    private HashMap<Store, List<PurchaseDetails>> storePurchaseLists = new HashMap<>();
+
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private HashMap<Integer, List<Integer>> storePurchaseListsPrimitive = new HashMap<>();
+
+    @DatabaseField (foreign = true)
+    private ShoppingCart shoppingCart;
+
+    @DatabaseField (dataType = DataType.SERIALIZABLE)
+    private ArrayList<Notification> notificationQueue ;
+
     private Object permissionLock;
 
+    @DatabaseField
+    private int pVersion;
+
     public Subscriber() {
-        userPurchaseHistory = new UserPurchaseHistory();
+        notificationQueue = new ArrayList<>();
         permissions = new HashMap<>();
         permissionLock = new Object();
+        shoppingCart = new ShoppingCart(user);
+
+
+
+        this.pVersion=0;
     }
 
     public Subscriber(String username, String hashedPassword, boolean isAdmin) {
+        this();
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.isAdmin = isAdmin;
-        this.id = idCounter;
-        idCounter++;
-        permissions = new HashMap<>();
-        // FIX for acceptance tests
-        userPurchaseHistory = new UserPurchaseHistory();
-        permissionLock = new Object();
-        notificationQueue = new ConcurrentLinkedDeque<>();
-
-
     }
 
 
@@ -59,11 +85,13 @@ public class Subscriber implements UserState {
 
     public void setAdmin() {
         isAdmin = true;
+        DAOManager.updateSubscriber(this);
     }
 
     public void setUserName(String userName) {
-            this.username = userName;
-        }
+        this.username = userName;
+        DAOManager.updateSubscriber(this);
+   }
 
 
 
@@ -74,13 +102,21 @@ public class Subscriber implements UserState {
      */
     public boolean logout () {
 
-        user.setState(new Guest());
+        user.setState(new Guest(user));
         return true;
 
     }
 
-    public UserPurchaseHistory getHistory() {
-        return userPurchaseHistory;
+    public String getPurchaseHistory() {
+        String output = "";
+        for (Map.Entry<Store, List<PurchaseDetails>> purchase: storePurchaseLists.entrySet()) {
+            output += "Basket Purchase for store ID: " + purchase.getKey().getId() + "\n";
+            for(PurchaseDetails p: purchase.getValue()){
+                output += p.toString() + "\n";
+            }
+
+        }
+        return output;
     }
 
     @Override
@@ -89,18 +125,31 @@ public class Subscriber implements UserState {
             throw new NullPointerException();
         }
         this.user = user;
+        shoppingCart.setUser(user);
     }
 
 
 
     public Store openStore() {
-        Store newStore = new Store();
+        Store newStore = new Store(0);
         addPermission(newStore,null,"Owner");
         newStore.addOwner(this);
         return newStore;
     }
 
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
+    @Override
+    public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
+        return storePurchaseListsPrimitive;
+    }
+
+    @Override
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
 
 
     /**
@@ -116,13 +165,7 @@ public class Subscriber implements UserState {
         Permission p = permissions.get(store_id);
 
         return (p!=null && p.hasPrivilage(type));
-        
-
     }
-
-
-
-
 
     public void removePermission(Store store, String type) {
 
@@ -133,6 +176,9 @@ public class Subscriber implements UserState {
                 permissions.remove(store.getId());
             }
         }
+
+        DAOManager.updateSubscriber(this);
+        DAOManager.removePermission(permission);
 
     }
 
@@ -176,6 +222,8 @@ public class Subscriber implements UserState {
                     //The line above grants permission will be set only once Or upgrade from manager to owner
                     Permission newPermission = new Permission(this, grantor, type, store);
                     permissions.put(store.getId(), newPermission);
+                    DAOManager.addPermission(newPermission);
+                    DAOManager.updateSubscriber(this);
                     return true;
                 }
             }
@@ -197,11 +245,11 @@ public class Subscriber implements UserState {
     public boolean isGrantedBy(int storeId, int grantorId) {
 
         Permission permission = permissions.get(storeId);
-        return permission!=null && permission.getGrantor().getId() == grantorId;
+        return permission!=null && permission.getGrantor()!=null && permission.getGrantor().getId() == grantorId;
 
     }
 
-    public String getManagerDetails(int storeId) {
+    public ArrayList<String> getManagerDetails(int storeId) {
 
         Permission permission = permissions.get(storeId);
         if (permission!=null){
@@ -211,12 +259,24 @@ public class Subscriber implements UserState {
     }
 
 
-
-
-
     @Override
     public void addPurchase(Map<Store, PurchaseDetails> storePurchaseDetails) {
-        userPurchaseHistory.addPurchase(storePurchaseDetails);
+        for (Store store : storePurchaseDetails.keySet()) {
+            PurchaseDetails purchaseDetails = storePurchaseDetails.get(store);
+
+            if (storePurchaseLists.containsKey(store)) {
+                storePurchaseLists.get(store).add(purchaseDetails);
+                storePurchaseListsPrimitive.get(store.getId()).add(purchaseDetails.getId());
+            } else {
+                List<PurchaseDetails> detailsList = new ArrayList<>();
+                detailsList.add(purchaseDetails);
+                storePurchaseLists.put(store, detailsList);
+                List<Integer> detailsListIds = new ArrayList<>();
+                for (PurchaseDetails details : detailsList) detailsListIds.add(details.getId());
+                storePurchaseListsPrimitive.put(store.getId(), detailsListIds);
+            }
+        }
+        DAOManager.updateSubscriber(this);
     }
 
     public void overridePermission(String type, Store store, String details) {
@@ -225,22 +285,30 @@ public class Subscriber implements UserState {
             permission = permissions.get(store.getId()); //in case that another process removes the permission
             if (permission != null && permission.getType().equals(type)) {
                 permission.setDetails(details);
+                DAOManager.updatePermission(permission);
             }
         }
+        DAOManager.updateSubscriber(this);
+
     }
 
 
     public void removeLastHistoryItem(List<Store> stores) {
-        userPurchaseHistory.removeLastItem(stores);
+        for (Store store : stores) {
+            List<PurchaseDetails> detailsList = storePurchaseLists.get(store);
+            if (detailsList != null) {
+                detailsList.remove(detailsList.size() - 1);
+                if (detailsList.isEmpty()) {
+                    storePurchaseLists.remove(store);
+                    storePurchaseListsPrimitive.remove(store.getId());
+                }
+            }
+        }
+        DAOManager.updateSubscriber(this);
     }
 
     public String getHashedPassword() {
         return hashedPassword;
-    }
-
-    @Override
-    public UserPurchaseHistory getUserPurchaseHistory() {
-        return userPurchaseHistory;
     }
 
 
@@ -258,10 +326,15 @@ public class Subscriber implements UserState {
 
     public void setNotification(Notification message){
         notificationQueue.add(message);
+        DAOManager.updateSubscriber(this);
     }
 
-    public Queue<Notification> getAllNotification(){
+    public ArrayList<Notification> getAllNotification(){
         return notificationQueue;
+    }
+
+    public void setNotificationQueue(ArrayList<Notification> notificationQueue) {
+        this.notificationQueue = notificationQueue;
     }
 
     public void removeNotification(int id){
@@ -276,10 +349,103 @@ public class Subscriber implements UserState {
         }
         if(toRemove!=null){
             notificationQueue.remove(toRemove);
+            DAOManager.updateSubscriber(this);
+
         }
     }
 
     public Permission getPermission(int storeId) {
         return permissions.get(storeId);
+    }
+
+    public void setPermissions(Map<Integer, Permission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public boolean equals(Object o) {
+        return (o instanceof Subscriber) && ((Subscriber) o).getId() == id;
+    }
+
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
+        return storePurchaseLists;
+    }
+
+    public void setStorePurchaseLists(HashMap<Store, List<PurchaseDetails>> storePurchaseLists) {
+        this.storePurchaseLists = storePurchaseLists;
+    }
+
+    public List<Integer> removeOwnership(int storeId) {
+        Store store = getPermission(storeId).getStore();
+        List<Integer> removed = new ArrayList<>();
+        List<Subscriber> grantedBy = store.getAllGrantedBy(this);
+        for(Subscriber manager: grantedBy){
+            if(manager.hasOwnerPermission(storeId)){
+                removed.addAll(manager.removeOwnership(storeId));
+            }
+            else if(manager.hasManagerPermission(storeId)){
+                manager.removeManagment(storeId);
+                removed.add(manager.getId());
+            }
+        }
+        removePermission(store,"Owner");
+        store.removeManger(this);
+        removed.add(this.getId());
+        return removed;
+    }
+
+    public void removeManagment(int storeId) {
+        Store store = getPermission(storeId).getStore();
+        removePermission(store,"Manager");
+        store.removeManger(this);
+    }
+
+    public List<Store> getAllOwnedStores() {
+        List<Store> stores = new ArrayList<>();
+        for( Permission permission : permissions.values()){
+            if(permission.getType().equals("Owner"))
+                stores.add(permission.getStore());
+        }
+        return stores;
+    }
+
+    public void setId(int sessionId) {
+        this.id = sessionId;
+    }
+
+    @Override
+    public void setShoppingCart(ShoppingCart cart) {
+        this.shoppingCart = cart;
+    }
+
+    /*
+    Goes over Permission List and find if any of them is owner permission
+     */
+    public boolean isOwner() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Owner"))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isManager() {
+        for(Permission p :permissions.values()){
+            if(p.getType().equals("Manager"))
+                return true;
+        }
+        return false;
+    }
+
+    public void updateNotificationQueue(ArrayList<Notification> notifications) {
+
+        this.notificationQueue.addAll(notifications);
+
+    }
+    public int getpVersion() {
+        return pVersion;
+    }
+
+    public void incpVersion() {
+        this.pVersion++;
     }
 }

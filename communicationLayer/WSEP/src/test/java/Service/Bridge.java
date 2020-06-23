@@ -2,7 +2,7 @@ package Service;
 
 public interface Bridge {
 
-    boolean setupSystem(String supplyConfig, String paymentConfig);
+    boolean setupSystem(String supplyConfig, String paymentConfig,String path);
 
     boolean login(int sessionId, String username, String password);
 
@@ -22,7 +22,8 @@ public interface Bridge {
 
     boolean clearCart(int sessionId);
 
-    boolean buyCart(int sessionId, String paymentDetails);
+    boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                    String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip);
 
     boolean logout(int sessionId);
 
@@ -32,7 +33,7 @@ public interface Bridge {
 
     String searchUserHistory(int sessionId, int userId);
 
-    boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount);
+    boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount);
 
     boolean editProduct(boolean flag, int sessionId, int storeId, int productId, String productInfo);
 
@@ -55,4 +56,6 @@ public interface Bridge {
     void addProductInfo(int sessionId, int id, String name, String category, double basePrice);
 
     boolean changeBuyingPolicy(int sessionId, boolean flag, int storeId, String newPolicy);
+
+    boolean removeOwner(int sessionId, int storeId, int userId);
 }

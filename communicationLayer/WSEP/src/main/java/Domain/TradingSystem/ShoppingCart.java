@@ -3,18 +3,35 @@ package Domain.TradingSystem;
 import DTOs.ActionResultDTO;
 import DTOs.DoubleActionResultDTO;
 import DTOs.ResultCode;
+import DataAccess.DAOManager;
+import DataAccess.DatabaseFetchException;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@DatabaseTable(tableName ="shoppingCarts")
 public class ShoppingCart {
 
+    @DatabaseField (generatedId = true)
+    private int id;
+
     private User user;
-    private ArrayList<ShoppingBasket> shoppingBaskets;
+
+    @ForeignCollectionField(eager = true)
+    private ForeignCollection<ShoppingBasket> persistentShoppingBaskets = null;
+
+    private List<ShoppingBasket> nonPersistentShoppingBaskets = new ArrayList<>();
+
+    public ShoppingCart() {}
 
     public ShoppingCart(User user) {
-        shoppingBaskets = new ArrayList<>();
+        DAOManager.createBasketListForCart(this);
         this.user = user;
+
     }
 
 
@@ -29,7 +46,7 @@ public class ShoppingCart {
         if (store == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid store.");
         if (product == null) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Invalid product ID");
         if (amount < 1) return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "Amount must be positive.");
-        getOrCreateBasket(store).addProduct(product, amount);
+        getOrCreateBasket(store).addProduct(product, amount, user.getState() instanceof Subscriber);
         return new ActionResultDTO(ResultCode.SUCCESS, null);
     }
 
@@ -42,7 +59,7 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.editProduct(product, newAmount);
+            return basket.editProduct(product, newAmount, user.getState() instanceof Subscriber);
         }
     }
 
@@ -54,12 +71,17 @@ public class ShoppingCart {
         if (basket == null) {
             return new ActionResultDTO(ResultCode.ERROR_CART_MODIFICATION, "No basket for store " + store.getId());
         } else {
-            return basket.removeProduct(product);
+            return basket.removeProduct(product, user.getState() instanceof Subscriber);
         }
     }
 
     public void removeAllProducts() {
-        shoppingBaskets.clear();
+        getCurrentBasketCollection().clear();
+    }
+
+    private Collection<ShoppingBasket> getCurrentBasketCollection() {
+        if (user == null) return persistentShoppingBaskets; // no user? cart loaded from db
+        return user.getState() instanceof Subscriber ? persistentShoppingBaskets : nonPersistentShoppingBaskets;
     }
 
     private Map<Integer,Integer> covertInfoToIds(Map <ProductInfo,Integer> infos){
@@ -72,7 +94,7 @@ public class ShoppingCart {
 
     public Map<Integer, Map<Integer, Integer>> getStoreProductsIds() {
         Map<Integer, Map<Integer, Integer>> storeProductsIds = new HashMap<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             storeProductsIds.put(basket.getStoreId(), covertInfoToIds(basket.getProducts()));
         }
         return storeProductsIds;
@@ -81,7 +103,7 @@ public class ShoppingCart {
 
     public Map<Integer, Map<Integer, Integer>> getPrimitiveDetails() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             map.put(basket.getStoreId(), covertInfoToIds(basket.getProducts()));
         }
         return map;
@@ -89,7 +111,7 @@ public class ShoppingCart {
 
 
     private ShoppingBasket getBasket(Store store) {
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             if (basket.getStoreId() == store.getId()) {
                 return basket;
             }
@@ -98,45 +120,25 @@ public class ShoppingCart {
     }
 
     private ShoppingBasket getOrCreateBasket(Store store) {
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             if (store.getId() == basket.getStoreId()) {
                 return basket;
             }
         }
-        ShoppingBasket newBasket = new ShoppingBasket(store);
-        shoppingBaskets.add(newBasket);
+        ShoppingBasket newBasket = new ShoppingBasket(this, store);
+        getCurrentBasketCollection().add(newBasket);
         return newBasket;
-    }
-
-    public void merge(ShoppingCart other) {
-        List<Integer> existingStoreIDs = new ArrayList<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
-            existingStoreIDs.add(basket.getStoreId());
-            for (ShoppingBasket otherBasket : other.shoppingBaskets) {
-                if (otherBasket.getStoreId() == basket.getStoreId()) {
-                    basket.merge(otherBasket);
-                    break;
-                }
-            }
-        }
-
-        for (ShoppingBasket otherBasket : other.shoppingBaskets) {
-            if(!existingStoreIDs.contains(otherBasket.getStoreId())) {
-                shoppingBaskets.add(otherBasket);
-            }
-        }
-
     }
 
 
     public ArrayList<ShoppingBasket> getBaskets(){
-        return shoppingBaskets;
+        return new ArrayList<>(getCurrentBasketCollection());
     }
 
     @Override
     public String toString() {
         String output = "";
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             output += "Basket for store ID: " + basket.getStoreId() + "\n";
             output += basket.toString() + "\n";
         }
@@ -146,7 +148,7 @@ public class ShoppingCart {
 
 
     public boolean isEmpty() {
-        return shoppingBaskets.isEmpty();
+        return getCurrentBasketCollection().isEmpty();
     }
 
 
@@ -154,7 +156,7 @@ public class ShoppingCart {
     public ActionResultDTO checkBuyingPolicy() {
         boolean error = false;
         String errorStrings = "";
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             ActionResultDTO buyingPolicyCheckResult = basket.checkBuyingPolicy(user, basket);
             if(buyingPolicyCheckResult.getResultCode() != ResultCode.SUCCESS) {
                 error = true;
@@ -167,7 +169,7 @@ public class ShoppingCart {
 
     public boolean checkStoreSupplies() {
         boolean missing = false;
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             if (!basket.checkStoreSupplies()) {
                 missing = true;
                 break;
@@ -178,7 +180,7 @@ public class ShoppingCart {
 
     public DoubleActionResultDTO getPrice() {
         double totalPrice = 0;
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             totalPrice += basket.getTotalPrice(user).getPrice();
         }
         return new DoubleActionResultDTO(ResultCode.SUCCESS, "get price", totalPrice);
@@ -187,17 +189,17 @@ public class ShoppingCart {
 
     public Map<Store, PurchaseDetails> saveAndGetStorePurchaseDetails() {
         Map<Store, PurchaseDetails> storePurchaseDetailsMap = new HashMap<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             PurchaseDetails details = basket.savePurchase(user);
             storePurchaseDetailsMap.put(basket.getStore(), details);
         }
         return storePurchaseDetailsMap;
     }
 
-    public boolean updateStoreSupplies() {
+    public boolean updateStoreSupplies() throws DatabaseFetchException {
         boolean flag = true;
         List <ShoppingBasket> baskets = new LinkedList<>();
-        for (ShoppingBasket basket : shoppingBaskets) {
+        for (ShoppingBasket basket : getCurrentBasketCollection()) {
             flag = basket.updateStoreSupplies();
             if (flag == false){
                 for (ShoppingBasket restoreBasket : baskets){
@@ -215,9 +217,14 @@ public class ShoppingCart {
 
     public List<Integer> getStores() {
         List<Integer> storeIds = new ArrayList<>();
-        for(ShoppingBasket basket:shoppingBaskets){
+        for(ShoppingBasket basket: getCurrentBasketCollection()){
             storeIds.add(basket.getStoreId());
         }
         return storeIds;
     }
+
+    public void setUser(User u) {
+        this.user = u;
+    }
+
 }

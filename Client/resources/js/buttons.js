@@ -21,7 +21,8 @@ async function register(){
         }
         else if(result['resultCode'] === 'ERROR_REGISTER'){
             console.log('in else if')
-            document.getElementById("registerResult").innerHTML = result['details']
+			alert('Could not contact database. Please try again later.');
+			document.getElementById("registerResult").innerHTML = result['details']
             document.getElementById("registerUserText").value = ''
             document.getElementById("registerPasswordText").value = ''
         }
@@ -48,15 +49,24 @@ async function login(){
             sessionStorage['loggedin'] = true
             sessionStorage['username'] = username
             sessionStorage['subId'] = result['id']
-            connect()
-            if(username === 'admin' && password === "admin"){
+            await connect() //.then(result => sendReadyForNotificaitons())
+            
+            registerURL = 'https://localhost:8443/isAdmin?sessionId=' + sessionStorage['sessionId']
+
+            var result; 
+            await fetch(registerURL).then(response => response.json()).then(response => result = response)
+            console.log(result)
+            
+            if(result['resultCode'] === 'SUCCESS'){
                 sessionStorage['isAdmin'] = true
             }
             document.getElementById('loginForm').style.display = 'none'
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
             alert("successfully logged in")
-            sendReadyForNotificaitons();
+			location.reload();
+
+            ;
 
         
         }
@@ -66,6 +76,7 @@ async function login(){
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
         }
+
     
 }
 
@@ -91,9 +102,10 @@ async function logout(){
             alert("successfully logged out")
             sessionStorage['loggedin'] = false
             sessionStorage['username'] = ''
+            sessionStorage['subId'] = '-1'
 
         }
-        location.reload()
+        location.href = 'index.html'
 
     }
 }
@@ -143,5 +155,20 @@ async function moveToAdminPage(){
     }
     else{
         alert("admins only")
+    }
+}
+
+
+function hideButtons(){
+    if(sessionStorage['loggedin'] === 'true'){
+        document.getElementById('logoutButton').style.visibility = '';
+        document.getElementById('registerButton').style.visibility = 'hidden';
+        document.getElementById('loginButton').style.visibility = 'hidden';
+    }
+    else{
+
+        document.getElementById('logoutButton').style.visibility = 'hidden';
+        document.getElementById('registerButton').style.visibility = '';
+        document.getElementById('loginButton').style.visibility = '';
     }
 }

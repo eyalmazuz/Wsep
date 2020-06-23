@@ -2,6 +2,7 @@
 
 
 async function viewStores(){
+    hideButtons();
     storesURL = 'https://localhost:8443/viewStoreProductInfo'
 
     var stores = await fetch(storesURL, headers)
@@ -18,7 +19,7 @@ async function viewStores(){
 function buildStoresTable(stores){
 
     storeList = stores['stores']
-
+    console.log(storeList)
     var storesTable = document.getElementById('storesTable')
     
     for(var i = 1; i< storesTable.rows.length; i++){

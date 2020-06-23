@@ -1,5 +1,8 @@
 async function viewStoreBuyingPolicies(){
 
+
+    hideButtons();
+
     if(sessionStorage['loggedin'] === 'true'){
         connect()
     }

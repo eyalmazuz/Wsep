@@ -1,7 +1,9 @@
 package AcceptanceTest.GuestTests;
 
 import AcceptanceTest.Data.Database;
+import AcceptanceTest.Driver;
 import AcceptanceTest.ServiceTest;
+import DataAccess.DAOManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +21,8 @@ public class LoginTests extends ServiceTest {
 
     @After
     public void tearDown(){
+        super.tearDown();
+
 //        Database.userToId.clear();
 //        Database.userToStore.clear();
     }

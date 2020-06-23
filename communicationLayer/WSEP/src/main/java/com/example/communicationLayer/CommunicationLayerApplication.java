@@ -1,11 +1,14 @@
 package com.example.communicationLayer;
 
+import com.example.communicationLayer.controllers.SessionController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
@@ -42,4 +45,10 @@ public class CommunicationLayerApplication implements ApplicationListener<Applic
 			e.printStackTrace();
 		}
 	}
+
+	@Bean
+	CommandLineRunner setup(SessionController sessionController){
+		return (x) -> sessionController.setup("supplyConfig", "paymentConfig", "initFile4.txt");
+	}
+
 }

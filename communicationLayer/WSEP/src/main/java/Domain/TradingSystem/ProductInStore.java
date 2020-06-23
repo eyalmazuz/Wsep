@@ -1,13 +1,31 @@
 package Domain.TradingSystem;
 
+import DataAccess.DAOManager;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "productsInStores")
 public class ProductInStore {
 
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField(canBeNull = false, foreign = true)
     private ProductInfo productInfo;
+
+    @DatabaseField
     private int amount;
+
+    @DatabaseField
     private String info;
+
+    @DatabaseField(foreign = true)
     private Store store;
+
+    @DatabaseField
     private double price;
 
+    public ProductInStore() {}
 
     public ProductInStore(ProductInfo productInfo, int amount, Store store) {
         this.productInfo = productInfo;
@@ -16,7 +34,7 @@ public class ProductInStore {
         this.price = productInfo.getDefaultPrice();
     }
 
-    public int getId() {
+    public int getProductInfoId() {
         return productInfo.getId();
     }
 
@@ -26,10 +44,12 @@ public class ProductInStore {
 
     public void setAmount(int amount) {
         this.amount = amount;
+        DAOManager.updateProductInStore(this);
     }
 
     public void addAmount(int amount) {
         this.amount += amount;
+        DAOManager.updateProductInStore(this);
     }
 
     public String toString() {
@@ -41,6 +61,7 @@ public class ProductInStore {
     }
     public void editInfo(String newInfo){
         this.info=newInfo;
+        DAOManager.updateProductInStore(this);
     }
 
     public ProductInfo getProductInfo() {
@@ -57,5 +78,19 @@ public class ProductInStore {
 
     public void setPrice(double price) {
         this.price = price;
+        DAOManager.updateProductInStore(this);
+    }
+
+    public void setProductInfo(ProductInfo productInfo) {
+        this.productInfo = productInfo;
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof ProductInStore) {
+            boolean a = ((ProductInStore) other).getProductInfoId() == getProductInfoId();
+            boolean b = ((ProductInStore) other).getStore().equals(getStore());
+            return a && b;
+        }
+        return false;
     }
 }

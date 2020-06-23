@@ -7,9 +7,9 @@ import DTOs.UserPurchaseHistoryDTO;
 
 public class RealBridge implements Bridge {
 
-    public boolean setupSystem(String supplyConfig, String paymentConfig) {
+    public boolean setupSystem(String supplyConfig, String paymentConfig,String path) {
         SessionHandler dc = new SessionHandler();
-        return dc.setup(supplyConfig, paymentConfig).getResultCode() == ResultCode.SUCCESS;
+        return dc.setup(supplyConfig, paymentConfig,path).getResultCode() == ResultCode.SUCCESS;
     }
 
     public boolean login(int sessionId, String username, String password) {
@@ -54,10 +54,12 @@ public class RealBridge implements Bridge {
         return guh.clearCart(sessionId).getResultCode() == ResultCode.SUCCESS;
     }
 
-    public boolean buyCart(int sessionId, String paymentDetails) {
+    public boolean buyCart(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
+                           String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
         GuestUserHandler guh = new GuestUserHandler();
         if (guh.requestPurchase(sessionId).getResultCode() == ResultCode.SUCCESS) {
-            return guh.confirmPurchase(sessionId, paymentDetails).getResultCode() == ResultCode.SUCCESS;
+            return guh.confirmPurchase(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv,
+                    cardId, buyerName, address, city, country, zip).getResultCode() == ResultCode.SUCCESS;
         }
 
         return false;
@@ -93,7 +95,7 @@ public class RealBridge implements Bridge {
             return null;
     }
 
-    public boolean addProduct(boolean flag, int sessionId, int productId, int storeId, int amount) {
+    public boolean addProductToStore(boolean flag, int sessionId, int productId, int storeId, int amount) {
         if(flag) {
             OwnerHandler oh = new OwnerHandler(sessionId);
             return oh.addProductToStore(storeId, productId, amount).getResultCode() == ResultCode.SUCCESS;
@@ -180,6 +182,12 @@ public class RealBridge implements Bridge {
             ManagerHandler mh = new ManagerHandler(sessionId);
             return mh.changeBuyingPolicy(storeId, newPolicy).getResultCode() == ResultCode.SUCCESS;
         }
+    }
+
+    @Override
+    public boolean removeOwner(int sessionId, int storeId, int userId) {
+        OwnerHandler oh = new OwnerHandler(sessionId);
+        return oh.deleteOwner(storeId,userId).getResultCode() == ResultCode.SUCCESS;
     }
 
 }

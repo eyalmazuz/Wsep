@@ -23,10 +23,10 @@ public class Publisher {
 
 
 
-    public void notify(List<Integer> users,Object message)
+    public void notify(String path, List<Integer> users,Object message)
     {
         if(users!=null){
-            messageTamplate.sendTo(users,message);
+            messageTamplate.sendTo(path,users,message);
         }
 
     }

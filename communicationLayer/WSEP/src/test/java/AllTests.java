@@ -1,5 +1,8 @@
 import AcceptanceTest.AcceptanceTests;
+import DALTests.DALTests;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.IntegrationTests.IntegrationTests;
+import Domain.TradingSystem.System;
 import Domain.TradingSystem.UnitTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -12,6 +15,7 @@ public class AllTests {
         suite.addTest(UnitTest.suite());
         suite.addTest(AcceptanceTests.suite());
         suite.addTest(IntegrationTests.suite());
+        suite.addTest(DALTests.suite());
 
         return suite;
     }

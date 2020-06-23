@@ -6,6 +6,17 @@ import java.util.Map;
 
 public class Guest implements UserState {
 
+    private User user;
+
+    private ShoppingCart shoppingCart;
+
+    public Guest(User user) {
+        this.user = user;
+        shoppingCart = new ShoppingCart(user);
+    }
+
+    private String country = "Unknown";
+
     /**
      *
      *Unused Methods Of subscriber state
@@ -25,7 +36,12 @@ public class Guest implements UserState {
         return false;
     }
 
-    public UserPurchaseHistory getHistory() {
+    public String getPurchaseHistory() {
+        return null;
+    }
+
+    @Override
+    public Map<Store, List<PurchaseDetails>> getStorePurchaseLists() {
         return null;
     }
 
@@ -58,15 +74,29 @@ public class Guest implements UserState {
 
     }
 
-
     @Override
     public boolean isAdmin() {
         return false;
     }
 
     @Override
-    public UserPurchaseHistory getUserPurchaseHistory() {
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getStorePurchaseListsPrimitive() {
         return null;
+    }
+
+    @Override
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    @Override
+    public void setShoppingCart(ShoppingCart cart) {
+        this.shoppingCart = cart;
     }
 
 }
