@@ -10,6 +10,7 @@ public class DALTests {
         TestSuite suite = new TestSuite("data access tests");
         suite.addTest(new TestSuite(DatabaseTests.class));
         suite.addTest(new TestSuite(StartupTests.class));
+        suite.addTest(new TestSuite(TransactionTests.class));
         return suite;
     }
 

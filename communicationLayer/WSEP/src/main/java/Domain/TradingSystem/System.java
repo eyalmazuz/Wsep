@@ -15,8 +15,10 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -65,6 +67,8 @@ public class System {
             dailyStats = new DayStatistics(LocalDate.now());
             DAOManager.addDayStatistics(dailyStats);
         }
+
+        instance = this;
     }
 
     public static System getInstance(){
@@ -396,42 +400,55 @@ public class System {
         } catch (DatabaseFetchException e) {
             return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
-        if(info != null) {
 
-            Store store = null;
-            try {
-                store = getStoreById(storeId);
-            } catch (DatabaseFetchException e) {
-                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
-            }
+        ProductInfo finalInfo = info;
+        return DAOManager.runAddProductToStoreTransaction(() -> {
+            if (finalInfo != null) {
 
-
-            if (store != null) {
-                ActionResultDTO result = store.addProduct(info, amount);
-                //Publisher Update
-                if(result.getResultCode()==ResultCode.SUCCESS){
-                    if(publisher != null) {
-                        List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
-                        Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated");
-                        updateAllUsers(store.getAllManagers(),notification);
-                        publisher.notify("/storeUpdate/",managers,notification);
-                    }
+                Store store = null;
+                try {
+                    store = getStoreById(storeId);
+                } catch (DatabaseFetchException e) {
+                    return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
                 }
-                return result;
+
+
+                if (store != null) {
+                    ActionResultDTO result = store.addProduct(finalInfo, amount);
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
+                    //Publisher Update
+                    if (result.getResultCode() == ResultCode.SUCCESS) {
+                        if (publisher != null) {
+                            List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
+                            Notification notification = new Notification(notificationId++, "Store " + storeId + " has been updated");
+                            updateAllUsers(store.getAllManagers(), notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
+                            publisher.notify("/storeUpdate/", managers, notification);
+                        }
+                    }
+                    return result;
+                }
+                return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
             }
-            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such store.");
-        }
-        return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+            return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     //UseCase 4.1.2
     public ActionResultDTO editProductInStore(int sessionId, int storeId, int productId,String newInfo){
         logger.info("editProductInStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId + ", newInfo: " + newInfo);
+        return DAOManager.runEditProductInStoreTransaction(() -> {
         try {
             if(getProductInfoById(productId) != null) {
                 Store store = getStoreById(storeId);
                 if (store != null) {
                     ActionResultDTO result =  store.editProduct(productId, newInfo);
+
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
                     //Publisher Update
                     if(result.getResultCode()==ResultCode.SUCCESS){
                         if(publisher != null) {
@@ -439,6 +456,9 @@ public class System {
                             String message = "Store " + storeId + " has been updated: product has been edited";
                             Notification notification = new Notification(notificationId++,message);
                             updateAllUsers(store.getAllManagers(),notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
                             publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
@@ -450,16 +470,21 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     //UseCase 4.1.3
     public ActionResultDTO deleteProductFromStore(int sessionId, int storeId, int productId){
         logger.info("deleteProductFromStore: sessionId: "+sessionId+", storeId: "+storeId + ", productId: " + productId );
+        return DAOManager.runDeleteProductFromStoreTransaction(() ->{
         try {
             if(getProductInfoById(productId) != null) {
                 Store store = getStoreById(storeId);
                 if (store != null) {
                     ActionResultDTO result =  store.deleteProduct(productId);
+
+                    if (DAOManager.crashTransactions) throw new SQLException();
+
                     //Publisher Update
                     if(result.getResultCode()==ResultCode.SUCCESS){
                         if(publisher != null)
@@ -467,6 +492,9 @@ public class System {
                             List<Integer> managers = store.getAllManagers().stream().map(Subscriber::getId).collect(Collectors.toList());
                             Notification notification = new Notification(notificationId++,"Store " + storeId + " has been updated: product delete");
                             updateAllUsers(store.getAllManagers(),notification);
+
+                            if (DAOManager.crashTransactions) throw new SQLException();
+
                             publisher.notify("/storeUpdate/", managers,notification);
                         }
                     }
@@ -478,6 +506,7 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
         }
         return new ActionResultDTO(ResultCode.ERROR_STORE_PRODUCT_MODIFICATION, "No such product.");
+        });
     }
 
     // UseCase 4.3
@@ -841,23 +870,27 @@ public class System {
 
     // Usecase 2.2
     public IntActionResultDto register(int sessionId, String username, String password) {
-        if (username == null || password == null|| username.equals("") || password.equals("")) return new IntActionResultDto(ResultCode.ERROR_REGISTER,"invalid username/password",-1);;
+        if (username == null || password == null || username.equals("") || password.equals(""))
+            return new IntActionResultDto(ResultCode.ERROR_REGISTER, "invalid username/password", -1);
+        ;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-        if (u!=null) {
-            int subId = -1;
-            try {
-                subId = userHandler.register(username, Security.getHash(password));
-            } catch (DatabaseFetchException e) {
-                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+        return DAOManager.runRegisterTransaction(() -> {
+            if (u != null) {
+                int subId = -1;
+                try {
+                    subId = userHandler.register(username, Security.getHash(password));
+                } catch (DatabaseFetchException e) {
+                    return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+                }
+                if (subId == -1) {
+                    return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
+                }
+                DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
+                return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
             }
-            if (subId == -1) {
-                return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
-            }
-            DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
-            return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
-        }
-        return new IntActionResultDto(ResultCode.ERROR_REGISTER,"Session id not exist",-1);
+            return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Session id not exist", -1);
+        });
     }
 
     // Usecase 2.3
@@ -1802,7 +1835,10 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STOREID,"Store not exist");
     }
 
-    // for use only in test (SystemTest)
+    public ActionResultDTO runPurchaseTransaction(Callable<ActionResultDTO> callable) {
+        return DAOManager.runPurchaseTransaction(callable);
+    }
+
     public Map<Integer, Store> getStoresMemory() {
         return stores;
     }
@@ -1847,8 +1883,14 @@ public class System {
         dailyStats.reset();
     }
 
-    public void addDayStatistics(int year, int month, int day) {
+    public DayStatistics addDayStatistics(int year, int month, int day) {
         DayStatistics stats = new DayStatistics(LocalDate.of(year, month, day));
         DAOManager.addDayStatistics(stats);
+        return stats;
+    }
+
+
+    public Map<Integer, Subscriber> getSubscribersMemory() {
+        return userHandler.subscribers;
     }
 }

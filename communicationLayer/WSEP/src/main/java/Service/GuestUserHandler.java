@@ -2,12 +2,21 @@ package Service;
 
 import DTOs.*;
 import DataAccess.DatabaseFetchException;
+import DataAccess.DAOManager;
 import Domain.TradingSystem.System;
+
+import java.sql.SQLException;
 
 
 public class GuestUserHandler {
 
     System s = System.getInstance();
+
+    public GuestUserHandler () {}
+
+    public GuestUserHandler(System sys) {
+        s = sys;
+    }
 
     public IntActionResultDto login(int sessionId , String username, String password) {
 
@@ -73,39 +82,46 @@ public class GuestUserHandler {
     // 2.8.3, 2.8.4
     public ActionResultDTO confirmPurchase(int sessionId, String cardNumber, String cardMonth, String cardYear, String cardHolder,
                                            String cardCcv, String cardId, String buyerName, String address, String city, String country, String zip) {
-        IntActionResultDto result = s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId);
-        int transactionId = result.getId();
-        if (result.getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
-        s.savePurchaseHistory(sessionId);
-        s.saveOngoingPurchaseForUser(sessionId);
+        final IntActionResultDto[] result = {s.makePayment(sessionId, cardNumber, cardMonth, cardYear, cardHolder, cardCcv, cardId)};
+        int transactionId = result[0].getId();
+        if (result[0].getResultCode() != ResultCode.SUCCESS) return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result[0].getDetails());
 
-        try {
-            if (s.updateStoreSupplies(sessionId)) {
+        return s.runPurchaseTransaction(() -> {
+            s.savePurchaseHistory(sessionId);
+            s.saveOngoingPurchaseForUser(sessionId);
 
-                s.emptyCart(sessionId);
-            } else {
-                s.requestRefund(sessionId, transactionId);
-                s.restoreHistories(sessionId);
-                s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
+            if (DAOManager.crashTransactions) throw new SQLException();
+
+            try {
+                if (s.updateStoreSupplies(sessionId)) {
+
+                    s.emptyCart(sessionId);
+                } else {
+                    s.requestRefund(sessionId, transactionId);
+                    s.restoreHistories(sessionId);
+                    s.removeOngoingPurchase(sessionId);
+                    return new ActionResultDTO(ResultCode.ERROR_PURCHASE, "Could not make purchase due to a sync problem.");
+                }
+
+                result[0] = s.requestSupply(sessionId, buyerName, address, city, country, zip);
+                if (result[0].getResultCode() != ResultCode.SUCCESS) {
+                    s.requestRefund(sessionId, transactionId);
+                    s.restoreSupplies(sessionId);
+                    s.restoreHistories(sessionId);
+                    s.restoreCart(sessionId);
+                    s.removeOngoingPurchase(sessionId);
+                    return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result[0].getDetails());
+                }
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
             }
 
-            result = s.requestSupply(sessionId, buyerName, address, city, country, zip);
-            if (result.getResultCode() != ResultCode.SUCCESS) {
-                s.requestRefund(sessionId, transactionId);
-                s.restoreSupplies(sessionId);
-                s.restoreHistories(sessionId);
-                s.restoreCart(sessionId);
-                s.removeOngoingPurchase(sessionId);
-                return new ActionResultDTO(ResultCode.ERROR_PURCHASE, result.getDetails());
-            }
-        } catch (DatabaseFetchException e) {
-            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
-        }
 
-        s.removeOngoingPurchase(sessionId);
+            s.removeOngoingPurchase(sessionId);
 
-        return new ActionResultDTO(ResultCode.SUCCESS, "Purchase successful.");
+            return new ActionResultDTO(ResultCode.SUCCESS, "Purchase successful.");
+        });
+
     }
 
 
