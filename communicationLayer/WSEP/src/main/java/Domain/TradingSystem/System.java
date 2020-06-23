@@ -930,7 +930,7 @@ public class System {
                         store.getDiscountPolicy().toString(), getProductDTOlist(store.getProducts())));
             }
             Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
-        }catch(DatabaseFetchException e){
+        } catch(DatabaseFetchException e){
             return new StoreActionResultDTO(ResultCode.ERROR_DATABASE, "coult not connet to database", null);
         }
         return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
@@ -993,6 +993,7 @@ public class System {
                 }
 
         }catch (DatabaseFetchException e){
+            return new ProductsActionResultDTO(ResultCode.ERROR_DATABASE,"Could not contact database. Please try again later.", null);
 
         }
         for (ProductInStore pis: allProducts) {

@@ -14,7 +14,6 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
-import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 
 import java.lang.System;
 import java.lang.reflect.InvocationTargetException;
@@ -1147,9 +1146,9 @@ public class DAOManager {
             if (e.getMessage().equals("Connection has already been closed")) {
                 attemptRestart();
             }
-            e.printStackTrace();
+            throw new DatabaseFetchException("Could not load subscriber");
+            //e.printStackTrace();
         }
-        return null;
     }
 
     public static Subscriber getSubscriberByID(int subID) throws DatabaseFetchException {
@@ -1419,6 +1418,8 @@ public class DAOManager {
             try {
 
                 subscriberDao.refresh(subscriber);
+            } catch (com.mysql.cj.jdbc.exceptions.CommunicationsException | com.mysql.cj.exceptions.CJCommunicationsException e) {
+                e.printStackTrace();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
