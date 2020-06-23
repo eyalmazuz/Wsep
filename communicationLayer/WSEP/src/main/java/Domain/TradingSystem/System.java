@@ -870,12 +870,11 @@ public class System {
 
     // Usecase 2.2
     public IntActionResultDto register(int sessionId, String username, String password) {
+    return DAOManager.runRegisterTransaction(() -> {
         if (username == null || password == null || username.equals("") || password.equals(""))
             return new IntActionResultDto(ResultCode.ERROR_REGISTER, "invalid username/password", -1);
-        ;
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-        return DAOManager.runRegisterTransaction(() -> {
             if (u != null) {
                 int subId = -1;
                 try {
@@ -886,6 +885,7 @@ public class System {
                 if (subId == -1) {
                     return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
                 }
+                if (DAOManager.crashTransactions) throw new  SQLException();
                 DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
                 return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
             }

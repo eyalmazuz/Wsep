@@ -60,7 +60,7 @@ public class TransactionTests extends TestCase {
     }
 
     @Test
-    public void testRegisterTransaction() {
+    public void testRegisterTransaction() throws DatabaseFetchException {
         int sessionId = test.startSession().getId();
 
         DAOManager.crashTransactions = true;
