@@ -57,6 +57,7 @@ public class System {
 
         User.idCounter = new AtomicInteger(DAOManager.getMaxSubscriberId() + 1);
         PurchaseDetails.nextPurchaseId = new AtomicInteger(DAOManager.getMaxPurchaseDetailsId() + 1);
+        Store.globalId = new AtomicInteger(DAOManager.getMaxStoreId() + 1);
         BuyingPolicy.nextId = DAOManager.getMaxBuyingPolicyId() + 1;
         DiscountPolicy.nextId = DAOManager.getMaxDiscountPolicyId() + 1;
 
@@ -553,7 +554,12 @@ public class System {
         logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
         Subscriber owner = (Subscriber)u.getState();
-        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Subscriber newOwner = null;
+        try {
+            newOwner = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (newOwner == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
         Store store = null;
@@ -567,12 +573,22 @@ public class System {
             List<Integer> owners = store.getOwners().stream().map(Subscriber::getId).collect(Collectors.toList());
             GrantingAgreement agreement = new GrantingAgreement(storeId,owner.getId(),newOwner.getId(),owners);
             if(agreement.allAproved()){
-                if (setStoreOwner(owner, newOwner, store))
-                    return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                try {
+                    if (setStoreOwner(owner, newOwner, store))
+                        return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                } catch (DatabaseFetchException e) {
+                    return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+                }
             }
             else{
                 if(store.addAgreement(agreement)) {
-                    notifyAndUpdate(owners, "New Malshab Waits to your approval in store " + storeId);
+                    try {
+                        notifyAndUpdate(owners, "New Malshab Waits to your approval in store " + storeId);
+                    } catch (DatabaseFetchException e) {
+                        return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+                    }
                     return new ActionResultDTO(ResultCode.SUCCESS, "Granting agreement has been created");
                 }
                 else {
@@ -590,7 +606,12 @@ public class System {
         logger.info("addStoreOwner: sessionId: "+sessionId+", storeId: "+storeId+", subId: "+subId );
         User u = userHandler.getUser(sessionId);
         Subscriber owner = (Subscriber)u.getState();
-        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Subscriber newOwner = null;
+        try {
+            newOwner = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (newOwner == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified new owner does not exist.");
         Store store = null;
@@ -602,11 +623,16 @@ public class System {
         if(store!=null)
         {
 
+            try {
                 if (setStoreOwner(owner, newOwner, store))
                     return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
                 else {
                     return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "user have already pending agreemant");
                 }
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+
+            }
 
         }
 
@@ -614,7 +640,7 @@ public class System {
         return new ActionResultDTO(ResultCode.ERROR_STORE_OWNER_MODIFICATION, "Specified store does not exist.");
     }
 
-    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) {
+    public boolean setStoreOwner( Subscriber owner, Subscriber newOwner, Store store) throws DatabaseFetchException {
         if(newOwner.addPermission(store, owner, "Owner")){
             store.addOwner(newOwner);
 
@@ -628,7 +654,7 @@ public class System {
         return false;
     }
 
-    public boolean subIsOwner(int subId,int storeId) {
+    public boolean subIsOwner(int subId,int storeId) throws DatabaseFetchException {
         logger.info("subIsOwner: subId " + subId + ", storeId " + storeId);
         Subscriber s = userHandler.getSubscriber(subId);
         return s!=null && s.hasOwnerPermission(storeId);
@@ -650,7 +676,12 @@ public class System {
             return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "grantor is not manager on store! OMG!.");
 
         logger.info("addStoreManager: sessionId: "+sessionId+", storeId: "+storeId+", userId: "+userId );
-        Subscriber newManager = userHandler.getSubscriber(userId);
+        Subscriber newManager = null;
+        try {
+            newManager = userHandler.getSubscriber(userId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         if (newManager == null)
             return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified user is invalid.");
         Store store = null;
@@ -684,7 +715,12 @@ public class System {
             Subscriber subscriber = (Subscriber) u.getState();
 
             if (u != null) {
-                Subscriber managerToDelete = userHandler.getSubscriber(userId);
+                Subscriber managerToDelete = null;
+                try {
+                    managerToDelete = userHandler.getSubscriber(userId);
+                } catch (DatabaseFetchException e) {
+                    return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+                }
 
                 if(!managerToDelete.isGrantedBy(storeId, subscriber.getId())){
                     return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "cannot remove manager who wasn't granted by you");
@@ -696,8 +732,13 @@ public class System {
                     List<Integer> id = new ArrayList<>();
 
                     id.add(managerToDelete.getId());
-                    if(publisher!= null)
-                        notifyAndUpdate(id,"You got deleted from store "+storeId);
+                    if(publisher!= null) {
+                        try {
+                            notifyAndUpdate(id,"You got deleted from store "+storeId);
+                        } catch (DatabaseFetchException e) {
+                            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+                        }
+                    }
 
                     return new ActionResultDTO(ResultCode.SUCCESS, null);
 
@@ -716,7 +757,7 @@ public class System {
      * If there are'nt users - return empty list.
      */
 
-    public boolean subIsManager(int subId, int storeId) {
+    public boolean subIsManager(int subId, int storeId) throws DatabaseFetchException {
         logger.info("subIsManager: subId " + subId + ", storeId " + storeId);
         Subscriber s = userHandler.getSubscriber(subId);
         return s!=null && s.hasManagerPermission(storeId);
@@ -759,7 +800,12 @@ public class System {
         logger.info("setManagerDetalis: sessionId " + sessionId + ", managerId " + managerId + ", storeId " + storeId + ", details " + details);
         User u = userHandler.getUser(sessionId);
         if(u!=null) {
-            Subscriber manager = userHandler.getSubscriber(managerId);
+            Subscriber manager = null;
+            try {
+                manager = userHandler.getSubscriber(managerId);
+            } catch (DatabaseFetchException e) {
+                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+            }
             if (manager == null)
                 return new ActionResultDTO(ResultCode.ERROR_STORE_MANAGER_MODIFICATION, "The specified manager does not exist.");
             Store store = null;
@@ -824,17 +870,22 @@ public class System {
 
     // Usecase 2.2
     public IntActionResultDto register(int sessionId, String username, String password) {
-        if (username == null || password == null|| username.equals("") || password.equals("")) return new IntActionResultDto(ResultCode.ERROR_REGISTER,"invalid username/password",-1);;
+    return DAOManager.runRegisterTransaction(() -> {
+        if (username == null || password == null || username.equals("") || password.equals(""))
+            return new IntActionResultDto(ResultCode.ERROR_REGISTER, "invalid username/password", -1);
         logger.info("register: sessionId " + sessionId + ", username " + username + ", password " + Security.getHash(password));
         User u = userHandler.getUser(sessionId);
-
-        return DAOManager.runRegisterTransaction(() -> {
             if (u != null) {
-                int subId = userHandler.register(username, Security.getHash(password));
-                if (DAOManager.crashTransactions) throw new SQLException();
+                int subId = -1;
+                try {
+                    subId = userHandler.register(username, Security.getHash(password));
+                } catch (DatabaseFetchException e) {
+                    return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+                }
                 if (subId == -1) {
                     return new IntActionResultDto(ResultCode.ERROR_REGISTER, "Username already Exists", subId);
                 }
+                if (DAOManager.crashTransactions) throw new  SQLException();
                 DAOManager.createOrUpdateShoppingCart(u.getShoppingCart());
                 return new IntActionResultDto(ResultCode.SUCCESS, "Register Success", subId);
             }
@@ -879,7 +930,7 @@ public class System {
                         store.getDiscountPolicy().toString(), getProductDTOlist(store.getProducts())));
             }
             Collections.sort(result, (i, j) -> i.getStoreId() < j.getStoreId() ? -1 : 1);
-        }catch(DatabaseFetchException e){
+        } catch(DatabaseFetchException e){
             return new StoreActionResultDTO(ResultCode.ERROR_DATABASE, "coult not connet to database", null);
         }
         return new StoreActionResultDTO(ResultCode.SUCCESS,"List of stores:",result);
@@ -942,6 +993,7 @@ public class System {
                 }
 
         }catch (DatabaseFetchException e){
+            return new ProductsActionResultDTO(ResultCode.ERROR_DATABASE,"Could not contact database. Please try again later.", null);
 
         }
         for (ProductInStore pis: allProducts) {
@@ -993,7 +1045,12 @@ public class System {
     }
     public UserPurchaseHistoryDTO getUserHistory(int subId){
         logger.info("getUserHistory: SubscriberId "+subId);
-        Subscriber subscriber = userHandler.getSubscriber(subId);
+        Subscriber subscriber = null;
+        try {
+            subscriber = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new UserPurchaseHistoryDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
         if (subscriber != null) {
             Map<Store, List<PurchaseDetails>> history = subscriber.getStorePurchaseLists();
             return new UserPurchaseHistoryDTO(ResultCode.SUCCESS,"user history", getHistoryMap(history));
@@ -1163,7 +1220,7 @@ public class System {
             return s.getId();
     }
 
-    public Subscriber getSubscriber(int subID){
+    public Subscriber getSubscriber(int subID) throws DatabaseFetchException {
         return userHandler.getSubscriber(subID);
     }
 
@@ -1428,8 +1485,13 @@ public class System {
         DAOManager.removeProductInfo(productId);
     }
 
-    public void removeNotification(int subId, int notificationId) {
-        Subscriber subscriber = userHandler.getSubscriber(subId);
+    public void removeNotification(int subId, int notificationId)  {
+        Subscriber subscriber = null;
+        try {
+            subscriber = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            e.printStackTrace();
+        }
         if(subscriber!=null){
             subscriber.removeNotification(notificationId);
         }
@@ -1437,7 +1499,12 @@ public class System {
 
     //publisher update
     public void pullNotifications(int subId) {
-        Subscriber subToLogin = userHandler.getSubscriber(subId);
+        Subscriber subToLogin = null;
+        try {
+            subToLogin = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            // :(
+        }
         if (subToLogin != null) {
             ArrayList<Notification> notifications = subToLogin.getAllNotification();
             List<Integer> user = new ArrayList<>();
@@ -1519,7 +1586,12 @@ public class System {
     }
 
     public PermissionActionResultDTO getPermission(int subId, int storeId) {
-        Subscriber s = userHandler.getSubscriber(subId);
+        Subscriber s = null;
+        try {
+            s = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new PermissionActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", null);
+        }
         if(s == null){
             return new PermissionActionResultDTO(ResultCode.ERROR_SUBID,"subid "+ subId+"Not exist!",null);
         }
@@ -1579,13 +1651,23 @@ public class System {
             Subscriber subscriber = (Subscriber) u.getState();
 
             if (u != null) {
-                Subscriber ownerToDelete = userHandler.getSubscriber(userId);
+                Subscriber ownerToDelete = null;
+                try {
+                    ownerToDelete = userHandler.getSubscriber(userId);
+                } catch (DatabaseFetchException e) {
+                    return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+                }
                 if (ownerToDelete != null && !subscriber.equals(ownerToDelete)) {
                     if (ownerToDelete.isGrantedBy(storeId, subscriber.getId())) {
 
                         List<Integer> allRemoved = ownerToDelete.removeOwnership(storeId);
-                        if(publisher!=null)
-                            notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
+                        if(publisher!=null) {
+                            try {
+                                notifyAndUpdate(allRemoved,"Your management In store "+storeId+" has been ended.");
+                            } catch (DatabaseFetchException e) {
+                                return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+                            }
+                        }
                         try {
                             handleGrantingAgreements(storeId);
                         } catch (DatabaseFetchException e) {
@@ -1624,7 +1706,7 @@ public class System {
         }
     }
 
-    private void notifyAndUpdate(List<Integer> users, String message){
+    private void notifyAndUpdate(List<Integer> users, String message) throws DatabaseFetchException {
         Notification notification = new Notification(notificationId++,message);
         for(Integer subId : users){
             Subscriber s = userHandler.getSubscriber(subId);
@@ -1638,7 +1720,12 @@ public class System {
 
     public ActionResultDTO approveStoreOwner(int sessionId, int storeId, int subId) {
         Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
-        Subscriber newOwner = userHandler.getSubscriber(subId);
+        Subscriber newOwner = null;
+        try {
+            newOwner = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         Store store = null;
         try {
             store = getStoreById(storeId);
@@ -1654,9 +1741,13 @@ public class System {
                 //if (store.allAproved(subId))
                 //int grantorId = store.allAproved(subId);      // NEW
                 if (grantorId != -1) {
-                    if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
-                        store.removeAgreement(subId);
-                        return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                    try {
+                        if (setStoreOwner(userHandler.getSubscriber(grantorId), newOwner, store)) {
+                            store.removeAgreement(subId);
+                            return new ActionResultDTO(ResultCode.SUCCESS, "Owner was added");
+                        }
+                    } catch (DatabaseFetchException e) {
+                        return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
                     }
                 }
                 else{
@@ -1696,9 +1787,19 @@ public class System {
 
     private GrantingAgreementDTO agreement2DTO(GrantingAgreement agreement) {
         int grantorId = agreement.getGrantorId();
-        String grantorName = userHandler.getSubscriber(grantorId).getUsername();
+        String grantorName = null;
+        try {
+            grantorName = userHandler.getSubscriber(grantorId).getUsername();
+        } catch (DatabaseFetchException e) {
+            return null;
+        }
         int candidateId = agreement.getMalshabId();
-        String candidateName = userHandler.getSubscriber(candidateId).getUsername();
+        String candidateName = null;
+        try {
+            candidateName = userHandler.getSubscriber(candidateId).getUsername();
+        } catch (DatabaseFetchException e) {
+            return null;
+        }
         return new GrantingAgreementDTO(
                 agreement.getStoreId(),
                 new SubscriberDTO(grantorId,grantorName),
@@ -1709,7 +1810,11 @@ public class System {
 
     public ActionResultDTO declineStoreOwner(int sessionId, int storeId, int subId) {
         Subscriber owner = (Subscriber) userHandler.getUser(sessionId).getState();
-        Subscriber newOwner = userHandler.getSubscriber(subId);
+        try {
+            Subscriber newOwner = userHandler.getSubscriber(subId);
+        } catch (DatabaseFetchException e) {
+            return new ActionResultDTO(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.");
+        }
         Store store = null;
         try {
             store = getStoreById(storeId);

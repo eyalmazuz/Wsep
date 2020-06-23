@@ -561,7 +561,7 @@ public class Store {
         return -1;
     }
 
-    public void handleGrantingAgreement() {
+    public void handleGrantingAgreement() throws DatabaseFetchException {
         Collection<GrantingAgreement> agreements = getAllGrantingAgreements();
         for (GrantingAgreement agreement : agreements){
             if (agreement.allAproved()){

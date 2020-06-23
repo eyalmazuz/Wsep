@@ -28,7 +28,7 @@ public class UserHandlerTest extends TestCase {
     }
 
 
-    public void registerSubs(){
+    public void registerSubs() throws DatabaseFetchException {
         uh.register("test","123");
         uh.register("1test","123");
         uh.register("2test","123");
@@ -36,7 +36,7 @@ public class UserHandlerTest extends TestCase {
     }
 
 
-    private List<Subscriber> prepareSubsList() {
+    private List<Subscriber> prepareSubsList() throws DatabaseFetchException {
         List<Subscriber> output = new LinkedList<>();
         for(int i = 1; i<4 ; i++){
             int id = uh.register("own_test"+i,"1234");
@@ -76,7 +76,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testRegisterDifferentIds() {
+    public void testRegisterDifferentIds() throws DatabaseFetchException {
 
         int id1 = uh.register("Bob","123");
         int id2 = uh.register("Moshe","234");
@@ -85,22 +85,22 @@ public class UserHandlerTest extends TestCase {
 
 
     @Test
-    public void testRegisterFailureNoUsername() {
+    public void testRegisterFailureNoUsername() throws DatabaseFetchException {
         assertEquals(-1, uh.register(null, "123"));
     }
 
     @Test
-    public void testRegisterFailureNoPassword() {
+    public void testRegisterFailureNoPassword() throws DatabaseFetchException {
         assertEquals(-1, uh.register("Yaron", null));
     }
 
     @Test
-    public void testRegisterFailureNoUsernameAndPassword() {
+    public void testRegisterFailureNoUsernameAndPassword() throws DatabaseFetchException {
         assertEquals(-1,uh.register(null,null));
     }
 
     @Test
-    public void testRegisterFailureSameUsername() {
+    public void testRegisterFailureSameUsername() throws DatabaseFetchException {
         uh.register("bob","123");
         assertEquals(-1,uh.register("bob","456"));
     }
@@ -130,18 +130,18 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetSubscriber() {
+    public void testGetSubscriber() throws DatabaseFetchException {
         int id = uh.register("a","a");
         assertNotNull(uh.getSubscriber(id));
     }
 
     @Test
-    public void testGetSubscriberFailureNoSession() {
+    public void testGetSubscriberFailureNoSession() throws DatabaseFetchException {
         assertNull(uh.getSubscriber(5));
     }
 
     @Test
-    public void testGetSubscriberFailureNegativeSession() {
+    public void testGetSubscriberFailureNegativeSession() throws DatabaseFetchException {
         assertNull(uh.getSubscriber(-6));
     }
 
@@ -165,7 +165,7 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetAvailableUsersToOwn() {
+    public void testGetAvailableUsersToOwn() throws DatabaseFetchException {
         List<Subscriber> list = prepareSubsList();
         registerSubs();
         List<Subscriber> result = uh.getAvailableUsersToOwn(list);
@@ -177,14 +177,14 @@ public class UserHandlerTest extends TestCase {
     }
 
     @Test
-    public void testGetAvailableUsersToOwnFailureEmpty() {
+    public void testGetAvailableUsersToOwnFailureEmpty() throws DatabaseFetchException {
     registerSubs();
     List<Subscriber> list1 = uh.getAvailableUsersToOwn(null);
     assertTrue(list1.isEmpty());
     }
 
     @Test
-    public void testGetAvailableUsersToOwnBadSize() {
+    public void testGetAvailableUsersToOwnBadSize() throws DatabaseFetchException {
         registerSubs();
         List<Subscriber> list2 = uh.getAvailableUsersToOwn(new LinkedList<>());
         assertEquals(uh.subscribers.size(),list2.size());

@@ -21,7 +21,8 @@ async function register(){
         }
         else if(result['resultCode'] === 'ERROR_REGISTER'){
             console.log('in else if')
-            document.getElementById("registerResult").innerHTML = result['details']
+			alert('Could not contact database. Please try again later.');
+			document.getElementById("registerResult").innerHTML = result['details']
             document.getElementById("registerUserText").value = ''
             document.getElementById("registerPasswordText").value = ''
         }
@@ -63,7 +64,8 @@ async function login(){
             document.getElementById("loginUserText").value = ''
             document.getElementById("loginPasswordText").value = ''
             alert("successfully logged in")
-            
+			location.reload();
+
             ;
 
         
@@ -75,7 +77,6 @@ async function login(){
             document.getElementById("loginPasswordText").value = ''
         }
 
-        location.reload();
     
 }
 

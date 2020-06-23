@@ -101,7 +101,7 @@ public class SubscriberTest extends TestCase {
 
 
     @Test
-    public void testHasOwnerPermissionSuccess() {
+    public void testHasOwnerPermissionSuccess() throws DatabaseFetchException {
         store = new Store(0);
         int sessionId = test.startSession().getId();
         int subId = test.register(sessionId, "hava neranena", "4321").getId();

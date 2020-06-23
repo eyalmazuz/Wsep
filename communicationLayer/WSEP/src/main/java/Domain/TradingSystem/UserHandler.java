@@ -43,7 +43,7 @@ public class UserHandler {
         return found;
     }
 
-    public int register(String username, String password) {
+    public int register(String username, String password) throws DatabaseFetchException {
         if (username == null || password == null) {
             return -1;
         }
@@ -154,13 +154,10 @@ public class UserHandler {
         return availableSubs;
     }
 
-    public Subscriber  getSubscriber(int subId) {
+    public Subscriber  getSubscriber(int subId) throws DatabaseFetchException {
         Subscriber inDB = null;
-        try {
-            inDB = DAOManager.getSubscriberByID(subId);
-        } catch (DatabaseFetchException e) {
-            e.printStackTrace();
-        }
+        inDB = DAOManager.getSubscriberByID(subId);
+
         if(inDB != null)
             syncSubscribers(subscribers.get(subId),inDB);
         return subscribers.get(subId);

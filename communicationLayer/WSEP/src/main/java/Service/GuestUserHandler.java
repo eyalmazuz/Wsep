@@ -26,14 +26,14 @@ public class GuestUserHandler {
             try {
                 subId = s.getSubscriber(username, password);
             } catch (DatabaseFetchException e) {
-                return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+                return new IntActionResultDto(ResultCode.ERROR_LOGIN, "Could not contact database. Please try again later.", -1);
             }
             if(subId != -1){
                 boolean success = false;
                 try {
                     success = s.login(sessionId, username, password);
                 } catch (DatabaseFetchException e) {
-                    return new IntActionResultDto(ResultCode.ERROR_DATABASE, "Could not contact database. Please try again later.", -1);
+                    return new IntActionResultDto(ResultCode.ERROR_LOGIN, "Could not contact database. Please try again later.", -1);
                 }
 //                s.pullNotifications(subId);
                 return success ? new IntActionResultDto(ResultCode.SUCCESS, "Login successful.",subId) : new IntActionResultDto(ResultCode.ERROR_LOGIN, "Login failed", -1);
